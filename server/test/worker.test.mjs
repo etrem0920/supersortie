@@ -1,13 +1,14 @@
 // Runs the real Worker against a SQLite-backed stand-in for D1: `node --test server/test`
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import worker, { serverDay, validate } from '../worker.js';
 
 function fakeD1() {
   const db = new DatabaseSync(':memory:');
   db.exec(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8'));
+  for (const f of readdirSync(new URL('../migrations/', import.meta.url)).filter(n => n.endsWith('.sql')).sort()) db.exec(readFileSync(new URL(`../migrations/${f}`, import.meta.url), 'utf8'));
   return {
     prepare(sql) {
       const stmt = db.prepare(sql);
@@ -79,4 +80,14 @@ test('allows each listed site and no others', async () => {
   assert.equal(await from('https://supersortie.io'), 'https://supersortie.io');
   assert.equal(await from('https://www.supersortie.io'), 'https://www.supersortie.io');
   assert.equal(await from('https://evil.example'), 'https://supersortie.io');
+});
+
+test('stores and returns each pilot\'s plane, livery and favorite', async () => {
+  const e = env();
+  await post(e, good({ deviceId: 'device-plane-0001', name: 'Ace', plane: 'dr1', livery: 1, fav: 'camel' }));
+  await post(e, good({ deviceId: 'device-plane-0002', name: 'Rook', plane: 'not-a-plane', livery: 9, fav: 'nope', score: 9000 }));
+  const b = await (await board(e, `day=${day}&deviceId=device-plane-0001`)).json();
+  assert.deepEqual([b.entries[0].plane, b.entries[0].livery, b.entries[0].fav], ['dr1', 1, 'camel']);
+  assert.deepEqual([b.entries[1].plane, b.entries[1].livery, b.entries[1].fav], [null, 0, null]);
+  assert.deepEqual([b.me.plane, b.me.fav], ['dr1', 'camel']);
 });

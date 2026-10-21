@@ -8,6 +8,7 @@
 const EPOCH_UTC = Date.UTC(2026, 3, 20);
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
 const MODS = new Set(['standard', 'glass', 'swarm', 'ironace', 'overcast', 'crosswind', 'hotguns']);
+const PLANES = new Set(['camel', 'dr1', 'spad', 'hellcat', 'corsair', 'p38', 'f16', 'f18', 'f15', 'lancer', 'wraith', 'bulwark', 'vector', 'overdrive', 'pulse']);
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
 const MAX_PER_IP_PER_DAY = 30;
 const TOP_CACHE_SECONDS = 20;
@@ -46,7 +47,11 @@ export function validate(b, now = Date.now()) {
   const won = cleared === 5;
   if (score > 1500 * kills + 25000) return { error: 'implausible' };
   if (won && score < hp * 1000) return { error: 'implausible' };
-  return { entry: { day, deviceId, name: cleanName(b.name), score, grades, time, theme, hp, kills, mod, waveTimes } };
+  const plane = PLANES.has(b.plane) ? b.plane : null;
+  const liv = Number(b.livery);
+  const livery = Number.isInteger(liv) && liv >= 0 && liv <= 2 ? liv : 0;
+  const fav = PLANES.has(b.fav) ? b.fav : plane;
+  return { entry: { day, deviceId, name: cleanName(b.name), score, grades, time, theme, hp, kills, mod, waveTimes, plane, livery, fav } };
 }
 
 // ALLOWED_ORIGIN is one origin or a comma-separated list, e.g.
@@ -86,9 +91,9 @@ async function postScore(req, env, cors) {
   if (hits && hits.n > MAX_PER_IP_PER_DAY) return json({ error: 'rate_limited' }, 429, cors);
 
   const res = await env.DB.prepare(
-    `INSERT INTO scores (day, device_id, name, score, grades, time_s, theme, hp, kills, mod, wave_times, ip_hash, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(day, device_id) DO NOTHING`
-  ).bind(entry.day, entry.deviceId, entry.name, entry.score, entry.grades, entry.time, entry.theme, entry.hp, entry.kills, entry.mod, JSON.stringify(entry.waveTimes), ipHash, Date.now()).run();
+    `INSERT INTO scores (day, device_id, name, score, grades, time_s, theme, hp, kills, mod, wave_times, ip_hash, created_at, plane, livery, fav)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(day, device_id) DO NOTHING`
+  ).bind(entry.day, entry.deviceId, entry.name, entry.score, entry.grades, entry.time, entry.theme, entry.hp, entry.kills, entry.mod, JSON.stringify(entry.waveTimes), ipHash, Date.now(), entry.plane, entry.livery, entry.fav).run();
   if (!res.meta || !res.meta.changes) return json({ error: 'already_submitted' }, 409, cors);
 
   const rank = await env.DB.prepare('SELECT COUNT(*) AS n FROM scores WHERE day = ? AND hidden = 0 AND score > ?').bind(entry.day, entry.score).first();
@@ -99,10 +104,10 @@ async function postScore(req, env, cors) {
 async function topList(env, day, limit) {
   const agg = await env.DB.prepare('SELECT COUNT(*) AS n, AVG(score) AS a FROM scores WHERE day = ? AND hidden = 0').bind(day).first();
   const rows = (await env.DB.prepare(
-    'SELECT device_id, name, score, grades, theme, time_s FROM scores WHERE day = ? AND hidden = 0 ORDER BY score DESC, time_s ASC, created_at ASC LIMIT ?'
+    'SELECT device_id, name, score, grades, theme, time_s, plane, livery, fav FROM scores WHERE day = ? AND hidden = 0 ORDER BY score DESC, time_s ASC, created_at ASC LIMIT ?'
   ).bind(day, limit).all()).results || [];
   let prev = null, rank = 0;
-  const entries = rows.map((r, i) => { if (r.score !== prev) { rank = i + 1; prev = r.score; } return { rank, name: r.name, score: r.score, grades: r.grades, theme: r.theme, time: r.time_s, _d: r.device_id }; });
+  const entries = rows.map((r, i) => { if (r.score !== prev) { rank = i + 1; prev = r.score; } return { rank, name: r.name, score: r.score, grades: r.grades, theme: r.theme, time: r.time_s, plane: r.plane, livery: r.livery, fav: r.fav, _d: r.device_id }; });
   return { day, total: agg.n, avg: Math.round(agg.a || 0), entries };
 }
 
@@ -123,13 +128,13 @@ async function getBoard(url, env, cors, ctx) {
 
   let me = null;
   if (/^[A-Za-z0-9-]{8,64}$/.test(deviceId)) {
-    const mine = await env.DB.prepare('SELECT name, score, grades, theme FROM scores WHERE day = ? AND device_id = ? AND hidden = 0').bind(day, deviceId).first();
+    const mine = await env.DB.prepare('SELECT name, score, grades, theme, plane, livery, fav FROM scores WHERE day = ? AND device_id = ? AND hidden = 0').bind(day, deviceId).first();
     if (mine) {
       const above = await env.DB.prepare('SELECT COUNT(*) AS n FROM scores WHERE day = ? AND hidden = 0 AND score > ?').bind(day, mine.score).first();
-      me = { rank: above.n + 1, score: mine.score, name: mine.name, grades: mine.grades, theme: mine.theme };
+      me = { rank: above.n + 1, score: mine.score, name: mine.name, grades: mine.grades, theme: mine.theme, plane: mine.plane, livery: mine.livery, fav: mine.fav };
     }
   }
-  const entries = top.entries.map(e => ({ rank: e.rank, name: e.name, score: e.score, grades: e.grades, theme: e.theme, time: e.time, me: !!deviceId && e._d === deviceId }));
+  const entries = top.entries.map(e => ({ rank: e.rank, name: e.name, score: e.score, grades: e.grades, theme: e.theme, time: e.time, plane: e.plane, livery: e.livery, fav: e.fav, me: !!deviceId && e._d === deviceId }));
   return json({ day, total: top.total, avg: top.avg, entries, me }, 200, cors, { 'cache-control': 'no-store' });
 }
 

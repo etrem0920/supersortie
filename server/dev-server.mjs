@@ -2,7 +2,7 @@
 //   node server/dev-server.mjs            → http://localhost:8787
 // Data lives in server/dev.sqlite so it survives restarts. Delete the file to reset.
 import http from 'node:http';
-import { readFileSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +12,9 @@ const here = fileURLToPath(new URL('.', import.meta.url));
 const siteRoot = join(here, '..', 'public');
 const db = new DatabaseSync(process.env.DD_DB || join(here, 'dev.sqlite'));
 db.exec(readFileSync(join(here, 'schema.sql'), 'utf8'));
+for (const f of readdirSync(join(here, 'migrations')).filter(n => n.endsWith('.sql')).sort()) {
+  try { db.exec(readFileSync(join(here, 'migrations', f), 'utf8')); } catch (e) { if (!/duplicate column/i.test(e.message)) throw e; }
+}
 const DB = {
   prepare(sql) {
     const stmt = db.prepare(sql);
