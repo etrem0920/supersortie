@@ -370,7 +370,7 @@
   .hull i { width: 22px; height: 12px; background: var(--good); transform: skewX(-18deg); }
   .hull i.off { background: rgba(255, 255, 255, .1); }
   .hpbar { display: block; width: 120px; height: 12px; background: rgba(255, 255, 255, .1); transform: skewX(-18deg); overflow: hidden; }
-  .hpbar i { display: block; height: 100%; transform-origin: left; transition: transform .15s; }
+  .hull .hpbar i { display: block; width: 100%; height: 100%; transform-origin: left; transition: transform .15s; }
   .hpbar.lost { animation: lost .4s ease; }
   .hull.low i:not(.off) { background: var(--bad); animation: blink .6s steps(2) infinite; }
   .hull i.lost { animation: lost .5s ease both; }
@@ -3965,7 +3965,8 @@ const Arena = {
       if (vp) floater(vp.x, vp.y - 24, `+${fmtNum(m.pts)}`, theme.accent, 1.4);
       if (m.vs >= 3 && vp) floater(vp.x, vp.y - 54, 'SHUT DOWN', '#ffd34f', 1.2);
       else if (m.rv && vp) floater(vp.x, vp.y - 54, 'REVENGE', '#ff4d5e', 1.2);
-      if (STREAK_NAMES[m.st]) showBanner(`${m.st} in a row`, STREAK_NAMES[m.st], m.st >= 5 ? 'Everyone can see your streak' : '');
+      if (STREAK_NAMES[m.st] && m.st >= 3) showBanner(`${m.st} in a row`, STREAK_NAMES[m.st], m.st >= 5 ? 'Everyone can see your streak' : '');
+      else if (STREAK_NAMES[m.st] && vp) floater(vp.x, vp.y - 54, STREAK_NAMES[m.st].toUpperCase(), '#ffffff', 1.1);
       vibrate(30);
     }
   },
