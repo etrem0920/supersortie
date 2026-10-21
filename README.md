@@ -11,6 +11,7 @@ A new five-wave dogfight every day, the same for every pilot on Earth. Players f
 | `public/` | The website as served at supersortie.io: `index.html` (built), `config.js`, `og.png` (share preview), `privacy.html`. |
 | `public/config.js` | Site settings: leaderboard URL, share URL, support link, ads, analytics. |
 | `server/worker.js` | Leaderboard API (Cloudflare Worker) at api.supersortie.io. |
+| `server/coop.js` | Co-op rooms (one Durable Object per room code). |
 | `server/schema.sql` | Database tables (Cloudflare D1). |
 | `server/wrangler.toml` | Worker settings: database, custom domain, allowed sites. |
 | `server/dev-server.mjs` | Runs the site and the real API locally on SQLite. |
@@ -74,6 +75,15 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 - The server checks every submission. The date must be within a day of the server's date. Grades and wave times must be consistent. The score must be possible given the kill count. Each IP is limited to 30 submissions a day, and IPs are stored only as salted daily hashes.
 - The top-100 list is cached at the edge for 20 seconds, so a traffic spike reads the cache instead of the database.
 - **Limit:** a determined cheater can still forge a believable score, because the game runs in their browser. The strong fix is to record each run's inputs and replay them on the server. The simulation is already seeded, so this is a contained project. Do it once the leaderboard has prizes or real money attached. Until then, the plausibility checks and the admin endpoint cover it.
+
+## How co-op works
+
+- A host taps **Co-op → Create room** and gets a four-letter code and an invite link (`supersortie.io/?room=CODE`). Up to four pilots join.
+- The host picks the theater, wave count (3/5/8/12), difficulty (easy/normal/hard/brutal), conditions, hull and whether an ace guards the last wave. Everyone picks their own plane and readies up.
+- Crashed pilots spectate a teammate and are revived with full hull when the wave is cleared. The mission fails only if the whole squad is down at once.
+- Each room is a Cloudflare Durable Object that holds the lobby and relays messages. The host's browser runs the enemies and scoring and sends snapshots ten times a second, so **the host must keep the tab open**. If the host leaves, the next pilot becomes host and the squad returns to the lobby.
+- Empty rooms delete themselves after 10 minutes. Co-op scores are not posted to the daily leaderboard.
+- **Cost:** a 10-minute, four-pilot mission uses about 2,000 Durable Object requests. The free plan allows 100,000 a day (about 50 missions). Workers Paid ($5/month) covers millions.
 
 ## Making money (in priority order)
 

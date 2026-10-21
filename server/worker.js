@@ -4,6 +4,10 @@
 //   GET    /api/v1/leaderboard?day=N      top scores, totals, and the caller's own rank
 //   DELETE /api/v1/admin/scores?day=N&deviceId=…   hide a cheated score (Bearer ADMIN_TOKEN)
 //   GET    /api/v1/health
+//   GET    /api/v1/rooms/CODE/ws[?create=1]   co-op room WebSocket (see coop.js)
+
+import { CoopRoom, ROOM_ALPHABET } from './coop.js';
+export { CoopRoom };
 
 const EPOCH_UTC = Date.UTC(2026, 3, 20);
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
@@ -151,6 +155,20 @@ async function adminDelete(url, req, env, cors) {
   return json({ ok: true, hidden: res.meta.changes }, 200, cors);
 }
 
+// Browsers send an Origin header on WebSocket upgrades; only our own sites may open rooms.
+function originAllowed(req, env) {
+  const allowed = String((env && env.ALLOWED_ORIGIN) || '*').split(',').map(s => s.trim()).filter(Boolean);
+  const origin = req.headers.get('origin');
+  return allowed.includes('*') || !origin || allowed.includes(origin);
+}
+async function roomSocket(req, env, code) {
+  if (req.headers.get('Upgrade') !== 'websocket') return new Response('Expected a WebSocket', { status: 426 });
+  if (!originAllowed(req, env)) return new Response('Forbidden', { status: 403 });
+  if (![...code].every(ch => ROOM_ALPHABET.includes(ch))) return new Response('Bad room code', { status: 400 });
+  const stub = env.ROOMS.get(env.ROOMS.idFromName(code));
+  return stub.fetch(req);
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
@@ -161,6 +179,8 @@ export default {
       if (url.pathname === '/api/v1/leaderboard' && req.method === 'GET') return await getBoard(url, env, cors, ctx);
       if (url.pathname === '/api/v1/admin/scores' && req.method === 'DELETE') return await adminDelete(url, req, env, cors);
       if (url.pathname === '/api/v1/health') return json({ ok: true, day: serverDay() }, 200, cors);
+      const room = url.pathname.match(/^\/api\/v1\/rooms\/([A-Z0-9]{4})\/ws$/);
+      if (room) return await roomSocket(req, env, room[1]);
       return json({ error: 'not_found' }, 404, cors);
     } catch (e) {
       return json({ error: 'server_error' }, 500, cors);

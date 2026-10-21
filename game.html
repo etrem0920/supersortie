@@ -186,6 +186,40 @@
   .pf-body b { font-family: var(--font-display); font-weight: 800; font-size: 26px; text-transform: uppercase; letter-spacing: .03em; line-height: 1.05; overflow-wrap: anywhere; }
   .pf-body span { font-size: 13px; color: var(--muted); line-height: 1.4; }
   .pf-body strong { color: var(--text); font-weight: 700; }
+  .coop-entry { display: flex; flex-direction: column; gap: 14px; }
+  .coop-entry p { margin: 0; color: var(--muted); line-height: 1.5; }
+  .join-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  .join-row input {
+    background: var(--raise); border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); padding: 12px 14px; min-width: 0;
+    font-family: var(--font-display); font-weight: 900; font-size: 26px; letter-spacing: .3em; text-transform: uppercase; user-select: text; -webkit-user-select: text;
+  }
+  .join-row input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+  .coop-err { min-height: 20px; color: var(--warn); font-size: 14px; }
+  .coop-lobby { display: flex; flex-direction: column; gap: 14px; }
+  .room-code { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: var(--raise); padding: 12px 14px; --cut: 10px; }
+  .room-code small { font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .16em; font-size: 11px; color: var(--muted); }
+  .room-code b { font-family: var(--font-display); font-weight: 900; font-size: 40px; letter-spacing: .22em; line-height: 1; color: var(--accent); flex: 1; }
+  .badge { display: inline-block; margin-left: 6px; padding: 1px 6px; font-family: var(--font-cond); font-weight: 700; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; background: var(--raise-2); color: var(--muted); vertical-align: middle; }
+  .badge.host { background: var(--accent); color: var(--accent-ink); }
+  .badge.ok { background: rgba(56, 217, 138, .18); color: var(--good); }
+  .coop-settings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .coop-settings label { display: flex; flex-direction: column; gap: 4px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 11px; color: var(--muted); min-width: 0; }
+  .coop-settings select {
+    appearance: none; -webkit-appearance: none; background: var(--raise); color: var(--text); border: 0; box-shadow: inset 0 0 0 1px var(--line-strong);
+    padding: 9px 10px; font-family: var(--font-cond); font-weight: 700; font-size: 16px; letter-spacing: .03em; min-width: 0; width: 100%;
+  }
+  .coop-settings select:disabled { opacity: .7; }
+  .coop-settings .check { flex-direction: row; align-items: center; gap: 8px; grid-column: 1 / -1; font-size: 13px; letter-spacing: .06em; }
+  .coop-settings .check input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .coop-k { font-family: var(--font-cond); font-weight: 700; color: var(--muted); font-size: 13px; letter-spacing: .04em; }
+  .plane-list.compact .plane { padding: 6px; }
+  .plane-list.compact .bars { display: none; }
+  .squad { position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); top: calc(env(safe-area-inset-top, 0px) + 66px); display: flex; flex-direction: column; gap: 4px; }
+  .sq { display: flex; align-items: center; gap: 8px; background: rgba(9, 12, 20, .7); box-shadow: inset 0 0 0 1px var(--line); padding: 4px 8px; font-family: var(--font-cond); font-weight: 700; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; --cut: 5px; }
+  .sq .hull i { width: 12px; height: 7px; }
+  .sq.down { color: var(--bad); }
+  .sq.me { box-shadow: inset 2px 0 0 var(--accent), inset 0 0 0 1px var(--line); }
+  @media (max-width: 600px) { .squad { top: calc(env(safe-area-inset-top, 0px) + 116px); } .coop-settings { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .mini-tiles { display: flex; gap: 2px; }
   .mini-tiles i { width: 8px; height: 8px; background: var(--raise-2); }
   .notice { background: var(--raise); padding: 14px; color: var(--muted); font-size: 14px; line-height: 1.5; --cut: 10px; }
@@ -382,7 +416,7 @@
     </div>
     <div class="hud-wave">
       <div class="hpanel chamfer wave-panel">
-        <div id="waveLabel" class="label">Wave <span id="waveNum" class="tnum">1</span>/5 · <em id="leftCount" class="tnum">0 left</em></div>
+        <div id="waveLabel" class="label">Wave <span id="waveNum" class="tnum">1</span>/<span id="waveTotal" class="tnum">5</span> · <em id="leftCount" class="tnum">0 left</em></div>
         <div id="zenLabel" class="label hidden">Zen · <em id="zenInfo" class="tnum">0:00</em></div>
         <div id="pips" class="pips"></div>
       </div>
@@ -392,6 +426,7 @@
       <div id="combo" class="combo chamfer"><span id="comboText">×2</span><i id="comboBar"></i></div>
     </div>
   </div>
+  <div id="squad" class="squad hidden" aria-label="Squad"></div>
   <div id="warn" class="warn chamfer hidden">Missile lock · Roll!</div>
   <div id="boss" class="boss hidden">
     <div class="bl"><span id="bossName">Ace</span><span>Enemy ace</span></div>
@@ -438,6 +473,7 @@
         <button id="playBtn" class="btn btn-primary btn-xl">Fly today's sortie</button>
         <button id="practiceBtn" class="btn btn-ghost btn-xl">Practice</button>
         <button id="zenBtn" class="btn btn-ghost btn-xl">Zen mode</button>
+        <button id="coopBtn" class="btn btn-ghost btn-xl">Co-op</button>
       </div>
       <div id="ctaDone" class="done chamfer hidden">
         <div class="done-score"><small>Your sortie today</small><b id="doneScore">0</b><span id="doneRank"></span></div>
@@ -446,6 +482,7 @@
           <button id="doneShare" class="btn btn-primary">Share result</button>
           <button id="donePractice" class="btn btn-ghost">Practice run</button>
           <button id="doneZen" class="btn btn-ghost">Zen mode</button>
+          <button id="doneCoop" class="btn btn-ghost">Co-op</button>
         </div>
       </div>
       <div class="hero-meta"><span>Next sortie in <b class="js-countdown">--:--:--</b></span><span id="pilotCount"></span><span id="leader"></span><span id="champ"></span></div>
@@ -524,6 +561,40 @@
       <input id="callsign2" maxlength="16" autocomplete="off" spellcheck="false">
     </div>
     <button id="helpGo" class="btn btn-primary btn-block btn-xl">Let's fly</button>
+  </div>
+</div>
+
+<!-- ================= CO-OP ================= -->
+<div id="coop" class="modal hidden">
+  <div class="sheet sheet-wide">
+    <div class="sheet-head"><span class="eyebrow-s">Co-op · up to 4 pilots</span><h2 id="coopTitle">Fly together</h2></div>
+    <div id="coopEntry" class="coop-entry">
+      <p>Team up with up to three friends. The host picks the theater, the number of waves and the difficulty. Crashed planes rejoin after every wave you clear.</p>
+      <div class="field"><label for="coopName">Your callsign</label><input id="coopName" maxlength="16" autocomplete="off" spellcheck="false"></div>
+      <button id="coopCreate" class="btn btn-primary btn-block">Create a room</button>
+      <div class="field">
+        <label for="coopCode">Or join with a room code</label>
+        <div class="join-row"><input id="coopCode" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false"><button id="coopJoin" class="btn btn-ghost">Join</button></div>
+      </div>
+      <div id="coopErr" class="coop-err" role="status"></div>
+    </div>
+    <div id="coopLobby" class="coop-lobby hidden">
+      <div class="room-code"><small>Room<br>code</small><b id="coopRoomCode">----</b><button id="coopCopy" class="btn btn-ghost btn-small">Copy invite link</button></div>
+      <ol id="coopPlayers" class="board"></ol>
+      <div class="section-label"><span>Your aircraft</span><span id="coopTheater"></span></div>
+      <div id="coopPlanes" class="plane-list compact" role="radiogroup" aria-label="Your aircraft"></div>
+      <div class="section-label"><span>Mission</span><span id="coopHostNote"></span></div>
+      <div class="coop-settings">
+        <label>Theater<select id="setTheme"></select></label>
+        <label>Waves<select id="setWaves"><option value="3">3 waves</option><option value="5">5 waves</option><option value="8">8 waves</option><option value="12">12 waves</option></select></label>
+        <label>Difficulty<select id="setDiff"><option value="easy">Easy</option><option value="normal">Normal</option><option value="hard">Hard</option><option value="brutal">Brutal</option></select></label>
+        <label>Conditions<select id="setMod"></select></label>
+        <label>Hull<select id="setHull"><option value="2">2 segments</option><option value="3">3 segments</option><option value="5">5 segments</option></select></label>
+        <label class="check"><input id="setAce" type="checkbox"> An enemy ace leads the final wave</label>
+      </div>
+      <div class="cta"><button id="coopReady" class="btn btn-primary">I'm ready</button><button id="coopStart" class="btn btn-primary">Start mission</button></div>
+    </div>
+    <div class="res-foot"><span id="coopStatus"></span><button id="coopLeave" class="link-btn">Close</button></div>
   </div>
 </div>
 
@@ -1344,12 +1415,12 @@ window.addEventListener('keydown', e => {
     if (e.code === 'Escape' || e.code === 'KeyP') resumeGame();
   } else if (state === 'menu') {
     if (!$('help').classList.contains('hidden')) { if (e.code === 'Escape') hide('help'); }
-    else if (e.code === 'Enter' && !store.history[todayNum]) onPlayDaily();
+    else if (e.code === 'Enter' && !store.history[todayNum] && $('coop').classList.contains('hidden')) onPlayDaily();
   }
 });
 window.addEventListener('keyup', e => { keys[e.code] = false; });
-document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') pauseGame(); });
-window.addEventListener('blur', () => { if (state === 'play') pauseGame(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') pauseGame(true); });
+window.addEventListener('blur', () => { if (state === 'play') pauseGame(true); });
 
 function pollGamepad() {
   const pads = navigator.getGamepads ? navigator.getGamepads() : [];
@@ -1374,6 +1445,8 @@ const toScreen = (x, y) => ({ x: W / 2 + (x - cam.x) * zoom, y: H / 2 + (y - cam
 function startRun(mode) {
   const seed = mode === 'daily' ? dailySeed() : `${mode === 'zen' ? 'ZEN' : 'PRACTICE'}-${Math.random().toString(36).slice(2, 8)}`;
   world = buildWorld(seed);
+  Coop.on = false; hide('squad');
+  if (Net.ws) { Net.close(); hide('coop'); }
   tileWorld = mode === 'zen';
   if (tileWorld) { world.mod = MODS[0]; world.wind = { x: 0, y: 0 }; }
   resetEntities();
@@ -1415,11 +1488,12 @@ function startWave(i) {
 function spawnEnemy(o) {
   const spec = ENEMY[o.type];
   const dist = Math.max(W, H) / zoom * 0.5 + 140;
-  let x = player.x + Math.cos(o.ang) * dist, y = player.y + Math.sin(o.ang) * dist;
-  if (!tileWorld && Math.hypot(x, y) > R + 120) { x = player.x - Math.cos(o.ang) * dist; y = player.y - Math.sin(o.ang) * dist; }
-  const a = Math.atan2(player.y - y, player.x - x);
+  const anc = Coop.on ? Coop.centroid() : player;
+  let x = anc.x + Math.cos(o.ang) * dist, y = anc.y + Math.sin(o.ang) * dist;
+  if (!tileWorld && Math.hypot(x, y) > R + 120) { x = anc.x - Math.cos(o.ang) * dist; y = anc.y - Math.sin(o.ang) * dist; }
+  const a = Math.atan2(anc.y - y, anc.x - x);
   const hp = Math.round((o.type === 'ace' ? spec.hp * (world.mod.aceHp || 1) : spec.hp) * (o.hpMul || 1));
-  enemies.push({ type: o.type, spec, x, y, a, cruise: a, hp, maxHp: hp, t: 0, phase: o.phase, drop: o.drop, gunT: 1.5 + o.phase * 0.25, misT: 2.5 + o.phase * 0.3, burst: 0, burstT: 0, aim: a, flash: 0, dead: false });
+  enemies.push({ id: Coop.on ? ++Coop.h.eid : 0, type: o.type, spec, x, y, a, cruise: a, hp, maxHp: hp, t: 0, phase: o.phase, drop: o.drop, gunT: 1.5 + o.phase * 0.25, misT: 2.5 + o.phase * 0.3, burst: 0, burstT: 0, aim: a, flash: 0, dead: false });
 }
 
 function waveCleared() {
@@ -1522,6 +1596,7 @@ function tryRoll() {
   if (state !== 'play' || player.dead || player.rollCd > 0) return;
   player.rollT = ROLL_T; player.rollCd = ROLL_CD;
   sfx.roll();
+  if (Coop.on && !Coop.isHost) Net.send({ t: 'unlock' });
   for (let i = 0; i < 8; i++) puff(player.x, player.y, rand(-60, 60), rand(-60, 60), rand(5, 9), 20, 0.45, '#ffffff', 'smoke');
   let broke = 0;
   for (const m of missiles) if (m.lock && Math.hypot(m.x - player.x, m.y - player.y) < 520) { m.lock = false; broke++; }
@@ -1599,6 +1674,15 @@ function hurtPlayer() {
   sfx.hurt(); vibrate(90);
   for (let i = 0; i < 12; i++) puff(p.x, p.y, rand(-170, 170), rand(-170, 170), rand(3, 6), 6, 0.35, theme.fx[1], 'fire');
   renderHull(true);
+  if (p.hp <= 0 && run.mode === 'coop') {
+    p.dead = true; trail = [];
+    explode(p.x, p.y, 1.6);
+    wrecks.push({ x: p.x, y: p.y, a: p.a, vx: Math.cos(p.a) * 120, vy: Math.sin(p.a) * 120, spin: 5, t: 0, dur: 1.1, type: 'player' });
+    showBanner('Shot down', 'You rejoin when this wave is cleared', 'Your squad can still win it');
+    sfx.boom(true); vibrate([60, 40, 160]);
+    Coop.onLocalDown();
+    return;
+  }
   if (p.hp <= 0 && run.mode === 'zen') {
     explode(p.x, p.y, 1.4); sfx.boom(true);
     run.zen.crashes++; p.hp = p.maxHp; p.inv = 3; renderHull();
@@ -1615,13 +1699,15 @@ function hurtPlayer() {
   }
 }
 
-function damageEnemy(e, n) {
+function damageEnemy(e, n, by) {
   if (e.dead) return;
+  if (Coop.on && !Coop.isHost) { Coop.queueHit(e.id, n); e.flash = 0.07; return; }
   e.hp -= n; e.flash = 0.07;
-  if (e.hp <= 0) killEnemy(e);
+  if (e.hp <= 0) killEnemy(e, by || Net.you);
 }
 
-function killEnemy(e) {
+function killEnemy(e, by) {
+  if (Coop.on) { Coop.hostKill(e, by); return; }
   e.dead = true;
   run.kills++; run.chain++; run.chainT = CHAIN_T;
   run.mult = Math.min(5, 1 + Math.floor(run.chain / 2));
@@ -1640,19 +1726,23 @@ function killEnemy(e) {
 }
 
 function shootE(x, y, a, spd) {
-  eBullets.push({ x: x + Math.cos(a) * 16, y: y + Math.sin(a) * 16, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, life: 2.8 });
+  const b = { x: x + Math.cos(a) * 16, y: y + Math.sin(a) * 16, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, life: 2.8 };
+  eBullets.push(b);
+  if (Coop.on) Coop.outBullets.push([Math.round(b.x), Math.round(b.y), Math.round(b.vx), Math.round(b.vy)]);
 }
 function launchMissile(e) {
-  missiles.push({ x: e.x + Math.cos(e.a) * 20, y: e.y + Math.sin(e.a) * 20, a: e.a, speed: 210, lock: true, life: 4.6, t: 0 });
+  const m = { x: e.x + Math.cos(e.a) * 20, y: e.y + Math.sin(e.a) * 20, a: e.a, speed: 210, lock: true, life: 4.6, t: 0 };
+  if (Coop.on) { m.id = ++Coop.h.mid; m.target = e.tid || Net.you; }
+  missiles.push(m);
   sfx.launch();
 }
 
 function updateEnemies(dt) {
-  const p = player;
-  const fighting = state === 'play' && run && (run.phase === 'fight' || run.phase === 'zen') && !p.dead;
-  const fm = (world.mod.fire || 1) * (tileWorld ? 0.7 : 1);
+  const fighting = state === 'play' && run && (run.phase === 'fight' || run.phase === 'zen');
+  const fm = (world.mod.fire || 1) * (tileWorld ? 0.7 : 1) * (Coop.on ? COOP_DIFF[Coop.settings.difficulty].fire : 1);
   for (const e of enemies) {
     const s = e.spec;
+    const p = Coop.on ? Coop.targetFor(e) : player;
     e.t += dt; e.flash = Math.max(0, e.flash - dt); if (e.ramT > 0) e.ramT -= dt;
     const dx = p.x - e.x, dy = p.y - e.y, d = Math.hypot(dx, dy);
     const toP = Math.atan2(dy, dx);
@@ -1671,7 +1761,7 @@ function updateEnemies(dt) {
     e.a = wrapAng(e.a + clamp(angDiff(tgt, e.a) * 4, -s.turn, s.turn) * dt);
     e.x += (Math.cos(e.a) * s.speed + world.wind.x) * dt;
     e.y += (Math.sin(e.a) * s.speed + world.wind.y) * dt;
-    if (!fighting) continue;
+    if (!fighting || p.dead) continue;
 
     if (e.type === 'fighter') {
       if (e.burst > 0) {
@@ -1728,7 +1818,12 @@ function updateBullets(dt) {
       for (const m of missiles) {
         if (m.dead) continue;
         const dx = b.x - m.x, dy = b.y - m.y;
-        if (dx * dx + dy * dy < 110) { hit = true; m.dead = true; explode(m.x, m.y, 0.45); addScore(50 * run.mult, 'kill'); floater(m.x, m.y - 12, `+${50 * run.mult}`, '#ffffff', 0.8); break; }
+        if (dx * dx + dy * dy < 110) {
+          hit = true; m.dead = true; explode(m.x, m.y, 0.45);
+          if (Coop.on && !Coop.isHost) { Coop.mk.push(m.id); Coop.consumed.add(m.id); }
+          else { addScore(50 * run.mult, 'kill'); floater(m.x, m.y - 12, `+${50 * run.mult}`, '#ffffff', 0.8); }
+          break;
+        }
       }
     }
     if (hit || b.life <= 0) pBullets.splice(i, 1);
@@ -1745,10 +1840,16 @@ function updateBullets(dt) {
   }
   for (let i = missiles.length - 1; i >= 0; i--) {
     const m = missiles[i];
-    if (!m.dead) {
+    if (!m.dead && Coop.on && !Coop.isHost) {
+      // The host flies the missiles; each pilot only checks whether one reached them.
+      if (vulnerable() && (m.x - player.x) ** 2 + (m.y - player.y) ** 2 < 15 * 15) {
+        m.dead = true; Coop.consumed.add(m.id); Net.send({ t: 'mh', id: m.id }); explode(m.x, m.y, 0.7); hurtPlayer();
+      }
+    } else if (!m.dead) {
       m.t += dt; m.life -= dt;
       m.speed = Math.min(390, m.speed + 300 * dt);
-      if (m.lock && !player.dead) { const want = Math.atan2(player.y - m.y, player.x - m.x); m.a = wrapAng(m.a + clamp(angDiff(want, m.a) * 5, -2.2, 2.2) * dt); }
+      const mt = Coop.on ? Coop.posOf(m.target) : player;
+      if (m.lock && !mt.dead) { const want = Math.atan2(mt.y - m.y, mt.x - m.x); m.a = wrapAng(m.a + clamp(angDiff(want, m.a) * 5, -2.2, 2.2) * dt); }
       m.x += (Math.cos(m.a) * m.speed + world.wind.x) * dt; m.y += (Math.sin(m.a) * m.speed + world.wind.y) * dt;
       if (Math.random() < 0.8) puff(m.x - Math.cos(m.a) * 8, m.y - Math.sin(m.a) * 8, rand(-10, 10), rand(-10, 10), rand(2.5, 4.5), 9, 0.55, theme.neon ? theme.accent : '#d8d8d8', 'smoke');
       if (vulnerable()) {
@@ -1779,6 +1880,10 @@ function updatePickups(dt) {
     const dx = player.x - k.x, dy = player.y - k.y, d = Math.hypot(dx, dy);
     if (state === 'play' && !player.dead) {
       if (d < 170 && d > 1) { const pull = 520 * (1 - d / 220); k.x += dx / d * pull * dt; k.y += dy / d * pull * dt; }
+      if (d < 26 && Coop.on) {
+        if (!k.pending) { k.pending = true; if (Coop.isHost) Coop.resolvePick(k.id, Net.you); else Net.send({ t: 'pick', id: k.id }); }
+        continue;
+      }
       if (d < 26) {
         if (k.kind === 'heart' && player.hp < player.maxHp) { player.hp++; renderHull(); floater(k.x, k.y, 'HULL REPAIRED', '#38d98a', 0.9); }
         else { const pts = (k.kind === 'heart' ? 500 : 250) * run.mult; addScore(pts, 'kill'); floater(k.x, k.y, `+${fmtNum(pts)}`, '#ffd34f', 1); }
@@ -1852,6 +1957,7 @@ function zenTick(dt) {
 }
 
 function update(dt) {
+  if (state === 'play' && run && run.mode === 'coop') { coopUpdate(dt); return; }
   if (state === 'play') {
     run.totalT += dt;
     if (!player.dead) { steerPlayer(dt); movePlayer(dt); firePlayer(dt); }
@@ -1883,7 +1989,9 @@ function update(dt) {
 
 function updateCamera(dt) {
   const look = Math.min(W, H) * 0.13 / zoom;
-  const tx = player.x + Math.cos(player.a) * look, ty = player.y + Math.sin(player.a) * look;
+  const mate = Coop.on && player.dead ? Coop.peerList().find(p => p.seen && !p.dead) : null;
+  const f = mate || player;
+  const tx = f.x + Math.cos(f.a) * look, ty = f.y + Math.sin(f.a) * look;
   const k = Math.min(1, dt * 4);
   cam.x = lerp(cam.x, tx, k); cam.y = lerp(cam.y, ty, k);
 }
@@ -2137,7 +2245,7 @@ function draw() {
 
   // pickups
   for (const k of pickups) {
-    if (k.t > 7 && Math.floor(time * 8) % 2 === 0) continue;
+    if (k.pending || (k.t > 7 && Math.floor(time * 8) % 2 === 0)) continue;
     const bob = Math.sin(time * 5 + k.x) * 3;
     ctx.save(); ctx.translate(k.x, k.y + bob);
     ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(6, 13, 10, 4, 0, 0, TAU); ctx.fill();
@@ -2237,6 +2345,8 @@ function draw() {
     }
   }
 
+  if (Coop.on) Coop.drawPeers(ctx, th);
+
   // player
   if (!player.dead) {
     const blink = player.inv > 0 && Math.floor(time * 18) % 2 === 0;
@@ -2293,7 +2403,8 @@ function draw() {
       ctx.restore();
     };
     for (const e of enemies) edgeArrow(e.x, e.y, e.type === 'ace' ? th.accent : '#ff4d5e', e.type === 'ace' ? 1.4 : e.type === 'bomber' ? 1.2 : 1);
-    for (const m of missiles) if (m.lock) edgeArrow(m.x, m.y, '#ffffff', 0.8);
+    for (const m of missiles) if (m.lock && (!Coop.on || m.target === Net.you)) edgeArrow(m.x, m.y, '#ffffff', 0.8);
+    if (Coop.on) for (const pr of Coop.peerList()) if (pr.seen && !pr.dead) edgeArrow(pr.x, pr.y, '#38d98a', 0.9);
     if (input.mode === 'touch' && input.touching) {
       ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(input.ox, input.oy, 70, 0, TAU); ctx.stroke();
@@ -2356,7 +2467,9 @@ function renderHull(lost) {
   el.setAttribute('aria-label', `Hull ${player.hp} of ${player.maxHp}`);
 }
 function renderPips() {
-  $('pips').innerHTML = [0, 1, 2, 3, 4].map(i => {
+  const n = run.totalWaves || 5;
+  $('waveTotal').textContent = n;
+  $('pips').innerHTML = Array.from({ length: n }, (_, i) => i).map(i => {
     const r = run.results[i];
     return `<i class="${r ? (r.crash ? 'crash' : 'ok') : i === run.waveIdx ? 'cur' : ''}"></i>`;
   }).join('');
@@ -2369,7 +2482,12 @@ function updateHUD(dt) {
   run.shownScore = lerp(run.shownScore, run.score, Math.min(1, dt * 10));
   if (Math.abs(run.score - run.shownScore) < 1) run.shownScore = run.score;
   setText('scorePanel', fmtNum(run.shownScore));
-  const left = run.queue.length + enemies.length;
+  const left = Coop.on && !Coop.isHost ? Coop.left : run.queue.length + enemies.length;
+  if (Coop.on) {
+    Coop.squadT -= dt;
+    if (Coop.squadT <= 0) { Coop.squadT = 0.25; Coop.renderSquad(); }
+    if (player.dead) { Coop.downHintT -= dt; if (Coop.downHintT <= 0) { Coop.downHintT = 1; showHint('You are down. You rejoin when your squad clears this wave.', 1400); } }
+  }
   if (run.mode === 'zen') setText('zenInfo', `${fmtClock(run.totalT)} · ${run.kills} down`);
   else setText('leftCount', run.phase === 'fight' || run.phase === 'intro' ? `${left} left` : 'clear');
   const combo = $('combo');
@@ -2378,7 +2496,7 @@ function updateHUD(dt) {
   const ace = enemies.find(e => e.type === 'ace');
   if (ace) { show('boss'); setText('bossName', world.ace); $('bossFill').style.transform = `scaleX(${clamp(ace.hp / ace.maxHp, 0, 1)})`; }
   else hide('boss');
-  const locked = !player.dead && missiles.some(m => m.lock && Math.hypot(m.x - player.x, m.y - player.y) < 1000);
+  const locked = !player.dead && missiles.some(m => m.lock && (!Coop.on || m.target === Net.you) && Math.hypot(m.x - player.x, m.y - player.y) < 1000);
   $('warn').classList.toggle('hidden', !locked);
   $('hud').classList.toggle('warning', locked);
   if (locked) { lockBeepT -= dt; if (lockBeepT <= 0) { sfx.lock(); lockBeepT = 0.32; } }
@@ -2438,6 +2556,11 @@ function shareText(info) {
   const th = THEMES[info.theme] || theme;
   const url = CONFIG.siteUrl || (/^https?:/.test(location.protocol) ? location.origin + location.pathname : '');
   const craft = planeName(info.plane) || th.name;
+  if (info.mode === 'coop') {
+    return [`Super Sortie co-op ✈️ ${info.win ? 'Mission complete' : `Squad down in wave ${info.wave + 1}`}`,
+      `${info.cleared}/${info.total} waves · ${info.difficulty} · squad of ${info.pilots}`,
+      `${fmtNum(info.score)} squad pts · I downed ${info.kills}`, url].filter(Boolean).join('\n');
+  }
   if (info.mode === 'zen') {
     return [`Super Sortie zen flight ✈️ ${craft}`, `${fmtNum(info.kills)} planes downed · ${fmtNum(info.score)} pts · ${fmtClock(info.time)}`, url].filter(Boolean).join('\n');
   }
@@ -2639,6 +2762,10 @@ function selectTab(name) {
 function openMenu() {
   state = 'menu';
   tileWorld = false;
+  Coop.on = false;
+  hide('squad');
+  $('againBtn').disabled = false;
+  $('menuBtn').textContent = 'Back to hangar';
   world = buildWorld(dailySeed());
   resetEntities();
   player = makePlayer();
@@ -2680,6 +2807,7 @@ function showResults(earned) {
   const r = run;
   const zen = r.mode === 'zen';
   $('resTiles').classList.toggle('hidden', zen);
+  $('againBtn').disabled = false; $('menuBtn').textContent = 'Back to hangar';
   $('againBtn').textContent = zen ? 'Fly zen again' : 'Practice run';
   if (zen) {
     const best = store.zenBest;
@@ -2747,13 +2875,19 @@ function showResults(earned) {
   requestAnimationFrame(tick);
 }
 
-function pauseGame() {
+function pauseGame(auto) {
   if (state !== 'play') return;
+  if (run.mode === 'coop') {
+    if (auto === true) return;
+    $('quitBtn').textContent = 'Leave mission';
+    show('pause');
+    return;
+  }
   state = 'pause'; setSoundLabels();
   $('quitBtn').textContent = run.mode === 'zen' ? 'End flight' : 'Abandon sortie';
   show('pause');
 }
-function resumeGame() { if (state !== 'pause') return; hide('pause'); hide('help'); state = 'play'; last = 0; }
+function resumeGame() { if (Coop.on && state === 'play') { hide('pause'); hide('help'); return; } if (state !== 'pause') return; hide('pause'); hide('help'); state = 'play'; last = 0; }
 
 function applyDeviceCopy() {
   if (!isTouch) return;
@@ -2794,15 +2928,27 @@ $('helpGo').addEventListener('click', () => { if (!$('helpCallsign').classList.c
 $('pauseBtn').addEventListener('click', pauseGame);
 $('resumeBtn').addEventListener('click', resumeGame);
 $('pauseHow').addEventListener('click', () => openHelp(null, false));
-$('quitBtn').addEventListener('click', () => { if (run && run.mode === 'zen') finishZen(); else openMenu(); });
-$('againBtn').addEventListener('click', () => { audio(); startRun(run && run.mode === 'zen' ? 'zen' : 'practice'); });
+$('quitBtn').addEventListener('click', () => { if (run && run.mode === 'zen') finishZen(); else if (run && run.mode === 'coop') { Net.close(); openMenu(); } else openMenu(); });
+$('againBtn').addEventListener('click', () => {
+  audio();
+  if (run && run.mode === 'coop') { if (Net.isHost) Net.send({ t: 'start' }); return; }
+  startRun(run && run.mode === 'zen' ? 'zen' : 'practice');
+});
 $('zenBtn').addEventListener('click', () => { audio(); startRun('zen'); });
 $('doneZen').addEventListener('click', () => { audio(); startRun('zen'); });
-$('menuBtn').addEventListener('click', openMenu);
+$('menuBtn').addEventListener('click', () => {
+  if (run && run.mode === 'coop' && Net.ws) { if (Net.isHost) Net.send({ t: 'lobby' }); else { Net.close(); openMenu(); } return; }
+  openMenu();
+});
 $('callsign').addEventListener('change', e => saveCallsign(e.target.value));
 $('callsign').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => selectTab(t.dataset.tab)));
 $('shareBtn').addEventListener('click', e => {
+  if (run.mode === 'coop' && Coop.lastEnd) {
+    const ev = Coop.lastEnd;
+    doShare(shareText({ mode: 'coop', win: ev.win, wave: ev.wave, cleared: ev.win ? ev.total : ev.wave, total: ev.total, difficulty: COOP_DIFF[Coop.settings.difficulty].label, pilots: Coop.roster.length, score: ev.score, kills: run.kills }), e.currentTarget);
+    return;
+  }
   const h = run.mode === 'daily' ? store.history[todayNum] : null;
   doShare(shareText({ mode: run.mode, theme: run.theme, plane: run.plane, kills: run.kills, grades: gradeCodes(run.results), score: run.score, time: run.totalT, mod: world.mod.id, rank: h && h.rank, total: h && h.total }), e.currentTarget);
 });
@@ -2816,6 +2962,664 @@ function tickCountdown() {
   if (dayKey() !== todayKey) { todayKey = dayKey(); todayNum = dayNumber(); if (state === 'menu') openMenu(); }
 }
 setInterval(tickCountdown, 1000);
+
+/* =====================================================================
+   Co-op: rooms of up to four pilots
+   The host's browser runs enemies, waves, missiles and scoring, and sends
+   snapshots 10 times a second. Every pilot flies their own plane locally and
+   reports their position, hits and pickups. Crashed pilots rejoin when a wave
+   is cleared; the mission fails if the whole squad is down at once.
+   ===================================================================== */
+const COOP_TYPES = ['scout', 'fighter', 'interceptor', 'bomber', 'ace'];
+const COOP_DIFF = {
+  easy: { label: 'Easy', count: 0.7, hp: 0.8, fire: 0.75 },
+  normal: { label: 'Normal', count: 1, hp: 1, fire: 1 },
+  hard: { label: 'Hard', count: 1.3, hp: 1.2, fire: 1.2 },
+  brutal: { label: 'Brutal', count: 1.65, hp: 1.45, fire: 1.4 },
+};
+const COOP_WAVE_NAMES = ['Scramble', 'Fighters inbound', 'Bomber run', 'Missile alley', 'Crossfire', 'Iron curtain', 'Storm front', 'Hornet nest', 'Black skies', 'Thunder run', 'Last light', 'Final stand'];
+const COOP_ERRORS = {
+  no_room: 'No room has that code. Check it with your host.',
+  full: 'That room already has four pilots.',
+  in_progress: 'That room is mid-mission. Ask the host to return to the lobby, then join.',
+  taken: 'Could not create a room. Try again.',
+  closed: 'Could not reach the co-op server. Check your connection and try again.',
+};
+const ROOM_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+const randomRoomCode = () => Array.from({ length: 4 }, () => ROOM_ALPHABET[Math.random() * ROOM_ALPHABET.length | 0]).join('');
+
+// Waves scale with difficulty, squad size, and how far into the mission they are.
+function coopWave(i, s, n, seed) {
+  const r = rngFrom(`${seed}-w${i}`), total = s.waves, prog = total > 1 ? i / (total - 1) : 1;
+  const d = COOP_DIFF[s.difficulty] || COOP_DIFF.normal, scale = d.count * (1 + 0.35 * (n - 1));
+  const c = base => Math.max(0, Math.round(base * scale));
+  const groups = [['scout', Math.max(1, c(4 - prog * 1.5))]];
+  if (i >= 1) groups.push(['fighter', c(1 + prog * 3)]);
+  if (i >= 2) groups.push(['bomber', c(0.4 + prog * 1.3)]);
+  if (i >= 3) groups.push(['interceptor', c(0.5 + prog * 1.6)]);
+  const last = i === total - 1;
+  if (last && s.ace) groups.unshift(['ace', 1]);
+  const list = [];
+  groups.filter(g => g[1] > 0).forEach(([type, count], gi) => {
+    const ga = r() * TAU;
+    for (let k = 0; k < count; k++) {
+      list.push({
+        type, ang: ga + (k - (count - 1) / 2) * 0.32, delay: gi * 2.4 + k * 0.45,
+        drop: r() < 0.25 ? (r() < 0.4 ? 'heart' : 'star') : null, phase: r() * TAU,
+        hpMul: d.hp * (type === 'ace' ? 1 + 0.6 * (n - 1) : 1),
+      });
+    }
+  });
+  return { name: last && s.ace ? 'The ace' : COOP_WAVE_NAMES[i % COOP_WAVE_NAMES.length], list };
+}
+
+const Net = {
+  ws: null, you: null, room: null, code: null, quitting: false,
+  url(code, create) { return CONFIG.apiBase.replace(/\/$/, '').replace(/^http/, 'ws') + `/api/v1/rooms/${code}/ws` + (create ? '?create=1' : ''); },
+  connect(code, create) {
+    return new Promise((resolve, reject) => {
+      this.close();
+      let ws;
+      try { ws = new WebSocket(this.url(code, create)); } catch (e) { reject('closed'); return; }
+      this.ws = ws; this.code = code; this.quitting = false;
+      let settled = false;
+      ws.onmessage = ev => {
+        let m;
+        try { m = JSON.parse(ev.data); } catch (e) { return; }
+        if (m.t === 'error') { if (!settled) { settled = true; reject(m.code); } return; }
+        if (m.t === 'welcome') {
+          this.you = m.you;
+          this.send({ t: 'hello', name: store.callsign, plane: 0, livery: 0 });
+          if (!settled) { settled = true; resolve(); }
+          return;
+        }
+        Coop.onMessage(m);
+      };
+      ws.onclose = () => {
+        if (this.ws !== ws) return;
+        this.ws = null;
+        if (!settled) { settled = true; reject('closed'); return; }
+        if (!this.quitting) Coop.onDisconnect();
+      };
+    });
+  },
+  send(o) { if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(o)); },
+  close() {
+    if (this.ws) { this.quitting = true; try { this.ws.close(); } catch (e) { /* already closed */ } }
+    this.ws = null; this.room = null; this.you = null;
+  },
+  get isHost() { return !!(this.room && this.room.host === this.you); },
+};
+
+const Coop = {
+  on: false, isHost: false, settings: null, seed: null, roster: [], peers: {}, left: 0, h: null,
+  hits: {}, mk: [], consumed: new Set(), rBullets: [], outBullets: [], sendT: 0, snapT: 0, squadT: 0, downHintT: 0,
+
+  // ---------- messages ----------
+  onMessage(m) {
+    if (m.t === 'room') return this.onRoom(m);
+    if (m.t === 'begin') return startCoop(m);
+    if (m.t === 'hostleft') { toast('Host left', 'The next pilot is now host. Back to the lobby.'); return; }
+    if (m.f && m.m) this.onGame(m.f, m.m);
+  },
+  onRoom(m) {
+    Net.room = m;
+    const mine = m.players.find(p => p.id === Net.you);
+    if (mine) {
+      const want = store.plane[m.settings.theme] || 0, liv = store.livery[m.settings.theme] || 0;
+      if (mine.plane !== want || mine.livery !== liv) Net.send({ t: 'me', plane: want, livery: liv });
+    }
+    if (this.on) for (const id of Object.keys(this.peers)) if (!m.players.some(p => p.id === id)) delete this.peers[id];
+    if (m.phase === 'lobby' && run && run.mode === 'coop' && (state === 'play' || state === 'pause' || state === 'over')) {
+      this.on = false;
+      openMenu();
+      show('coop');
+    }
+    if (!$('coop').classList.contains('hidden')) renderCoopLobby();
+  },
+  onDisconnect() {
+    const inMission = this.on;
+    this.on = false;
+    if (inMission || state !== 'menu') openMenu();
+    show('coop');
+    showCoopEntry('Lost the connection to the room.');
+  },
+  onGame(from, msg) {
+    switch (msg.t) {
+      case 'p': this.peerState(from, msg); break;
+      case 's': if (!this.isHost) this.applySnap(msg); break;
+      case 'eb': if (!this.isHost) for (const b of msg.b || []) eBullets.push({ x: b[0], y: b[1], vx: b[2], vy: b[3], life: 2.8 }); break;
+      case 'kill': if (!this.isHost) this.killFx(msg, false); break;
+      case 'pk': if (!this.isHost) pickups.push({ id: msg.id, x: msg.x, y: msg.y, kind: msg.kind, t: 0 }); break;
+      case 'picked': if (!this.isHost) this.onPicked(msg); break;
+      case 'wave': if (!this.isHost) this.onWave(msg); break;
+      case 'end': if (!this.isHost) this.onEnd(msg); break;
+      case 'h': if (this.isHost) this.onHits(from, msg); break;
+      case 'mh': if (this.isHost) { const mm = missiles.find(x => x.id === msg.id); if (mm && !mm.dead) { mm.dead = true; explode(mm.x, mm.y, 0.7); } } break;
+      case 'unlock': if (this.isHost) { const pr = this.peers[from]; if (pr) for (const mm of missiles) if (mm.lock && mm.target === from && Math.hypot(mm.x - pr.x, mm.y - pr.y) < 520) mm.lock = false; } break;
+      case 'pick': if (this.isHost) this.resolvePick(msg.id, from); break;
+      default: break;
+    }
+  },
+
+  // ---------- mission setup ----------
+  begin(m) {
+    this.on = true;
+    this.isHost = m.host === Net.you;
+    this.settings = m.settings; this.seed = m.seed; this.roster = m.players;
+    this.peers = {};
+    for (const p of m.players) if (p.id !== Net.you) {
+      this.peers[p.id] = { id: p.id, name: p.name, plane: p.plane, livery: p.livery, x: 0, y: 0, a: -Math.PI / 2, tx: 0, ty: 0, ta: -Math.PI / 2, roll: 0, hp: 3, mh: 3, dead: false, seen: false, trail: [], fireT: 0 };
+    }
+    this.hits = {}; this.mk = []; this.consumed = new Set(); this.rBullets = []; this.outBullets = [];
+    this.sendT = 0; this.snapT = 0; this.left = 0; this.lastSnap = 0; this.lastEnd = null;
+    this.h = this.isHost ? { eid: 0, mid: 0, pid: 0, chains: {}, kills: {}, crashes: {}, waveCrash: false, downT: 0 } : null;
+  },
+  peerList() { return Object.values(this.peers); },
+  centroid() {
+    const pts = [player, ...this.peerList().filter(p => p.seen)].filter(p => !p.dead);
+    if (!pts.length) return player;
+    return { x: pts.reduce((a, p) => a + p.x, 0) / pts.length, y: pts.reduce((a, p) => a + p.y, 0) / pts.length };
+  },
+  posOf(id) { if (id === Net.you || !this.peers[id]) return player; return this.peers[id]; },
+  // Each enemy chases the nearest pilot still flying, sticking with a choice for two seconds.
+  targetFor(e) {
+    e.tT = (e.tT || 0) - 1 / 60;
+    const cur = e.tid && this.posOf(e.tid);
+    if (cur && !cur.dead && e.tT > 0) { if (cur !== player) cur.speed = SPEED; return cur; }
+    let best = null, bd = Infinity;
+    const cands = [{ id: Net.you, o: player }, ...this.peerList().filter(p => p.seen).map(p => ({ id: p.id, o: p }))];
+    for (const c of cands) {
+      if (c.o.dead) continue;
+      const d = Math.hypot(c.o.x - e.x, c.o.y - e.y);
+      if (d < bd) { bd = d; best = c; }
+    }
+    if (!best) return { x: e.x + Math.cos(e.a) * 100, y: e.y + Math.sin(e.a) * 100, a: e.a, speed: SPEED, dead: true };
+    e.tid = best.id; e.tT = 2;
+    if (best.o !== player) best.o.speed = SPEED;
+    return best.o;
+  },
+  allDown() { return player.dead && this.peerList().every(p => !p.seen || p.dead); },
+
+  // ---------- peers ----------
+  peerState(id, s) {
+    const pr = this.peers[id];
+    if (!pr) return;
+    pr.tx = s.x; pr.ty = s.y; pr.ta = (s.a || 0) / 100; pr.roll = (s.r || 0) / 100;
+    pr.hp = s.hp; pr.mh = s.mh;
+    if (!pr.seen) { pr.x = s.x; pr.y = s.y; pr.a = pr.ta; pr.seen = true; }
+    const wasDead = pr.dead;
+    pr.dead = !!s.d;
+    if (pr.dead && !wasDead) {
+      explode(pr.x, pr.y, 1.4);
+      if (Math.hypot(pr.x - player.x, pr.y - player.y) < 900) sfx.boom(true);
+      if (this.isHost) { this.h.crashes[id] = (this.h.crashes[id] || 0) + 1; this.h.waveCrash = true; }
+    }
+    if (!pr.dead && wasDead) { pr.x = pr.tx; pr.y = pr.ty; pr.trail = []; }
+  },
+  tickPeers(dt) {
+    const k = Math.min(1, dt * 10);
+    for (const pr of this.peerList()) {
+      if (!pr.seen) continue;
+      const pl = theme.planes[pr.plane] || theme.planes[0], h = ARCH[pl.arch];
+      const vx = Math.cos(pr.ta) * SPEED * h.speed * dt, vy = Math.sin(pr.ta) * SPEED * h.speed * dt;
+      pr.tx += vx; pr.ty += vy; pr.x += vx; pr.y += vy;
+      pr.x = lerp(pr.x, pr.tx, k); pr.y = lerp(pr.y, pr.ty, k);
+      pr.a = wrapAng(pr.a + angDiff(pr.ta, pr.a) * k);
+      if (pr.dead) continue;
+      pr.trail.push({ x: pr.x, y: pr.y, a: pr.a }); if (pr.trail.length > 18) pr.trail.shift();
+      pr.fireT -= dt;
+      if (pr.fireT <= 0) {
+        pr.fireT = 0.1 / (world.mod.fire || 1) / h.fire;
+        const c = Math.cos(pr.a), s2 = Math.sin(pr.a), sp = 1030;
+        for (const side of [-1, 1]) this.rBullets.push({ x: pr.x + c * 12 - s2 * 8 * side, y: pr.y + s2 * 12 + c * 8 * side, vx: c * sp, vy: s2 * sp, life: 0.55 });
+      }
+    }
+    for (let i = this.rBullets.length - 1; i >= 0; i--) {
+      const b = this.rBullets[i]; b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
+      if (b.life <= 0) this.rBullets.splice(i, 1);
+    }
+  },
+
+  // ---------- host ----------
+  hostStartWave(i) {
+    const w = coopWave(i, this.settings, this.roster.length, this.seed);
+    run.queue = w.list; run.waveT = 0; run.phaseT = i === 0 ? 3 : 2.2;
+    this.h.waveCrash = false; this.h.downT = 0;
+    const ev = { t: 'wave', i, ph: 'intro', name: w.name };
+    Net.send(ev); this.onWave(ev);
+  },
+  hostTick(dt) {
+    const h = this.h;
+    if (run.phase === 'intro') {
+      run.phaseT -= dt;
+      if (run.phaseT <= 0) run.phase = 'fight';
+    } else if (run.phase === 'fight') {
+      run.waveT += dt;
+      for (let k = run.queue.length - 1; k >= 0; k--) if (run.queue[k].delay <= run.waveT) spawnEnemy(run.queue.splice(k, 1)[0]);
+      if (!run.queue.length && !enemies.length) {
+        const i = run.waveIdx, bonus = 300 * (i + 1) + (h.waveCrash ? 0 : 500);
+        run.score += bonus;
+        const ev = { t: 'wave', i, ph: 'cleared', bonus };
+        Net.send(ev); this.onWave(ev);
+      } else if (this.allDown()) {
+        h.downT += dt;
+        if (h.downT > 1.5) this.hostEnd(false);
+      } else h.downT = 0;
+    } else if (run.phase === 'cleared') {
+      run.phaseT -= dt;
+      if (run.phaseT <= 0) { if (run.waveIdx + 1 >= run.totalWaves) this.hostEnd(true); else this.hostStartWave(run.waveIdx + 1); }
+    }
+    for (const c of Object.values(h.chains)) if (c.t > 0) { c.t -= dt; if (c.t <= 0) { c.n = 0; c.m = 1; } }
+  },
+  hostKill(e, by) {
+    e.dead = true;
+    const h = this.h;
+    const c = h.chains[by] || (h.chains[by] = { n: 0, t: 0, m: 1 });
+    c.n++; c.t = CHAIN_T; c.m = Math.min(5, 1 + Math.floor(c.n / 2));
+    const pts = e.spec.pts * c.m;
+    run.score += pts;
+    h.kills[by] = (h.kills[by] || 0) + 1;
+    if (e.type === 'ace') run.aceKilled = true;
+    const ev = { t: 'kill', id: e.id, by, pts, m: c.m, x: Math.round(e.x), y: Math.round(e.y), a: Math.round(e.a * 100), ty: e.type };
+    Net.send(ev);
+    if (e.drop) {
+      const pk = { id: ++h.pid, x: Math.round(e.x), y: Math.round(e.y), kind: e.drop, t: 0 };
+      pickups.push(pk);
+      Net.send({ t: 'pk', id: pk.id, x: pk.x, y: pk.y, kind: pk.kind });
+    }
+    this.killFx(ev, true);
+  },
+  onHits(from, msg) {
+    for (const hit of msg.h || []) {
+      const e = enemies.find(x => x.id === hit[0]);
+      if (e && !e.dead) damageEnemy(e, clamp(Number(hit[1]) || 0, 0, 40), from);
+    }
+    for (const id of msg.mk || []) {
+      const m = missiles.find(x => x.id === id);
+      if (m && !m.dead) { m.dead = true; explode(m.x, m.y, 0.45); run.score += 50; }
+    }
+  },
+  resolvePick(id, by) {
+    const i = pickups.findIndex(k => k.id === id);
+    if (i < 0) return;
+    const k = pickups[i];
+    pickups.splice(i, 1);
+    const who = by === Net.you ? player : this.peers[by];
+    const heals = k.kind === 'heart' && who && who.hp < (who.mh || who.maxHp || 3);
+    const mult = (this.h.chains[by] || { m: 1 }).m;
+    const pts = heals ? 0 : (k.kind === 'heart' ? 500 : 250) * mult;
+    run.score += pts;
+    const ev = { t: 'picked', id, by, kind: k.kind, heals, pts };
+    Net.send(ev); this.onPicked(ev);
+  },
+  hostEnd(win) {
+    const stats = {};
+    for (const p of this.roster) stats[p.id] = { kills: this.h.kills[p.id] || 0, crashes: this.h.crashes[p.id] || 0 };
+    const ev = { t: 'end', win, wave: run.waveIdx, total: run.totalWaves, score: run.score, time: Math.round(run.totalT), stats };
+    Net.send(ev); this.onEnd(ev);
+  },
+  snapshot() {
+    return {
+      t: 's', sc: run.score, w: run.waveIdx, ph: run.phase, left: run.queue.length + enemies.length,
+      e: enemies.filter(e => !e.dead).map(e => [e.id, COOP_TYPES.indexOf(e.type), Math.round(e.x), Math.round(e.y), Math.round(e.a * 100), Math.max(0, Math.round(e.hp)), e.maxHp, e.flash > 0 ? 1 : 0]),
+      m: missiles.filter(m => !m.dead).map(m => [m.id, Math.round(m.x), Math.round(m.y), Math.round(m.a * 100), m.lock ? 1 : 0]),
+    };
+  },
+
+  // ---------- everyone ----------
+  killFx(ev, local) {
+    if (!local) { const e = enemies.find(x => x.id === ev.id); if (e) e.dead = true; enemies = enemies.filter(x => !x.dead); }
+    const spec = ENEMY[ev.ty] || ENEMY.scout, mine = ev.by === Net.you, a = ev.a / 100;
+    if (mine) { run.kills++; run.mult = ev.m; run.bestMult = Math.max(run.bestMult, ev.m); run.chainT = CHAIN_T; }
+    floater(ev.x, ev.y - 18, `+${fmtNum(ev.pts)}`, mine ? theme.accent : '#ffffff', ev.ty === 'ace' ? 1.8 : mine ? 1 : 0.8);
+    const big = ev.ty === 'bomber' || ev.ty === 'ace';
+    explode(ev.x, ev.y, big ? 1.8 : 1);
+    wrecks.push({ x: ev.x, y: ev.y, a, vx: Math.cos(a) * spec.speed * 0.6, vy: Math.sin(a) * spec.speed * 0.6, spin: rand(-6, 6), t: 0, dur: 0.9, type: ev.ty });
+    if (Math.hypot(ev.x - player.x, ev.y - player.y) < 900) { sfx.boom(big); shake = Math.max(shake, ev.ty === 'ace' ? 28 : big ? 14 : 6); }
+    if (ev.ty === 'ace') slowT = 1.1;
+  },
+  onPicked(ev) {
+    const i = pickups.findIndex(k => k.id === ev.id);
+    const k = i >= 0 ? pickups[i] : null;
+    if (i >= 0) pickups.splice(i, 1);
+    if (ev.by !== Net.you) return;
+    sfx.pickup();
+    if (ev.heals && player.hp < player.maxHp && !player.dead) { player.hp++; renderHull(); if (k) floater(k.x, k.y, 'HULL REPAIRED', '#38d98a', 0.9); }
+    else if (k && ev.pts) floater(k.x, k.y, `+${fmtNum(ev.pts)}`, '#ffd34f', 1);
+  },
+  onWave(ev) {
+    run.waveIdx = ev.i;
+    if (ev.ph === 'intro') {
+      run.phase = 'intro';
+      const s = this.settings;
+      showBanner(`Wave ${ev.i + 1} of ${run.totalWaves}`, ev.name, ev.i === 0 ? `${COOP_DIFF[s.difficulty].label} · ${world.mod.name} · ${this.roster.length} pilot${this.roster.length === 1 ? '' : 's'}` : '');
+      sfx.wave();
+    } else if (ev.ph === 'cleared') {
+      run.phase = 'cleared'; run.phaseT = 2.6;
+      run.results[ev.i] = { grade: 'g', time: 0 };
+      eBullets.length = 0; missiles.length = 0;
+      const wasDown = player.dead;
+      if (wasDown) this.revive();
+      showBanner(`Wave ${ev.i + 1} cleared`, wasDown ? 'Back in the fight' : 'Nice flying', `+${fmtNum(ev.bonus)} squad bonus`);
+      sfx.clear();
+    }
+    renderPips();
+  },
+  revive() {
+    const mate = this.peerList().find(p => p.seen && !p.dead);
+    if (mate) { player.x = mate.x - Math.cos(mate.a) * 80; player.y = mate.y - Math.sin(mate.a) * 80; player.a = mate.a; player.prevA = mate.a; }
+    player.dead = false; player.hp = player.maxHp; player.inv = 2.5; player.rollCd = 0; player.speed = SPEED * player.sp;
+    trail = [];
+    renderHull();
+  },
+  onLocalDown() { if (this.isHost) { this.h.crashes[Net.you] = (this.h.crashes[Net.you] || 0) + 1; this.h.waveCrash = true; } },
+  onEnd(ev) {
+    if (state !== 'play') return;
+    state = 'over';
+    hideAllOverlays(); hide('hud'); hide('boss'); hide('warn'); hide('squad');
+    input.touching = false; input.touchId = null;
+    run.score = ev.score;
+    countPlaneUse();
+    this.lastEnd = ev;
+    track('coop_end', { win: ev.win, waves: ev.total, difficulty: this.settings.difficulty, pilots: this.roster.length });
+    showCoopResults(ev);
+  },
+
+  // ---------- clients ----------
+  applySnap(s) {
+    this.lastSnap = performance.now();
+    const seen = new Set();
+    for (const r of s.e || []) {
+      const [id, ti, x, y, a, hp, maxHp, fl] = r;
+      seen.add(id);
+      let e = enemies.find(q => q.id === id);
+      if (!e) {
+        const type = COOP_TYPES[ti] || 'scout';
+        e = { id, type, spec: ENEMY[type], x, y, a: a / 100, tx: x, ty: y, ta: a / 100, hp, maxHp, t: 0, phase: id % 7, flash: 0, dead: false };
+        enemies.push(e);
+      }
+      e.tx = x; e.ty = y; e.ta = a / 100; e.hp = hp; e.maxHp = maxHp;
+      if (fl) e.flash = Math.max(e.flash, 0.07);
+    }
+    enemies = enemies.filter(e => seen.has(e.id));
+    const ms = new Set();
+    for (const r of s.m || []) {
+      const [id, x, y, a, lock] = r;
+      if (this.consumed.has(id)) continue;
+      ms.add(id);
+      let m = missiles.find(q => q.id === id);
+      if (!m) { m = { id, x, y, a: a / 100, speed: 380, lock: !!lock, life: 99, t: 0 }; missiles.push(m); }
+      m.tx = x; m.ty = y; m.ta = a / 100; m.lock = !!lock;
+    }
+    missiles = missiles.filter(m => ms.has(m.id) && !m.dead);
+    run.score = s.sc; this.left = s.left;
+    if (s.ph && run.phase !== 'cleared') run.phase = s.ph;
+    if (typeof s.w === 'number' && s.w !== run.waveIdx) { run.waveIdx = s.w; renderPips(); }
+  },
+  clientTick(dt) {
+    const k = Math.min(1, dt * 8);
+    // A host whose tab is in the background stops sending; hold the enemies where they are.
+    const stalled = this.lastSnap && performance.now() - this.lastSnap > 1500;
+    if (stalled) { this.stallHintT = (this.stallHintT || 0) - dt; if (this.stallHintT <= 0) { this.stallHintT = 1; showHint("Waiting for the host. Their game is paused or their connection dropped.", 1400); } }
+    for (const e of enemies) {
+      e.t += dt; e.flash = Math.max(0, e.flash - dt);
+      // Move with the plane, then ease out only the error, so smoothing adds no lag.
+      if (!stalled) { const vx = Math.cos(e.ta) * e.spec.speed * dt, vy = Math.sin(e.ta) * e.spec.speed * dt; e.tx += vx; e.ty += vy; e.x += vx; e.y += vy; }
+      e.x = lerp(e.x, e.tx, k); e.y = lerp(e.y, e.ty, k);
+      e.a = wrapAng(e.a + angDiff(e.ta, e.a) * k);
+    }
+    for (const m of missiles) {
+      if (!stalled) { const vx = Math.cos(m.ta) * m.speed * dt, vy = Math.sin(m.ta) * m.speed * dt; m.tx += vx; m.ty += vy; m.x += vx; m.y += vy; }
+      m.x = lerp(m.x, m.tx, k); m.y = lerp(m.y, m.ty, k);
+      m.a = wrapAng(m.a + angDiff(m.ta, m.a) * k);
+      if (Math.random() < 0.8) puff(m.x - Math.cos(m.a) * 8, m.y - Math.sin(m.a) * 8, rand(-10, 10), rand(-10, 10), rand(2.5, 4.5), 9, 0.55, theme.neon ? theme.accent : '#d8d8d8', 'smoke');
+    }
+  },
+  queueHit(id, n) { this.hits[id] = (this.hits[id] || 0) + n; },
+  netTick(dt) {
+    this.sendT -= dt;
+    if (this.sendT <= 0) {
+      this.sendT = 1 / 12;
+      const roll = (player.rollT > 0 ? (1 - player.rollT / ROLL_T) * TAU : 0) + player.bank;
+      Net.send({ t: 'p', x: Math.round(player.x), y: Math.round(player.y), a: Math.round(player.a * 100), r: Math.round(roll * 100), hp: player.hp, mh: player.maxHp, d: player.dead ? 1 : 0 });
+      if (!this.isHost) {
+        const h = Object.entries(this.hits).map(([id, n]) => [Number(id), n]);
+        if (h.length || this.mk.length) { Net.send({ t: 'h', h, mk: this.mk }); this.hits = {}; this.mk = []; }
+      }
+    }
+    if (this.isHost) {
+      this.snapT -= dt;
+      if (this.snapT <= 0) {
+        this.snapT = 0.1;
+        Net.send(this.snapshot());
+        if (this.outBullets.length) { Net.send({ t: 'eb', b: this.outBullets }); this.outBullets = []; }
+      }
+    }
+  },
+
+  // ---------- drawing ----------
+  drawPeers(c, th) {
+    c.lineCap = 'round';
+    c.strokeStyle = th.bullet; c.lineWidth = 3; c.globalAlpha = 0.75; c.beginPath();
+    for (const b of this.rBullets) { c.moveTo(b.x, b.y); c.lineTo(b.x - b.vx * 0.018, b.y - b.vy * 0.018); }
+    c.stroke(); c.globalAlpha = 1;
+    for (const pr of this.peerList()) {
+      if (!pr.seen || pr.dead) continue;
+      const pl = th.planes[pr.plane] || th.planes[0], craft = CRAFT_PLAYER[pl.shape], col = colorsFor(th, 'player', pr.livery);
+      c.lineWidth = 2;
+      for (let i = 1; i < pr.trail.length; i++) {
+        const a = pr.trail[i - 1], b = pr.trail[i];
+        c.strokeStyle = `rgba(255,255,255,${(i / pr.trail.length) * 0.3})`;
+        for (const side of [-1, 1]) { c.beginPath(); c.moveTo(a.x - Math.sin(a.a) * 20 * side, a.y + Math.cos(a.a) * 20 * side); c.lineTo(b.x - Math.sin(b.a) * 20 * side, b.y + Math.cos(b.a) * 20 * side); c.stroke(); }
+      }
+      if (th.shadows) { c.save(); c.translate(pr.x + 16, pr.y + 26); c.rotate(pr.a); drawCraft(c, craft, null, 1, { roll: pr.roll, shadow: th.pal.shadow }); c.restore(); }
+      c.save(); c.translate(pr.x, pr.y); c.rotate(pr.a); drawCraft(c, craft, col, 1, { roll: pr.roll, spin: time * 45, t: time }); c.restore();
+      c.save(); c.translate(pr.x, pr.y - 38); c.scale(1 / zoom, 1 / zoom);
+      c.font = '700 14px "Barlow Condensed", "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+      c.lineWidth = 4; c.strokeStyle = 'rgba(5,6,12,.85)'; c.strokeText(pr.name.toUpperCase(), 0, 0);
+      c.fillStyle = '#38d98a'; c.fillText(pr.name.toUpperCase(), 0, 0);
+      const n = pr.mh || 3;
+      for (let i = 0; i < n; i++) { c.fillStyle = i < pr.hp ? '#38d98a' : 'rgba(255,255,255,.2)'; c.fillRect(-n * 5 + i * 10, 10, 8, 4); }
+      c.restore();
+    }
+  },
+  renderSquad() {
+    const rows = [{ name: store.callsign, hp: player.hp, mh: player.maxHp, dead: player.dead, me: true },
+      ...this.peerList().map(p => ({ name: p.name, hp: p.hp, mh: p.mh || 3, dead: p.dead, me: false }))];
+    $('squad').innerHTML = rows.map(r => `<div class="sq chamfer ${r.dead ? 'down' : ''} ${r.me ? 'me' : ''}"><span>${esc(r.name)}</span>${r.dead ? '<span>Down</span>' : `<span class="hull">${Array.from({ length: r.mh }, (_, i) => `<i class="${i < r.hp ? '' : 'off'}"></i>`).join('')}</span>`}</div>`).join('');
+  },
+};
+
+function useTheme(id) {
+  theme = THEMES[id] || THEMES.ww2;
+  const root = document.documentElement.style;
+  root.setProperty('--accent', theme.accent);
+  root.setProperty('--accent-ink', theme.accentInk);
+  document.body.style.background = theme.pal.base;
+}
+
+function startCoop(m) {
+  const s = m.settings;
+  useTheme(s.theme);
+  world = buildWorld(m.seed);
+  if (s.mod !== 'random') {
+    world.mod = MODS.find(x => x.id === s.mod) || MODS[0];
+    const wa = rngFrom(`${m.seed}-wind`)() * TAU;
+    world.wind = { x: Math.cos(wa) * (world.mod.wind || 0), y: Math.sin(wa) * (world.mod.wind || 0) };
+  }
+  tileWorld = false;
+  resetEntities();
+  Coop.begin(m);
+  player = makePlayer(world.mod.hearts ? Math.min(world.mod.hearts, s.hull) : s.hull);
+  const idx = Math.max(0, m.players.findIndex(p => p.id === Net.you));
+  player.x = (idx - (m.players.length - 1) / 2) * 110; player.y = 0;
+  cam.x = player.x; cam.y = player.y; slowT = 0; freezeT = 0;
+  run = {
+    mode: 'coop', theme: theme.id, waveIdx: 0, phase: 'intro', phaseT: 3, waveT: 0, queue: [], totalT: 0, totalWaves: s.waves,
+    score: 0, shownScore: 0, killPts: 0, bonusPts: 0, hullPts: 0, waveTimes: [],
+    kills: 0, chain: 0, chainT: 0, mult: 1, bestMult: 1, waveHits: 0, results: [], won: false, aceKilled: false,
+    plane: currentPlane(theme).id, livery: store.livery[theme.id] || 0, zen: { spawnT: 0, aceT: 0, crashes: 0 },
+  };
+  hide('coop'); hideAllOverlays(); show('hud'); show('squad');
+  renderHull();
+  $('waveLabel').classList.remove('hidden'); $('pips').classList.remove('hidden'); $('zenLabel').classList.add('hidden');
+  state = 'play';
+  renderPips();
+  Coop.renderSquad();
+  if (Coop.isHost) Coop.hostStartWave(0);
+  showHint(isTouch ? 'Drag to steer · tap ROLL to dodge · stick with your squad' : 'Mouse to steer · click or Space to roll · stick with your squad', 5000);
+  track('coop_start', { pilots: m.players.length, waves: s.waves, difficulty: s.difficulty, theme: s.theme });
+}
+
+function coopUpdate(dt) {
+  run.totalT += dt;
+  if (!player.dead) { steerPlayer(dt); movePlayer(dt); firePlayer(dt); }
+  if (run.chainT > 0) { run.chainT -= dt; if (run.chainT <= 0) run.mult = 1; }
+  Coop.tickPeers(dt);
+  if (Coop.isHost) { Coop.hostTick(dt); if (state !== 'play') return; updateEnemies(dt); }
+  else Coop.clientTick(dt);
+  updateBullets(dt);
+  updatePickups(dt);
+  updateFx(dt);
+  Coop.netTick(dt);
+}
+
+function showCoopResults(ev) {
+  const s = Coop.settings, host = Net.isHost;
+  $('resTiles').classList.add('hidden');
+  ['resMedals', 'resCountdown'].forEach(hide);
+  $('resKicker').textContent = `Co-op · Room ${Net.code} · ${COOP_DIFF[s.difficulty].label} · ${theme.name}`;
+  $('resTitle').textContent = ev.win ? 'Mission complete' : `Squad down in wave ${ev.wave + 1}`;
+  $('resRank').textContent = `${ev.win ? ev.total : ev.wave} of ${ev.total} waves`;
+  const rows = Coop.roster.map(p => ({ ...p, kills: (ev.stats[p.id] || {}).kills || 0, crashes: (ev.stats[p.id] || {}).crashes || 0 })).sort((a, b) => b.kills - a.kills || a.crashes - b.crashes);
+  const teamKills = rows.reduce((n, p) => n + p.kills, 0);
+  const rb = $('resBoard');
+  rb.innerHTML = `<div class="rb-line"><b>Squad</b><span>${rows[0] && rows[0].kills ? `MVP: ${esc(rows[0].name)}` : ''}</span></div>
+    <ol class="board">${rows.map((p, i) => {
+      const pl = theme.planes[p.plane] || theme.planes[0];
+      return `<li class="${p.id === Net.you ? 'me' : ''}"><span class="rk">${i + 1}</span>${avatarHTML(pl.id, p.livery)}<span class="nm">${esc(p.name)}${p.id === Net.you ? ' (you)' : ''}<small>${esc(pl.name)}</small></span><span class="coop-k">${p.crashes} crash${p.crashes === 1 ? '' : 'es'}</span><span class="sc">${p.kills}</span></li>`;
+    }).join('')}</ol>`;
+  rb.classList.remove('hidden');
+  paintAvatars(rb);
+  $('resBreakdown').innerHTML = `
+    <div><span>Waves cleared</span><span>${ev.win ? ev.total : ev.wave} / ${ev.total}</span></div>
+    <div><span>Squad kills</span><span>${fmtNum(teamKills)}</span></div>
+    <div><span>Mission time</span><span>${fmtClock(ev.time)}</span></div>
+    <div class="total"><span>Squad score</span><span>${fmtNum(ev.score)}</span></div>`;
+  $('resStats').innerHTML = [[run.kills, 'Your kills'], [`×${run.bestMult}`, 'Your top combo'], [Coop.roster.length, 'Pilots'], [COOP_DIFF[s.difficulty].label, 'Difficulty']]
+    .map(([v, l]) => `<div class="chip"><b>${v}</b><small>${l}</small></div>`).join('');
+  $('againBtn').textContent = host ? 'Fly again' : 'Waiting for host';
+  $('againBtn').disabled = !host;
+  $('menuBtn').textContent = host ? 'Back to lobby' : 'Leave room';
+  renderAd('adResults');
+  show('results');
+  countUp(ev.score);
+}
+
+/* ---------- lobby screen ---------- */
+function openCoop(code) {
+  show('coop');
+  if (Net.ws && Net.room) { renderCoopLobby(); return; }
+  showCoopEntry('');
+  $('coopJoin').textContent = 'Join';
+  if (code) {
+    // Invite link: fill in the code and let the pilot confirm their callsign before joining.
+    $('coopCode').value = code;
+    $('coopJoin').textContent = `Join ${code}`;
+    $('coopErr').textContent = `You're invited to room ${code}. Check your callsign, then join.`;
+    setTimeout(() => $('coopJoin').focus(), 50);
+  }
+}
+function showCoopEntry(msg) {
+  $('coopEntry').classList.remove('hidden'); $('coopLobby').classList.add('hidden');
+  $('coopTitle').textContent = 'Fly together';
+  $('coopName').value = store.callsign;
+  $('coopStatus').textContent = '';
+  $('coopLeave').textContent = 'Close';
+  const online = !!CONFIG.apiBase;
+  $('coopCreate').disabled = !online; $('coopJoin').disabled = !online;
+  $('coopErr').textContent = online ? (msg || '') : 'Co-op needs the online server. Play it at supersortie.io.';
+}
+async function coopConnect(code, create, tries = 0) {
+  saveCallsign($('coopName').value);
+  $('coopErr').textContent = create ? 'Creating a room…' : `Joining room ${code}…`;
+  $('coopCreate').disabled = true; $('coopJoin').disabled = true;
+  try {
+    await Net.connect(code, create);
+    track(create ? 'room_create' : 'room_join', {});
+  } catch (e) {
+    if (create && e === 'taken' && tries < 4) return coopConnect(randomRoomCode(), true, tries + 1);
+    showCoopEntry(COOP_ERRORS[e] || COOP_ERRORS.closed);
+  }
+}
+function coopInvite() { return `${CONFIG.siteUrl || (location.origin + location.pathname)}?room=${Net.code}`; }
+
+function renderCoopLobby() {
+  const room = Net.room;
+  if (!room) return;
+  $('coopEntry').classList.add('hidden'); $('coopLobby').classList.remove('hidden');
+  const host = Net.isHost, s = room.settings, th = THEMES[s.theme] || THEMES.ww2;
+  useTheme(s.theme);
+  $('coopTitle').textContent = host ? 'Your squad' : 'Squad lobby';
+  $('coopRoomCode').textContent = Net.code;
+  $('coopLeave').textContent = 'Leave room';
+  $('coopPlayers').innerHTML = room.players.map((p, i) => {
+    const pl = th.planes[p.plane] || th.planes[0];
+    const badges = (p.id === room.host ? '<span class="badge host">Host</span>' : p.ready ? '<span class="badge ok">Ready</span>' : '<span class="badge">Not ready</span>');
+    return `<li class="${p.id === Net.you ? 'me' : ''}"><span class="rk">${i + 1}</span>${avatarHTML(pl.id, p.livery)}<span class="nm">${esc(p.name)}${p.id === Net.you ? ' (you)' : ''}${badges}<small>${esc(pl.name)}</small></span><span></span><span></span></li>`;
+  }).join('') + Array.from({ length: 4 - room.players.length }, () => '<li class="gap">Open seat · share the code</li>').join('');
+  paintAvatars($('coopPlayers'));
+
+  const cur = store.plane[th.id] || 0, liv = store.livery[th.id] || 0;
+  $('coopTheater').textContent = th.name;
+  $('coopPlanes').innerHTML = th.planes.map((pl, i) => `<button class="plane chamfer" role="radio" data-plane="${i}" aria-checked="${i === cur}">${avatarHTML(pl.id, liv, 'big')}<b>${esc(pl.name)}</b><small>${ARCH[pl.arch].label}</small></button>`).join('');
+  paintAvatars($('coopPlanes'));
+  $('coopPlanes').querySelectorAll('.plane').forEach(btn => btn.addEventListener('click', () => {
+    store.plane[th.id] = Number(btn.dataset.plane); saveStore();
+    Net.send({ t: 'me', plane: store.plane[th.id], livery: liv });
+    renderCoopLobby();
+  }));
+
+  const sel = { setTheme: s.theme, setWaves: String(s.waves), setDiff: s.difficulty, setMod: s.mod, setHull: String(s.hull) };
+  for (const [id, v] of Object.entries(sel)) { const el = $(id); if (el.value !== v) el.value = v; el.disabled = !host; }
+  $('setAce').checked = !!s.ace; $('setAce').disabled = !host;
+  $('coopHostNote').textContent = host ? 'You choose' : 'Chosen by the host';
+
+  const others = room.players.filter(p => p.id !== room.host);
+  const readyCount = others.filter(p => p.ready).length;
+  const me = room.players.find(p => p.id === Net.you);
+  $('coopStart').classList.toggle('hidden', !host);
+  $('coopReady').classList.toggle('hidden', host);
+  $('coopStart').disabled = readyCount < others.length;
+  $('coopStart').textContent = others.length ? `Start mission · ${readyCount}/${others.length} ready` : 'Start mission';
+  $('coopReady').textContent = me && me.ready ? 'Not ready' : "I'm ready";
+  $('coopStatus').textContent = host
+    ? (others.length ? (readyCount < others.length ? 'Waiting for everyone to be ready.' : 'Everyone is ready. Keep this tab open while you host.') : 'Fly solo, or share the code to bring up to 3 friends.')
+    : (me && me.ready ? 'Waiting for the host to start.' : 'Pick your plane, then mark yourself ready.');
+}
+function coopSettingsFromForm() {
+  return { theme: $('setTheme').value, waves: Number($('setWaves').value), difficulty: $('setDiff').value, mod: $('setMod').value, hull: Number($('setHull').value), ace: $('setAce').checked };
+}
+function initCoopUi() {
+  $('setTheme').innerHTML = THEME_ORDER.map(id => `<option value="${id}">${esc(THEMES[id].name)}</option>`).join('');
+  $('setMod').innerHTML = '<option value="random">Random</option>' + MODS.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join('');
+  ['setTheme', 'setWaves', 'setDiff', 'setMod', 'setHull', 'setAce'].forEach(id => $(id).addEventListener('change', () => { if (Net.isHost) Net.send({ t: 'settings', settings: coopSettingsFromForm() }); }));
+  $('coopCreate').addEventListener('click', () => { audio(); coopConnect(randomRoomCode(), true); });
+  $('coopJoin').addEventListener('click', () => {
+    audio();
+    const code = $('coopCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (code.length !== 4) { $('coopErr').textContent = 'Room codes are 4 characters.'; return; }
+    coopConnect(code, false);
+  });
+  $('coopCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('coopJoin').click(); });
+  $('coopReady').addEventListener('click', () => { const me = Net.room && Net.room.players.find(p => p.id === Net.you); Net.send({ t: 'me', ready: !(me && me.ready) }); });
+  $('coopStart').addEventListener('click', () => { audio(); Net.send({ t: 'start' }); });
+  $('coopCopy').addEventListener('click', e => doShare(`Join my Super Sortie squad! Room ${Net.code}\n${coopInvite()}`, e.currentTarget));
+  $('coopLeave').addEventListener('click', () => { Net.close(); hide('coop'); if (state === 'menu') applyTheme(store.theme); });
+  $('coopBtn').addEventListener('click', () => { audio(); openCoop(); });
+  $('doneCoop').addEventListener('click', () => { audio(); openCoop(); });
+}
 
 /* =====================================================================
    Main loop
@@ -2838,7 +3642,17 @@ function frame(ts) {
 }
 
 applyDeviceCopy();
+initCoopUi();
 openMenu();
+// Invite links look like supersortie.io/?room=ABCD
+(() => {
+  let code = '';
+  try { code = (new URLSearchParams(location.search).get('room') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); } catch (e) { code = ''; }
+  if (code.length === 4) {
+    try { history.replaceState(null, '', location.pathname); } catch (e) { /* not allowed here */ }
+    openCoop(code);
+  }
+})();
 tickCountdown();
 requestAnimationFrame(frame);
 Board.init().then(() => { if (state === 'menu') openMenu(); });

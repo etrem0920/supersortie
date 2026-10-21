@@ -10,3 +10,12 @@ database_id = "cee8cffa-1ebf-4e97-9662-19f4baf196ad"
 
 [vars]
 ALLOWED_ORIGIN = "https://supersortie.io,https://www.supersortie.io,https://supersortie.pages.dev"
+
+# Co-op rooms (one Durable Object per room code)
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "CoopRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["CoopRoom"]
