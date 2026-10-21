@@ -19,3 +19,16 @@ class_name = "CoopRoom"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["CoopRoom"]
+
+# Arena: free-for-all for up to 12 pilots (one Durable Object per arena, plus matchmaking)
+[[durable_objects.bindings]]
+name = "ARENAS"
+class_name = "ArenaRoom"
+
+[[durable_objects.bindings]]
+name = "ARENA_DIR"
+class_name = "ArenaDirectory"
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["ArenaRoom", "ArenaDirectory"]

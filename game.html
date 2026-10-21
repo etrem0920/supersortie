@@ -297,6 +297,59 @@
   .res-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
   .res-foot b { color: var(--text); font-variant-numeric: tabular-nums; }
 
+  /* ---------- arena ---------- */
+  .btn .new { font-family: var(--font-cond); font-weight: 700; font-size: 11px; letter-spacing: .12em; background: var(--accent); color: var(--accent-ink); padding: 2px 6px; margin-left: 8px; vertical-align: 2px; }
+  .arena-pitch { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); margin-bottom: 4px; }
+  .arena-pitch div { background: var(--raise); padding: 10px 8px; text-align: center; }
+  .arena-pitch b { display: block; font-family: var(--font-display); font-weight: 900; font-size: 28px; line-height: 1; color: var(--accent); }
+  .arena-pitch small { color: var(--muted); font-size: 12px; line-height: 1.25; display: block; margin-top: 4px; }
+  .arena-online { text-align: center; color: var(--good); font-family: var(--font-cond); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 13px; min-height: 18px; }
+  .pu-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .pu { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); min-width: 0; }
+  .pu b { flex: none; width: 22px; height: 22px; display: grid; place-items: center; background: var(--c); color: #0b0d14; font-family: var(--font-display); font-weight: 900; font-size: 14px; transform: rotate(45deg); }
+  .pu b i { font-style: normal; transform: rotate(-45deg); }
+  .pu span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .arena-private { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: center; }
+  .arena-private select { min-height: 44px; background: var(--raise); color: var(--text); border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); padding: 0 10px; font: inherit; }
+  .arena-private .check { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 14px; white-space: nowrap; }
+  .aboard { display: flex; flex-direction: column; gap: 2px; min-width: 176px; font-family: var(--font-cond); font-weight: 700; font-size: 14px; }
+  .aboard div { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 3px 10px; background: rgba(9, 12, 20, .72); }
+  .aboard div > span:first-child { color: var(--muted); }
+  .aboard .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; letter-spacing: .04em; }
+  .aboard em { font-style: normal; font-size: 10px; color: var(--muted); margin-left: 5px; letter-spacing: .1em; }
+  .aboard .me { box-shadow: inset 3px 0 0 var(--accent); color: var(--accent); }
+  .aboard div:first-child .nm { color: #ffd34f; }
+  .killfeed { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; margin-top: 4px; font-family: var(--font-cond); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+  .killfeed div { display: flex; gap: 6px; align-items: center; padding: 3px 8px; background: rgba(9, 12, 20, .6); animation: feedin .25s ease both; }
+  .killfeed div.me { box-shadow: inset 0 0 0 1px var(--accent); }
+  .killfeed i { font-style: normal; font-size: 10px; letter-spacing: .1em; color: var(--accent); }
+  .killfeed em { font-style: normal; color: #ffd34f; }
+  @keyframes feedin { from { opacity: 0; transform: translateX(12px); } }
+  .weapon-chip { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(76px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 140px); }
+  .wchip { display: flex; align-items: center; gap: 8px; background: rgba(9, 12, 20, .82); box-shadow: inset 0 0 0 1px var(--c); padding: 5px 10px 5px 6px; font-family: var(--font-cond); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+  .wchip b { width: 20px; height: 20px; display: grid; place-items: center; background: var(--c); color: #0b0d14; font-family: var(--font-display); font-weight: 900; }
+  .wchip i { font-style: normal; color: var(--c); letter-spacing: .1em; }
+  .respawn { position: absolute; left: 50%; top: 34%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; width: calc(100% - 32px); text-shadow: 0 2px 12px rgba(0, 0, 0, .8); }
+  .respawn b { font-family: var(--font-display); font-weight: 900; font-size: clamp(34px, 7vw, 64px); text-transform: uppercase; line-height: .95; }
+  .respawn span { font-family: var(--font-cond); font-weight: 700; font-size: 20px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .respawn small { color: var(--muted); font-size: 14px; }
+  .arena-end { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(460px, calc(100% - 24px)); max-height: calc(100% - 140px); overflow-y: auto; background: #121827; box-shadow: inset 0 0 0 1px var(--line-strong), 0 20px 60px rgba(0, 0, 0, .5); padding: 20px; pointer-events: auto; display: flex; flex-direction: column; gap: 12px; animation: pop .3s cubic-bezier(.2, 1.4, .4, 1) both; }
+  .arena-end h3 { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 36px; text-transform: uppercase; line-height: .95; }
+  .arena-end .board { max-height: none; }
+  .arena-end .board li { padding: 5px 4px; }
+  .ae-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
+  .ae-foot > div { display: flex; gap: 8px; }
+  @keyframes pop { from { opacity: 0; transform: translate(-50%, -46%) scale(.96); } }
+  @media (max-width: 600px) {
+    .arena-pitch, .pu-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .arena-private { grid-template-columns: minmax(0, 1fr) auto; }
+    .arena-private .btn { grid-column: 1 / -1; }
+    .aboard { position: absolute; right: max(12px, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 118px); min-width: 0; width: 150px; font-size: 12px; }
+    .aboard div { padding: 2px 8px; }
+    .killfeed { position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); top: calc(env(safe-area-inset-top, 0px) + 118px); align-items: flex-start; font-size: 11px; max-width: calc(100% - 190px); }
+    .weapon-chip { bottom: calc(124px + env(safe-area-inset-bottom, 0px)); max-width: calc(100% - 24px); }
+  }
+
   /* ---------- HUD ---------- */
   .hud { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
   .hud-top {
@@ -313,6 +366,9 @@
   .hull { display: flex; gap: 3px; }
   .hull i { width: 22px; height: 12px; background: var(--good); transform: skewX(-18deg); }
   .hull i.off { background: rgba(255, 255, 255, .1); }
+  .hpbar { display: block; width: 120px; height: 12px; background: rgba(255, 255, 255, .1); transform: skewX(-18deg); overflow: hidden; }
+  .hpbar i { display: block; height: 100%; transform-origin: left; transition: transform .15s; }
+  .hpbar.lost { animation: lost .4s ease; }
   .hull.low i:not(.off) { background: var(--bad); animation: blink .6s steps(2) infinite; }
   .hull i.lost { animation: lost .5s ease both; }
   @keyframes lost { 0% { background: #fff; transform: skewX(-18deg) scaleY(1.8); } 100% { transform: skewX(-18deg); } }
@@ -418,12 +474,15 @@
       <div class="hpanel chamfer wave-panel">
         <div id="waveLabel" class="label">Wave <span id="waveNum" class="tnum">1</span>/<span id="waveTotal" class="tnum">5</span> · <em id="leftCount" class="tnum">0 left</em></div>
         <div id="zenLabel" class="label hidden">Zen · <em id="zenInfo" class="tnum">0:00</em></div>
+        <div id="arenaLabel" class="label hidden"><span id="arenaInfo" class="tnum"></span> · <em id="arenaRank" class="tnum"></em></div>
         <div id="pips" class="pips"></div>
       </div>
     </div>
     <div class="hud-right">
       <div id="scorePanel" class="hpanel chamfer score-panel">0</div>
       <div id="combo" class="combo chamfer"><span id="comboText">×2</span><i id="comboBar"></i></div>
+      <div id="arenaBoard" class="aboard hidden"></div>
+      <div id="killfeed" class="killfeed hidden"></div>
     </div>
   </div>
   <div id="squad" class="squad hidden" aria-label="Squad"></div>
@@ -433,6 +492,15 @@
     <div class="bar"><i id="bossFill"></i></div>
   </div>
   <div id="hint" class="hint chamfer"></div>
+  <div id="weaponChip" class="weapon-chip hidden"></div>
+  <div id="respawnBox" class="respawn hidden"><b id="rbBy">Shot down</b><span id="rbTime"></span><small id="rbSub"></small></div>
+  <div id="arenaEnd" class="arena-end chamfer hidden">
+    <span id="aeKicker" class="eyebrow-s"></span>
+    <h3 id="aeTitle"></h3>
+    <ol id="aeBoard" class="board"></ol>
+    <div id="aeStats" class="chips"></div>
+    <div class="ae-foot"><span id="aeNext"></span><div><button id="aeShare" class="btn btn-primary btn-small">Share</button><button id="aeLeave" class="btn btn-ghost btn-small">Leave</button></div></div>
+  </div>
   <button id="rollBtn" class="roll-btn" aria-label="Barrel roll">
     <span class="inner"><b>ROLL</b><small id="rollKey">Space</small></span>
   </button>
@@ -471,6 +539,7 @@
       </div>
       <div id="ctaFresh" class="cta">
         <button id="playBtn" class="btn btn-primary btn-xl">Fly today's sortie</button>
+        <button id="arenaBtn" class="btn btn-ghost btn-xl">Arena<span class="new">12 players</span></button>
         <button id="practiceBtn" class="btn btn-ghost btn-xl">Practice</button>
         <button id="zenBtn" class="btn btn-ghost btn-xl">Zen mode</button>
         <button id="coopBtn" class="btn btn-ghost btn-xl">Co-op</button>
@@ -480,12 +549,13 @@
         <div id="doneTiles" class="tiles"></div>
         <div class="cta">
           <button id="doneShare" class="btn btn-primary">Share result</button>
+          <button id="doneArena" class="btn btn-ghost">Arena<span class="new">12 players</span></button>
           <button id="donePractice" class="btn btn-ghost">Practice run</button>
           <button id="doneZen" class="btn btn-ghost">Zen mode</button>
           <button id="doneCoop" class="btn btn-ghost">Co-op</button>
         </div>
       </div>
-      <div class="hero-meta"><span>Next sortie in <b class="js-countdown">--:--:--</b></span><span id="pilotCount"></span><span id="leader"></span><span id="champ"></span></div>
+      <div class="hero-meta"><span>Next sortie in <b class="js-countdown">--:--:--</b></span><span id="pilotCount"></span><span id="arenaOnline"></span><span id="leader"></span><span id="champ"></span></div>
     </section>
 
     <aside class="panel chamfer" aria-label="Hangar">
@@ -598,6 +668,35 @@
   </div>
 </div>
 
+<!-- ================= ARENA ================= -->
+<div id="arena" class="modal hidden">
+  <div class="sheet sheet-wide">
+    <div class="sheet-head"><span class="eyebrow-s">Arena · free-for-all</span><h2>Into the arena</h2></div>
+    <div class="coop-entry">
+      <div class="arena-pitch">
+        <div><b>12</b><small>pilots per arena</small></div>
+        <div><b>4:00</b><small>rounds, a new theater each</small></div>
+        <div><b>2.5s</b><small>to respawn</small></div>
+        <div><b>8</b><small>power-ups</small></div>
+      </div>
+      <div class="field"><label for="arenaName">Your callsign</label><input id="arenaName" maxlength="16" autocomplete="off" spellcheck="false"></div>
+      <button id="arenaQuick" class="btn btn-primary btn-block btn-xl">Quick play</button>
+      <div id="arenaOnlineLine" class="arena-online"></div>
+      <div class="section-label"><span>Power-ups</span><span>Fly through them · weapons fire themselves</span></div>
+      <div id="puList" class="pu-list"></div>
+      <div class="section-label"><span>Private arena</span><span>Just you and your friends</span></div>
+      <div class="arena-private">
+        <select id="arenaTheme" aria-label="Theater"></select>
+        <label class="check"><input id="arenaBots" type="checkbox" checked> AI pilots</label>
+        <button id="arenaCreate" class="btn btn-ghost">Create</button>
+      </div>
+      <div class="join-row"><input id="arenaCode" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Arena code"><button id="arenaJoin" class="btn btn-ghost">Join</button></div>
+      <div id="arenaErr" class="coop-err" role="status"></div>
+    </div>
+    <div class="res-foot"><span>You fly your hangar plane for each theater.</span><button id="arenaClose" class="link-btn">Close</button></div>
+  </div>
+</div>
+
 <!-- ================= PAUSE ================= -->
 <div id="pause" class="modal hidden">
   <div class="sheet" style="max-width:360px">
@@ -606,6 +705,7 @@
     <div class="cta">
       <button id="pauseHow" class="btn btn-ghost btn-small">How to fly</button>
       <button id="pauseSound" class="btn btn-ghost btn-small">Sound on</button>
+      <button id="arenaInvite" class="btn btn-ghost btn-small hidden">Copy invite</button>
     </div>
     <button id="quitBtn" class="link-btn">Abandon sortie</button>
   </div>
@@ -727,7 +827,7 @@ if (!store.callsign) { store.callsign = `${CALL_WORDS[Math.random() * CALL_WORDS
 /* =====================================================================
    Rules of the day (seeded — identical for every pilot and theater)
    ===================================================================== */
-const R = 1500; // combat zone radius
+let R = 1500; // combat zone radius (the arena uses a bigger one)
 const MODS = [
   { id: 'standard', name: 'Standard rules', desc: 'No surprises. Just you and them.' },
   { id: 'glass', name: 'Glass cannon', desc: 'Two hull segments, but your guns hit twice as hard.', hearts: 2, dmg: 2 },
@@ -1415,7 +1515,7 @@ window.addEventListener('keydown', e => {
     if (e.code === 'Escape' || e.code === 'KeyP') resumeGame();
   } else if (state === 'menu') {
     if (!$('help').classList.contains('hidden')) { if (e.code === 'Escape') hide('help'); }
-    else if (e.code === 'Enter' && !store.history[todayNum] && $('coop').classList.contains('hidden')) onPlayDaily();
+    else if (e.code === 'Enter' && !store.history[todayNum] && $('coop').classList.contains('hidden') && $('arena').classList.contains('hidden')) onPlayDaily();
   }
 });
 window.addEventListener('keyup', e => { keys[e.code] = false; });
@@ -1444,6 +1544,9 @@ const toScreen = (x, y) => ({ x: W / 2 + (x - cam.x) * zoom, y: H / 2 + (y - cam
    ===================================================================== */
 function startRun(mode) {
   const seed = mode === 'daily' ? dailySeed() : `${mode === 'zen' ? 'ZEN' : 'PRACTICE'}-${Math.random().toString(36).slice(2, 8)}`;
+  R = BASE_R;
+  if (Arena.on || ANet.ws) { Arena.on = false; ANet.close(); }
+  setArenaHud(false);
   world = buildWorld(seed);
   Coop.on = false; hide('squad');
   if (Net.ws) { Net.close(); hide('coop'); }
@@ -1597,6 +1700,7 @@ function tryRoll() {
   player.rollT = ROLL_T; player.rollCd = ROLL_CD;
   sfx.roll();
   if (Coop.on && !Coop.isHost) Net.send({ t: 'unlock' });
+  if (Arena.on) Arena.rollBreak();
   for (let i = 0; i < 8; i++) puff(player.x, player.y, rand(-60, 60), rand(-60, 60), rand(5, 9), 20, 0.45, '#ffffff', 'smoke');
   let broke = 0;
   for (const m of missiles) if (m.lock && Math.hypot(m.x - player.x, m.y - player.y) < 520) { m.lock = false; broke++; }
@@ -1958,6 +2062,7 @@ function zenTick(dt) {
 
 function update(dt) {
   if (state === 'play' && run && run.mode === 'coop') { coopUpdate(dt); return; }
+  if (state === 'play' && run && run.mode === 'arena') { arenaUpdate(dt); return; }
   if (state === 'play') {
     run.totalT += dt;
     if (!player.dead) { steerPlayer(dt); movePlayer(dt); firePlayer(dt); }
@@ -1989,7 +2094,8 @@ function update(dt) {
 
 function updateCamera(dt) {
   const look = Math.min(W, H) * 0.13 / zoom;
-  const mate = Coop.on && player.dead ? Coop.peerList().find(p => p.seen && !p.dead) : null;
+  const killer = Arena.on && player.dead && Arena.killer ? Arena.others.get(Arena.killer) : null;
+  const mate = Coop.on && player.dead ? Coop.peerList().find(p => p.seen && !p.dead) : killer && killer.alive ? killer : null;
   const f = mate || player;
   const tx = f.x + Math.cos(f.a) * look, ty = f.y + Math.sin(f.a) * look;
   const k = Math.min(1, dt * 4);
@@ -2277,10 +2383,10 @@ function draw() {
     const k = w.t / w.dur;
     ctx.save(); ctx.translate(w.x, w.y); ctx.rotate(w.a);
     ctx.globalAlpha = 1 - k * 0.4;
-    const col = w.type === 'player' ? pCol : colorsFor(th, w.type);
+    const col = w.col || (w.type === 'player' ? pCol : colorsFor(th, w.type)), wc = w.craft || craftFor(th, w.type);
     const sc = TYPE_SCALE[w.type] * (1 - 0.55 * k);
-    drawCraft(ctx, craftFor(th, w.type), col, sc, { t: time, flash: false });
-    ctx.globalAlpha = 0.5 * k; drawCraft(ctx, craftFor(th, w.type), null, sc, { shadow: '#0b0a12' });
+    drawCraft(ctx, wc, col, sc, { t: time, flash: false });
+    ctx.globalAlpha = 0.5 * k; drawCraft(ctx, wc, null, sc, { shadow: '#0b0a12' });
     ctx.restore();
   }
 
@@ -2346,6 +2452,7 @@ function draw() {
   }
 
   if (Coop.on) Coop.drawPeers(ctx, th);
+  if (Arena.on) Arena.draw(ctx, th, inView);
 
   // player
   if (!player.dead) {
@@ -2405,6 +2512,7 @@ function draw() {
     for (const e of enemies) edgeArrow(e.x, e.y, e.type === 'ace' ? th.accent : '#ff4d5e', e.type === 'ace' ? 1.4 : e.type === 'bomber' ? 1.2 : 1);
     for (const m of missiles) if (m.lock && (!Coop.on || m.target === Net.you)) edgeArrow(m.x, m.y, '#ffffff', 0.8);
     if (Coop.on) for (const pr of Coop.peerList()) if (pr.seen && !pr.dead) edgeArrow(pr.x, pr.y, '#38d98a', 0.9);
+    if (Arena.on) Arena.edgeArrows(edgeArrow);
     if (input.mode === 'touch' && input.touching) {
       ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(input.ox, input.oy, 70, 0, TAU); ctx.stroke();
@@ -2462,6 +2570,13 @@ function drawPreview(cv, th, liv) {
    ===================================================================== */
 function renderHull(lost) {
   const el = $('hull');
+  if (run && run.mode === 'arena') {
+    const f = clamp(player.hp / player.maxHp, 0, 1);
+    el.innerHTML = `<b class="hpbar${lost ? ' lost' : ''}"><i style="transform:scaleX(${f.toFixed(3)});background:${f > 0.5 ? 'var(--good)' : f > 0.25 ? 'var(--warn)' : 'var(--bad)'}"></i></b>`;
+    el.classList.remove('low');
+    el.setAttribute('aria-label', `Hull ${player.hp} of ${player.maxHp}`);
+    return;
+  }
   el.innerHTML = Array.from({ length: player.maxHp }, (_, i) => `<i class="${i < player.hp ? '' : 'off'}${lost && i === player.hp ? ' lost' : ''}"></i>`).join('');
   el.classList.toggle('low', player.hp === 1);
   el.setAttribute('aria-label', `Hull ${player.hp} of ${player.maxHp}`);
@@ -2482,6 +2597,12 @@ function updateHUD(dt) {
   run.shownScore = lerp(run.shownScore, run.score, Math.min(1, dt * 10));
   if (Math.abs(run.score - run.shownScore) < 1) run.shownScore = run.score;
   setText('scorePanel', fmtNum(run.shownScore));
+  if (run.mode === 'arena') {
+    Arena.hud(dt);
+    const acd = player.rollCd > 0 ? 1 - player.rollCd / ROLL_CD : 1, arb = $('rollBtn');
+    arb.style.setProperty('--cd', acd.toFixed(3)); arb.classList.toggle('ready', acd >= 1);
+    return;
+  }
   const left = Coop.on && !Coop.isHost ? Coop.left : run.queue.length + enemies.length;
   if (Coop.on) {
     Coop.squadT -= dt;
@@ -2764,6 +2885,9 @@ function openMenu() {
   tileWorld = false;
   Coop.on = false;
   hide('squad');
+  R = BASE_R;
+  if (Arena.on || ANet.ws) { Arena.on = false; ANet.close(); }
+  setArenaHud(false);
   $('againBtn').disabled = false;
   $('menuBtn').textContent = 'Back to hangar';
   world = buildWorld(dailySeed());
@@ -2877,9 +3001,10 @@ function showResults(earned) {
 
 function pauseGame(auto) {
   if (state !== 'play') return;
-  if (run.mode === 'coop') {
+  if (run.mode === 'coop' || run.mode === 'arena') {
     if (auto === true) return;
-    $('quitBtn').textContent = 'Leave mission';
+    $('quitBtn').textContent = run.mode === 'arena' ? 'Leave arena' : 'Leave mission';
+    $('arenaInvite').classList.toggle('hidden', !(run.mode === 'arena' && Arena.info && Arena.info.code));
     show('pause');
     return;
   }
@@ -2887,7 +3012,7 @@ function pauseGame(auto) {
   $('quitBtn').textContent = run.mode === 'zen' ? 'End flight' : 'Abandon sortie';
   show('pause');
 }
-function resumeGame() { if (Coop.on && state === 'play') { hide('pause'); hide('help'); return; } if (state !== 'pause') return; hide('pause'); hide('help'); state = 'play'; last = 0; }
+function resumeGame() { if ((Coop.on || Arena.on) && state === 'play') { hide('pause'); hide('help'); return; } if (state !== 'pause') return; hide('pause'); hide('help'); state = 'play'; last = 0; }
 
 function applyDeviceCopy() {
   if (!isTouch) return;
@@ -2928,7 +3053,7 @@ $('helpGo').addEventListener('click', () => { if (!$('helpCallsign').classList.c
 $('pauseBtn').addEventListener('click', pauseGame);
 $('resumeBtn').addEventListener('click', resumeGame);
 $('pauseHow').addEventListener('click', () => openHelp(null, false));
-$('quitBtn').addEventListener('click', () => { if (run && run.mode === 'zen') finishZen(); else if (run && run.mode === 'coop') { Net.close(); openMenu(); } else openMenu(); });
+$('quitBtn').addEventListener('click', () => { if (run && run.mode === 'arena') { hide('pause'); leaveArena(); } else if (run && run.mode === 'zen') finishZen(); else if (run && run.mode === 'coop') { Net.close(); openMenu(); } else openMenu(); });
 $('againBtn').addEventListener('click', () => {
   audio();
   if (run && run.mode === 'coop') { if (Net.isHost) Net.send({ t: 'start' }); return; }
@@ -3442,6 +3567,7 @@ function useTheme(id) {
 function startCoop(m) {
   const s = m.settings;
   useTheme(s.theme);
+  R = BASE_R; setArenaHud(false);
   world = buildWorld(m.seed);
   if (s.mod !== 'random') {
     world.mod = MODS.find(x => x.id === s.mod) || MODS[0];
@@ -3622,6 +3748,688 @@ function initCoopUi() {
 }
 
 /* =====================================================================
+   Arena: free-for-all for up to 12 pilots (server: server/arena.js)
+   ===================================================================== */
+const BASE_R = 1500;
+const ARENA_PICKUPS = {
+  m: { name: 'Missiles', color: '#ff5d4d', glyph: 'M', hint: 'Missiles lock on to whoever you point at, then fire themselves' },
+  r: { name: 'Rail gun', color: '#6ee8ff', glyph: 'R', hint: 'The rail gun fires the moment a plane lines up in your sights' },
+  n: { name: 'Mines', color: '#ffc53d', glyph: 'N', hint: 'Mines drop behind you whenever someone is on your tail' },
+  s: { name: 'Spread guns', color: '#ff8a3d', glyph: 'S', hint: 'Spread guns: four streams of fire for 12 seconds', ms: 12000 },
+  f: { name: 'Rapid fire', color: '#ff4fd8', glyph: 'F', hint: 'Rapid fire: double fire rate for 10 seconds', ms: 10000 },
+  h: { name: 'Shield', color: '#8fd6ea', glyph: 'H', hint: 'Shield: soaks up the next 6 hits for 15 seconds', ms: 15000 },
+  w: { name: 'Repair', color: '#38d98a', glyph: '+', hint: 'Hull fully repaired' },
+  b: { name: 'Afterburner', color: '#ffd34f', glyph: 'B', hint: 'Afterburner: 45% faster for 6 seconds', ms: 6000 },
+};
+const ARENA_AMMO = { m: 3, r: 3, n: 4 };
+const ARENA_ERRORS = {
+  full: 'That arena is full: 12 pilots. Try quick play.',
+  no_room: 'No arena with that code. Check it with your friend.',
+  taken: 'That code is already in use. Try again.',
+  closed: "Couldn't reach the arena server. Check your connection and try again.",
+};
+const STREAK_NAMES = { 2: 'Double kill', 3: 'Triple kill', 5: 'Rampage', 7: 'Unstoppable', 10: 'Legendary' };
+const WEAPON_TAGS = { g: 'GUNS', r: 'RAIL', m: 'MISSILE', n: 'MINE' };
+
+const ANet = {
+  ws: null, quitting: false,
+  url(q) { return CONFIG.apiBase.replace(/\/$/, '').replace(/^http/, 'ws') + '/api/v1/arena/ws?' + q; },
+  connect(q) {
+    return new Promise((resolve, reject) => {
+      this.close();
+      let ws;
+      try { ws = new WebSocket(this.url(q)); } catch (e) { reject('closed'); return; }
+      this.ws = ws; this.quitting = false;
+      let settled = false;
+      ws.onmessage = ev => {
+        let m;
+        try { m = JSON.parse(ev.data); } catch (e) { return; }
+        if (m.t === 'error') { if (!settled) { settled = true; reject(m.code); } return; }
+        if (m.t === 'welcome' && !settled) { settled = true; resolve(m); }
+        Arena.onMessage(m);
+      };
+      ws.onclose = () => {
+        if (this.ws !== ws) return;
+        this.ws = null;
+        if (!settled) { settled = true; reject('closed'); return; }
+        if (!this.quitting) Arena.onDisconnect();
+      };
+    });
+  },
+  send(o) { if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(o)); },
+  close() {
+    if (this.ws) { this.quitting = true; try { this.ws.close(); } catch (e) { /* already closed */ } }
+    this.ws = null;
+  },
+};
+
+const Arena = {
+  on: false, you: 0, info: null, roster: new Map(), others: new Map(), board: [], pickups: new Map(), missiles: [], mines: new Map(), beams: [], rBullets: [],
+  hits: {}, hv: [], feed: [], weapon: '', wpHold: 0, flags: 0, buffs: {}, killer: 0, respawnAt: 0, round: null, roundEnds: 0, phase: 'play',
+  lock: null, cd: 0, sendT: 0, beepT: 0, refN: 0, kills: 0, deaths: 0, streak: 0, best: 0, score: 0, boardT: 0, lastEnd: null,
+
+  reset(m) {
+    Object.assign(this, {
+      on: true, you: m.you, info: m, roster: new Map(), others: new Map(), board: [], pickups: new Map(), missiles: [], mines: new Map(), beams: [], rBullets: [],
+      hits: {}, hv: [], feed: [], weapon: '', wpHold: 0, flags: 0, buffs: {}, killer: 0, respawnAt: 0, round: m.round, roundEnds: performance.now() + m.round.left,
+      phase: m.round.phase, lock: null, cd: 0, sendT: 0, beepT: 0, refN: 0, kills: 0, deaths: 0, streak: 0, best: 0, score: 0, boardT: 0, lastEnd: null,
+    });
+  },
+  nameOf(id) { const r = this.roster.get(id); return r ? r.name : 'Pilot'; },
+  posOf(id) { return id === this.you ? player : this.others.get(id); },
+
+  // ---------- messages ----------
+  onMessage(m) {
+    switch (m.t) {
+      case 'welcome': startArena(m); break;
+      case 'roster': this.setRoster(m.r); break;
+      case 'w': this.onWorld(m); break;
+      case 'spawn': this.onSpawn(m); break;
+      case 'kill': this.onKill(m); break;
+      case 'pk': this.pickups.set(m.id, { id: m.id, x: m.x, y: m.y, k: m.k, t: 0 }); break;
+      case 'pg': this.onPicked(m); break;
+      case 'f': this.onFire(m); break;
+      case 'mx': { const mn = this.mines.get(m.id); if (mn) { explode(mn.x, mn.y, 0.9); this.mines.delete(m.id); } break; }
+      case 'ul': for (const ms of this.missiles) if (m.m.includes(ms.ref)) ms.lock = false; break;
+      case 's': this.onScores(m.b); break;
+      case 'round': this.onRound(m); break;
+      default: break;
+    }
+  },
+  onDisconnect() {
+    if (!this.on) return;
+    this.on = false;
+    R = BASE_R;
+    openMenu();
+    openArena('Lost the connection to the arena.');
+  },
+  setRoster(r) {
+    const ids = new Set();
+    for (const [id, name, plane, livery, bot] of r) {
+      ids.add(id);
+      this.roster.set(id, { id, name, plane, livery, bot: !!bot });
+      if (id === this.you) continue;
+      let o = this.others.get(id);
+      if (!o) { o = { id, x: 0, y: 0, a: 0, tx: 0, ty: 0, ta: 0, roll: 0, hp: 10, fl: 0, alive: false, seen: false, trail: [], fireT: Math.random() * 0.1, flash: 0 }; this.others.set(id, o); }
+      Object.assign(o, { name, plane, livery, bot: !!bot });
+    }
+    for (const id of [...this.roster.keys()]) if (!ids.has(id)) this.roster.delete(id);
+    for (const id of [...this.others.keys()]) if (!ids.has(id)) this.others.delete(id);
+  },
+  onWorld(m) {
+    this.roundEnds = performance.now() + m.left;
+    for (const [id, x, y, a, r, hp, fl, wp] of m.p) {
+      if (id === this.you) {
+        if (hp < player.hp && !player.dead) this.onHurt(player.hp - hp);
+        if (hp !== player.hp) { player.hp = hp; renderHull(); }
+        this.flags = fl;
+        if (performance.now() > this.wpHold) this.weapon = wp || '';
+        continue;
+      }
+      const o = this.others.get(id);
+      if (!o) continue;
+      const alive = !!(fl & 1);
+      if (alive && (!o.seen || !o.alive)) { o.x = x; o.y = y; o.a = a / 100; o.trail = []; }
+      o.tx = x; o.ty = y; o.ta = a / 100; o.roll = r / 100;
+      if (hp < o.hp && alive) o.flash = 0.08;
+      o.hp = hp; o.fl = fl; o.alive = alive; o.seen = true; o.wp = wp;
+    }
+  },
+  onHurt(n) {
+    shake = Math.max(shake, 10 + n * 2); sfx.hurt(); vibrate(40);
+    for (let i = 0; i < 6 + n * 2; i++) puff(player.x, player.y, rand(-150, 150), rand(-150, 150), rand(3, 6), 6, 0.3, theme.fx[1], 'fire');
+    renderHull(true);
+  },
+  onSpawn(m) {
+    if (m.id === this.you) {
+      Object.assign(player, { x: m.x, y: m.y, a: m.a / 100, prevA: m.a / 100, dead: false, hp: this.info.hp, inv: 2, rollT: 0, rollCd: 0, bank: 0, speed: SPEED * player.baseSp });
+      trail = []; pBullets = [];
+      cam.x = player.x + Math.cos(player.a) * 60; cam.y = player.y + Math.sin(player.a) * 60;
+      this.killer = 0; this.lock = null; this.weapon = ''; this.buffs = {};
+      hide('respawnBox');
+      renderHull();
+      return;
+    }
+    const o = this.others.get(m.id);
+    if (o) { Object.assign(o, { x: m.x, y: m.y, tx: m.x, ty: m.y, a: m.a / 100, ta: m.a / 100, alive: true, seen: true, trail: [], hp: this.info.hp }); }
+  },
+  onKill(m) {
+    const killer = m.by ? this.nameOf(m.by) : '', victim = this.nameOf(m.v);
+    this.feed.unshift({ k: killer, v: victim, w: m.w, st: m.st, vs: m.vs, me: m.v === this.you || m.by === this.you, t: performance.now() });
+    this.feed = this.feed.slice(0, 5);
+    const vp = this.posOf(m.v);
+    if (m.v === this.you) {
+      this.deaths++; this.streak = 0;
+      player.dead = true; player.hp = 0; renderHull();
+      explode(player.x, player.y, 1.6);
+      wrecks.push({ x: player.x, y: player.y, a: player.a, vx: Math.cos(player.a) * 120, vy: Math.sin(player.a) * 120, spin: 5, t: 0, dur: 1.1, type: 'player' });
+      sfx.boom(true); vibrate([60, 40, 160]);
+      this.killer = m.by; this.respawnAt = performance.now() + m.rs;
+      $('rbBy').textContent = killer ? `Shot down by ${killer}` : 'Shot down';
+      $('rbSub').textContent = m.by && this.others.get(m.by) && this.others.get(m.by).bot ? `${killer} is an AI pilot. Get your revenge.` : (killer ? `Watching ${killer}. Get your revenge.` : '');
+      show('respawnBox');
+    } else if (vp) {
+      vp.alive = false;
+      explode(vp.x, vp.y, 1.4);
+      const th = theme, pl = th.planes[vp.plane] || th.planes[0];
+      wrecks.push({ x: vp.x, y: vp.y, a: vp.a, vx: Math.cos(vp.a) * 120, vy: Math.sin(vp.a) * 120, spin: rand(-6, 6), t: 0, dur: 1, type: 'player', craft: CRAFT_PLAYER[pl.shape], col: colorsFor(th, 'player', vp.livery) });
+      if (Math.hypot(vp.x - player.x, vp.y - player.y) < 900) { sfx.boom(true); shake = Math.max(shake, 8); }
+    }
+    if (m.by === this.you) {
+      this.kills++; this.streak = m.st; this.best = Math.max(this.best, m.st); this.score += m.pts;
+      if (vp) floater(vp.x, vp.y - 24, `+${fmtNum(m.pts)}`, theme.accent, 1.4);
+      if (m.vs >= 3 && vp) floater(vp.x, vp.y - 54, 'SHUT DOWN', '#ffd34f', 1.2);
+      if (STREAK_NAMES[m.st]) showBanner(`${m.st} in a row`, STREAK_NAMES[m.st], m.st >= 5 ? 'Everyone can see your streak' : '');
+      vibrate(30);
+    }
+  },
+  onPicked(m) {
+    const k = this.pickups.get(m.id);
+    this.pickups.delete(m.id);
+    if (m.by !== this.you) { if (k) for (let i = 0; i < 6; i++) puff(k.x, k.y, rand(-90, 90), rand(-90, 90), rand(3, 5), 6, 0.3, ARENA_PICKUPS[m.k].color, 'fire'); return; }
+    const def = ARENA_PICKUPS[m.k];
+    sfx.pickup();
+    floater(player.x, player.y - 34, def.name.toUpperCase(), def.color, 1.1);
+    showHint(def.hint, 2600);
+    if (ARENA_AMMO[m.k]) { this.weapon = m.k + ARENA_AMMO[m.k]; this.wpHold = performance.now() + 400; this.lock = null; }
+    if (def.ms) this.buffs[m.k] = performance.now() + def.ms;
+    if (m.k === 'w') { player.hp = this.info.hp; renderHull(); }
+  },
+  onFire(m) {
+    if (m.w === 'm') {
+      this.missiles.push({ o: m.o, ref: m.ref, tg: m.tg, x: m.x, y: m.y, a: m.a / 100, speed: 300, life: 4.2, lock: true });
+      if (Math.hypot(m.x - player.x, m.y - player.y) < 900) sfx.launch();
+    } else if (m.w === 'r') {
+      this.beams.push({ x: m.x, y: m.y, a: m.a / 100, life: 0.32 });
+      if (Math.hypot(m.x - player.x, m.y - player.y) < 900) { noise(0.25, 0.12, 4200); tone(1800, 0.18, 'sawtooth', 0.03, 300); }
+    } else if (m.w === 'n') {
+      this.mines.set(m.id, { id: m.id, o: m.o, x: m.x, y: m.y, t: 0 });
+    }
+  },
+  onScores(b) {
+    this.board = b;
+    const me = b.find(r => r[0] === this.you);
+    if (me) { this.kills = me[1]; this.deaths = me[2]; this.score = me[3]; this.streak = me[4]; run.score = me[3]; }
+  },
+  onRound(m) {
+    if (m.phase === 'end') {
+      this.phase = 'end';
+      this.roundEnds = performance.now() + m.left;
+      this.lastEnd = m;
+      showArenaEnd(m);
+      track('arena_round_end', { pilots: m.board.length, kills: this.kills });
+      return;
+    }
+    this.phase = 'play';
+    if (this.round && m.n === this.round.n) return;
+    this.round = m; this.roundEnds = performance.now() + m.left;
+    hide('arenaEnd');
+    useTheme(m.theme);
+    world = buildWorld(m.seed); world.mod = MODS[0]; world.wind = { x: 0, y: 0 };
+    resetEntities();
+    const hp = this.info.hp;
+    player = makePlayer(hp); player.baseSp = player.sp; player.baseFi = player.fi; player.dead = true;
+    this.missiles = []; this.mines.clear(); this.pickups.clear(); this.beams = []; this.rBullets = []; this.feed = [];
+    this.kills = 0; this.deaths = 0; this.streak = 0; this.best = 0; this.score = 0; run.score = 0; run.shownScore = 0; run.theme = theme.id; run.plane = currentPlane(theme).id;
+    ANet.send({ t: 'me', plane: store.plane[theme.id] || 0, livery: store.livery[theme.id] || 0 });
+    showBanner(`Round ${m.n}`, theme.name, 'New theater · scores reset');
+    sfx.wave();
+  },
+
+  // ---------- simulation ----------
+  tickOthers(dt) {
+    const k = Math.min(1, dt * 10);
+    for (const o of this.others.values()) {
+      o.flash = Math.max(0, o.flash - dt);
+      if (!o.alive || !o.seen) continue;
+      const pl = theme.planes[o.plane] || theme.planes[0], h = ARCH[pl.arch];
+      const sp = (o.bot ? 255 : SPEED * h.speed) * (o.fl & 4 ? 1.45 : 1);
+      const vx = Math.cos(o.ta) * sp * dt, vy = Math.sin(o.ta) * sp * dt;
+      o.tx += vx; o.ty += vy; o.x += vx; o.y += vy;
+      o.x = lerp(o.x, o.tx, k); o.y = lerp(o.y, o.ty, k);
+      o.a = wrapAng(o.a + angDiff(o.ta, o.a) * k);
+      o.trail.push({ x: o.x, y: o.y, a: o.a }); if (o.trail.length > 18) o.trail.shift();
+      if (o.fl & 4 && Math.random() < 0.6) puff(o.x - Math.cos(o.a) * 18, o.y - Math.sin(o.a) * 18, rand(-20, 20), rand(-20, 20), rand(3, 5), 8, 0.3, theme.fx[0], 'fire');
+      // Their guns, drawn here so every pilot sees the same streams of fire.
+      o.fireT -= dt;
+      if (o.fireT <= 0 && this.phase === 'play') {
+        o.fireT = 0.1 / h.fire / (o.fl & 8 ? 2 : 1);
+        const sp2 = 1030;
+        const angs = o.fl & 16 ? [0, -0.13, 0.13] : [0];
+        for (const da of angs) {
+          const a = o.a + da, c = Math.cos(a), s = Math.sin(a);
+          for (const side of da ? [0] : [-1, 1]) this.rBullets.push({ x: o.x + c * 12 - s * 8 * side, y: o.y + s * 12 + c * 8 * side, vx: c * sp2, vy: s * sp2, life: 0.55 });
+        }
+      }
+    }
+    for (let i = this.rBullets.length - 1; i >= 0; i--) {
+      const b = this.rBullets[i]; b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
+      if (b.life <= 0) this.rBullets.splice(i, 1);
+    }
+  },
+  hittable(o) { return o && o.alive && o.seen && !(o.fl & 32) && this.phase === 'play'; },
+  checkMyBullets() {
+    for (let i = pBullets.length - 1; i >= 0; i--) {
+      const b = pBullets[i];
+      for (const o of this.others.values()) {
+        if (!this.hittable(o)) continue;
+        const dx = b.x - o.x, dy = b.y - o.y;
+        if (dx * dx + dy * dy < 22 * 22) {
+          if (o.fl & 64) break; // rolling: the bullet passes through
+          this.hits[o.id] = (this.hits[o.id] || 0) + 1;
+          o.flash = 0.07;
+          for (let k = 0; k < 3; k++) puff(b.x, b.y, rand(-90, 90), rand(-90, 90), rand(2, 3.5), 4, 0.18, theme.fx[0], 'fire');
+          pBullets.splice(i, 1);
+          break;
+        }
+      }
+    }
+  },
+  tickProjectiles(dt) {
+    for (let i = this.missiles.length - 1; i >= 0; i--) {
+      const m = this.missiles[i];
+      m.life -= dt; m.speed = Math.min(430, m.speed + 260 * dt);
+      const t = this.posOf(m.tg);
+      const alive = t && (t === player ? !player.dead : t.alive);
+      if (m.lock && alive) { const want = Math.atan2(t.y - m.y, t.x - m.x); m.a = wrapAng(m.a + clamp(angDiff(want, m.a) * 6, -3.6, 3.6) * dt); }
+      m.x += Math.cos(m.a) * m.speed * dt; m.y += Math.sin(m.a) * m.speed * dt;
+      if (Math.random() < 0.8) puff(m.x - Math.cos(m.a) * 8, m.y - Math.sin(m.a) * 8, rand(-10, 10), rand(-10, 10), rand(2.5, 4.5), 9, 0.55, theme.neon ? theme.accent : '#d8d8d8', 'smoke');
+      let gone = m.life <= 0;
+      if (!gone && alive && (t.x - m.x) ** 2 + (t.y - m.y) ** 2 < 24 * 24) {
+        if (t === player) { if (vulnerable() && this.phase === 'play') { this.hv.push([m.o, 'm', m.ref]); gone = true; explode(m.x, m.y, 0.8); } }
+        else if (!(t.fl & 64) && !(t.fl & 32)) {
+          gone = true; explode(m.x, m.y, 0.8);
+          if (m.o === this.you && t.bot && this.phase === 'play') ANet.send({ t: 'hit', h: [[t.id, 5, 'm', m.ref]] });
+        }
+      }
+      if (gone) { if (m.life <= 0) explode(m.x, m.y, 0.4); this.missiles.splice(i, 1); }
+    }
+    for (let i = this.beams.length - 1; i >= 0; i--) { this.beams[i].life -= dt; if (this.beams[i].life <= 0) this.beams.splice(i, 1); }
+    for (const mn of this.mines.values()) {
+      mn.t += dt;
+      if (mn.o !== this.you && !player.dead && vulnerable() && this.phase === 'play' && (mn.x - player.x) ** 2 + (mn.y - player.y) ** 2 < 36 * 36) {
+        this.hv.push([mn.o, 'n', mn.id]); explode(mn.x, mn.y, 1); this.mines.delete(mn.id);
+      }
+    }
+  },
+  tickPickups(dt) {
+    const now = performance.now();
+    for (const k of this.pickups.values()) {
+      k.t += dt;
+      if (player.dead) continue;
+      if (k.pending && now - k.pending > 1500) k.pending = 0;
+      if (!k.pending && (k.x - player.x) ** 2 + (k.y - player.y) ** 2 < 50 * 50) { k.pending = now; ANet.send({ t: 'pk', id: k.id }); }
+    }
+  },
+  nextRef() { return this.you * 100000 + (++this.refN % 100000); },
+  // Special weapons fire themselves: missiles lock on to whoever you point at, the rail gun
+  // fires when a plane lines up, and mines drop when someone is on your tail.
+  autoWeapon(dt) {
+    this.cd -= dt;
+    const k = this.weapon[0], n = parseInt(this.weapon.slice(1), 10) || 0;
+    if (!k || n <= 0 || this.phase !== 'play') { this.lock = null; return; }
+    const p = player, c = Math.cos(p.a), s = Math.sin(p.a);
+    const use = () => { this.weapon = n - 1 > 0 ? k + (n - 1) : ''; this.wpHold = performance.now() + 450; };
+    if (k === 'm') {
+      let best = null, bd = 0.5;
+      for (const o of this.others.values()) {
+        if (!this.hittable(o)) continue;
+        const d = Math.hypot(o.x - p.x, o.y - p.y), off = Math.abs(angDiff(Math.atan2(o.y - p.y, o.x - p.x), p.a));
+        if (d < 850 && off < bd) { bd = off; best = o; }
+      }
+      if (!best) { this.lock = null; return; }
+      if (!this.lock || this.lock.id !== best.id) this.lock = { id: best.id, t: 0 };
+      this.lock.t += dt;
+      this.beepT -= dt; if (this.beepT <= 0) { this.beepT = 0.16; tone(1500, 0.04, 'square', 0.02); }
+      if (this.lock.t >= 0.55 && this.cd <= 0) {
+        const ref = this.nextRef(), x = p.x + c * 18, y = p.y + s * 18;
+        ANet.send({ t: 'f', w: 'm', x: Math.round(x), y: Math.round(y), a: Math.round(p.a * 100), tg: best.id, ref });
+        this.missiles.push({ o: this.you, ref, tg: best.id, x, y, a: p.a, speed: 300, life: 4.2, lock: true });
+        sfx.launch(); use(); this.cd = 0.9; this.lock = null;
+      }
+    } else if (k === 'r' && this.cd <= 0) {
+      const line = [];
+      let fire = false;
+      for (const o of this.others.values()) {
+        if (!this.hittable(o)) continue;
+        const rx = o.x - p.x, ry = o.y - p.y, along = rx * c + ry * s, lat = Math.abs(rx * s - ry * c);
+        if (along > 30 && along < 1100 && lat < 26) { line.push(o); if (lat < 20) fire = true; }
+      }
+      if (!fire) return;
+      const ref = this.nextRef();
+      ANet.send({ t: 'f', w: 'r', x: Math.round(p.x), y: Math.round(p.y), a: Math.round(p.a * 100), ref });
+      const h = line.filter(o => !(o.fl & 64)).map(o => [o.id, 7, 'r', ref]);
+      if (h.length) ANet.send({ t: 'hit', h });
+      for (const o of line) { o.flash = 0.12; explode(o.x, o.y, 0.5); }
+      this.beams.push({ x: p.x, y: p.y, a: p.a, life: 0.32 });
+      noise(0.25, 0.14, 4200); tone(1800, 0.2, 'sawtooth', 0.04, 300); shake = Math.max(shake, 6);
+      use(); this.cd = 0.7;
+    } else if (k === 'n' && this.cd <= 0) {
+      const chaser = [...this.others.values()].some(o => this.hittable(o) && Math.hypot(o.x - p.x, o.y - p.y) < 520 && Math.abs(angDiff(Math.atan2(o.y - p.y, o.x - p.x), p.a)) > 2.3);
+      if (!chaser) return;
+      ANet.send({ t: 'f', w: 'n', x: Math.round(p.x - c * 30), y: Math.round(p.y - s * 30) });
+      tone(220, 0.12, 'square', 0.04);
+      use(); this.cd = 1.1;
+    }
+  },
+  netTick(dt) {
+    this.sendT -= dt;
+    if (this.sendT > 0) return;
+    this.sendT = player.dead ? 0.5 : 1 / 12;
+    const roll = (player.rollT > 0 ? (1 - player.rollT / ROLL_T) * TAU : 0) + player.bank;
+    ANet.send({ t: 'p', x: Math.round(player.x), y: Math.round(player.y), a: Math.round(player.a * 100), r: Math.round(roll * 100), rl: player.rollT > 0 ? 1 : 0 });
+    const h = Object.entries(this.hits).map(([id, n]) => [Number(id), n, 'g']);
+    if (h.length) { ANet.send({ t: 'hit', h }); this.hits = {}; }
+    if (this.hv.length) { ANet.send({ t: 'hv', h: this.hv }); this.hv = []; }
+  },
+  rollBreak() {
+    const refs = [];
+    for (const m of this.missiles) if (m.lock && m.tg === this.you && Math.hypot(m.x - player.x, m.y - player.y) < 520) { m.lock = false; refs.push(m.ref); }
+    if (refs.length) { ANet.send({ t: 'ul', m: refs }); floater(player.x, player.y - 30, 'LOCK BROKEN', '#ffffff', 0.85); }
+  },
+
+  // ---------- drawing ----------
+  draw(c, th, inView) {
+    const now = performance.now();
+    // power-ups
+    for (const k of this.pickups.values()) {
+      if (!inView(k.x, k.y, 40) || k.pending) continue;
+      const def = ARENA_PICKUPS[k.k], bob = Math.sin(time * 4 + k.id) * 3, pulse = 1 + Math.sin(time * 6 + k.id) * 0.08;
+      c.save(); c.translate(k.x, k.y + bob);
+      c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(5, 16, 13, 5, 0, 0, TAU); c.fill();
+      c.strokeStyle = rgba(def.color, 0.5); c.lineWidth = 2; c.beginPath(); c.arc(0, 0, 22 * pulse, 0, TAU); c.stroke();
+      c.rotate(Math.PI / 4 + Math.sin(time * 2 + k.id) * 0.15);
+      c.fillStyle = def.color; c.strokeStyle = '#0b0d14'; c.lineWidth = 2.5; c.lineJoin = 'round';
+      c.beginPath(); c.rect(-11, -11, 22, 22); c.fill(); c.stroke();
+      c.rotate(-Math.PI / 4 - Math.sin(time * 2 + k.id) * 0.15);
+      c.fillStyle = '#0b0d14'; c.font = '900 15px "Big Shoulders Display", "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(def.glyph, 0, 1);
+      c.restore();
+    }
+    // mines
+    for (const mn of this.mines.values()) {
+      if (!inView(mn.x, mn.y, 30)) continue;
+      const blink = Math.floor(time * 4 + mn.id) % 2 === 0;
+      c.save(); c.translate(mn.x, mn.y); c.rotate(mn.t * 0.8);
+      c.fillStyle = '#2a2e36'; c.strokeStyle = '#0b0d14'; c.lineWidth = 2;
+      c.beginPath(); for (let i = 0; i < 16; i++) { const r = i % 2 ? 9 : 14, a = i / 16 * TAU; c.lineTo(Math.cos(a) * r, Math.sin(a) * r); } c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = blink ? '#ff4d5e' : '#5a1820'; c.beginPath(); c.arc(0, 0, 4, 0, TAU); c.fill();
+      c.restore();
+      if (mn.o !== this.you && blink) { c.strokeStyle = 'rgba(255,77,94,.35)'; c.lineWidth = 1.5; c.beginPath(); c.arc(mn.x, mn.y, 36, 0, TAU); c.stroke(); }
+    }
+    // their gunfire
+    c.lineCap = 'round'; c.strokeStyle = th.bullet; c.lineWidth = 3; c.globalAlpha = 0.8; c.beginPath();
+    for (const b of this.rBullets) { if (!inView(b.x, b.y, 20)) continue; c.moveTo(b.x, b.y); c.lineTo(b.x - b.vx * 0.018, b.y - b.vy * 0.018); }
+    c.stroke(); c.globalAlpha = 1;
+    // rail beams
+    for (const bm of this.beams) {
+      const k = bm.life / 0.32, x1 = bm.x + Math.cos(bm.a) * 1100, y1 = bm.y + Math.sin(bm.a) * 1100;
+      c.strokeStyle = `rgba(110,232,255,${0.35 * k})`; c.lineWidth = 16 * k + 2; c.beginPath(); c.moveTo(bm.x, bm.y); c.lineTo(x1, y1); c.stroke();
+      c.strokeStyle = `rgba(255,255,255,${0.95 * k})`; c.lineWidth = 3; c.beginPath(); c.moveTo(bm.x, bm.y); c.lineTo(x1, y1); c.stroke();
+    }
+    // missiles
+    for (const m of this.missiles) {
+      if (!inView(m.x, m.y, 30)) continue;
+      c.save(); c.translate(m.x, m.y); c.rotate(m.a);
+      c.fillStyle = th.neon ? th.accent : '#e8e8ea'; c.strokeStyle = '#0b0d14'; c.lineWidth = 1.2;
+      c.beginPath(); c.moveTo(9, 0); c.lineTo(4, -2.2); c.lineTo(-7, -2.2); c.lineTo(-9, -4.5); c.lineTo(-9, 4.5); c.lineTo(-7, 2.2); c.lineTo(4, 2.2); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = th.ebullet; c.beginPath(); c.arc(-11, 0, 2.6 + Math.random() * 1.6, 0, TAU); c.fill();
+      c.restore();
+      if (m.lock && m.tg === this.you) { c.strokeStyle = 'rgba(255,77,94,.7)'; c.lineWidth = 1.5; c.beginPath(); c.arc(m.x, m.y, 15 + Math.sin(time * 18) * 2, 0, TAU); c.stroke(); }
+    }
+    // other pilots
+    const leader = this.board.length && this.board[0][3] > 0 ? this.board[0][0] : 0;
+    for (const o of this.others.values()) {
+      if (!o.alive || !o.seen || !inView(o.x, o.y, 90)) continue;
+      const pl = th.planes[o.plane] || th.planes[0], craft = CRAFT_PLAYER[pl.shape], col = colorsFor(th, 'player', o.livery);
+      c.lineWidth = 2;
+      for (let i = 1; i < o.trail.length; i++) {
+        const a = o.trail[i - 1], b = o.trail[i];
+        c.strokeStyle = `rgba(255,255,255,${(i / o.trail.length) * 0.28})`;
+        for (const side of [-1, 1]) { c.beginPath(); c.moveTo(a.x - Math.sin(a.a) * 20 * side, a.y + Math.cos(a.a) * 20 * side); c.lineTo(b.x - Math.sin(b.a) * 20 * side, b.y + Math.cos(b.a) * 20 * side); c.stroke(); }
+      }
+      const blink = o.fl & 32 && Math.floor(time * 12) % 2 === 0;
+      if (th.shadows) { c.save(); c.translate(o.x + 16, o.y + 26); c.rotate(o.a); drawCraft(c, craft, null, 1, { roll: o.roll, shadow: th.pal.shadow }); c.restore(); }
+      c.save(); c.translate(o.x, o.y); c.rotate(o.a); if (blink) c.globalAlpha = 0.4;
+      drawCraft(c, craft, col, 1, { roll: o.roll, spin: time * 45, t: time, flash: o.flash > 0 });
+      c.restore();
+      if (o.fl & 2) { c.strokeStyle = 'rgba(143,214,234,.75)'; c.lineWidth = 2.5; c.beginPath(); c.arc(o.x, o.y, 30 + Math.sin(time * 8) * 1.5, 0, TAU); c.stroke(); c.fillStyle = 'rgba(143,214,234,.12)'; c.fill(); }
+      if (this.lock && this.lock.id === o.id) {
+        const k = Math.min(1, this.lock.t / 0.55), r0 = 46 - 18 * k;
+        c.strokeStyle = k >= 1 ? '#ff4d5e' : 'rgba(255,77,94,.8)'; c.lineWidth = 2.5;
+        for (let q = 0; q < 4; q++) { const a0 = q * TAU / 4 + time * 3; c.beginPath(); c.arc(o.x, o.y, r0, a0, a0 + 0.7); c.stroke(); }
+      }
+      c.save(); c.translate(o.x, o.y - 40); c.scale(1 / zoom, 1 / zoom);
+      c.font = '700 14px "Barlow Condensed", "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+      const label = (o.id === leader ? '♛ ' : '') + o.name.toUpperCase();
+      c.lineWidth = 4; c.strokeStyle = 'rgba(5,6,12,.85)'; c.strokeText(label, 0, 0);
+      c.fillStyle = o.id === leader ? '#ffd34f' : '#ffffff'; c.fillText(label, 0, 0);
+      const w = 40, f = clamp(o.hp / this.info.hp, 0, 1);
+      c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(-w / 2 - 1, 9, w + 2, 6);
+      c.fillStyle = f > 0.5 ? '#38d98a' : f > 0.25 ? '#ffc53d' : '#ff4d5e'; c.fillRect(-w / 2, 10, w * f, 4);
+      c.restore();
+    }
+    // my shield and afterburner
+    if (!player.dead) {
+      if (this.flags & 2) { c.strokeStyle = 'rgba(143,214,234,.8)'; c.lineWidth = 2.5; c.beginPath(); c.arc(player.x, player.y, 30 + Math.sin(time * 8) * 1.5, 0, TAU); c.stroke(); c.fillStyle = 'rgba(143,214,234,.12)'; c.fill(); }
+      if (this.flags & 4 && Math.random() < 0.8) puff(player.x - Math.cos(player.a) * 18, player.y - Math.sin(player.a) * 18, rand(-20, 20), rand(-20, 20), rand(3, 6), 8, 0.3, theme.fx[0], 'fire');
+    }
+    void now;
+  },
+  edgeArrows(edgeArrow) {
+    const leader = this.board.length && this.board[0][3] > 0 ? this.board[0][0] : 0;
+    for (const o of this.others.values()) if (o.alive && o.seen) edgeArrow(o.x, o.y, o.id === leader ? '#ffd34f' : '#ff4d5e', o.id === leader ? 1.2 : 0.85);
+    for (const m of this.missiles) if (m.lock && m.tg === this.you) edgeArrow(m.x, m.y, '#ffffff', 0.8);
+  },
+
+  // ---------- HUD ----------
+  hud(dt) {
+    const now = performance.now();
+    const left = Math.max(0, this.roundEnds - now) / 1000;
+    const n = this.roster.size;
+    const rank = Math.max(1, this.board.findIndex(r => r[0] === this.you) + 1);
+    const code = this.info.code ? `Room ${this.info.code} · ` : '';
+    setText('arenaInfo', this.phase === 'end' ? `${code}Next round in ${Math.ceil(left)}` : `${code}Round ${this.round.n} · ${fmtClock(left)}`);
+    setText('arenaRank', `#${rank} of ${n}`);
+    this.boardT -= dt;
+    if (this.boardT <= 0) {
+      this.boardT = 0.25;
+      const top = this.board.slice(0, W <= 600 ? 3 : 5);
+      const mine = this.board.findIndex(r => r[0] === this.you);
+      const rows = top.map((r, i) => [i, r]);
+      if (mine >= top.length) rows.push([mine, this.board[mine]]);
+      $('arenaBoard').innerHTML = rows.map(([i, r]) => {
+        const p = this.roster.get(r[0]) || { name: 'Pilot' };
+        return `<div class="${r[0] === this.you ? 'me' : ''}"><span>${i + 1}</span><span class="nm">${esc(p.name)}${p.bot ? '<em>AI</em>' : ''}</span><b>${r[1]}</b></div>`;
+      }).join('');
+      const fresh = this.feed.filter(f => now - f.t < 6000);
+      $('killfeed').innerHTML = fresh.slice(0, W <= 600 ? 3 : 5).map(f => `<div class="${f.me ? 'me' : ''}">${f.k ? `<span>${esc(f.k)}</span>` : ''}<i>${WEAPON_TAGS[f.w] || ''}</i><span>${esc(f.v)}</span>${f.st >= 3 ? `<em>${f.st}×</em>` : ''}</div>`).join('');
+      const wk = this.weapon[0], wn = parseInt(this.weapon.slice(1), 10) || 0;
+      const chips = [];
+      if (wk) chips.push(`<span class="wchip" style="--c:${ARENA_PICKUPS[wk].color}"><b>${ARENA_PICKUPS[wk].glyph}</b>${ARENA_PICKUPS[wk].name}<i>${'●'.repeat(wn)}</i></span>`);
+      for (const [k, until] of Object.entries(this.buffs)) {
+        const s = Math.ceil((until - now) / 1000);
+        if (s <= 0 || (k === 'h' && !(this.flags & 2))) { delete this.buffs[k]; continue; }
+        chips.push(`<span class="wchip" style="--c:${ARENA_PICKUPS[k].color}"><b>${ARENA_PICKUPS[k].glyph}</b>${ARENA_PICKUPS[k].name}<i>${s}s</i></span>`);
+      }
+      $('weaponChip').innerHTML = chips.join('');
+      if (player.dead && this.respawnAt) setText('rbTime', this.phase === 'end' ? 'Round over' : `Back in the air in ${Math.max(0, (this.respawnAt - now) / 1000).toFixed(1)}s`);
+    }
+    const locked = !player.dead && this.missiles.some(m => m.lock && m.tg === this.you && Math.hypot(m.x - player.x, m.y - player.y) < 1000);
+    $('warn').classList.toggle('hidden', !locked);
+    $('hud').classList.toggle('warning', locked);
+    if (locked) { lockBeepT -= dt; if (lockBeepT <= 0) { sfx.lock(); lockBeepT = 0.32; } }
+  },
+};
+
+function arenaFire(dt, spread) {
+  const p = player;
+  p.fireT -= dt;
+  if (p.fireT > 0) return;
+  p.fireT = 0.1 / p.fi;
+  const sp = 900 + p.speed * 0.5;
+  for (const da of spread ? [0, -0.13, 0.13] : [0]) {
+    const a = p.a + da, c = Math.cos(a), s = Math.sin(a);
+    for (const side of da ? [0] : [-1, 1]) pBullets.push({ x: p.x + c * 12 - s * 8 * side, y: p.y + s * 12 + c * 8 * side, vx: c * sp, vy: s * sp, life: 0.6 });
+  }
+}
+
+function arenaUpdate(dt) {
+  const A = Arena;
+  run.totalT += dt;
+  if (!player.dead) {
+    player.sp = player.baseSp * (A.flags & 4 ? 1.45 : 1);
+    player.fi = player.baseFi * (A.flags & 8 ? 2 : 1);
+    steerPlayer(dt); movePlayer(dt);
+    if (A.phase === 'play') { arenaFire(dt, !!(A.flags & 16)); A.autoWeapon(dt); }
+  }
+  A.tickOthers(dt);
+  A.checkMyBullets();
+  updateBullets(dt);
+  A.tickProjectiles(dt);
+  A.tickPickups(dt);
+  updateFx(dt);
+  A.netTick(dt);
+}
+
+function setArenaHud(on) {
+  ['arenaBoard', 'killfeed', 'weaponChip'].forEach(id => $(id).classList.toggle('hidden', !on));
+  $('arenaLabel').classList.toggle('hidden', !on);
+  if (!on) { hide('respawnBox'); hide('arenaEnd'); }
+}
+
+function startArena(m) {
+  Arena.reset(m);
+  R = m.R;
+  useTheme(m.round.theme);
+  world = buildWorld(m.round.seed); world.mod = MODS[0]; world.wind = { x: 0, y: 0 };
+  tileWorld = false; Coop.on = false; hide('squad');
+  resetEntities();
+  player = makePlayer(m.hp); player.baseSp = player.sp; player.baseFi = player.fi; player.dead = true;
+  cam.x = 0; cam.y = 0; slowT = 0; freezeT = 0;
+  run = {
+    mode: 'arena', theme: theme.id, waveIdx: 0, phase: 'play', phaseT: 0, waveT: 0, queue: [], totalT: 0,
+    score: 0, shownScore: 0, killPts: 0, bonusPts: 0, hullPts: 0, waveTimes: [],
+    kills: 0, chain: 0, chainT: 0, mult: 1, bestMult: 1, waveHits: 0, results: [], won: false, aceKilled: false,
+    plane: currentPlane(theme).id, livery: store.livery[theme.id] || 0, zen: { spawnT: 0, aceT: 0, crashes: 0 },
+  };
+  Arena.setRoster(m.roster);
+  for (const [id, x, y, k] of m.pk) Arena.pickups.set(id, { id, x, y, k, t: 0 });
+  for (const [id, x, y, o] of m.mines) Arena.mines.set(id, { id, x, y, o, t: 0 });
+  ANet.send({ t: 'hello', name: store.callsign, plane: store.plane[theme.id] || 0, livery: store.livery[theme.id] || 0 });
+  hide('arena'); hideAllOverlays(); show('hud');
+  $('waveLabel').classList.add('hidden'); $('pips').classList.add('hidden'); $('zenLabel').classList.add('hidden');
+  setArenaHud(true);
+  renderHull();
+  state = 'play';
+  showBanner(m.private ? `Private arena · ${m.code}` : 'Arena · free-for-all', theme.name, `${Arena.roster.size} pilots · round ${m.round.n}`);
+  sfx.wave();
+  showHint(isTouch ? 'Drag to steer · ROLL dodges bullets and missiles · fly through power-ups' : 'Mouse to steer · click or Space to roll · fly through power-ups', 5500);
+  if (m.round.phase === 'end') { Arena.phase = 'end'; }
+  track('arena_join', { private: !!m.private, pilots: Arena.roster.size });
+}
+
+function leaveArena() {
+  Arena.on = false;
+  ANet.close();
+  R = BASE_R;
+  setArenaHud(false);
+  openMenu();
+}
+
+function arenaShareText() {
+  const e = Arena.lastEnd, board = e ? e.board : Arena.board;
+  const rank = Math.max(1, board.findIndex(r => r[0] === Arena.you) + 1);
+  const me = board.find(r => r[0] === Arena.you) || [0, Arena.kills, Arena.deaths, Arena.score];
+  const best = e && e.best ? e.best[Arena.you] || 0 : Arena.best;
+  const url = CONFIG.siteUrl || (/^https?:/.test(location.protocol) ? location.origin + location.pathname : '');
+  return [`Super Sortie Arena ✈️ #${rank} of ${board.length} · ${theme.name}`, `${me[1]} kills · ${me[2]} deaths · best streak ${best}`, `${fmtNum(me[3])} pts`, url].filter(Boolean).join('\n');
+}
+
+function showArenaEnd(m) {
+  const board = m.board, me = board.findIndex(r => r[0] === Arena.you);
+  const next = THEMES[m.next] || theme;
+  $('aeKicker').textContent = `Round ${m.n} over · ${theme.name}`;
+  $('aeTitle').textContent = me === 0 ? 'You won the round!' : `You placed #${me + 1} of ${board.length}`;
+  const rows = board.slice(0, 5).map((r, i) => [i, r]);
+  if (me >= 5) rows.push([me, board[me]]);
+  $('aeBoard').innerHTML = rows.map(([i, r]) => {
+    const p = Arena.roster.get(r[0]) || { name: 'Pilot', plane: 0, livery: 0 };
+    const pl = theme.planes[p.plane] || theme.planes[0];
+    return `<li class="${r[0] === Arena.you ? 'me' : ''}"><span class="rk">${i + 1}</span>${avatarHTML(pl.id, p.livery)}<span class="nm">${esc(p.name)}${r[0] === Arena.you ? ' (you)' : ''}${p.bot ? '<span class="badge">AI</span>' : ''}<small>${r[1]} kills · ${r[2]} deaths</small></span><span></span><span class="sc">${fmtNum(r[3])}</span></li>`;
+  }).join('');
+  paintAvatars($('aeBoard'));
+  const mine = board[me] || [0, 0, 0, 0];
+  const best = m.best ? m.best[Arena.you] || 0 : 0;
+  $('aeStats').innerHTML = [[mine[1], 'Kills'], [mine[2], 'Deaths'], [best, 'Best streak'], [fmtNum(mine[3]), 'Points']].map(([v, l]) => `<div class="chip"><b>${v}</b><small>${l}</small></div>`).join('');
+  $('aeNext').textContent = `Next round: ${next.name}`;
+  show('arenaEnd');
+  if (me === 0) sfx.medal(); else sfx.clear();
+  countPlaneUse();
+}
+
+/* ---------- arena screen ---------- */
+async function refreshArenaOnline() {
+  if (!CONFIG.apiBase) return;
+  try {
+    const r = await fetch(CONFIG.apiBase.replace(/\/$/, '') + '/api/v1/arena/online');
+    if (!r.ok) return;
+    const j = await r.json();
+    const txt = j.pilots ? `${fmtNum(j.pilots)} pilot${j.pilots === 1 ? '' : 's'} in the arena now` : 'Arena open · AI pilots keep it busy';
+    $('arenaOnline').textContent = txt; $('arenaOnlineLine').textContent = txt;
+  } catch (e) { /* offline */ }
+}
+function openArena(msg, code) {
+  show('arena');
+  $('arenaName').value = store.callsign;
+  const online = !!CONFIG.apiBase;
+  ['arenaQuick', 'arenaCreate', 'arenaJoin'].forEach(id => { $(id).disabled = !online; });
+  $('arenaErr').textContent = online ? (msg || '') : 'The arena needs the online server. Play it at supersortie.io.';
+  if (code) { $('arenaCode').value = code; $('arenaErr').textContent = `You're invited to arena ${code}. Check your callsign, then join.`; $('arenaJoin').textContent = `Join ${code}`; }
+  else $('arenaJoin').textContent = 'Join';
+  refreshArenaOnline();
+}
+async function arenaConnect(q, label, tries = 0) {
+  saveCallsign($('arenaName').value);
+  $('arenaErr').textContent = label;
+  ['arenaQuick', 'arenaCreate', 'arenaJoin'].forEach(id => { $(id).disabled = true; });
+  try {
+    await ANet.connect(`${q}&callsign=${encodeURIComponent(store.callsign)}`);
+  } catch (e) {
+    if (e === 'full' && q === 'quick=1' && tries < 3) return arenaConnect(q, label, tries + 1);
+    if (e === 'taken' && /create=1/.test(q) && tries < 4) return arenaConnect(q.replace(/code=[A-Z0-9]{4}/, `code=${randomRoomCode()}`), label, tries + 1);
+    ['arenaQuick', 'arenaCreate', 'arenaJoin'].forEach(id => { $(id).disabled = false; });
+    $('arenaErr').textContent = ARENA_ERRORS[e] || ARENA_ERRORS.closed;
+  }
+}
+function arenaInvite() { return `${CONFIG.siteUrl || (location.origin + location.pathname)}?arena=${Arena.info && Arena.info.code}`; }
+function initArenaUi() {
+  $('arenaTheme').innerHTML = '<option value="">Rotate each round</option>' + THEME_ORDER.map(id => `<option value="${id}">${esc(THEMES[id].name)}</option>`).join('');
+  $('puList').innerHTML = Object.entries(ARENA_PICKUPS).map(([k, d]) => `<div class="pu" style="--c:${d.color}"><b><i>${d.glyph}</i></b><span>${esc(d.name)}</span></div>`).join('');
+  $('arenaQuick').addEventListener('click', () => { audio(); arenaConnect('quick=1', 'Finding an arena…'); });
+  $('arenaCreate').addEventListener('click', () => {
+    audio();
+    const th = $('arenaTheme').value, bots = $('arenaBots').checked ? 1 : 0;
+    arenaConnect(`code=${randomRoomCode()}&create=1&bots=${bots}${th ? `&theme=${th}` : ''}`, 'Opening a private arena…');
+  });
+  $('arenaJoin').addEventListener('click', () => {
+    audio();
+    const code = $('arenaCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (code.length !== 4) { $('arenaErr').textContent = 'Arena codes are 4 characters.'; return; }
+    arenaConnect(`code=${code}`, `Joining arena ${code}…`);
+  });
+  $('arenaCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('arenaJoin').click(); });
+  $('arenaClose').addEventListener('click', () => hide('arena'));
+  $('arenaBtn').addEventListener('click', () => { audio(); openArena(); });
+  $('doneArena').addEventListener('click', () => { audio(); openArena(); });
+  $('aeShare').addEventListener('click', e => doShare(arenaShareText(), e.currentTarget));
+  $('aeLeave').addEventListener('click', leaveArena);
+  $('arenaInvite').addEventListener('click', e => doShare(`Fly against me in Super Sortie! Arena ${Arena.info.code}\n${arenaInvite()}`, e.currentTarget));
+  refreshArenaOnline();
+  setInterval(() => { if (state === 'menu') refreshArenaOnline(); }, 30000);
+}
+
+/* =====================================================================
    Main loop
    ===================================================================== */
 let last = 0;
@@ -3643,6 +4451,7 @@ function frame(ts) {
 
 applyDeviceCopy();
 initCoopUi();
+initArenaUi();
 openMenu();
 // Invite links look like supersortie.io/?room=ABCD
 (() => {
@@ -3651,6 +4460,12 @@ openMenu();
   if (code.length === 4) {
     try { history.replaceState(null, '', location.pathname); } catch (e) { /* not allowed here */ }
     openCoop(code);
+  }
+  let ac = '';
+  try { ac = (new URLSearchParams(location.search).get('arena') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); } catch (e) { ac = ''; }
+  if (ac.length === 4) {
+    try { history.replaceState(null, '', location.pathname); } catch (e) { /* not allowed here */ }
+    openArena('', ac);
   }
 })();
 tickCountdown();

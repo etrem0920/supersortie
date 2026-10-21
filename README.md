@@ -12,6 +12,8 @@ A new five-wave dogfight every day, the same for every pilot on Earth. Players f
 | `public/config.js` | Site settings: leaderboard URL, share URL, support link, ads, analytics. |
 | `server/worker.js` | Leaderboard API (Cloudflare Worker) at api.supersortie.io. |
 | `server/coop.js` | Co-op rooms (one Durable Object per room code). |
+| `server/arena.js` | Arena: 12-pilot free-for-all rooms, AI pilots, and quick-play matchmaking. |
+| `promo/` | Short promo videos: capture script, soundtrack generator, captions. |
 | `server/schema.sql` | Database tables (Cloudflare D1). |
 | `server/wrangler.toml` | Worker settings: database, custom domain, allowed sites. |
 | `server/dev-server.mjs` | Runs the site and the real API locally on SQLite. |
@@ -84,6 +86,22 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 - Each room is a Cloudflare Durable Object that holds the lobby and relays messages. The host's browser runs the enemies and scoring and sends snapshots ten times a second, so **the host must keep the tab open**. If the host leaves, the next pilot becomes host and the squad returns to the lobby.
 - Empty rooms delete themselves after 10 minutes. Co-op scores are not posted to the daily leaderboard.
 - **Cost:** a 10-minute, four-pilot mission uses about 2,000 Durable Object requests. The free plan allows 100,000 a day (about 50 missions). Workers Paid ($5/month) covers millions.
+
+## How the arena works
+
+- **Quick play** drops you into the busiest public arena with a free seat, up to 12 pilots. **Private arenas** use a four-letter code and an invite link (`supersortie.io/?arena=CODE`). The creator picks the theater and whether AI pilots join.
+- It's a free-for-all with 4-minute rounds. Each round moves to the next theater and ends on a podium, with a 10-second break before the next one.
+- Getting shot down puts you back in the air **2.5 seconds** later, somewhere quiet, with a 2-second spawn shield. A kill is worth 100 points, plus 25 for every kill already in your streak. Ending someone's streak of 3 or more earns a shutdown bonus.
+- **Power-ups** appear around the map:
+  - **Weapons:** missiles, rail gun and mines. Each one fires by itself, so they work the same on phones.
+  - **Boosts:** spread guns, rapid fire, shield, repair and afterburner.
+- **Rolling** makes you immune to bullets and breaks missile locks.
+- **AI pilots** (marked "AI" on the scoreboard) top a public arena up to 8 pilots. They leave as real people arrive.
+- **What the arena decides:** each arena is a Cloudflare Durable Object. It runs hull, kills, respawns, power-ups, rounds and the AI pilots, and sends a world update 10 times a second.
+- **Who decides a hit:** guns and the rail gun are judged by the shooter. They are capped by a damage budget that matches the real fire rate, plus a range check. Missiles and mines are judged by the target, so a roll really does dodge them.
+- **Cost:** each pilot sends about 12 messages a second. Cloudflare bills incoming WebSocket messages at 20 per request, so a full 12-pilot arena costs about 26,000 requests an hour.
+  - **Free plan:** 100,000 requests a day, which is about 4 busy arena-hours.
+  - **Workers Paid** ($5/month) includes 1 million a month, then $0.15 per million. That is about $4 for every 1,000 busy arena-hours.
 
 ## Making money (in priority order)
 

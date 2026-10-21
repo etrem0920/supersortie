@@ -5,9 +5,13 @@
 //   DELETE /api/v1/admin/scores?day=N&deviceId=…   hide a cheated score (Bearer ADMIN_TOKEN)
 //   GET    /api/v1/health
 //   GET    /api/v1/rooms/CODE/ws[?create=1]   co-op room WebSocket (see coop.js)
+//   GET    /api/v1/arena/ws?quick=1            join the fullest public arena with room (see arena.js)
+//   GET    /api/v1/arena/ws?code=CODE[&create=1&theme=ww2&bots=1]   private arena
+//   GET    /api/v1/arena/online                pilots in public arenas right now
 
 import { CoopRoom, ROOM_ALPHABET } from './coop.js';
-export { CoopRoom };
+import { ArenaRoom, ArenaDirectory } from './arena.js';
+export { CoopRoom, ArenaRoom, ArenaDirectory };
 
 const EPOCH_UTC = Date.UTC(2026, 3, 20);
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
@@ -169,6 +173,31 @@ async function roomSocket(req, env, code) {
   return stub.fetch(req);
 }
 
+async function arenaSocket(req, env, url) {
+  if (req.headers.get('Upgrade') !== 'websocket') return new Response('Expected a WebSocket', { status: 426 });
+  if (!originAllowed(req, env)) return new Response('Forbidden', { status: 403 });
+  let name;
+  if (url.searchParams.get('quick') === '1') {
+    const dir = env.ARENA_DIR.get(env.ARENA_DIR.idFromName('global'));
+    name = (await (await dir.fetch('https://dir/assign', { method: 'POST' })).json()).name;
+  } else {
+    const code = String(url.searchParams.get('code') || '').toUpperCase();
+    if (code.length !== 4 || ![...code].every(ch => ROOM_ALPHABET.includes(ch))) return new Response('Bad arena code', { status: 400 });
+    name = `prv-${code}`;
+  }
+  const fwd = new URL(url);
+  fwd.searchParams.set('name', name);
+  const stub = env.ARENAS.get(env.ARENAS.idFromName(name));
+  return stub.fetch(new Request(fwd, req));
+}
+async function arenaOnline(env, cors) {
+  const dir = env.ARENA_DIR.get(env.ARENA_DIR.idFromName('global'));
+  const list = await (await dir.fetch('https://dir/list')).json();
+  const now = Date.now();
+  const live = Object.values(list).filter(e => now - e.t < 90000 && e.h > 0);
+  return json({ pilots: live.reduce((n, e) => n + e.h, 0), arenas: live.length }, 200, cors, { 'cache-control': 'max-age=10' });
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
@@ -181,6 +210,8 @@ export default {
       if (url.pathname === '/api/v1/health') return json({ ok: true, day: serverDay() }, 200, cors);
       const room = url.pathname.match(/^\/api\/v1\/rooms\/([A-Z0-9]{4})\/ws$/);
       if (room) return await roomSocket(req, env, room[1]);
+      if (url.pathname === '/api/v1/arena/ws') return await arenaSocket(req, env, url);
+      if (url.pathname === '/api/v1/arena/online' && req.method === 'GET') return await arenaOnline(env, cors);
       return json({ error: 'not_found' }, 404, cors);
     } catch (e) {
       return json({ error: 'server_error' }, 500, cors);
