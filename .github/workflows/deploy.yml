@@ -1,0 +1,71 @@
+# Deploys Super Sortie whenever main changes.
+#   public/ or game.html changed  -> rebuild index.html, upload the website (Cloudflare Pages)
+#   server/ changed               -> run the API tests, then deploy the leaderboard (Cloudflare Worker)
+# Needs two repository secrets: CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      site: ${{ steps.filter.outputs.site }}
+      server: ${{ steps.filter.outputs.server }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - id: filter
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || ! git rev-parse HEAD~1 >/dev/null 2>&1; then
+            echo "site=true" >> "$GITHUB_OUTPUT"; echo "server=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          changed=$(git diff --name-only HEAD~1 HEAD)
+          echo "$changed"
+          echo "site=$(echo "$changed" | grep -qE '^(public/|game.html|build.sh)' && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "server=$(echo "$changed" | grep -qE '^server/' && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  website:
+    needs: changes
+    if: needs.changes.outputs.site == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build index.html from game.html
+        run: ./build.sh
+      - name: Upload to Cloudflare Pages
+        run: npx wrangler@4 pages deploy public --project-name supersortie --branch main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  server:
+    needs: changes
+    if: needs.changes.outputs.server == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test the leaderboard API
+        run: npm test
+      - name: Deploy the leaderboard Worker
+        run: npx wrangler@4 deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

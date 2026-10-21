@@ -1,0 +1,12 @@
+name = "supersortie-api"
+main = "worker.js"
+compatibility_date = "2025-09-01"
+routes = [{ pattern = "api.supersortie.io", custom_domain = true }]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "dailydogfight"
+database_id = "cee8cffa-1ebf-4e97-9662-19f4baf196ad"
+
+[vars]
+ALLOWED_ORIGIN = "https://supersortie.io,https://www.supersortie.io,https://supersortie.pages.dev"
