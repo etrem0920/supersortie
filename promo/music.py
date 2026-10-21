@@ -1,4 +1,5 @@
-# Synthesizes the promo soundtrack: a driving 128 bpm beat, bass, whooshes on cuts, booms on kills.
+# Synthesizes a promo soundtrack from capture.js's event log: beat, bass, whooshes on cuts, booms on kills.
+# Styles (from the video config's "music"): drive (default), epic, chill.
 import json, sys, wave
 import numpy as np
 
@@ -9,7 +10,9 @@ dur = ev['frames'] / FPS + 0.6
 n = int(dur * SR)
 L = np.zeros(n); Rr = np.zeros(n)
 rng = np.random.default_rng(7)
-BPM = 128; beat = 60 / BPM
+M = ev.get('music') or {}
+STYLE = M.get('style', 'drive')
+BPM = M.get('bpm', 128); beat = 60 / BPM
 end_t = ev['cuts'][-1] / FPS
 
 def add(sig, t, gain=1.0, pan=0.0):
@@ -67,18 +70,42 @@ def stab(freqs, length):
     return s * e
 
 # chord roots per bar (A minor-ish: Am F C G), as bass frequencies
-roots = [55.0, 43.65, 65.41, 49.0]
+roots = M.get('roots', [55.0, 43.65, 65.41, 49.0])
 K, S, Hh, B = kick(), snare(), hat(), None
+def pad(freqs, length):
+    t = np.arange(int(length * SR)) / SR
+    shape = np.minimum(1, t / 0.4) * np.minimum(1, (length - t) / 0.5)
+    s = sum(np.sin(2 * np.pi * f * t) + 0.3 * np.sin(2 * np.pi * f * 2.003 * t) for f in freqs) / len(freqs)
+    return s * shape
+
+def tom(f0=90):
+    e, t = env(0.5, 0.001, 0.16)
+    return np.sin(2 * np.pi * np.cumsum(f0 + 60 * np.exp(-t / 0.04)) / SR) * e
+
 nb = int(end_t / beat)
 for b in range(nb):
     t = b * beat
     bar = b // 4
+    r = roots[bar % 4]
     intro = t < 0.95  # sparse first second, then the drop
+    if STYLE == 'chill':
+        if b % 2 == 0: add(K, t, 0.55)
+        if b % 4 == 2: add(S, t, 0.12)
+        add(Hh, t + beat / 2, 0.1, pan=0.3)
+        add(bass(r, beat * 0.95), t, 0.35)
+        if b % 4 == 0: add(pad([r * 4, r * 4 * 1.189, r * 4 * 1.498, r * 8], beat * 4.2), t, 0.22)
+        continue
     add(K, t, 0.9)
+    if STYLE == 'epic':
+        if b % 4 == 2 and not intro: add(S, t, 0.45)
+        if not intro and b % 2 == 1: add(tom(80 if b % 4 == 1 else 65), t + beat / 2, 0.45, pan=0.25)
+        add(Hh, t + beat / 2, 0.18, pan=0.3)
+        for q in range(4): add(bass(r, beat / 4 * 0.9), t + q * beat / 4, 0.45)
+        if b % 4 == 0: add(pad([r * 4, r * 4 * 1.189, r * 4 * 1.498], beat * 4.1), t, 0.16)
+        continue
     if b % 4 in (1, 3) and not intro: add(S, t, 0.35)
     for h in range(2):
         if not intro or h == 1: add(Hh, t + h * beat / 2, 0.22 if h else 0.12, pan=0.3 if h else -0.3)
-    r = roots[bar % 4]
     for q in range(2):
         add(bass(r, beat / 2 * 0.9), t + q * beat / 2, 0.55)
     if b % 4 == 0 and not intro:
@@ -87,13 +114,13 @@ for b in range(nb):
 # end card: one big hit and a ring-out chord
 add(boom(2.0), end_t, 0.55)
 add(K, end_t, 1.0)
-add(stab([220, 261.6, 329.6, 440], 2.4), end_t, 0.22)
+add(stab([220, 261.6, 329.6, 440], 2.4) if STYLE != 'chill' else pad([220, 261.6, 329.6, 440], 3.0), end_t, 0.22)
 
 for c in ev['cuts'][1:]:
     add(whoosh(), max(0, c / FPS - 0.3), 0.35)
 
 for e in ev['booms']:
-    add(boom(e['s']), e['f'] / FPS, 0.28 * min(1.6, e['s']), pan=float(rng.uniform(-0.4, 0.4)))
+    add(boom(e['s']), e['f'] / FPS, (0.12 if STYLE == 'chill' else 0.28) * min(1.6, e['s']), pan=float(rng.uniform(-0.4, 0.4)))
 
 # fade out and normalize
 fade = int(0.5 * SR)

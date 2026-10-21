@@ -1,0 +1,10 @@
+{ "segments": [
+  { "theme": "ww2", "sec": 3.4, "kicker": "Every pilot on Earth", "head": "Same dogfight.<br>Same day.", "plane": 1 },
+  { "theme": "ww1", "sec": 1.6, "kicker": "1917", "head": "Western Front", "plane": 0, "era": true, "warm": 2.2 },
+  { "theme": "modern", "sec": 1.6, "kicker": "2026", "head": "Strike Package", "plane": 2, "era": true, "warm": 2.2 },
+  { "theme": "space", "sec": 1.6, "kicker": "2389", "head": "Orbital Front", "plane": 1, "era": true, "warm": 2.2 },
+  { "theme": "neon", "sec": 1.6, "kicker": "1986", "head": "Neon Skies", "plane": 0, "era": true, "warm": 2.2 },
+  { "theme": "ww2", "sec": 3.4, "kicker": "Wave 5", "head": "Then the ace<br>shows up.", "ace": true },
+  { "theme": "modern", "sec": 3.6, "kicker": "Up to 4 players", "head": "Squad up<br>in co-op.", "coop": true },
+  { "theme": "space", "sec": 2.8, "kicker": "Zen mode", "head": "Or fly forever.", "plane": 2 }
+] }

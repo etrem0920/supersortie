@@ -1,0 +1,20 @@
+{ "music": { "bpm": 132, "roots": [41.2, 49.0, 55.0, 46.25], "style": "drive" },
+  "segments": [
+  { "theme": "neon", "sec": 2.4, "kicker": "Super Sortie", "head": "Pick your war.", "plane": 1 },
+  { "theme": "ww1", "sec": 1.15, "kicker": "1917", "head": "Western Front", "era": true, "plane": 0, "sub": "Sopwith Camel", "warm": 2 },
+  { "theme": "ww1", "sec": 1.15, "keep": true, "plane": 1, "livery": 1, "sub": "Fokker Dr.I", "warm": 2 },
+  { "theme": "ww1", "sec": 1.15, "keep": true, "plane": 2, "sub": "SPAD S.XIII", "warm": 2 },
+  { "theme": "ww2", "sec": 1.15, "kicker": "1944", "head": "Pacific Theater", "era": true, "plane": 0, "sub": "F6F Hellcat", "warm": 2 },
+  { "theme": "ww2", "sec": 1.15, "keep": true, "plane": 1, "livery": 1, "sub": "F4U Corsair", "warm": 2 },
+  { "theme": "ww2", "sec": 1.15, "keep": true, "plane": 2, "livery": 2, "sub": "P-38 Lightning", "warm": 2 },
+  { "theme": "modern", "sec": 1.15, "kicker": "2026", "head": "Strike Package", "era": true, "plane": 0, "sub": "Missiles inbound", "warm": 2 },
+  { "theme": "modern", "sec": 1.15, "keep": true, "plane": 1, "livery": 1, "sub": "Afterburners", "warm": 2 },
+  { "theme": "modern", "sec": 1.15, "keep": true, "plane": 2, "livery": 2, "sub": "Three jets", "warm": 2 },
+  { "theme": "space", "sec": 1.15, "kicker": "2389", "head": "Orbital Front", "era": true, "plane": 0, "sub": "Lancer", "warm": 2 },
+  { "theme": "space", "sec": 1.15, "keep": true, "plane": 1, "livery": 1, "sub": "Wraith", "warm": 2 },
+  { "theme": "space", "sec": 1.15, "keep": true, "plane": 2, "livery": 2, "sub": "Bulwark", "warm": 2 },
+  { "theme": "neon", "sec": 1.15, "kicker": "1986", "head": "Neon Skies", "era": true, "plane": 0, "sub": "Vector", "warm": 2 },
+  { "theme": "neon", "sec": 1.15, "keep": true, "plane": 1, "sub": "Overdrive", "warm": 2 },
+  { "theme": "neon", "sec": 1.15, "keep": true, "plane": 2, "sub": "Pulse", "warm": 2 }
+  ],
+  "end": { "kicker": "5 theaters · 15 planes", "line": "One new sortie every day.<br>Which war are you flying?", "theme": "neon" } }

@@ -1,0 +1,8 @@
+{ "music": { "bpm": 92, "roots": [55.0, 43.65, 65.41, 49.0], "style": "chill" },
+  "segments": [
+  { "theme": "space", "sec": 3.4, "kicker": "Zen mode", "head": "No timer.", "plane": 1, "maxEnemies": 3, "zoom": 1.0 },
+  { "theme": "neon", "sec": 3.4, "kicker": "Zen mode", "head": "No walls.", "plane": 2, "maxEnemies": 3, "zoom": 1.0, "cruise": true },
+  { "theme": "ww2", "sec": 3.4, "kicker": "Zen mode", "head": "No pressure.", "plane": 1, "maxEnemies": 3, "zoom": 1.0 },
+  { "theme": "ww1", "sec": 4.2, "kicker": "Zen mode", "head": "Just you<br>and the sky.", "plane": 0, "maxEnemies": 2, "zoom": 1.0, "rate": [[0, 4.2, 0.6]] }
+  ],
+  "end": { "kicker": "Fly forever", "line": "Zen mode is free.<br>So is everything else.", "theme": "space" } }

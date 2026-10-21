@@ -1,0 +1,9 @@
+{ "music": { "bpm": 128, "roots": [49.0, 55.0, 43.65, 65.41], "style": "drive" },
+  "segments": [
+  { "theme": "ww2", "sec": 3.6, "coop": true, "kicker": "4-player co-op", "head": "Bring three<br>friends.", "zoom": 0.78 },
+  { "theme": "space", "sec": 5.2, "coop": true, "kicker": "Kestrel is down", "head": "Crash?", "zoom": 0.78, "downAt": 0.5,
+    "caps": [ { "t": 2.2, "kicker": "Wave cleared", "head": "Back next wave.", "sub": "Everyone revives" } ], "reviveAt": 2.4 },
+  { "theme": "modern", "sec": 3.6, "coop": true, "kicker": "The host picks", "head": "Theater. Waves.<br>Difficulty.", "zoom": 0.78, "sub": "3 to 12 waves" },
+  { "theme": "neon", "sec": 3.4, "coop": true, "kicker": "Brutal mode", "head": "Survive it<br>together.", "zoom": 0.78, "maxEnemies": 10 }
+  ],
+  "end": { "kicker": "One room code. Up to 4 pilots.", "line": "Free co-op in your browser.<br>No download, no account.", "theme": "modern" } }

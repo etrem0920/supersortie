@@ -1,0 +1,63 @@
+{
+ "music": {
+  "bpm": 140,
+  "roots": [
+   36.71,
+   36.71,
+   41.2,
+   32.7
+  ],
+  "style": "epic"
+ },
+ "segments": [
+  {
+   "theme": "ww1",
+   "sec": 12,
+   "ace": true,
+   "boss": true,
+   "zoom": 0.9,
+   "maxEnemies": 3,
+   "mix": [
+    "fighter",
+    "scout"
+   ],
+   "refill": [
+    "scout",
+    "fighter"
+   ],
+   "kicker": "Wave 5 of 5",
+   "head": "Meet the ace.",
+   "killAt": 8.8,
+   "missileAt": 3.4,
+   "caps": [
+    {
+     "t": 1.9,
+     "sub": "70 armor. You have 3."
+    },
+    {
+     "t": 3.6,
+     "kicker": "Missile lock",
+     "head": "Roll.",
+     "sub": ""
+    },
+    {
+     "t": 5.6,
+     "kicker": "Stay on him",
+     "head": "Don't let go.",
+     "sub": ""
+    },
+    {
+     "t": "kill",
+     "kicker": "Wave 5 cleared",
+     "head": "Ace down.",
+     "sub": ""
+    }
+   ]
+  }
+ ],
+ "end": {
+  "kicker": "Tomorrow there's a new one",
+  "line": "A new ace every day.<br>Can you beat today's?",
+  "theme": "ww1"
+ }
+}
