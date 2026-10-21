@@ -421,7 +421,7 @@
           <button id="donePractice" class="btn btn-ghost">Practice run</button>
         </div>
       </div>
-      <div class="hero-meta"><span>Next sortie in <b class="js-countdown">--:--:--</b></span><span id="pilotCount"></span><span id="champ"></span></div>
+      <div class="hero-meta"><span>Next sortie in <b class="js-countdown">--:--:--</b></span><span id="pilotCount"></span><span id="leader"></span><span id="champ"></span></div>
     </section>
 
     <aside class="panel chamfer" aria-label="Hangar">
@@ -2271,7 +2271,17 @@ function standing(me, total) {
   if (me.rank === 1) return total > 1 ? 'Top of the board' : 'First on the board today';
   return me.percentile > 0 ? `Ahead of ${me.percentile}% of pilots today` : 'Last place, for now';
 }
-function updatePilotCount(b) { $('pilotCount').textContent = b && b.total ? `${fmtNum(b.total)} pilot${b.total === 1 ? '' : 's'} flew today` : ''; }
+function updatePilotCount(b) {
+  $('pilotCount').textContent = b && b.total ? `${fmtNum(b.total)} pilot${b.total === 1 ? '' : 's'} flew today` : '';
+  const top = b && b.entries && b.entries[0];
+  $('leader').textContent = top ? `Leading today: ${top.name} · ${fmtNum(top.score)}` : '';
+}
+
+// Keep an open leaderboard current without a reload or a loading flash.
+setInterval(() => {
+  if (state !== 'menu' || document.hidden || !Board.ready || $('tab-board').classList.contains('hidden')) return;
+  Board.fetch(todayNum).then(b => { renderBoard(b); syncTodayRank(b); }).catch(() => {});
+}, 45000);
 
 function selectTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
