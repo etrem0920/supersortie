@@ -299,6 +299,9 @@
 
   /* ---------- arena ---------- */
   .btn .new { font-family: var(--font-cond); font-weight: 700; font-size: 11px; letter-spacing: .12em; background: var(--accent); color: var(--accent-ink); padding: 2px 6px; margin-left: 8px; vertical-align: 2px; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); margin-bottom: 12px; }
+  .seg button { border: 0; background: var(--raise); color: var(--muted); font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; font-size: 13px; padding: 10px 6px; cursor: pointer; }
+  .seg button[aria-selected="true"] { background: var(--raise-2); color: var(--text); box-shadow: inset 0 -2px 0 var(--accent); }
   .arena-pitch { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); margin-bottom: 4px; }
   .arena-pitch div { background: var(--raise); padding: 10px 8px; text-align: center; }
   .arena-pitch b { display: block; font-family: var(--font-display); font-weight: 900; font-size: 28px; line-height: 1; color: var(--accent); }
@@ -344,9 +347,9 @@
     .arena-pitch, .pu-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .arena-private { grid-template-columns: minmax(0, 1fr) auto; }
     .arena-private .btn { grid-column: 1 / -1; }
-    .aboard { position: absolute; right: max(12px, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 118px); min-width: 0; width: 150px; font-size: 12px; }
+    .aboard { position: absolute; right: max(12px, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 160px); min-width: 0; width: 150px; font-size: 12px; }
     .aboard div { padding: 2px 8px; }
-    .killfeed { position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); top: calc(env(safe-area-inset-top, 0px) + 118px); align-items: flex-start; font-size: 11px; max-width: calc(100% - 190px); }
+    .killfeed { position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); top: calc(env(safe-area-inset-top, 0px) + 160px); align-items: flex-start; font-size: 11px; max-width: calc(100% - 190px); }
     .weapon-chip { bottom: calc(124px + env(safe-area-inset-bottom, 0px)); max-width: calc(100% - 24px); }
   }
 
@@ -578,10 +581,14 @@
         <div class="section-label"><span>Livery</span><span id="liveryCount"></span></div>
         <div id="liveryList" class="livery-list" role="radiogroup" aria-label="Livery"></div>
       </div>
-      <div id="tab-board" class="tab-body hidden"><div id="boardBody"></div></div>
+      <div id="tab-board" class="tab-body hidden">
+        <div class="seg" role="tablist" aria-label="Leaderboard"><button data-board="daily" aria-selected="true">Daily sortie</button><button data-board="arena" aria-selected="false">Arena today</button></div>
+        <div id="boardBody"></div>
+      </div>
       <div id="tab-record" class="tab-body hidden">
         <div id="profileCard" class="profile chamfer"></div>
         <div id="statChips" class="chips"></div>
+        <div id="arenaStats" class="hidden"><div class="section-label"><span>Arena career</span><span id="arenaKd"></span></div><div id="arenaChips" class="chips"></div></div>
         <div class="section-label"><span>Medals</span><span id="medalCount"></span></div>
         <div id="medalList" class="medal-list"></div>
         <div class="section-label"><span>Personal bests</span></div>
@@ -793,7 +800,7 @@ const OLD_STORE_KEY = 'dailydogfight.v3'; // saves from before the rename
 const defaultStore = () => ({
   played: 0, streak: 0, maxStreak: 0, best: 0, lastDay: null, history: {}, seenHelp: false, muted: false,
   theme: 'ww2', livery: {}, callsign: '', medals: {}, themesWon: {}, bests: [], device: '',
-  plane: {}, planeUse: {}, zenBest: null,
+  plane: {}, planeUse: {}, zenBest: null, arena: null,
 });
 function loadStore() {
   try {
@@ -2818,6 +2825,12 @@ function renderRecord() {
   const bestTxt = store.best >= 1000 ? (store.best / 1000).toFixed(1) + 'k' : String(store.best);
   $('statChips').innerHTML = [[liveStreak(), 'Streak'], [store.maxStreak, 'Best streak'], [store.played, 'Played'], [bestTxt, 'Best']]
     .map(([v, l]) => `<div class="chip"><b>${v}</b><small>${l}</small></div>`).join('');
+  const a = store.arena;
+  $('arenaStats').classList.toggle('hidden', !(a && a.rounds));
+  if (a && a.rounds) {
+    $('arenaKd').textContent = `K/D ${(a.kills / Math.max(1, a.deaths)).toFixed(2)}`;
+    $('arenaChips').innerHTML = [[a.kills, 'Kills'], [a.wins, 'Round wins'], [a.best, 'Best streak'], [a.rounds, 'Rounds']].map(([v, l]) => `<div class="chip"><b>${fmtNum(v)}</b><small>${l}</small></div>`).join('');
+  }
   const got = MEDALS.filter(m => store.medals[m.id]).length;
   $('medalCount').textContent = `${got}/${MEDALS.length}`;
   $('medalList').innerHTML = MEDALS.map(m => `<div class="medal chamfer ${store.medals[m.id] ? '' : 'locked'}">${MEDAL_SVG}<b>${esc(m.name)}</b><small>${esc(m.desc)}</small></div>`).join('');
@@ -2832,8 +2845,34 @@ function boardRowHTML(e) {
   const fav = PLANE_INDEX[e.fav] && e.fav !== pid ? ` · fav ${planeName(e.fav)}` : '';
   return `<li class="${e.me ? 'me' : ''}"><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}<small>${esc(planeName(pid) + fav)}</small></span>${miniTiles(e.grades)}<span class="sc">${fmtNum(e.score)}</span></li>`;
 }
+let boardMode = 'daily';
+async function loadArenaBoard() {
+  const el = $('boardBody');
+  if (!CONFIG.apiBase) { el.innerHTML = '<div class="notice chamfer">The arena leaderboard needs the online server. Play at supersortie.io.</div>'; return; }
+  try {
+    const r = await fetch(CONFIG.apiBase.replace(/\/$/, '') + `/api/v1/arena/leaderboard?deviceId=${encodeURIComponent(deviceId())}`);
+    if (!r.ok) throw new Error('arena board ' + r.status);
+    renderArenaBoard(await r.json());
+  } catch (e) {
+    el.innerHTML = '<div class="notice chamfer">Couldn\'t load the arena leaderboard. Check your connection, then try again.</div>';
+  }
+}
+function arenaRowHTML(e) {
+  const pid = PLANE_INDEX[e.plane] ? e.plane : 'hellcat';
+  return `<li class="${e.me ? 'me' : ''}"><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}<small>${e.rounds} round${e.rounds === 1 ? '' : 's'} · ${e.wins} win${e.wins === 1 ? '' : 's'} · best streak ${e.streak}</small></span><span class="coop-k">${e.deaths} deaths</span><span class="sc">${fmtNum(e.kills)}</span></li>`;
+}
+function renderArenaBoard(b) {
+  const el = $('boardBody');
+  if (boardMode !== 'arena') return;
+  if (!b || !b.total) { el.innerHTML = '<div class="notice chamfer"><b>No arena rounds finished yet today.</b> Jump in and take the top spot.</div>'; return; }
+  let rows = b.entries.map(arenaRowHTML).join('');
+  if (b.me) rows += `<li class="gap">···</li>` + arenaRowHTML(b.me);
+  el.innerHTML = `<div class="board-sum"><b>${fmtNum(b.total)} arena pilot${b.total === 1 ? '' : 's'} today</b><span>Ranked by kills · resets at midnight UTC</span></div><ol class="board">${rows}</ol>`;
+  paintAvatars(el);
+}
 async function loadBoard() {
   const el = $('boardBody');
+  if (boardMode === 'arena') return loadArenaBoard();
   if (!Board.ready) {
     el.innerHTML = `<div class="notice chamfer"><b>The global leaderboard isn't connected in this copy.</b> Scores are saved on this device. Your Record tab has your personal bests.</div>`;
     return;
@@ -2848,6 +2887,7 @@ async function loadBoard() {
 }
 function renderBoard(b) {
   const el = $('boardBody');
+  if (boardMode !== 'daily') { updatePilotCount(b); return; }
   updatePilotCount(b);
   if (!b || !b.total) { el.innerHTML = '<div class="notice chamfer"><b>No scores yet today.</b> Fly the daily sortie and take first place.</div>'; return; }
   const me = b.me;
@@ -3068,6 +3108,11 @@ $('menuBtn').addEventListener('click', () => {
 $('callsign').addEventListener('change', e => saveCallsign(e.target.value));
 $('callsign').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => selectTab(t.dataset.tab)));
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+  boardMode = b.dataset.board;
+  document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+  loadBoard();
+}));
 $('shareBtn').addEventListener('click', e => {
   if (run.mode === 'coop' && Coop.lastEnd) {
     const ev = Coop.lastEnd;
@@ -3895,7 +3940,7 @@ const Arena = {
   },
   onKill(m) {
     const killer = m.by ? this.nameOf(m.by) : '', victim = this.nameOf(m.v);
-    this.feed.unshift({ k: killer, v: victim, w: m.w, st: m.st, vs: m.vs, me: m.v === this.you || m.by === this.you, t: performance.now() });
+    this.feed.unshift({ k: killer, v: victim, w: m.w, st: m.st, vs: m.vs, rv: m.rv, me: m.v === this.you || m.by === this.you, t: performance.now() });
     this.feed = this.feed.slice(0, 5);
     const vp = this.posOf(m.v);
     if (m.v === this.you) {
@@ -3906,7 +3951,7 @@ const Arena = {
       sfx.boom(true); vibrate([60, 40, 160]);
       this.killer = m.by; this.respawnAt = performance.now() + m.rs;
       $('rbBy').textContent = killer ? `Shot down by ${killer}` : 'Shot down';
-      $('rbSub').textContent = m.by && this.others.get(m.by) && this.others.get(m.by).bot ? `${killer} is an AI pilot. Get your revenge.` : (killer ? `Watching ${killer}. Get your revenge.` : '');
+      $('rbSub').textContent = killer ? `Shoot down ${killer} for a +75 revenge bonus${this.others.get(m.by) && this.others.get(m.by).bot ? ' (AI pilot)' : ''}.` : '';
       show('respawnBox');
     } else if (vp) {
       vp.alive = false;
@@ -3919,6 +3964,7 @@ const Arena = {
       this.kills++; this.streak = m.st; this.best = Math.max(this.best, m.st); this.score += m.pts;
       if (vp) floater(vp.x, vp.y - 24, `+${fmtNum(m.pts)}`, theme.accent, 1.4);
       if (m.vs >= 3 && vp) floater(vp.x, vp.y - 54, 'SHUT DOWN', '#ffd34f', 1.2);
+      else if (m.rv && vp) floater(vp.x, vp.y - 54, 'REVENGE', '#ff4d5e', 1.2);
       if (STREAK_NAMES[m.st]) showBanner(`${m.st} in a row`, STREAK_NAMES[m.st], m.st >= 5 ? 'Everyone can see your streak' : '');
       vibrate(30);
     }
@@ -4243,7 +4289,7 @@ const Arena = {
         return `<div class="${r[0] === this.you ? 'me' : ''}"><span>${i + 1}</span><span class="nm">${esc(p.name)}${p.bot ? '<em>AI</em>' : ''}</span><b>${r[1]}</b></div>`;
       }).join('');
       const fresh = this.feed.filter(f => now - f.t < 6000);
-      $('killfeed').innerHTML = fresh.slice(0, W <= 600 ? 3 : 5).map(f => `<div class="${f.me ? 'me' : ''}">${f.k ? `<span>${esc(f.k)}</span>` : ''}<i>${WEAPON_TAGS[f.w] || ''}</i><span>${esc(f.v)}</span>${f.st >= 3 ? `<em>${f.st}×</em>` : ''}</div>`).join('');
+      $('killfeed').innerHTML = fresh.slice(0, W <= 600 ? 3 : 5).map(f => `<div class="${f.me ? 'me' : ''}">${f.k ? `<span>${esc(f.k)}</span>` : ''}<i>${WEAPON_TAGS[f.w] || ''}</i><span>${esc(f.v)}</span>${f.rv ? '<em>REVENGE</em>' : f.st >= 3 ? `<em>${f.st}×</em>` : ''}</div>`).join('');
       const wk = this.weapon[0], wn = parseInt(this.weapon.slice(1), 10) || 0;
       const chips = [];
       if (wk) chips.push(`<span class="wchip" style="--c:${ARENA_PICKUPS[wk].color}"><b>${ARENA_PICKUPS[wk].glyph}</b>${ARENA_PICKUPS[wk].name}<i>${'●'.repeat(wn)}</i></span>`);
@@ -4366,6 +4412,10 @@ function showArenaEnd(m) {
   show('arenaEnd');
   if (me === 0) sfx.medal(); else sfx.clear();
   countPlaneUse();
+  const a = store.arena || (store.arena = { rounds: 0, wins: 0, kills: 0, deaths: 0, best: 0, top: 0 });
+  a.rounds++; a.kills += mine[1]; a.deaths += mine[2]; a.best = Math.max(a.best, best); a.top = Math.max(a.top, mine[3]);
+  if (me === 0 && board.length > 1 && mine[3] > 0) a.wins++;
+  saveStore();
 }
 
 /* ---------- arena screen ---------- */
@@ -4394,7 +4444,7 @@ async function arenaConnect(q, label, tries = 0) {
   $('arenaErr').textContent = label;
   ['arenaQuick', 'arenaCreate', 'arenaJoin'].forEach(id => { $(id).disabled = true; });
   try {
-    await ANet.connect(`${q}&callsign=${encodeURIComponent(store.callsign)}`);
+    await ANet.connect(`${q}&callsign=${encodeURIComponent(store.callsign)}&device=${encodeURIComponent(deviceId())}`);
   } catch (e) {
     if (e === 'full' && q === 'quick=1' && tries < 3) return arenaConnect(q, label, tries + 1);
     if (e === 'taken' && /create=1/.test(q) && tries < 4) return arenaConnect(q.replace(/code=[A-Z0-9]{4}/, `code=${randomRoomCode()}`), label, tries + 1);

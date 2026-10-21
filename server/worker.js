@@ -8,12 +8,13 @@
 //   GET    /api/v1/arena/ws?quick=1            join the fullest public arena with room (see arena.js)
 //   GET    /api/v1/arena/ws?code=CODE[&create=1&theme=ww2&bots=1]   private arena
 //   GET    /api/v1/arena/online                pilots in public arenas right now
+//   GET    /api/v1/arena/leaderboard?deviceId=…   today's top arena pilots by kills
 
 import { CoopRoom, ROOM_ALPHABET } from './coop.js';
 import { ArenaRoom, ArenaDirectory } from './arena.js';
+import { serverDay } from './day.js';
 export { CoopRoom, ArenaRoom, ArenaDirectory };
 
-const EPOCH_UTC = Date.UTC(2026, 3, 20);
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
 const MODS = new Set(['standard', 'glass', 'swarm', 'ironace', 'overcast', 'crosswind', 'hotguns']);
 const PLANES = new Set(['camel', 'dr1', 'spad', 'hellcat', 'corsair', 'p38', 'f16', 'f18', 'f15', 'lancer', 'wraith', 'bulwark', 'vector', 'overdrive', 'pulse']);
@@ -21,7 +22,7 @@ const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|who
 const MAX_PER_IP_PER_DAY = 30;
 const TOP_CACHE_SECONDS = 20;
 
-export const serverDay = (now = Date.now()) => Math.floor((now - EPOCH_UTC) / 86400000) + 1;
+export { serverDay };
 
 export function cleanName(s) {
   s = String(s || '').replace(/[^A-Za-z0-9 _.\-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
@@ -190,6 +191,25 @@ async function arenaSocket(req, env, url) {
   const stub = env.ARENAS.get(env.ARENAS.idFromName(name));
   return stub.fetch(new Request(fwd, req));
 }
+async function arenaBoard(url, env, cors) {
+  const day = serverDay();
+  const deviceId = String(url.searchParams.get('deviceId') || '');
+  const rows = (await env.DB.prepare(
+    'SELECT device_id, name, plane, livery, kills, deaths, rounds, wins, best_round, best_streak FROM arena_scores WHERE day = ? AND hidden = 0 ORDER BY kills DESC, best_round DESC, updated_at ASC LIMIT 50'
+  ).bind(day).all()).results || [];
+  const total = await env.DB.prepare('SELECT COUNT(*) AS n FROM arena_scores WHERE day = ? AND hidden = 0').bind(day).first();
+  const row = (r, rank) => ({ rank, name: r.name, plane: r.plane, livery: r.livery, kills: r.kills, deaths: r.deaths, rounds: r.rounds, wins: r.wins, best: r.best_round, streak: r.best_streak, me: !!deviceId && r.device_id === deviceId });
+  const entries = rows.map((r, i) => row(r, i + 1));
+  let me = null;
+  if (/^[A-Za-z0-9-]{8,64}$/.test(deviceId) && !entries.some(e => e.me)) {
+    const mine = await env.DB.prepare('SELECT * FROM arena_scores WHERE day = ? AND device_id = ? AND hidden = 0').bind(day, deviceId).first();
+    if (mine) {
+      const above = await env.DB.prepare('SELECT COUNT(*) AS n FROM arena_scores WHERE day = ? AND hidden = 0 AND (kills > ? OR (kills = ? AND best_round > ?))').bind(day, mine.kills, mine.kills, mine.best_round).first();
+      me = row(mine, above.n + 1);
+    }
+  }
+  return json({ day, total: total.n, entries, me }, 200, cors, { 'cache-control': 'no-store' });
+}
 async function arenaOnline(env, cors) {
   const dir = env.ARENA_DIR.get(env.ARENA_DIR.idFromName('global'));
   const list = await (await dir.fetch('https://dir/list')).json();
@@ -212,6 +232,7 @@ export default {
       if (room) return await roomSocket(req, env, room[1]);
       if (url.pathname === '/api/v1/arena/ws') return await arenaSocket(req, env, url);
       if (url.pathname === '/api/v1/arena/online' && req.method === 'GET') return await arenaOnline(env, cors);
+      if (url.pathname === '/api/v1/arena/leaderboard' && req.method === 'GET') return await arenaBoard(url, env, cors);
       return json({ error: 'not_found' }, 404, cors);
     } catch (e) {
       return json({ error: 'server_error' }, 500, cors);

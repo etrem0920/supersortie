@@ -17,6 +17,8 @@
 //                     ul {m: [ref]}                      a roll broke these missile locks
 //   arena -> client:  welcome, roster, w (world), f, ul, kill, spawn, pk, pg, mx, s (scores), round, error
 
+import { serverDay } from './day.js';
+
 export const ARENA_MAX = 12;
 export const ARENA_R = 2200;
 export const ROUND_MS = 4 * 60 * 1000;
@@ -28,6 +30,8 @@ const TICK_MS = 100;
 const BOT_FLOOR = 8; // public arenas top up to this many pilots with AI pilots
 const THEMES = ['ww2', 'ww1', 'modern', 'space', 'neon'];
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
+const PLANE_IDS = { ww1: ['camel', 'dr1', 'spad'], ww2: ['hellcat', 'corsair', 'p38'], modern: ['f16', 'f18', 'f15'], space: ['lancer', 'wraith', 'bulwark'], neon: ['vector', 'overdrive', 'pulse'] };
+const REVENGE_BONUS = 75;
 const BOT_NAMES = ['Viper', 'Ghost', 'Maverick', 'Kestrel', 'Nova', 'Raptor', 'Falcon', 'Talon', 'Havoc', 'Comet', 'Banshee', 'Jester', 'Rook', 'Wolfhound', 'Sabre', 'Hornet'];
 
 // Power-ups. Weapons replace each other; the rest stack with whatever you carry.
@@ -88,7 +92,7 @@ export class ArenaRoom {
     const themeIdx = cfg.theme ? THEMES.indexOf(cfg.theme) : (hash(cfg.name) + Math.floor(Date.now() / 86400000)) % THEMES.length;
     this.s = {
       cfg, nextId: 1, pilots: new Map(), pickups: new Map(), mines: new Map(), fired: new Map(), nextPick: 1, nextMine: 1,
-      round: { n: 1, themeIdx: Math.max(0, themeIdx), phase: 'play', ends: Date.now() + this.roundMs, seed: seedFor(cfg.name, 1) },
+      round: { n: 1, themeIdx: Math.max(0, themeIdx), phase: 'play', ends: Date.now() + this.roundMs, started: Date.now(), seed: seedFor(cfg.name, 1) },
       tick: 0, lastReport: 0,
     };
     // Pilots still connected after a restart get their place back with fresh stats.
@@ -103,6 +107,7 @@ export class ArenaRoom {
   addPilot(id, info, ws) {
     const p = {
       id, name: cleanName(info.name), plane: small(info.plane, 2), livery: small(info.livery, 2), bot: !!info.bot, ws: ws || null,
+      device: /^[A-Za-z0-9-]{8,64}$/.test(info.device || '') ? info.device : null, lastKiller: 0,
       x: 0, y: 0, a: 0, r: 0, rl: false, hp: MAX_HP, alive: false, respawnAt: Date.now() + 300, protUntil: 0,
       kills: 0, deaths: 0, score: 0, streak: 0, best: 0,
       weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, shieldUntil: 0,
@@ -149,7 +154,7 @@ export class ArenaRoom {
     const [client, server] = Object.values(pair);
     const id = s.nextId++;
     this.ctx.acceptWebSocket(server);
-    const info = { id, name: url.searchParams.get('callsign') || 'Pilot', plane: 0, livery: 0 };
+    const info = { id, name: url.searchParams.get('callsign') || 'Pilot', plane: 0, livery: 0, device: url.searchParams.get('device') || '' };
     server.serializeAttachment(info);
     const p = this.addPilot(id, info, server);
     await this.ctx.storage.deleteAlarm();
@@ -204,7 +209,7 @@ export class ArenaRoom {
         if ('name' in m) p.name = cleanName(m.name);
         if ('plane' in m) p.plane = small(m.plane, 2);
         if ('livery' in m) p.livery = small(m.livery, 2);
-        ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery });
+        ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, device: p.device || '' });
         this.sendRoster();
         break;
       }
@@ -318,16 +323,38 @@ export class ArenaRoom {
     const best = {};
     for (const p of s.pilots.values()) best[p.id] = p.best;
     this.broadcast({ t: 'round', ...this.roundInfo(now), board: top, best, next: THEMES[(s.round.themeIdx + 1) % THEMES.length] });
+    this.recordRound(top, now);
+  }
+  // Add each person's round to today's arena leaderboard. Pilots who were only around for
+  // the last few seconds and did nothing aren't counted.
+  recordRound(top, now) {
+    if (!this.env.DB) return;
+    const day = serverDay(now), theme = this.theme, s = this.s;
+    const stmts = [];
+    for (const p of s.pilots.values()) {
+      if (p.bot || !p.device) continue;
+      const present = now - Math.max(p.joined, s.round.started || 0);
+      if (present < 45000 && !p.kills && !p.deaths) continue;
+      const win = top.length > 1 && top[0][0] === p.id && p.score > 0 ? 1 : 0;
+      stmts.push(this.env.DB.prepare(
+        `INSERT INTO arena_scores (day, device_id, name, plane, livery, kills, deaths, rounds, wins, best_round, best_streak, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)
+         ON CONFLICT(day, device_id) DO UPDATE SET name = excluded.name, plane = excluded.plane, livery = excluded.livery,
+           kills = kills + excluded.kills, deaths = deaths + excluded.deaths, rounds = rounds + 1, wins = wins + excluded.wins,
+           best_round = MAX(best_round, excluded.best_round), best_streak = MAX(best_streak, excluded.best_streak), updated_at = excluded.updated_at`
+      ).bind(day, p.device, p.name, (PLANE_IDS[theme] || [])[p.plane] || null, p.livery, p.kills, p.deaths, win, p.score, p.best, now));
+    }
+    if (stmts.length) this.ctx.waitUntil(this.env.DB.batch(stmts).catch(() => {}));
   }
   startRound(now) {
     const s = this.s, r = s.round;
     r.n++; r.themeIdx = s.cfg.theme && s.cfg.private ? r.themeIdx : (r.themeIdx + 1) % THEMES.length;
-    r.phase = 'play'; r.ends = now + this.roundMs; r.seed = seedFor(s.cfg.name, r.n);
+    r.phase = 'play'; r.ends = now + this.roundMs; r.started = now; r.seed = seedFor(s.cfg.name, r.n);
     s.pickups.clear(); s.mines.clear(); s.fired.clear();
     // Announce the round first so clients have the new theater loaded before the respawns land.
     this.broadcast({ t: 'round', ...this.roundInfo(now) });
     for (const p of s.pilots.values()) {
-      Object.assign(p, { kills: 0, deaths: 0, score: 0, streak: 0, best: 0, weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0 });
+      Object.assign(p, { kills: 0, deaths: 0, score: 0, streak: 0, best: 0, lastKiller: 0, weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0 });
       this.spawn(p, now);
     }
     this.broadcast({ t: 's', b: this.board() });
@@ -363,9 +390,15 @@ export class ArenaRoom {
     v.spreadUntil = 0; v.rapidUntil = 0; v.boostUntil = 0; v.shield = 0;
     const victimStreak = v.streak; v.streak = 0;
     const k = by && by !== v ? by : null;
-    let pts = 0;
-    if (k) { k.kills++; k.streak++; k.best = Math.max(k.best, k.streak); pts = killPoints(k.streak, victimStreak); k.score += pts; }
-    this.broadcast({ t: 'kill', v: v.id, by: k ? k.id : 0, w, st: k ? k.streak : 0, vs: victimStreak, pts, rs: RESPAWN_MS });
+    let pts = 0, rv = 0;
+    if (k) {
+      k.kills++; k.streak++; k.best = Math.max(k.best, k.streak); pts = killPoints(k.streak, victimStreak);
+      // Revenge: shooting down whoever shot you down last.
+      if (k.lastKiller === v.id) { rv = 1; pts += REVENGE_BONUS; k.lastKiller = 0; }
+      k.score += pts;
+    }
+    v.lastKiller = k ? k.id : 0;
+    this.broadcast({ t: 'kill', v: v.id, by: k ? k.id : 0, w, st: k ? k.streak : 0, vs: victimStreak, pts, rv, rs: RESPAWN_MS });
   }
 
   // Shooter-side hits (guns, rail). Each pilot gets a damage budget that refills at the rate

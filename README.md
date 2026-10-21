@@ -91,7 +91,8 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 
 - **Quick play** drops you into the busiest public arena with a free seat, up to 12 pilots. **Private arenas** use a four-letter code and an invite link (`supersortie.io/?arena=CODE`). The creator picks the theater and whether AI pilots join.
 - It's a free-for-all with 4-minute rounds. Each round moves to the next theater and ends on a podium, with a 10-second break before the next one.
-- Getting shot down puts you back in the air **2.5 seconds** later, somewhere quiet, with a 2-second spawn shield. A kill is worth 100 points, plus 25 for every kill already in your streak. Ending someone's streak of 3 or more earns a shutdown bonus.
+- Getting shot down puts you back in the air **2.5 seconds** later, somewhere quiet, with a 2-second spawn shield. A kill is worth 100 points, plus 25 for every kill already in your streak. Ending a streak of 3 or more earns a shutdown bonus, and shooting down whoever last got you earns +75 revenge.
+- **Arena today** in the Leaderboard tab ranks people (not AI pilots) by kills since midnight UTC. Rounds are saved from the arena to the `arena_scores` table.
 - **Power-ups** appear around the map:
   - **Weapons:** missiles, rail gun and mines. Each one fires by itself, so they work the same on phones.
   - **Boosts:** spread guns, rapid fire, shield, repair and afterburner.
