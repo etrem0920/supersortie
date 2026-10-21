@@ -87,6 +87,19 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 - Empty rooms delete themselves after 10 minutes. Co-op scores are not posted to the daily leaderboard.
 - **Cost:** a 10-minute, four-pilot mission uses about 2,000 Durable Object requests. The free plan allows 100,000 a day (about 50 missions). Workers Paid ($5/month) covers millions.
 
+## Pilot progression
+
+- Every mode earns XP:
+  - **Daily sortie:** 100 plus 1 XP for every 40 points.
+  - **Practice:** less XP.
+  - **Zen:** XP for kills and minutes flown.
+  - **Co-op:** XP for waves cleared and kills.
+  - **Arena:** XP for each round, kills, placing and wins.
+- Levels go up to 50. They unlock nine contrails, two extra liveries per theater (at levels 8 and 16) and titles. A few titles come from medals and arena wins instead of levels.
+- Contrails are drawn from the plane's recent path, so other pilots see yours in co-op and the arena with no extra network traffic. The arena shows your title on the round podium.
+- Players who started before levels existed got starting XP for the dailies they had flown and the medals they had earned.
+- Everything is stored on the device, like medals.
+
 ## How the arena works
 
 - **Quick play** drops you into the busiest public arena with a free seat, up to 12 pilots. **Private arenas** use a four-letter code and an invite link (`supersortie.io/?arena=CODE`). The creator picks the theater and whether AI pilots join.
@@ -97,6 +110,7 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
   - **Weapons:** missiles, rail gun and mines. Each one fires by itself, so they work the same on phones.
   - **Boosts:** spread guns, rapid fire, shield, repair and afterburner.
 - **Rolling** makes you immune to bullets and breaks missile locks.
+- A **supply blimp** crosses the arena about once a minute. Whoever shoots it down gets +50 points, and it drops three power-ups: one weapon, one boost and one random. That pulls everyone into the same fight.
 - **AI pilots** (marked "AI" on the scoreboard) top a public arena up to 8 pilots. They leave as real people arrive.
 - **What the arena decides:** each arena is a Cloudflare Durable Object. It runs hull, kills, respawns, power-ups, rounds and the AI pilots, and sends a world update 10 times a second.
 - **Who decides a hit:** guns and the rail gun are judged by the shooter. They are capped by a damage budget that matches the real fire rate, plus a range check. Missiles and mines are judged by the target, so a roll really does dodge them.

@@ -58,7 +58,7 @@ export function validate(b, now = Date.now()) {
   if (won && score < hp * 1000) return { error: 'implausible' };
   const plane = PLANES.has(b.plane) ? b.plane : null;
   const liv = Number(b.livery);
-  const livery = Number.isInteger(liv) && liv >= 0 && liv <= 2 ? liv : 0;
+  const livery = Number.isInteger(liv) && liv >= 0 && liv <= 4 ? liv : 0;
   const fav = PLANES.has(b.fav) ? b.fav : plane;
   return { entry: { day, deviceId, name: cleanName(b.name), score, grades, time, theme, hp, kills, mod, waveTimes, plane, livery, fav } };
 }

@@ -32,6 +32,11 @@ const THEMES = ['ww2', 'ww1', 'modern', 'space', 'neon'];
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
 const PLANE_IDS = { ww1: ['camel', 'dr1', 'spad'], ww2: ['hellcat', 'corsair', 'p38'], modern: ['f16', 'f18', 'f15'], space: ['lancer', 'wraith', 'bulwark'], neon: ['vector', 'overdrive', 'pulse'] };
 const REVENGE_BONUS = 75;
+// Cosmetic choices the game offers (liveries per theater, contrails, titles); see game.html.
+export const LIVERIES = 5, TRAILS = 9, TITLES = 12;
+// The supply blimp drifts across the arena; shooting it down drops a cluster of power-ups.
+export const BLIMP_HP = 30;
+const BLIMP_SPEED = 70, BLIMP_FIRST_MS = 25000, BLIMP_EVERY_MS = 55000, BLIMP_POINTS = 50;
 const BOT_NAMES = ['Viper', 'Ghost', 'Maverick', 'Kestrel', 'Nova', 'Raptor', 'Falcon', 'Talon', 'Havoc', 'Comet', 'Banshee', 'Jester', 'Rook', 'Wolfhound', 'Sabre', 'Hornet'];
 
 // Power-ups. Weapons replace each other; the rest stack with whatever you carry.
@@ -93,7 +98,7 @@ export class ArenaRoom {
     this.s = {
       cfg, nextId: 1, pilots: new Map(), pickups: new Map(), mines: new Map(), fired: new Map(), nextPick: 1, nextMine: 1,
       round: { n: 1, themeIdx: Math.max(0, themeIdx), phase: 'play', ends: Date.now() + this.roundMs, started: Date.now(), seed: seedFor(cfg.name, 1) },
-      tick: 0, lastReport: 0,
+      tick: 0, lastReport: 0, blimp: null, nextBlimpId: 1, blimpAt: Date.now() + BLIMP_FIRST_MS,
     };
     // Pilots still connected after a restart get their place back with fresh stats.
     for (const ws of this.ctx.getWebSockets()) {
@@ -106,7 +111,7 @@ export class ArenaRoom {
   humans() { return [...this.s.pilots.values()].filter(p => !p.bot); }
   addPilot(id, info, ws) {
     const p = {
-      id, name: cleanName(info.name), plane: small(info.plane, 2), livery: small(info.livery, 2), bot: !!info.bot, ws: ws || null,
+      id, name: cleanName(info.name), plane: small(info.plane, 2), livery: small(info.livery, LIVERIES - 1), trail: small(info.trail, TRAILS - 1), title: small(info.title, TITLES - 1), bot: !!info.bot, ws: ws || null,
       device: /^[A-Za-z0-9-]{8,64}$/.test(info.device || '') ? info.device : null, lastKiller: 0,
       x: 0, y: 0, a: 0, r: 0, rl: false, hp: MAX_HP, alive: false, respawnAt: Date.now() + 300, protUntil: 0,
       kills: 0, deaths: 0, score: 0, streak: 0, best: 0,
@@ -180,7 +185,7 @@ export class ArenaRoom {
     const r = this.s.round;
     return { n: r.n, theme: this.theme, phase: r.phase, left: Math.max(0, r.ends - now), seed: r.seed };
   }
-  roster() { return [...this.s.pilots.values()].map(p => [p.id, p.name, p.plane, p.livery, p.bot ? 1 : 0]); }
+  roster() { return [...this.s.pilots.values()].map(p => [p.id, p.name, p.plane, p.livery, p.bot ? 1 : 0, p.trail, p.title]); }
   sendRoster() { this.broadcast({ t: 'roster', r: this.roster() }); }
   broadcast(obj, except) {
     const raw = typeof obj === 'string' ? obj : JSON.stringify(obj);
@@ -208,8 +213,10 @@ export class ArenaRoom {
       case 'me': {
         if ('name' in m) p.name = cleanName(m.name);
         if ('plane' in m) p.plane = small(m.plane, 2);
-        if ('livery' in m) p.livery = small(m.livery, 2);
-        ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, device: p.device || '' });
+        if ('livery' in m) p.livery = small(m.livery, LIVERIES - 1);
+        if ('trail' in m) p.trail = small(m.trail, TRAILS - 1);
+        if ('title' in m) p.title = small(m.title, TITLES - 1);
+        ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, trail: p.trail, title: p.title, device: p.device || '' });
         this.sendRoster();
         break;
       }
@@ -266,7 +273,7 @@ export class ArenaRoom {
     for (let i = bots.length; i < want; i++) {
       const used = new Set([...s.pilots.values()].map(p => p.name));
       const name = BOT_NAMES.find(n => !used.has(n)) || `Bot ${s.nextId}`;
-      this.addPilot(s.nextId++, { name, plane: Math.floor(Math.random() * 3), livery: Math.floor(Math.random() * 3), bot: true });
+      this.addPilot(s.nextId++, { name, plane: Math.floor(Math.random() * 3), livery: Math.floor(Math.random() * 3), trail: Math.floor(Math.random() * 4), bot: true });
     }
     // Retire the weakest bots first so a newcomer doesn't shuffle the leaderboard.
     bots.sort((a, b) => a.score - b.score);
@@ -294,6 +301,7 @@ export class ArenaRoom {
       if (!p.bot && now - p.lastP > 25000 && p.ws) { try { p.ws.close(4001, 'idle'); } catch (e) { /* gone */ } }
     }
     this.botTick(0.1, now);
+    this.blimpTick(0.1, now);
     this.keepPickups(now);
     for (const [id, m] of s.mines) if (now > m.until) s.mines.delete(id);
     for (const [ref, f] of s.fired) if (now - f.at > 8000) s.fired.delete(ref);
@@ -309,7 +317,8 @@ export class ArenaRoom {
       const fl = (p.alive ? 1 : 0) | (p.shield > 0 ? 2 : 0) | (now < p.boostUntil ? 4 : 0) | (now < p.rapidUntil ? 8 : 0) | (now < p.spreadUntil ? 16 : 0) | (now < p.protUntil ? 32 : 0) | (p.rl ? 64 : 0);
       out.push([p.id, Math.round(p.x), Math.round(p.y), Math.round(p.a * 100), Math.round(p.r * 100), p.hp, fl, p.weapon ? p.weapon + p.ammo : '']);
     }
-    return { t: 'w', p: out, left: Math.max(0, this.s.round.ends - now) };
+    const b = this.s.blimp;
+    return { t: 'w', p: out, left: Math.max(0, this.s.round.ends - now), bl: b ? [b.id, Math.round(b.x), Math.round(b.y), Math.round(b.a * 100), Math.max(0, Math.round(b.hp))] : 0 };
   }
   board() {
     return [...this.s.pilots.values()].sort((a, b) => b.score - a.score || b.kills - a.kills || a.deaths - b.deaths).map(p => [p.id, p.kills, p.deaths, p.score, p.streak]);
@@ -351,6 +360,7 @@ export class ArenaRoom {
     r.n++; r.themeIdx = s.cfg.theme && s.cfg.private ? r.themeIdx : (r.themeIdx + 1) % THEMES.length;
     r.phase = 'play'; r.ends = now + this.roundMs; r.started = now; r.seed = seedFor(s.cfg.name, r.n);
     s.pickups.clear(); s.mines.clear(); s.fired.clear();
+    s.blimp = null; s.blimpAt = now + BLIMP_FIRST_MS;
     // Announce the round first so clients have the new theater loaded before the respawns land.
     this.broadcast({ t: 'round', ...this.roundInfo(now) });
     for (const p of s.pilots.values()) {
@@ -409,6 +419,7 @@ export class ArenaRoom {
     p.budget = Math.min(rate * 0.3, p.budget + rate * (now - p.budgetT) / 1000); p.budgetT = now;
     for (const h of list.slice(0, 16)) {
       if (!Array.isArray(h)) continue;
+      if (Number(h[0]) === -1) { this.hitBlimp(p, h, now); continue; }
       const v = this.s.pilots.get(Number(h[0])), w = h[2] === 'r' || h[2] === 'm' ? h[2] : 'g';
       if (!v || v === p || v.rl) continue;
       if (Math.hypot(v.x - p.x, v.y - p.y) > (w === 'g' ? GUN_RANGE : 1250)) continue;
@@ -471,6 +482,56 @@ export class ArenaRoom {
     this.broadcast({ t: 'f', o: p.id, w: m.w, x: Math.round(x), y: Math.round(y), a: Math.round(a * 100), tg, ref }, p.ws);
   }
 
+  // ---------- the supply blimp ----------
+  blimpTick(dt, now) {
+    const s = this.s;
+    if (s.round.phase !== 'play') return;
+    if (!s.blimp) {
+      if (now < s.blimpAt) return;
+      // Enter at the edge and cross near the middle, so every pilot gets a shot at it.
+      const ang = Math.random() * Math.PI * 2, x = Math.cos(ang) * ARENA_R * 0.95, y = Math.sin(ang) * ARENA_R * 0.95;
+      const a = Math.atan2(-y, -x) + (Math.random() - 0.5) * 0.6;
+      s.blimp = { id: s.nextBlimpId++, x, y, a, hp: BLIMP_HP };
+      this.broadcast({ t: 'bl', id: s.blimp.id });
+      return;
+    }
+    const b = s.blimp;
+    b.x += Math.cos(b.a) * BLIMP_SPEED * dt; b.y += Math.sin(b.a) * BLIMP_SPEED * dt;
+    if (Math.hypot(b.x, b.y) > ARENA_R + 250) { s.blimp = null; s.blimpAt = now + BLIMP_EVERY_MS / 2; }
+  }
+  hitBlimp(p, h, now) {
+    const b = this.s.blimp, w = h[2] === 'r' ? 'r' : 'g';
+    if (!b || this.s.round.phase !== 'play' || Math.hypot(b.x - p.x, b.y - p.y) > (w === 'r' ? 1250 : GUN_RANGE)) return;
+    let n;
+    if (w === 'r') {
+      const f = this.s.fired.get(Number(h[3]));
+      if (!f || f.o !== p.id || f.w !== 'r' || now - f.at > 1500 || f.hit.has(-1)) return;
+      f.hit.add(-1); n = DAMAGE.r;
+    } else {
+      n = Math.min(clamp(Math.floor(Number(h[1]) || 0), 0, 12), Math.floor(p.budget));
+      if (n <= 0) return;
+      p.budget -= n;
+    }
+    this.damageBlimp(p, n, now);
+  }
+  damageBlimp(by, n, now) {
+    const s = this.s, b = s.blimp;
+    if (!b) return;
+    b.hp -= n;
+    if (b.hp > 0) return;
+    s.blimp = null; s.blimpAt = now + BLIMP_EVERY_MS;
+    if (by) by.score += BLIMP_POINTS;
+    this.broadcast({ t: 'bx', id: b.id, x: Math.round(b.x), y: Math.round(b.y), by: by ? by.id : 0, pts: BLIMP_POINTS });
+    // The drop: one weapon, one boost and one random power-up.
+    const kinds = [['m', 'r', 'n'][Math.floor(Math.random() * 3)], ['s', 'f', 'h', 'b'][Math.floor(Math.random() * 4)], pickKind()];
+    kinds.forEach((kind, i) => {
+      const a = i / 3 * Math.PI * 2 + Math.random(), d = 50 + Math.random() * 40;
+      const k = { id: s.nextPick++, x: b.x + Math.cos(a) * d, y: b.y + Math.sin(a) * d, k: kind };
+      s.pickups.set(k.id, k);
+      this.broadcast({ t: 'pk', id: k.id, x: Math.round(k.x), y: Math.round(k.y), k: k.k });
+    });
+  }
+
   // ---------- power-ups ----------
   keepPickups(now) {
     const s = this.s, want = 7 + Math.ceil(s.pilots.size / 2);
@@ -517,9 +578,15 @@ export class ArenaRoom {
         }
         ai.tg = tg ? tg.id : null; ai.tgT = 3 + Math.random() * 2;
       }
-      // Head for a nearby power-up when nobody is close.
+      // With nobody close, go after the supply blimp or a nearby power-up.
       let want;
-      if (tg) {
+      const bl = s.blimp && Math.hypot(s.blimp.x - b.x, s.blimp.y - b.y) < 1300 ? s.blimp : null;
+      if (bl && (!tg || Math.hypot(tg.x - b.x, tg.y - b.y) > 700)) {
+        const d = Math.hypot(bl.x - b.x, bl.y - b.y);
+        want = Math.atan2(bl.y - b.y, bl.x - b.x) + (d < 160 ? 1.2 : 0);
+        if (d < 550 && Math.abs(wrap(Math.atan2(bl.y - b.y, bl.x - b.x) - b.a)) < 0.2 && Math.random() < 0.3 * ai.skill) this.damageBlimp(b, 1, now);
+        tg = null;
+      } else if (tg) {
         const d = Math.hypot(tg.x - b.x, tg.y - b.y), lead = d / 1030;
         want = Math.atan2(tg.y + Math.sin(tg.a) * 260 * lead - b.y, tg.x + Math.cos(tg.a) * 260 * lead - b.x);
         if (d < 150) want += 1.1;
