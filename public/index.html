@@ -713,6 +713,24 @@
   .toast b { display: block; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
   .toast small { color: var(--muted); }
   body.in-arena .toasts { top: auto; right: auto; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(130px + env(safe-area-inset-bottom, 0px)); }
+  /* ---------- daily reward ---------- */
+  .rw-track { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+  .rw-day { position: relative; background: var(--raise); padding: 10px 4px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; --cut: 8px; box-shadow: inset 0 0 0 1px var(--line); }
+  .rw-day small { font-family: var(--font-cond); font-weight: 700; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .rw-day svg { width: 30px; height: 30px; }
+  .rw-day b { font-family: var(--font-display); font-weight: 800; font-size: 15px; color: #ffd34f; line-height: 1; }
+  .rw-day i { font-style: normal; font-size: 10px; color: var(--text); font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .rw-day.done > * { opacity: .45; }
+  .rw-day.done::after { content: '✓'; position: absolute; top: 4px; right: 6px; color: var(--good); font-weight: 900; }
+  .rw-day.today { box-shadow: inset 0 0 0 2px #ffd34f, 0 0 22px rgba(255, 211, 79, .35); animation: rwGlow 1.4s ease-in-out infinite; }
+  .rw-day.big { background: linear-gradient(180deg, rgba(177, 75, 255, .25), var(--raise)); }
+  @keyframes rwGlow { 50% { box-shadow: inset 0 0 0 2px #ffd34f, 0 0 34px rgba(255, 211, 79, .6); } }
+  .reward-sheet .btn-xl.claimed { background: var(--good); }
+  @media (max-width: 600px) { .rw-track { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .tab .dot, .bottom-nav .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ff3b5c; margin-left: 5px; vertical-align: 3px; box-shadow: 0 0 6px #ff3b5c; }
+  .bottom-nav button { position: relative; }
+  .bottom-nav .dot { position: absolute; top: 6px; right: calc(50% - 16px); margin: 0; }
+  .crate-card .free { position: absolute; top: 6px; right: 6px; background: #ff3b5c; color: #fff; font-family: var(--font-cond); font-weight: 700; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; animation: rwGlow 1.4s ease-in-out infinite; }
   /* ---------- shop ---------- */
   .shop-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
   .credits { display: flex; align-items: center; gap: 8px; }
@@ -1070,6 +1088,16 @@
       <input id="callsign2" maxlength="16" autocomplete="off" spellcheck="false">
     </div>
     <button id="helpGo" class="btn btn-primary btn-block btn-xl">Let's fly</button>
+  </div>
+</div>
+
+<!-- ================= DAILY REWARD ================= -->
+<div id="reward" class="modal hidden">
+  <div class="sheet sheet-wide reward-sheet">
+    <div class="sheet-head"><span id="rwKicker" class="eyebrow-s">Daily reward</span><h2 id="rwTitle">Welcome back</h2></div>
+    <div id="rwTrack" class="rw-track"></div>
+    <p id="rwNote" class="pp-meta"></p>
+    <button id="rwClaim" class="btn btn-primary btn-block btn-xl">Claim</button>
   </div>
 </div>
 
@@ -5033,7 +5061,7 @@ const Social = {
       streak: liveStreak(), maxStreak: store.maxStreak || 0, lastDay: store.lastDay || 0, played: store.played || 0, best: store.best || 0,
       medals: Object.keys(store.medals || {}), aces: store.aces || {}, arena: store.arena || {}, zenBest: store.zenBest || null,
       planeUse: store.planeUse || {}, liveries: store.livery || {}, planes: store.plane || {},
-      credits: store.credits || 0, inv: store.inv || [], bullet: store.bullet || 0, killfx: store.killfx || 0, egg: store.egg ? 1 : 0,
+      credits: store.credits || 0, inv: store.inv || [], bullet: store.bullet || 0, killfx: store.killfx || 0, egg: store.egg ? 1 : 0, tokens: store.tokens || [0, 0, 0],
     };
   },
   // Combine an account's saved progress with this device's: keep the best of each.
@@ -5056,6 +5084,7 @@ const Social = {
     if (!store.bullet && p.bullet) store.bullet = p.bullet;
     if (p.egg) store.egg = 1;
     if (!store.killfx && p.killfx) store.killfx = p.killfx;
+    if (Array.isArray(p.tokens)) { store.tokens = store.tokens || [0, 0, 0]; p.tokens.forEach((n, i) => { store.tokens[i] = Math.max(store.tokens[i] || 0, Number(n) || 0); }); }
     if (!store.trail && p.trail) store.trail = p.trail;
   },
   dirty() {
@@ -5257,6 +5286,7 @@ window.__dirty = () => Social.dirty();
 $('pilot').addEventListener('click', e => { if (e.target.closest('[data-close]')) hide('pilot'); });
 // Every menu closes on a click outside it, or with Esc, the same way its own close button would.
 const DISMISS = [
+  ['reward', () => Daily.claim()],
   ['crate', () => Shop.close()],
   ['pilot', () => hide('pilot')],
   ['help', () => { helpThen = null; hide('help'); }],
@@ -5328,7 +5358,7 @@ const Shop = {
   earn(n, why) {
     n = Math.max(0, Math.round(n));
     if (!n) return;
-    store.credits = (store.credits || 0) + n; saveStore();
+    store.credits = (store.credits || 0) + n; saveStore(); renderShopDot();
     const el = $('credPop');
     el.innerHTML = `${COIN_SVG}+${fmtNum(n)}${why ? `<small>${esc(why)}</small>` : ''}`;
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
@@ -5354,7 +5384,14 @@ const Shop = {
   },
   open(tier) {
     if (this.busy) return;
-    const C = CRATES[tier], tid = this.tid;
+    const C = CRATES[tier], tid = this.tid, tokens = store.tokens || (store.tokens = [0, 0, 0]);
+    if (tokens[tier] > 0) {
+      audio(); tokens[tier]--; saveStore(); renderShopDot();
+      const win = this.roll(tier, tid);
+      track('crate_open', { tier, theme: tid, rarity: win.rarity, free: 1 });
+      this.spin(tier, tid, win);
+      return;
+    }
     if ((store.credits || 0) < C.cost) {
       const card = document.querySelector(`.crate-card[data-tier="${tier}"]`);
       if (card) { card.classList.remove('nope'); void card.offsetWidth; card.classList.add('nope'); }
@@ -5478,6 +5515,8 @@ const Shop = {
   render() {
     const el = $('shopBody');
     if (!el) return;
+    if (store.shopSeen !== todayNum) { store.shopSeen = todayNum; saveStore(); }
+    renderShopDot();
     this.tid = this.tid || theme.id;
     const tid = this.tid, items = crateItems(tid), have = items.filter(it => owned(it.id)).length, cr = store.credits || 0;
     const KINDS = [['all', 'All'], ['skin', 'Skins'], ['plane', 'Planes'], ['trail', 'Contrails'], ['bullet', 'Bullets'], ['kfx', 'Kill effects']];
@@ -5485,7 +5524,7 @@ const Shop = {
     const sorted = items.filter(it => this.kind === 'all' || it.kind === this.kind).sort((a, b) => b.rarity - a.rarity || (owned(b.id) ? 1 : 0) - (owned(a.id) ? 1 : 0));
     el.innerHTML = `<div class="shop-head"><div class="credits">${COIN_SVG}<div><b>${fmtNum(cr)}</b><small>credits</small></div></div><span class="shop-note">Earn credits in every mode. Everything in crates is cosmetic: no item flies better.</span></div>
       <div class="shop-th" role="radiogroup" aria-label="Crate theater">${THEME_ORDER.map(t => `<button role="radio" data-t="${t}" aria-checked="${t === tid}">${esc(THEMES[t].short)}</button>`).join('')}</div>
-      <div class="crates">${CRATES.map((C, i) => `<button class="crate-card chamfer ${cr < C.cost ? 'poor' : ''}" data-tier="${i}" style="--cc:${C.color}"><div class="crate-art">${crateArt(C.color, tid)}</div><b>${esc(C.name)}</b><small>${esc(C.desc)}</small><span class="price">${COIN_SVG}${fmtNum(C.cost)}</span></button>`).join('')}</div>
+      <div class="crates">${CRATES.map((C, i) => `<button class="crate-card chamfer ${cr < C.cost ? 'poor' : ''}" data-tier="${i}" style="--cc:${C.color}"><div class="crate-art">${crateArt(C.color, tid)}</div><b>${esc(C.name)}</b><small>${esc(C.desc)}</small><span class="price">${COIN_SVG}${fmtNum(C.cost)}</span>${(store.tokens || [])[i] > 0 ? `<span class="free">${store.tokens[i]} free</span>` : ''}</button>`).join('')}</div>
       <div id="shopMsg" class="acct-err" role="status"></div>
       <details class="odds"><summary>Drop odds</summary><table><tr><th>Rarity</th>${CRATES.map(C => `<th>${esc(C.name.split(' ')[0])}</th>`).join('')}<th>Sells for</th></tr>${RARITY.map((R, r) => `<tr><td style="color:${R.color}">${R.name}${r === 5 ? ' (planes)' : ''}</td>${CRATES.map(C => `<td>${C.odds[r] ? C.odds[r] + '%' : '—'}</td>`).join('')}<td>${fmtNum(R.value)}</td></tr>`).join('')}</table></details>
       <div class="section-label"><span>${esc(THEMES[tid].short)} collection</span><span>${have}/${items.length}</span></div>
@@ -5504,6 +5543,51 @@ const Shop = {
   },
 };
 Shop.init();
+// Daily login rewards: a 7-day streak of credits, with free crates on days 3 and 7.
+const LOGIN_REWARDS = [{ c: 100 }, { c: 150 }, { c: 200, t: 0 }, { c: 250 }, { c: 300 }, { c: 400 }, { c: 500, t: 1 }];
+const Daily = {
+  due() { return (store.login || {}).day !== todayNum; },
+  nextN() { const L = store.login || {}; return L.day === todayNum - 1 ? (L.n || 0) + 1 : 1; },
+  show() {
+    if (!this.due()) return;
+    const n = this.nextN(), idx = (n - 1) % 7, week = Math.floor((n - 1) / 7);
+    $('rwKicker').textContent = n > 1 ? `Daily reward · ${n}-day streak` : 'Daily reward';
+    $('rwTitle').textContent = n > 1 ? 'Welcome back, pilot' : 'Your daily reward';
+    $('rwTrack').innerHTML = LOGIN_REWARDS.map((r, i) => {
+      const crate = r.t != null ? `<svg viewBox="0 0 74 64">${crateArt(CRATES[r.t].color, theme.id).replace(/^<svg[^>]*>|<\/svg>$/g, '')}</svg>` : COIN_SVG.replace('<svg', '<svg style="width:26px;height:26px"');
+      return `<div class="rw-day chamfer ${i < idx ? 'done' : ''} ${i === idx ? 'today' : ''} ${r.t != null ? 'big' : ''}"><small>Day ${week * 7 + i + 1}</small>${crate}<b>${fmtNum(r.c)}</b>${r.t != null ? `<i>+ ${CRATES[r.t].name.split(' ')[0]} crate</i>` : ''}</div>`;
+    }).join('');
+    $('rwNote').textContent = 'Come back tomorrow to keep the streak going. Miss a day and it starts again from day 1.';
+    $('rwClaim').textContent = 'Claim'; $('rwClaim').classList.remove('claimed');
+    show('reward');
+  },
+  claim() {
+    if (!this.due()) { hide('reward'); return; }
+    const n = this.nextN(), r = LOGIN_REWARDS[(n - 1) % 7];
+    store.login = { day: todayNum, n };
+    if (r.t != null) { store.tokens = store.tokens || [0, 0, 0]; store.tokens[r.t] = (store.tokens[r.t] || 0) + 1; }
+    saveStore();
+    Shop.earn(r.c, `Day ${n} reward`);
+    if (r.t != null) toast('Free crate!', `A ${CRATES[r.t].name} is waiting in the Shop`);
+    confetti(r.t != null ? 90 : 50); sfx.medal(); vibrate([30, 30, 60]);
+    $('rwClaim').textContent = r.t != null ? 'Open it in the Shop' : 'Claimed!'; $('rwClaim').classList.add('claimed');
+    $('rwTrack').querySelector('.today').classList.add('done');
+    track('daily_reward', { n });
+    renderShopDot();
+    setTimeout(() => { hide('reward'); if (r.t != null) selectTab('shop'); }, r.t != null ? 900 : 1100);
+  },
+};
+$('rwClaim').addEventListener('click', () => Daily.claim());
+// A red dot on the Shop tab when there's something to open.
+function renderShopDot() {
+  const tok = (store.tokens || []).some(n => n > 0), can = (store.credits || 0) >= CRATES[0].cost && store.shopSeen !== todayNum;
+  document.querySelectorAll('.tab[data-tab="shop"], #bottomNav [data-view="shop"]').forEach(el => {
+    let d = el.querySelector('.dot');
+    if (tok || can) { if (!d) { d = document.createElement('span'); d.className = 'dot'; el.appendChild(d); } }
+    else if (d) d.remove();
+  });
+}
+setTimeout(() => { renderShopDot(); if (state === 'menu' && [...document.querySelectorAll('.modal')].every(m => m.classList.contains('hidden'))) Daily.show(); }, 1200);
 // Easter egg: tap the logo plane 10 times within 10 seconds. Pays out once per pilot.
 {
   let taps = [];
