@@ -351,6 +351,8 @@ export class ArenaRoom {
       case 'p': {
         const x = num(m.x, ARENA_R * 1.6), y = num(m.y, ARENA_R * 1.6);
         if (!p.alive && p.restored && !m.d && this.s.round.phase === 'play') { p.restored = false; p.alive = true; p.x = x; p.y = y; p.hp = MAX_HP; p.protUntil = now + 1500; p.respawnAt = 0; }
+        // Holding fire: the flag shows on their plane, and their guns stop counting.
+        if (!!m.hf !== !!p.hold) { p.hold = !!m.hf; p.holdAt = now; }
         if (!p.alive) { p.lastP = now; return; }
         // A pilot can't outrun an afterburning roll; anything faster is ignored.
         const dt = Math.max(0.05, (now - p.lastP) / 1000);
@@ -457,7 +459,7 @@ export class ArenaRoom {
   world(now) {
     const out = [];
     for (const p of this.s.pilots.values()) {
-      const fl = (p.alive ? 1 : 0) | (p.shield > 0 ? 2 : 0) | (now < p.boostUntil ? 4 : 0) | (now < p.rapidUntil ? 8 : 0) | (now < p.spreadUntil ? 16 : 0) | (now < p.protUntil ? 32 : 0) | (p.rl ? 64 : 0) | (now < p.cloakUntil ? 128 : 0) | (now < p.ddUntil ? 256 : 0) | (now < p.odUntil ? 512 : 0) | (now < p.vampUntil ? 1024 : 0) | (now < p.droneUntil ? 2048 : 0) | (now < p.flareUntil ? 4096 : 0);
+      const fl = (p.alive ? 1 : 0) | (p.shield > 0 ? 2 : 0) | (now < p.boostUntil ? 4 : 0) | (now < p.rapidUntil ? 8 : 0) | (now < p.spreadUntil ? 16 : 0) | (now < p.protUntil ? 32 : 0) | (p.rl ? 64 : 0) | (now < p.cloakUntil ? 128 : 0) | (now < p.ddUntil ? 256 : 0) | (now < p.odUntil ? 512 : 0) | (now < p.vampUntil ? 1024 : 0) | (now < p.droneUntil ? 2048 : 0) | (now < p.flareUntil ? 4096 : 0) | (p.hold ? 8192 : 0);
       out.push([p.id, Math.round(p.x), Math.round(p.y), Math.round(p.a * 100), Math.round(p.r * 100), p.hp, fl, p.weapon ? p.weapon + p.ammo : '']);
     }
     const b = this.s.blimp;
@@ -567,6 +569,7 @@ export class ArenaRoom {
   // their guns can actually fire, so a modified client can't out-damage an honest one.
   onHits(p, list, now) {
     if (!Array.isArray(list) || !p.alive) return;
+    if (p.hold && now - p.holdAt > 800) return; // bullets already in the air when they held fire still land
     const rate = GUN_RATE * (now < p.rapidUntil ? 2 : 1) * (now < p.spreadUntil ? 1.6 : 1) * 1.25;
     p.budget = Math.min(rate * 0.3, p.budget + rate * (now - p.budgetT) / 1000); p.budgetT = now;
     for (const h of list.slice(0, 16)) {
@@ -618,7 +621,7 @@ export class ArenaRoom {
   }
 
   onFire(p, m, now) {
-    if (!p.alive || !p.weapon || p.ammo <= 0 || m.w !== p.weapon) return;
+    if (!p.alive || !p.weapon || p.ammo <= 0 || m.w !== p.weapon || p.hold) return;
     const ref = Number(m.ref) || 0;
     const x = num(m.x, ARENA_R * 1.6), y = num(m.y, ARENA_R * 1.6), a = num(m.a, 700) / 100;
     if (Math.hypot(x - p.x, y - p.y) > 400) return;

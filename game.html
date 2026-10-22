@@ -809,6 +809,12 @@
   @keyframes cdOut { to { opacity: 0; } }
   .emote-btn { position: absolute; pointer-events: auto; touch-action: none; right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(118px + env(safe-area-inset-bottom, 0px)); width: 48px; height: 48px; border: 0; border-radius: 50%; background: rgba(9, 12, 20, .72); color: #fff; box-shadow: inset 0 0 0 1px var(--line-strong); cursor: pointer; display: grid; place-items: center; z-index: 7; }
   .emote-btn svg { width: 22px; height: 22px; }
+  .hold-btn { right: calc(max(18px, env(safe-area-inset-right, 0px)) + 58px); }
+  .hold-btn[aria-pressed="true"] { background: #eef1f6; color: #0b0d14; box-shadow: 0 0 0 3px rgba(238, 241, 246, .3); }
+  .hold-tag { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(118px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 10px; white-space: nowrap; align-items: baseline; padding: 6px 14px; background: rgba(9, 12, 20, .78); box-shadow: inset 0 0 0 1px rgba(238, 241, 246, .55); font-family: var(--font-cond); text-transform: uppercase; letter-spacing: .1em; pointer-events: none; z-index: 6; }
+  .hold-tag b { color: #fff; font-size: 15px; }
+  .hold-tag span { color: rgba(255, 255, 255, .6); font-size: 12px; font-weight: 700; }
+  @media (max-width: 600px) { .hold-tag { bottom: calc(178px + env(safe-area-inset-bottom, 0px)); } }
   .emote-wheel { position: absolute; pointer-events: auto; right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(174px + env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: 1fr 1fr; gap: 6px; z-index: 7; }
   .emote-wheel button { border: 0; cursor: pointer; background: rgba(9, 12, 20, .86); color: #fff; box-shadow: inset 0 0 0 1px var(--line-strong); padding: 8px 12px; font-family: var(--font-cond); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; text-align: left; white-space: nowrap; animation: feedin .18s ease both; }
   .emote-wheel button kbd { font-size: 11px; margin-right: 6px; }
@@ -1100,6 +1106,8 @@
   </div>
   <div id="countdown" class="countdown hidden" aria-live="assertive"><small id="cdKicker"></small><b id="cdNum"></b><span id="cdSub"></span></div>
   <button id="emoteBtn" class="emote-btn hidden" aria-label="Quick chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="currentColor"/></svg></button>
+  <button id="holdBtn" class="emote-btn hold-btn hidden" aria-label="Hold fire" aria-pressed="false" title="Hold fire (H)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9h13l2-2h3v3h2v4h-2v1h-4l-1.5 6h-4L12 14H8l-1 2H4l.5-3H2z" fill="currentColor"/></svg></button>
+  <div id="holdTag" class="hold-tag hidden" aria-live="polite"><b>Holding fire</b><span id="holdKey">H to fire again</span></div>
   <div id="emoteWheel" class="emote-wheel hidden" role="menu" aria-label="Quick chat"></div>
   <button id="rollBtn" class="roll-btn" aria-label="Barrel roll">
     <span class="inner"><b>ROLL</b><small id="rollKey">Space</small></span>
@@ -3922,6 +3930,7 @@ const EMOTES = ['GG', 'Nice shot!', 'Revenge incoming', 'Oops', 'Follow me', 'Ch
 $('rollBtn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); audio(); tryRoll(); });
 $('emoteWheel').innerHTML = EMOTES.map((t, i) => `<button data-e="${i}" role="menuitem"><kbd>${i + 1}</kbd>${esc(t)}</button>`).join('');
 $('emoteBtn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); $('emoteWheel').classList.toggle('hidden'); });
+$('holdBtn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); audio(); Arena.toggleHold(); });
 $('emoteWheel').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); const b = e.target.closest('[data-e]'); if (b) sendEmote(Number(b.dataset.e)); });
 
 window.addEventListener('keydown', e => {
@@ -3934,6 +3943,7 @@ window.addEventListener('keydown', e => {
   if (e.code === 'KeyF' && fsOK) toggleFullscreen();
   if (state === 'play' && Arena.on && /^Digit[1-8]$/.test(e.code)) sendEmote(Number(e.code.slice(5)) - 1);
   if (state === 'play' && Arena.on && e.code === 'KeyT') $('emoteWheel').classList.toggle('hidden');
+  if (state === 'play' && Arena.on && e.code === 'KeyH') Arena.toggleHold();
   if (state === 'play') {
     if (e.code === 'Space' || e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyW' || e.code === 'ArrowUp') tryRoll();
     if (e.code === 'Escape' || e.code === 'KeyP') pauseGame();
@@ -3958,6 +3968,9 @@ function pollGamepad() {
   const rollBtn = !!(gp.buttons[0] && gp.buttons[0].pressed) || !!(gp.buttons[7] && gp.buttons[7].pressed);
   if (rollBtn && !input.padRoll) { if (state === 'play') tryRoll(); else if (state === 'menu' && !store.history[todayNum] && $('help').classList.contains('hidden')) onPlayDaily(); }
   input.padRoll = rollBtn;
+  const holdB = !!(gp.buttons[3] && gp.buttons[3].pressed);
+  if (holdB && !input.padHold && state === 'play' && Arena.on) Arena.toggleHold();
+  input.padHold = holdB;
   const start = !!(gp.buttons[9] && gp.buttons[9].pressed);
   if (start && !input.padStart) { if (state === 'play') pauseGame(); else if (state === 'pause') resumeGame(); }
   input.padStart = start;
@@ -8490,7 +8503,7 @@ const Arena = {
       if (o.fl & 4 && Math.random() < 0.6) puff(o.x - Math.cos(o.a) * 18, o.y - Math.sin(o.a) * 18, rand(-20, 20), rand(-20, 20), rand(3, 5), 8, 0.3, theme.fx[0], 'fire');
       // Their guns, drawn here so every pilot sees the same streams of fire.
       o.fireT -= dt;
-      if (o.fireT <= 0 && this.phase === 'play') {
+      if (o.fireT <= 0 && this.phase === 'play' && !(o.fl & 8192)) {
         o.fireT = 0.1 / h.fire / (o.fl & 8 ? 2 : 1);
         const sp2 = 1030;
         const angs = o.fl & 16 ? [0, -0.13, 0.13] : [0];
@@ -8589,6 +8602,19 @@ const Arena = {
   nextRef() { return this.you * 100000 + (++this.refN % 100000); },
   // Special weapons fire themselves: missiles lock on to whoever you point at, the rail gun
   // fires when a plane lines up, and mines drop when someone is on your tail.
+  // Hold fire: guns and special weapons stay quiet until the pilot turns them back on.
+  setHold(on) {
+    this.hold = !!on;
+    $('holdBtn').setAttribute('aria-pressed', String(this.hold));
+    $('holdKey').textContent = isTouch ? 'Tap the gun to fire' : input.mode === 'pad' ? 'Y to fire again' : 'H to fire again';
+    $('holdTag').classList.toggle('hidden', !this.hold || !this.on);
+  },
+  toggleHold() {
+    this.setHold(!this.hold);
+    if (!this.hold) player.fireT = Math.max(player.fireT, 0.15);
+    tone(this.hold ? 520 : 880, 0.06, 'square', 0.03);
+    showHint(this.hold ? 'Holding fire · other pilots can see it' : 'Guns hot', 1600);
+  },
   autoWeapon(dt) {
     this.cd -= dt;
     const k = this.weapon[0], n = parseInt(this.weapon.slice(1), 10) || 0;
@@ -8646,7 +8672,7 @@ const Arena = {
     if (this.sendT > 0) return;
     this.sendT = player.dead ? 0.5 : 1 / 12;
     const roll = (player.rollT > 0 ? (1 - player.rollT / ROLL_T) * TAU : 0) + player.bank;
-    ANet.send({ t: 'p', x: Math.round(player.x), y: Math.round(player.y), a: Math.round(player.a * 100), r: Math.round(roll * 100), rl: player.rollT > 0 ? 1 : 0, d: player.dead ? 1 : 0 });
+    ANet.send({ t: 'p', x: Math.round(player.x), y: Math.round(player.y), a: Math.round(player.a * 100), r: Math.round(roll * 100), rl: player.rollT > 0 ? 1 : 0, d: player.dead ? 1 : 0, hf: this.hold ? 1 : 0 });
     const h = Object.entries(this.hits).map(([id, n]) => [Number(id), n, 'g']);
     if (h.length) { ANet.send({ t: 'hit', h }); this.hits = {}; }
     if (this.hv.length) { ANet.send({ t: 'hv', h: this.hv }); this.hv = []; }
@@ -8739,6 +8765,7 @@ const Arena = {
       const w = 40, f = clamp(o.hp / this.info.hp, 0, 1);
       c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(-w / 2 - 1, 9, w + 2, 6);
       c.fillStyle = f > 0.5 ? '#38d98a' : f > 0.25 ? '#ffc53d' : '#ff4d5e'; c.fillRect(-w / 2, 10, w * f, 4);
+      if (o.fl & 8192) { c.font = '700 11px "Barlow Condensed", "Arial Narrow", sans-serif'; c.lineWidth = 3; c.strokeText('HOLDING FIRE', 0, 24); c.fillStyle = '#cfe8ff'; c.fillText('HOLDING FIRE', 0, 24); }
       c.restore();
     }
     // my shield and afterburner
@@ -8952,7 +8979,8 @@ function arenaUpdate(dt) {
     player.sp = player.baseSp * (A.flags & 4 ? 1.45 : 1);
     player.fi = player.baseFi * (A.flags & 8 ? 2 : 1);
     steerPlayer(dt); movePlayer(dt);
-    if (A.phase === 'play') { arenaFire(dt, !!(A.flags & 16)); A.autoWeapon(dt); }
+    if (A.phase === 'play' && !A.hold) { arenaFire(dt, !!(A.flags & 16)); A.autoWeapon(dt); }
+    else if (A.hold) A.lock = null;
   }
   A.tickOthers(dt);
   A.checkMyBullets();
@@ -8965,7 +8993,8 @@ function arenaUpdate(dt) {
 
 function setArenaHud(on) {
   document.body.classList.toggle('in-arena', on);
-  ['arenaBoard', 'killfeed', 'weaponChip', 'streakBox', 'emoteBtn'].forEach(id => $(id).classList.toggle('hidden', !on));
+  ['arenaBoard', 'killfeed', 'weaponChip', 'streakBox', 'emoteBtn', 'holdBtn'].forEach(id => $(id).classList.toggle('hidden', !on));
+  Arena.setHold(false);
   if (!on) { $('emoteWheel').classList.add('hidden'); stopCountdown(); }
   $('arenaLabel').classList.toggle('hidden', !on);
   if (!on) { hide('respawnBox'); hide('arenaEnd'); }
@@ -8997,7 +9026,7 @@ function startArena(m) {
   state = 'play';
   if (m.round.phase === 'play') arenaCountdown(m.round.warm || 2400, `${m.private ? `Private arena ${m.code}` : 'Arena'} · ${theme.name}`, m.rules ? rulesLine(m.rules) : `${Arena.roster.size} pilots · round ${m.round.n}`);
   else showBanner(m.private ? `Private arena · ${m.code}` : 'Arena · free-for-all', theme.name, `${Arena.roster.size} pilots · next round soon`);
-  showHint(isTouch ? 'Drag to steer · ROLL dodges bullets and missiles · fly through power-ups' : 'Mouse to steer · click or Space to roll · fly through power-ups', 5500);
+  showHint(isTouch ? 'Drag to steer · ROLL dodges bullets and missiles · the gun button holds fire' : 'Mouse to steer · click or Space to roll · H holds fire', 5500);
   if (m.round.phase === 'end') { Arena.phase = 'end'; }
   track('arena_join', { private: !!m.private, pilots: Arena.roster.size });
 }
