@@ -148,6 +148,10 @@ The "Military mode" toggle in the header (and the pause menu) swaps in real mili
 
 Each save to `PUT /api/v1/me/profile` carries the revision the device last saw. If another device saved since, the server answers 409 with its copy, and the client merges three ways against what it last synced: credits, crate tokens and the inventory replay this device's changes on top of the account, so credits never duplicate and sold items stay sold. Loadout picks that changed here win; the rest follow the account. Tabs pick up changes when you come back to them, and each plane remembers its own skin (`store.planeLiv`).
 
+## Creator badge
+
+The account in `CREATORS` (`server/creators.js`, mirrored in `game.html`) gets a "◆ Creator" badge and a highlighted row on the daily, arena and league boards, the friends list, pilot profiles and the ghost picker, plus a colour-cycling "◆ NAME · CREATOR" tag above their plane in the arena. It goes by account username, which is unique, so a guest using the same callsign doesn't get it; the arena flag is set by the Worker from the signed-in account.
+
 ## Feedback
 
 The home screen has a feedback form (idea, bug or other, plus an optional email). Messages go to `POST /api/v1/feedback`, which stores them in the `feedback` table (`server/migrations/0006_feedback.sql`). Read them with `GET /api/v1/admin/feedback` and the `ADMIN_TOKEN` bearer. To have each one emailed as well, turn on Cloudflare Email Routing for supersortie.io, verify your inbox as a destination, then add a `send_email` binding named `FEEDBACK_MAIL` and a `FEEDBACK_TO` var to `server/wrangler.toml`; `server/feedback.js` sends through it when it's there.

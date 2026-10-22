@@ -232,6 +232,10 @@
   .board li.elite .nmt { background: linear-gradient(90deg, #fff3c4, #ffd34f, #ff9b2a, #ffd34f, #fff3c4); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: goldFlow 3s linear infinite; }
   .board li.elite .crown { color: #ffd34f; margin-right: 4px; text-shadow: 0 0 8px rgba(255, 211, 79, .7); }
   @keyframes goldFlow { to { background-position: -200% 0; } }
+  .creator-tag { display: inline-block; margin-left: 6px; padding: 1px 6px 1px 5px; font-family: var(--font-cond); font-weight: 800; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #0b0d14; background: linear-gradient(90deg, #ff4fd8, #7c50ff, #3df0ff, #ff4fd8); background-size: 300% 100%; animation: goldFlow 4s linear infinite; vertical-align: 2px; box-shadow: 0 0 10px rgba(255, 79, 216, .45); white-space: nowrap; }
+  #ppName + .creator-tag { font-size: 12px; vertical-align: 6px; }
+  .board li.creator { box-shadow: inset 3px 0 0 #ff4fd8; background: linear-gradient(90deg, rgba(255, 79, 216, .10), transparent 60%); }
+  .board li.creator .nmt { background: linear-gradient(90deg, #ff9bf0, #b98cff, #7cf2ff, #ff9bf0); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: goldFlow 4s linear infinite; }
   .elite-chip { color: #ffd34f; text-shadow: 0 0 10px rgba(255, 211, 79, .5); }
   .zen-sheet { display: grid; gap: 14px; }
   .zs-rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; }
@@ -1921,6 +1925,10 @@ const BULLET_SKINS = [
 BULLET_SKINS.forEach((b, i) => { if (i) b.crate = `b:${i}`; });
 // Apex bundles: the plane's own skin, bullets, contrail and kill effect count as owned with the plane.
 var APEX_GRANT = {};
+// The game's creator gets a badge wherever their account name shows. Keep in step with server/creators.js.
+const CREATORS = ['tremdog'];
+const isCreator = u => !!u && CREATORS.includes(String(u).toLowerCase());
+const CREATOR_TAG = '<span class="creator-tag" title="Made Super Sortie">◆ Creator</span>';
 const owned = id => !!(store.inv && (store.inv.includes(id) || (APEX_GRANT[id] && store.inv.includes(APEX_GRANT[id]))));
 // Three more skins for every aircraft, crate planes included. The rarer, the fancier.
 {
@@ -5852,7 +5860,7 @@ function renderRecord() {
 function boardRowHTML(e) {
   const pid = resolvePlane(e.plane, e.theme);
   const fav = PLANE_INDEX[e.fav] && e.fav !== pid ? ` · fav ${planeName(e.fav)}` : '';
-  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}${e.elite ? ' elite' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${e.elite ? '<span class="crown" title="Top 10% today">✦</span>' : ''}<span class="nmt">${esc(e.name)}</span>${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : CONFIG.apiBase ? '<span class="guest">not registered</span>' : ''}<small>${esc(planeName(pid) + fav)}</small></span>${miniTiles(e.grades)}<span class="sc">${fmtNum(e.score)}</span></li>`;
+  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}${e.elite ? ' elite' : ''}${isCreator(e.u) ? ' creator' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${e.elite ? '<span class="crown" title="Top 10% today">✦</span>' : ''}<span class="nmt">${esc(e.name)}</span>${e.me ? ' (you)' : ''}${isCreator(e.u) ? CREATOR_TAG : e.u ? '<span class="acct">●</span>' : CONFIG.apiBase ? '<span class="guest">not registered</span>' : ''}<small>${esc(planeName(pid) + fav)}</small></span>${miniTiles(e.grades)}<span class="sc">${fmtNum(e.score)}</span></li>`;
 }
 let boardMode = 'daily', arenaSort = 'kills';
 async function loadArenaBoard() {
@@ -5868,7 +5876,7 @@ async function loadArenaBoard() {
 }
 function arenaRowHTML(e) {
   const pid = PLANE_INDEX[e.plane] ? e.plane : 'hellcat';
-  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}${e.elite ? ' elite' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : '<span class="guest">not registered</span>'}<small>${e.rounds} round${e.rounds === 1 ? '' : 's'} · ${e.wins} win${e.wins === 1 ? '' : 's'} · best streak ${e.streak}</small></span><span class="coop-k">${arenaSort === 'round' ? `${fmtNum(e.kills)} kills` : `${e.deaths} deaths`}</span><span class="sc">${fmtNum(arenaSort === 'round' ? e.best : e.kills)}</span></li>`;
+  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}${e.elite ? ' elite' : ''}${isCreator(e.u) ? ' creator' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm"><span class="nmt">${esc(e.name)}</span>${e.me ? ' (you)' : ''}${isCreator(e.u) ? CREATOR_TAG : e.u ? '<span class="acct">●</span>' : '<span class="guest">not registered</span>'}<small>${e.rounds} round${e.rounds === 1 ? '' : 's'} · ${e.wins} win${e.wins === 1 ? '' : 's'} · best streak ${e.streak}</small></span><span class="coop-k">${arenaSort === 'round' ? `${fmtNum(e.kills)} kills` : `${e.deaths} deaths`}</span><span class="sc">${fmtNum(arenaSort === 'round' ? e.best : e.kills)}</span></li>`;
 }
 function renderArenaBoard(b) {
   const el = $('boardBody');
@@ -6149,7 +6157,7 @@ const Social = {
     const p = f.profile || {}, fav = PLANE_INDEX[p.fav] ? p.fav : 'hellcat';
     const t = f.today, at = f.arenaToday;
     const line = t ? `Today #${fmtNum(t.rank)} · ${fmtNum(t.score)}` : 'Hasn\'t flown today\'s sortie';
-    return `<li class="tap" data-u="${esc(f.username)}"><span class="rk">${levelOf(p.xp || 0)}</span>${picHTML(p.pic, fav, p.favLiv || 0)}<span class="nm">${esc(f.username)}<small>${esc(titleName(p.title))} · ${line}${at ? ` · arena ${at.kills} kills` : ''}</small></span><span class="coop-k">${p.streak ? `${p.streak} day streak` : ''}</span><span class="sc">${t ? fmtNum(t.score) : '—'}</span></li>`;
+    return `<li class="tap" data-u="${esc(f.username)}"><span class="rk">${levelOf(p.xp || 0)}</span>${picHTML(p.pic, fav, p.favLiv || 0)}<span class="nm">${esc(f.username)}${isCreator(f.username) ? CREATOR_TAG : ''}<small>${esc(titleName(p.title))} · ${line}${at ? ` · arena ${at.kills} kills` : ''}</small></span><span class="coop-k">${p.streak ? `${p.streak} day streak` : ''}</span><span class="sc">${t ? fmtNum(t.score) : '—'}</span></li>`;
   },
   render() {
     const el = $('friendsBody');
@@ -6204,7 +6212,7 @@ const Social = {
     const streak = (p.lastDay === todayNum || p.lastDay === todayNum - 1) ? p.streak || 0 : 0;
     const since = new Date(d.since || Date.now()).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
     sh.innerHTML = `
-      <div class="profile chamfer">${picHTML(p.pic, fav, p.favLiv || 0, 'xl')}<div class="pf-body"><small>Level ${lv} · ${esc(titleName(p.title))}</small><b id="ppName">${esc(d.username)}</b>
+      <div class="profile chamfer">${picHTML(p.pic, fav, p.favLiv || 0, 'xl')}<div class="pf-body"><small>Level ${lv} · ${esc(titleName(p.title))}</small><b id="ppName">${esc(d.username)}</b>${isCreator(d.username) ? CREATOR_TAG : ''}
         <span class="pp-meta">${PLANE_INDEX[p.fav] ? `Flies the <strong>${esc(planeName(fav))}</strong> · ` : ''}Pilot since ${esc(since)}</span></div></div>
       <div class="pp-today chamfer">${d.today ? `Today's sortie: <b>#${fmtNum(d.today.rank)}</b> with <b>${fmtNum(d.today.score)}</b> ${miniTiles(d.today.grades)}` : 'Hasn\'t flown today\'s sortie yet.'}${d.arenaToday ? ` · Arena today: <b>${d.arenaToday.kills}</b> kills in ${d.arenaToday.rounds} round${d.arenaToday.rounds === 1 ? '' : 's'}` : ''}</div>
       ${chips([[streak, 'Streak'], [p.maxStreak || 0, 'Best streak'], [p.played || 0, 'Played'], [(p.best || 0) >= 1000 ? ((p.best / 1000).toFixed(1) + 'k') : (p.best || 0), 'Best']])}
@@ -6712,7 +6720,7 @@ var Ghost = {
   async pick() {
     if (!this.can()) return;
     const list = $('ghList'), mine = this.mine();
-    const row = (g, i) => `<li data-g="${i}"><span class="rk">${g.rank || '·'}</span>${avatarHTML(resolvePlane(g.plane, g.theme), g.livery || 0)}<span class="nm">${esc(g.name)}${g.me ? ' (you)' : ''}<small>${esc(planeName(resolvePlane(g.plane, g.theme)))}</small></span><span class="sc">${fmtNum(g.score)}</span><span class="go">Race</span></li>`;
+    const row = (g, i) => `<li data-g="${i}"><span class="rk">${g.rank || '·'}</span>${avatarHTML(resolvePlane(g.plane, g.theme), g.livery || 0)}<span class="nm">${esc(g.name)}${g.me ? ' (you)' : ''}${isCreator(g.u) ? CREATOR_TAG : ''}<small>${esc(planeName(resolvePlane(g.plane, g.theme)))}</small></span><span class="sc">${fmtNum(g.score)}</span><span class="go">Race</span></li>`;
     let ghosts = mine ? [{ me: true, name: store.callsign, score: mine.score, plane: mine.plane, livery: mine.livery, local: true }] : [];
     list.innerHTML = ghosts.map(row).join('') + `<li class="empty">${Board.kind === 'api' ? 'Loading the top ghosts…' : 'Top ghosts need the online server.'}</li>`;
     paintAvatars(list); show('ghosts');
@@ -6896,7 +6904,7 @@ const League = {
       if (down && i === n - L.move) rows += '<li class="zone zd">▼ relegation zone below</li>';
       const cls = [e.me ? 'me' : '', i < L.move && L.division < L.divisions.length - 1 ? 'up' : '', down && i >= n - L.move ? 'down' : '', e.u ? 'tap' : ''].join(' ');
       const pips = Array.from({ length: 7 }, (_, k) => `<i class="${k < e.days ? 'on' : ''}"></i>`).join('');
-      rows += `<li class="${cls}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${e.rank}</span><span></span><span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : ''}<small>${e.days} of 7 dailies<span class="days">${pips}</span></small></span><span></span><span class="sc">${fmtNum(e.total)}</span></li>`;
+      rows += `<li class="${cls}${isCreator(e.u) ? ' creator' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${e.rank}</span><span></span><span class="nm"><span class="nmt">${esc(e.name)}</span>${e.me ? ' (you)' : ''}${isCreator(e.u) ? CREATOR_TAG : e.u ? '<span class="acct">●</span>' : ''}<small>${e.days} of 7 dailies<span class="days">${pips}</span></small></span><span></span><span class="sc">${fmtNum(e.total)}</span></li>`;
     });
     el.innerHTML = head + `<ol class="board">${rows}</ol>` + this.ladder(L);
   },
@@ -8100,13 +8108,13 @@ const Arena = {
   },
   setRoster(r) {
     const ids = new Set();
-    for (const [id, name, plane, livery, bot, trailId, title, bullet, kfx] of r) {
+    for (const [id, name, plane, livery, bot, trailId, title, bullet, kfx, cr] of r) {
       ids.add(id);
       this.roster.set(id, { id, name, plane, livery, bot: !!bot, title: title || 0 });
       if (id === this.you) continue;
       let o = this.others.get(id);
       if (!o) { o = { id, x: 0, y: 0, a: 0, tx: 0, ty: 0, ta: 0, roll: 0, hp: 10, fl: 0, alive: false, seen: false, trail: [], fireT: Math.random() * 0.1, flash: 0 }; this.others.set(id, o); }
-      Object.assign(o, { name, plane, livery, bot: !!bot, trailId: trailId || 0, bullet: bullet || 0, kfx: kfx || 0 });
+      Object.assign(o, { name, plane, livery, bot: !!bot, trailId: trailId || 0, bullet: bullet || 0, kfx: kfx || 0, creator: !!cr });
     }
     for (const id of [...this.roster.keys()]) if (!ids.has(id)) this.roster.delete(id);
     for (const id of [...this.others.keys()]) if (!ids.has(id)) this.others.delete(id);
@@ -8520,10 +8528,10 @@ const Arena = {
       }
       c.save(); c.translate(o.x, o.y - 40); c.scale(1 / zoom, 1 / zoom);
       c.font = '700 14px "Barlow Condensed", "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
-      const elite = o.livery === 12, label = (o.id === leader ? '♛ ' : elite ? '✦ ' : '') + o.name.toUpperCase();
+      const elite = o.livery === 12, label = (o.id === leader ? '♛ ' : o.creator ? '◆ ' : elite ? '✦ ' : '') + o.name.toUpperCase() + (o.creator ? ' · CREATOR' : '');
       c.lineWidth = 4; c.strokeStyle = 'rgba(5,6,12,.85)'; c.strokeText(label, 0, 0);
-      if (elite) { c.shadowColor = '#ffd34f'; c.shadowBlur = 10; }
-      c.fillStyle = o.id === leader ? '#ffd34f' : elite ? `hsl(${44 + Math.sin(time * 3) * 6},100%,${66 + Math.sin(time * 4) * 8}%)` : '#ffffff'; c.fillText(label, 0, 0); c.shadowBlur = 0;
+      if (elite || o.creator) { c.shadowColor = o.creator ? '#ff4fd8' : '#ffd34f'; c.shadowBlur = 10; }
+      c.fillStyle = o.id === leader ? '#ffd34f' : o.creator ? `hsl(${(time * 90) % 360},100%,72%)` : elite ? `hsl(${44 + Math.sin(time * 3) * 6},100%,${66 + Math.sin(time * 4) * 8}%)` : '#ffffff'; c.fillText(label, 0, 0); c.shadowBlur = 0;
       const w = 40, f = clamp(o.hp / this.info.hp, 0, 1);
       c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(-w / 2 - 1, 9, w + 2, 6);
       c.fillStyle = f > 0.5 ? '#38d98a' : f > 0.25 ? '#ffc53d' : '#ff4d5e'; c.fillRect(-w / 2, 10, w * f, 4);

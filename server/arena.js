@@ -173,7 +173,7 @@ export class ArenaRoom {
   // What a pilot's connection remembers, so a restarted arena can put them back as they were.
   saveSeat(p) {
     if (!p.ws) return;
-    try { p.ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, trail: p.trail, title: p.title, device: p.device || '', account: p.account, token: p.token, tz: p.tz, st: [p.kills, p.deaths, p.score, p.streak, p.best, this.s.round.n] }); } catch (e) { /* closing */ }
+    try { p.ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, trail: p.trail, title: p.title, device: p.device || '', account: p.account, token: p.token, tz: p.tz, cr: p.creator ? 1 : 0, st: [p.kills, p.deaths, p.score, p.streak, p.best, this.s.round.n] }); } catch (e) { /* closing */ }
   }
   // Remove a pilot for good. Their round so far still counts on the leaderboard.
   dropPilot(p, now) {
@@ -189,6 +189,7 @@ export class ArenaRoom {
     const p = {
       id, name: cleanName(info.name), plane: small(info.plane, PLANES_PER_THEATER - 1), livery: small(info.livery, LIVERIES - 1), trail: small(info.trail, TRAILS - 1), title: small(info.title, TITLES - 1), bot: !!info.bot, ws: ws || null,
       device: /^[A-Za-z0-9-]{8,64}$/.test(info.device || '') ? info.device : null, account: Number(info.account) || null, lastKiller: 0,
+      creator: !!info.cr,
       tz: Number.isFinite(Number(info.tz)) && info.tz !== '' && info.tz != null && Math.abs(Number(info.tz)) <= 840 ? Number(info.tz) : null,
       token: info.token || null, away: false, awayAt: 0, bye: false,
       x: 0, y: 0, a: 0, r: 0, rl: false, hp: MAX_HP, alive: false, respawnAt: Date.now() + 300, protUntil: 0,
@@ -258,7 +259,7 @@ export class ArenaRoom {
     const [client, server] = Object.values(pair);
     const id = s.nextId++;
     this.ctx.acceptWebSocket(server);
-    const info = { id, name: url.searchParams.get('callsign') || 'Pilot', plane: 0, livery: 0, device, account: Number(url.searchParams.get('acct')) || null, token: crypto.randomUUID(), tz: url.searchParams.get('tz') };
+    const info = { id, name: url.searchParams.get('callsign') || 'Pilot', plane: 0, livery: 0, device, account: Number(url.searchParams.get('acct')) || null, token: crypto.randomUUID(), tz: url.searchParams.get('tz'), cr: url.searchParams.get('cr') === '1' };
     server.serializeAttachment(info);
     const p = this.addPilot(id, info, server);
     await this.ctx.storage.deleteAlarm();
@@ -284,7 +285,7 @@ export class ArenaRoom {
     const r = this.s.round;
     return { n: r.n, theme: this.theme, phase: r.phase, left: Math.max(0, r.ends - now), seed: r.seed, warm: Math.max(0, (r.warmUntil || 0) - now) };
   }
-  roster() { return [...this.s.pilots.values()].map(p => [p.id, p.name, p.plane, p.livery, p.bot ? 1 : 0, p.trail, p.title, p.bullet || 0, p.kfx || 0]); }
+  roster() { return [...this.s.pilots.values()].map(p => [p.id, p.name, p.plane, p.livery, p.bot ? 1 : 0, p.trail, p.title, p.bullet || 0, p.kfx || 0, p.creator ? 1 : 0]); }
   sendRoster() { this.broadcast({ t: 'roster', r: this.roster() }); }
   broadcast(obj, except) {
     const raw = typeof obj === 'string' ? obj : JSON.stringify(obj);

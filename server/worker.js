@@ -20,6 +20,7 @@ import { handleAccounts, accountFor } from './accounts.js';
 import { joinLeague, leagueView } from './league.js';
 import { postGhost, listGhosts, getGhost } from './ghosts.js';
 import { postFeedback, listFeedback } from './feedback.js';
+import { isCreator } from './creators.js';
 export { CoopRoom, ArenaRoom, ArenaDirectory };
 
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
@@ -204,11 +205,12 @@ async function arenaSocket(req, env, url) {
   const fwd = new URL(url);
   fwd.searchParams.set('name', name);
   // Only the Worker vouches for the account: the client sends its session token, the room gets the id.
-  fwd.searchParams.delete('acct');
+  fwd.searchParams.delete('acct'); fwd.searchParams.delete('cr');
   const auth = url.searchParams.get('auth');
   fwd.searchParams.delete('auth');
   const acct = auth ? await accountFor(env, auth) : null;
   if (acct) fwd.searchParams.set('acct', String(acct.id));
+  if (acct && isCreator(acct.username)) fwd.searchParams.set('cr', '1');
   const stub = env.ARENAS.get(env.ARENAS.idFromName(name));
   return stub.fetch(new Request(fwd, req));
 }
