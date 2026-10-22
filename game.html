@@ -3065,7 +3065,9 @@ function renderMenu() {
     $('doneScore').textContent = fmtNum(today.score);
     $('doneTiles').innerHTML = tilesHTML(today.grades, null, false);
     $('doneRank').textContent = today.rank ? `Rank #${fmtNum(today.rank)} of ${fmtNum(today.total)}` : rankFor(today.score);
-    $('doneVs').textContent = prev ? (today.score > prev.score ? `${fmtNum(today.score - prev.score)} better than yesterday. Nice.` : `Yesterday was ${fmtNum(prev.score)}. Get it back tomorrow.`) : 'Practice, zen and the arena are open while you wait.';
+    const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
+    const nextAce = buildWorld(`DD3-${dayKey(tmr)}`).ace;
+    $('doneVs').textContent = (prev ? (today.score > prev.score ? `${fmtNum(today.score - prev.score)} better than yesterday. Nice.` : `Yesterday was ${fmtNum(prev.score)}. Get it back tomorrow.`) : 'Practice, zen and the arena are open while you wait.') + ` Tomorrow's ace: ${nextAce}.`;
   }
   renderYouStrip();
   $('callsign').value = store.callsign;

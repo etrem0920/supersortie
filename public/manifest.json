@@ -1,0 +1,15 @@
+{
+  "name": "Super Sortie: The Daily Dogfight",
+  "short_name": "Super Sortie",
+  "description": "A new five-wave dogfight every day. Same sky for every pilot on Earth.",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090c14",
+  "theme_color": "#090c14",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
