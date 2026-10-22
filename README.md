@@ -70,6 +70,14 @@ curl -X DELETE -H "Authorization: Bearer $ADMIN_TOKEN" \
 
 You can use `deviceId=` in place of `name=`. Hidden scores drop off the board immediately and can be restored in the database by setting `hidden = 0`.
 
+## Hull and fairness
+
+- **Hull:** daily, practice and zen use a 10-point hull. A bullet costs 1, a missile 2 and a ram 1, and you get 1 second of safety after each hit.
+  - These values came from simulated runs with scripted average and skilled pilots.
+  - Against the old 3-segment hull, the average pilot survives about one wave longer, and the skilled pilot clears all five waves in about 20% of runs instead of 3%.
+- **Hull bonus:** the bonus at the end is still worth up to 3,000 points (300 per hull point).
+- **Same chance for everyone:** every aircraft is available from day one, and the six in each theater are trade-offs across the same four handling types. Levels unlock looks only (liveries, contrails, titles), so a brand-new pilot has the same shot at #1.
+
 ## How the leaderboard works
 
 - One official score per device per day. Practice runs are never posted.
@@ -95,7 +103,7 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
   - **Zen:** XP for kills and minutes flown.
   - **Co-op:** XP for waves cleared and kills.
   - **Arena:** XP for each round, kills, placing and wins.
-- Levels go up to 50. They unlock three more aircraft per theater (at levels 3, 7 and 11, for six per theater), nine contrails, two extra liveries per theater (at levels 8 and 16) and titles. A few titles come from medals and arena wins instead of levels.
+- Levels go up to 50. They unlock nine contrails, two extra liveries per theater (at levels 8 and 16) and titles. A few titles come from medals and arena wins instead of levels.
 - Contrails are drawn from the plane's recent path, so other pilots see yours in co-op and the arena with no extra network traffic. The arena shows your title on the round podium.
 - Players who started before levels existed got starting XP for the dailies they had flown and the medals they had earned.
 - **Daily challenges:** three a day, the same for everyone and chosen from the date. They span every mode, for example 40 kills, a supply blimp or a 4-kill arena streak. Each is worth 250 XP, plus 300 for finishing all three. They live on the Pilot tab, with one line on the home screen.

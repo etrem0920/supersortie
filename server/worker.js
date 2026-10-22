@@ -41,7 +41,7 @@ export function validate(b, now = Date.now()) {
   const score = Number(b.score), kills = Number(b.kills), hp = Number(b.hp), time = Number(b.time);
   if (!Number.isInteger(score) || score < 0 || score > 60000) return { error: 'bad_score' };
   if (!Number.isInteger(kills) || kills < 0 || kills > 90) return { error: 'bad_kills' };
-  if (!Number.isInteger(hp) || hp < 0 || hp > 3) return { error: 'bad_hp' };
+  if (!Number.isInteger(hp) || hp < 0 || hp > 10) return { error: 'bad_hp' };
   if (!Number.isFinite(time) || time < 8 || time > 3600) return { error: 'bad_time' };
   const grades = String(b.grades || '');
   if (!/^[gyoxn]{5}$/.test(grades)) return { error: 'bad_grades' };
@@ -55,7 +55,8 @@ export function validate(b, now = Date.now()) {
   if (waveTimes.reduce((s, t) => s + t, 0) > time + 1) return { error: 'implausible' };
   const won = cleared === 5;
   if (score > 1500 * kills + 25000) return { error: 'implausible' };
-  if (won && score < hp * 1000) return { error: 'implausible' };
+  // Hull bonus: 3,000 for a full hull (10 points today, 3 in older clients).
+  if (won && score < hp * (hp > 3 ? 300 : 1000)) return { error: 'implausible' };
   const plane = PLANES.has(b.plane) ? b.plane : null;
   const liv = Number(b.livery);
   const livery = Number.isInteger(liv) && liv >= 0 && liv <= 4 ? liv : 0;

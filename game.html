@@ -91,7 +91,7 @@
   .brief-item.mod b { color: var(--accent); }
   .hero-meta { display: flex; gap: 22px; flex-wrap: wrap; font-family: var(--font-cond); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 14px; color: var(--muted); }
   .hero-meta b { color: var(--text); font-variant-numeric: tabular-nums; }
-  .today { max-width: 640px; background: rgba(14, 18, 30, .9); box-shadow: inset 0 0 0 1px var(--line-strong); padding: 20px; --cut: 16px; display: flex; flex-direction: column; gap: 14px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .today { max-width: 640px; background: rgba(14, 18, 30, .9); box-shadow: inset 0 0 0 1px var(--line-strong); padding: 20px; --cut: 16px; display: flex; flex-direction: column; gap: 14px; }
   .today-body { display: flex; flex-direction: column; gap: 14px; }
   .today-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 13px; color: var(--muted); }
   .today-head small { color: var(--accent); font-size: 13px; letter-spacing: .18em; }
@@ -120,7 +120,7 @@
   .done-score b { font-family: var(--font-display); font-weight: 900; font-size: 56px; line-height: .9; font-variant-numeric: tabular-nums; }
   .done-score span { font-family: var(--font-cond); font-weight: 700; color: var(--accent); letter-spacing: .06em; font-size: 17px; text-transform: uppercase; }
 
-  .panel { background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); --cut: 18px; display: flex; flex-direction: column; min-width: 0; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .panel { background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); --cut: 18px; display: flex; flex-direction: column; min-width: 0; }
   .tabs { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); }
   .tab { background: none; border: 0; cursor: pointer; padding: 15px 8px 13px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 15px; color: var(--muted); border-bottom: 2px solid transparent; }
   .tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
@@ -346,7 +346,7 @@
   /* ---------- modals ---------- */
   .modal {
     position: fixed; inset: 0; z-index: 30; display: flex; overflow-y: auto; background: rgba(5, 7, 13, .72);
-    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+   
     padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
   }
   .sheet {
@@ -468,7 +468,7 @@
   .hud-left { grid-area: left; display: flex; gap: 8px; align-items: stretch; }
   .hud-wave { grid-area: wave; }
   .hud-right { grid-area: right; justify-self: end; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-  .hpanel { background: rgba(9, 12, 20, .78); box-shadow: inset 0 0 0 1px var(--line-strong); --cut: 8px; padding: 7px 12px; display: flex; align-items: center; gap: 10px; min-height: 44px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .hpanel { background: rgba(9, 12, 20, .86); box-shadow: inset 0 0 0 1px var(--line-strong); --cut: 8px; padding: 7px 12px; display: flex; align-items: center; gap: 10px; min-height: 44px; }
   .hlabel { font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .14em; font-size: 11px; color: var(--muted); }
   .icon-btn { pointer-events: auto; cursor: pointer; width: 44px; justify-content: center; padding: 0; border: 0; color: var(--text); }
   .hull { display: flex; gap: 3px; }
@@ -980,7 +980,7 @@ if (!store.callsign) { store.callsign = `${CALL_WORDS[Math.random() * CALL_WORDS
 let R = 1500; // combat zone radius (the arena uses a bigger one)
 const MODS = [
   { id: 'standard', name: 'Standard rules', desc: 'No surprises. Just you and them.' },
-  { id: 'glass', name: 'Glass cannon', desc: 'Two hull segments, but your guns hit twice as hard.', hearts: 2, dmg: 2 },
+  { id: 'glass', name: 'Glass cannon', desc: 'Six hull instead of ten, but your guns hit twice as hard.', hearts: 6, dmg: 2 },
   { id: 'swarm', name: 'Swarm', desc: 'Every wave brings two extra scouts.', extraScouts: 2 },
   { id: 'ironace', name: 'Iron ace', desc: 'The ace has 50% more armor and an extra wingman.', aceHp: 1.5, aceEscort: 1 },
   { id: 'overcast', name: 'Overcast', desc: 'Low cloud. Enemies can hide above the deck.', cloudsAbove: true },
@@ -1181,7 +1181,9 @@ const ARCH = {
   fast: { label: 'Fast', speed: 1.1, turn: 0.9, fire: 1 },
   gunner: { label: 'Heavy guns', speed: 0.95, turn: 0.94, fire: 1.18 },
 };
-const PLANE_LEVELS = [0, 0, 0, 3, 7, 11]; // planes 4 to 6 in each theater unlock at these pilot levels
+// Every aircraft is open to everyone from day one, so nobody's plane gives them a leaderboard
+// edge; the six are trade-offs across the same four handling types. Levels unlock looks only.
+const PLANE_LEVELS = [0, 0, 0, 0, 0, 0];
 const planeOpen = i => pilotLevel() >= (PLANE_LEVELS[i] || 0);
 THEMES.ww1.planes = [
   { id: 'camel', name: 'Sopwith Camel', arch: 'balanced', shape: 'biplane', note: 'The great all-rounder of the Western Front.' },
@@ -1280,8 +1282,6 @@ function unlocksAt(lv) {
   const out = TRAILS.filter(t => t.lvl === lv && lv > 1).map(t => `${t.name} contrail`);
   for (const id of THEME_ORDER) THEMES[id].liveries.forEach(L => { if (L.lvl === lv) out.push(`${L.name} livery`); });
   TITLES.forEach(t => { if (t.lvl === lv && lv > 1) out.push(`${t.name} title`); });
-  const pi = PLANE_LEVELS.indexOf(lv);
-  if (pi > 0 && lv > 0) out.unshift(`a new plane in every theater (${THEMES[theme.id].planes[pi].name}…)`);
   return out;
 }
 function nextUnlock() {
@@ -1814,11 +1814,10 @@ function drawProp(c, p, spin, ink) {
   c.beginPath(); c.moveTo(p.x, p.y - k); c.lineTo(p.x, p.y + k); c.stroke();
   c.restore();
 }
-function drawCraft(c, craft, col, scale, o) {
-  c.save();
-  c.scale(scale, scale * Math.cos(o.roll || 0));
-  if (o.shadow) { c.fillStyle = o.shadow; for (const pt of craft.parts) c.fill(pt.p); c.restore(); return; }
-  for (const f of craft.flames) drawFlame(c, f, o.t || 0, col.flame);
+// The static look of an aircraft: parts, shading, panel lines, outline. Props, flames and
+// nav lights animate, so drawCraft adds them on top.
+function drawCraftBody(c, craft, col, o) {
+  if (o.shadow) { c.fillStyle = o.shadow; for (const pt of craft.parts) c.fill(pt.p); return; }
   c.lineJoin = 'round';
   if (col.neon) {
     for (const pt of craft.parts) { c.fillStyle = o.flash ? 'rgba(255,255,255,.95)' : (pt.f === 'glass' ? 'rgba(110,232,255,.35)' : '#12081f'); c.fill(pt.p); }
@@ -1848,6 +1847,40 @@ function drawCraft(c, craft, col, scale, o) {
       if (!pt.ns) c.stroke(pt.p);
     }
   }
+}
+
+
+// Each aircraft look is rendered once into a sprite at the current screen resolution and
+// stamped from then on; drawing every part, gradient and outline each frame was the main cost.
+const spriteCache = new WeakMap();
+const SPR = 48; // craft units from centre to sprite edge
+function craftSprite(craft, col, o, res) {
+  let byCraft = spriteCache.get(craft);
+  if (!byCraft) { byCraft = new Map(); spriteCache.set(craft, byCraft); }
+  const key = `${o.shadow || ''}|${o.flash ? 1 : 0}|${res}`;
+  let byCol = byCraft.get(col || 'none');
+  if (!byCol) { byCol = new Map(); byCraft.set(col || 'none', byCol); }
+  let cv = byCol.get(key);
+  if (cv) return cv;
+  cv = document.createElement('canvas');
+  cv.width = cv.height = Math.ceil(SPR * 2 * res);
+  const g = cv.getContext('2d');
+  g.setTransform(res, 0, 0, res, SPR * res, SPR * res);
+  drawCraftBody(g, craft, col, o);
+  if (byCol.size > 12) byCol.clear();
+  byCol.set(key, cv);
+  return cv;
+}
+function drawCraft(c, craft, col, scale, o) {
+  c.save();
+  c.scale(scale, scale * Math.cos(o.roll || 0));
+  if (!o.shadow && col) for (const f of craft.flames) drawFlame(c, f, o.t || 0, col.flame);
+  if (c === ctx) {
+    const res = Math.max(1, Math.ceil(scale * zoom * DPR));
+    const spr = craftSprite(craft, o.shadow ? null : col, o, res);
+    c.drawImage(spr, -SPR, -SPR, SPR * 2, SPR * 2);
+  } else drawCraftBody(c, craft, col, o);
+  if (o.shadow) { c.restore(); return; }
   if (craft.tips && !o.flash) {
     const [tx, ty] = craft.tips, on = !o.t || Math.sin((o.t || 0) * 6) > -0.2;
     c.globalAlpha *= on ? 1 : 0.35;
@@ -1858,7 +1891,6 @@ function drawCraft(c, craft, col, scale, o) {
   for (const p of craft.props) drawProp(c, p, o.spin || 0, col.ink);
   c.restore();
 }
-
 /* =====================================================================
    Audio
    ===================================================================== */
@@ -1958,8 +1990,9 @@ const canvas = $('game');
 const ctx = canvas.getContext('2d');
 let W = 0, H = 0, DPR = 1, zoom = 1;
 function resize() {
-  DPR = Math.min(2, window.devicePixelRatio || 1);
   W = window.innerWidth; H = window.innerHeight;
+  // Sharp on phones, but cap the pixel count on big retina screens so the frame rate holds.
+  DPR = Math.min(2, window.devicePixelRatio || 1, Math.sqrt(3.2e6 / Math.max(1, W * H)));
   canvas.width = Math.floor(W * DPR); canvas.height = Math.floor(H * DPR);
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   zoom = clamp(Math.min(W, H) / 760, 0.6, 1.05);
@@ -1975,19 +2008,21 @@ let state = 'menu'; // menu | play | pause | over
 let world = buildWorld(dailySeed());
 let theme = THEMES[store.theme];
 let run = null, player = null;
-let enemies = [], pBullets = [], eBullets = [], missiles = [], parts = [], wrecks = [], decals = [], pickups = [], floaters = [], trail = [];
+let enemies = [], pBullets = [], eBullets = [], missiles = [], parts = [], wrecks = [], decals = [], pickups = [], floaters = [], trail = [], marks = [];
 const cam = { x: 0, y: 0 };
 let shake = 0, time = 0, slowT = 0, freezeT = 0, lockBeepT = 0;
 let tileWorld = false; // zen mode: no combat-zone edge, scenery repeats
 
 const ROLL_T = 0.45, ROLL_CD = 1.8, TURN = 4.6, CHAIN_T = 2.4, SPEED = 260;
 
+const SOLO_HULL = 10; // daily, practice and zen use a 10-point hull bar
+const HULL = { inv: 1.0, missile: 2, ram: 1 }; // safety after a hit, and what missiles and rams cost (tuned by simulated runs)
 function makePlayer(hp = 3) {
   const h = ARCH[currentPlane(theme).arch];
   return { x: 0, y: 0, a: -Math.PI / 2, prevA: -Math.PI / 2, speed: SPEED * h.speed, hp, maxHp: hp, inv: 0, rollT: 0, rollCd: 0, fireT: 0, bank: 0, spin: 0, dead: false, sp: h.speed, tu: h.turn, fi: h.fire };
 }
 player = makePlayer();
-function resetEntities() { enemies = []; pBullets = []; eBullets = []; missiles = []; parts = []; wrecks = []; decals = []; pickups = []; floaters = []; trail = []; }
+function resetEntities() { marks = []; enemies = []; pBullets = []; eBullets = []; missiles = []; parts = []; wrecks = []; decals = []; pickups = []; floaters = []; trail = []; }
 
 /* =====================================================================
    Input: mouse, touch (floating stick), keyboard, gamepad
@@ -2073,7 +2108,7 @@ function startRun(mode) {
   tileWorld = mode === 'zen';
   if (tileWorld) { world.mod = MODS[0]; world.wind = { x: 0, y: 0 }; }
   resetEntities();
-  player = makePlayer(world.mod.hearts || 3);
+  player = makePlayer(world.mod.hearts || SOLO_HULL);
   cam.x = 0; cam.y = 0; slowT = 0; freezeT = 0;
   run = {
     mode, theme: theme.id, waveIdx: 0, phase: 'intro', phaseT: 0, waveT: 0, queue: [], totalT: 0,
@@ -2143,7 +2178,7 @@ function finish(won) {
   if (state !== 'play') return;
   state = 'over';
   run.won = won;
-  if (won) { run.hullPts = player.hp * 1000; addScore(run.hullPts, 'hull'); }
+  if (won) { run.hullPts = Math.round(player.hp / player.maxHp * 3000); addScore(run.hullPts, 'hull'); }
   else run.results[run.waveIdx] = { crash: true };
   run.shownScore = run.score;
   input.touching = false; input.touchId = null;
@@ -2300,11 +2335,11 @@ function attractPlayer(dt) {
 
 const vulnerable = () => state === 'play' && !player.dead && player.inv <= 0 && player.rollT <= 0 && run && run.phase !== 'cleared';
 
-function hurtPlayer() {
-  const p = player;
-  p.hp--; p.inv = 1.7;
+function hurtPlayer(n = 1) {
+  const p = player, bar = p.maxHp > 5;
+  p.hp = Math.max(0, p.hp - n); p.inv = bar ? HULL.inv : 1.7;
   run.waveHits++; run.chain = 0; run.chainT = 0; run.mult = 1;
-  shake = Math.max(shake, 18); freezeT = 0.07;
+  shake = Math.max(shake, bar ? 8 + n * 4 : 18); freezeT = bar ? 0.04 : 0.07;
   sfx.hurt(); vibrate(90);
   for (let i = 0; i < 12; i++) puff(p.x, p.y, rand(-170, 170), rand(-170, 170), rand(3, 6), 6, 0.35, theme.fx[1], 'fire');
   renderHull(true);
@@ -2355,6 +2390,7 @@ function killEnemy(e, by) {
   floater(e.x, e.y - 18, `+${fmtNum(pts)}`, run.mult > 1 ? theme.accent : '#ffffff', e.type === 'ace' ? 1.8 : 1);
   const big = e.type === 'bomber' || e.type === 'ace';
   explode(e.x, e.y, big ? 1.8 : 1);
+  marks.push({ x: e.x, y: e.y, t: 0, kill: true }); sfx.kill(run.mult);
   wrecks.push({ x: e.x, y: e.y, a: e.a, vx: Math.cos(e.a) * e.spec.speed * 0.6, vy: Math.sin(e.a) * e.spec.speed * 0.6, spin: rand(-6, 6), t: 0, dur: 0.9, type: e.type });
   if (e.drop) pickups.push({ x: e.x, y: e.y, kind: e.drop === 'heart' && player.hp >= player.maxHp ? 'star' : e.drop, t: 0 });
   sfx.boom(big);
@@ -2451,6 +2487,7 @@ function updateBullets(dt) {
       const dx = b.x - e.x, dy = b.y - e.y;
       if (dx * dx + dy * dy < e.spec.r * e.spec.r) {
         hit = true; damageEnemy(e, world.mod.dmg || 1);
+        if (marks.length < 30) marks.push({ x: b.x, y: b.y, t: 0 });
         for (let k = 0; k < 3; k++) puff(b.x, b.y, rand(-90, 90), rand(-90, 90), rand(2, 3.5), 4, 0.18, theme.fx[0], 'fire');
         break;
       }
@@ -2475,7 +2512,7 @@ function updateBullets(dt) {
     let gone = b.life <= 0;
     if (!gone && vulnerable()) {
       const dx = b.x - player.x, dy = b.y - player.y;
-      if (dx * dx + dy * dy < 14 * 14) { gone = true; hurtPlayer(); }
+      if (dx * dx + dy * dy < 14 * 14) { gone = true; hurtPlayer(1); }
     }
     if (gone) eBullets.splice(i, 1);
   }
@@ -2495,7 +2532,7 @@ function updateBullets(dt) {
       if (Math.random() < 0.8) puff(m.x - Math.cos(m.a) * 8, m.y - Math.sin(m.a) * 8, rand(-10, 10), rand(-10, 10), rand(2.5, 4.5), 9, 0.55, theme.neon ? theme.accent : '#d8d8d8', 'smoke');
       if (vulnerable()) {
         const dx = m.x - player.x, dy = m.y - player.y;
-        if (dx * dx + dy * dy < 15 * 15) { m.dead = true; explode(m.x, m.y, 0.7); hurtPlayer(); }
+        if (dx * dx + dy * dy < 15 * 15) { m.dead = true; explode(m.x, m.y, 0.7); hurtPlayer(player.maxHp > 5 ? HULL.missile : 1); }
       }
       if (m.life <= 0) { m.dead = true; explode(m.x, m.y, 0.4); }
     }
@@ -2506,7 +2543,7 @@ function updateBullets(dt) {
       if (e.dead) continue;
       const dx = e.x - player.x, dy = e.y - player.y, rr = e.spec.r + 11;
       if (dx * dx + dy * dy < rr * rr) {
-        if (vulnerable()) { hurtPlayer(); damageEnemy(e, 3); }
+        if (vulnerable()) { hurtPlayer(player.maxHp > 5 ? HULL.ram : 1); damageEnemy(e, 3); }
         else if (!(e.ramT > 0)) { e.ramT = 0.35; damageEnemy(e, 2); } // rolling through a plane rams it
       }
     }
@@ -2861,6 +2898,22 @@ function drawDecals(c, th) {
 /* =====================================================================
    Rendering — main frame
    ===================================================================== */
+// Hit markers (white) and kill bursts (red), in every mode.
+function drawMarks(c) {
+  for (let i = marks.length - 1; i >= 0; i--) {
+    const mk = marks[i];
+    mk.t += 1 / 60;
+    const dur = mk.kill ? 0.45 : 0.14;
+    if (mk.t > dur) { marks.splice(i, 1); continue; }
+    const f = mk.t / dur, sz = (mk.kill ? 16 + 14 * f : 6) / zoom;
+    c.strokeStyle = mk.kill ? `rgba(255,77,94,${1 - f})` : `rgba(255,255,255,${0.9 * (1 - f)})`;
+    c.lineWidth = (mk.kill ? 4 : 2) / zoom; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(mk.x - sz, mk.y - sz); c.lineTo(mk.x - sz * 0.4, mk.y - sz * 0.4); c.moveTo(mk.x + sz, mk.y - sz); c.lineTo(mk.x + sz * 0.4, mk.y - sz * 0.4);
+    c.moveTo(mk.x - sz, mk.y + sz); c.lineTo(mk.x - sz * 0.4, mk.y + sz * 0.4); c.moveTo(mk.x + sz, mk.y + sz); c.lineTo(mk.x + sz * 0.4, mk.y + sz * 0.4); c.stroke();
+    if (mk.kill) { c.beginPath(); c.arc(mk.x, mk.y, (20 + 60 * f) / zoom, 0, TAU); c.lineWidth = 2 / zoom; c.stroke(); }
+  }
+}
+let vignette = null;
 function draw() {
   const th = theme, P = th.pal;
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -2978,6 +3031,7 @@ function draw() {
 
   if (Coop.on) Coop.drawPeers(ctx, th);
   if (Arena.on) Arena.draw(ctx, th, inView);
+  drawMarks(ctx);
 
   // player
   if (!player.dead) {
@@ -3045,15 +3099,18 @@ function draw() {
       ctx.fillStyle = 'rgba(255,255,255,.55)';
       ctx.beginPath(); ctx.arc(input.tx, input.ty, 24, 0, TAU); ctx.fill();
     }
-    if (player.hp === 1 && !player.dead) {
+    if (!player.dead && (player.maxHp > 5 ? player.hp <= player.maxHp * 0.2 : player.hp === 1)) {
       const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
       g.addColorStop(0, 'rgba(255,77,94,0)'); g.addColorStop(1, `rgba(255,77,94,${0.2 + Math.sin(time * 5) * 0.08})`);
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     }
   }
-  const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.45, W / 2, H / 2, Math.max(W, H) * 0.8);
-  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.35)');
-  ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  if (!vignette || vignette.w !== W || vignette.h !== H) {
+    const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.45, W / 2, H / 2, Math.max(W, H) * 0.8);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.35)');
+    vignette = { w: W, h: H, g: vg };
+  }
+  ctx.fillStyle = vignette.g; ctx.fillRect(0, 0, W, H);
 }
 
 // A pilot's "profile picture": their plane, nose up, in their livery, on the theater's ground colour.
@@ -3096,7 +3153,7 @@ function drawPreview(cv, th, liv) {
    ===================================================================== */
 function renderHull(lost) {
   const el = $('hull');
-  if (run && run.mode === 'arena') {
+  if (run && (run.mode === 'arena' || player.maxHp > 5)) {
     const f = clamp(player.hp / player.maxHp, 0, 1);
     el.innerHTML = `<b class="hpbar${lost ? ' lost' : ''}"><i style="transform:scaleX(${f.toFixed(3)});background:${f > 0.5 ? 'var(--good)' : f > 0.25 ? 'var(--warn)' : 'var(--bad)'}"></i></b>`;
     el.classList.remove('low');
@@ -3286,7 +3343,8 @@ async function doShare(text, btn, card) {
       try {
         const blob = await shareCard(card);
         const file = blob && new File([blob], 'super-sortie.png', { type: 'image/png' });
-        if (file && navigator.canShare({ files: [file] })) { await navigator.share({ text, files: [file] }); return; }
+        const link = CONFIG.siteUrl || location.origin;
+        if (file && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: link }); return; }
       } catch (e) { if (e && e.name === 'AbortError') return; }
     }
     try { await navigator.share({ text }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
@@ -3646,7 +3704,7 @@ function showResults(earned) {
   $('resBreakdown').innerHTML = `
     <div><span>Kills & pickups</span><span>${fmtNum(r.killPts)}</span></div>
     <div><span>Speed & no-hit bonus</span><span>${fmtNum(r.bonusPts)}</span></div>
-    <div><span>Hull left ×1,000</span><span>${r.won ? fmtNum(r.hullPts) : '—'}</span></div>
+    <div><span>Hull left${r.won ? ` (${player.hp}/${player.maxHp})` : ''}</span><span>${r.won ? fmtNum(r.hullPts) : '—'}</span></div>
     <div class="total"><span>Total</span><span>${fmtNum(r.score)}</span></div>`;
   $('resStats').innerHTML = [[r.kills, 'Kills'], [`×${r.bestMult}`, 'Top combo'], [fmtTime(r.totalT), 'Flight time'], [r.mode === 'daily' ? liveStreak() : (r.won ? player.hp : 0), r.mode === 'daily' ? 'Streak' : 'Hull left']]
     .map(([v, l]) => `<div class="chip"><b>${v}</b><small>${l}</small></div>`).join('');
@@ -4501,14 +4559,14 @@ const ANet = {
 
 const Arena = {
   on: false, you: 0, info: null, roster: new Map(), others: new Map(), board: [], pickups: new Map(), missiles: [], mines: new Map(), beams: [], rBullets: [],
-  hits: {}, hv: [], feed: [], weapon: '', wpHold: 0, flags: 0, buffs: {}, killer: 0, respawnAt: 0, round: null, roundEnds: 0, phase: 'play', marks: [],
+  hits: {}, hv: [], feed: [], weapon: '', wpHold: 0, flags: 0, buffs: {}, killer: 0, respawnAt: 0, round: null, roundEnds: 0, phase: 'play',
   lock: null, cd: 0, sendT: 0, beepT: 0, refN: 0, kills: 0, deaths: 0, streak: 0, best: 0, score: 0, boardT: 0, lastEnd: null,
 
   reset(m) {
     Object.assign(this, {
       on: true, you: m.you, info: m, roster: new Map(), others: new Map(), board: [], pickups: new Map(), missiles: [], mines: new Map(), beams: [], rBullets: [],
       hits: {}, hv: [], feed: [], weapon: '', wpHold: 0, flags: 0, buffs: {}, killer: 0, respawnAt: 0, round: m.round, blimp: null, roundEnds: performance.now() + m.round.left,
-      phase: m.round.phase, reconnecting: false, marks: [], lock: null, cd: 0, sendT: 0, beepT: 0, refN: 0, kills: 0, deaths: 0, streak: 0, best: 0, score: 0, boardT: 0, lastEnd: null,
+      phase: m.round.phase, reconnecting: false, lock: null, cd: 0, sendT: 0, beepT: 0, refN: 0, kills: 0, deaths: 0, streak: 0, best: 0, score: 0, boardT: 0, lastEnd: null,
     });
   },
   nameOf(id) { const r = this.roster.get(id); return r ? r.name : 'Pilot'; },
@@ -4651,7 +4709,7 @@ const Arena = {
       this.kills++; this.streak = m.st; this.best = Math.max(this.best, m.st); this.score += m.pts;
       progress('kills', 1); progress('arenaKills', 1); progress('streak', m.st, true);
       if (m.st >= 5) earnMedal('rampage');
-      if (vp) { floater(vp.x, vp.y - 24, `+${fmtNum(m.pts)}`, theme.accent, 1); this.marks.push({ x: vp.x, y: vp.y, t: 0, kill: true }); }
+      if (vp) { floater(vp.x, vp.y - 24, `+${fmtNum(m.pts)}`, theme.accent, 1); marks.push({ x: vp.x, y: vp.y, t: 0, kill: true }); }
       const tag = m.vs >= 3 ? 'SHUT DOWN' : m.rv ? 'REVENGE' : STREAK_NAMES[m.st] ? STREAK_NAMES[m.st].toUpperCase() : '';
       killPop(victim, m.st, tag, m.pts);
       sfx.kill(m.st);
@@ -4785,7 +4843,7 @@ const Arena = {
           if (o.fl & 64) break; // rolling: the bullet passes through
           this.hits[o.id] = (this.hits[o.id] || 0) + 1;
           o.flash = 0.07; sfx.hit();
-          if (this.marks.length < 30) this.marks.push({ x: b.x, y: b.y, t: 0 });
+          if (marks.length < 30) marks.push({ x: b.x, y: b.y, t: 0 });
           for (let k = 0; k < 3; k++) puff(b.x, b.y, rand(-90, 90), rand(-90, 90), rand(2, 3.5), 4, 0.18, theme.fx[0], 'fire');
           pBullets.splice(i, 1);
           break;
@@ -4980,19 +5038,6 @@ const Arena = {
       c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(-w / 2 - 1, 9, w + 2, 6);
       c.fillStyle = f > 0.5 ? '#38d98a' : f > 0.25 ? '#ffc53d' : '#ff4d5e'; c.fillRect(-w / 2, 10, w * f, 4);
       c.restore();
-    }
-    // hit markers and kill confirms
-    for (let i = this.marks.length - 1; i >= 0; i--) {
-      const mk = this.marks[i];
-      mk.t += 1 / 60;
-      const dur = mk.kill ? 0.45 : 0.14;
-      if (mk.t > dur) { this.marks.splice(i, 1); continue; }
-      const f = mk.t / dur, sz = (mk.kill ? 16 + 14 * f : 6) / zoom;
-      c.strokeStyle = mk.kill ? `rgba(255,77,94,${1 - f})` : `rgba(255,255,255,${0.9 * (1 - f)})`;
-      c.lineWidth = (mk.kill ? 4 : 2) / zoom; c.lineCap = 'round';
-      c.beginPath(); c.moveTo(mk.x - sz, mk.y - sz); c.lineTo(mk.x - sz * 0.4, mk.y - sz * 0.4); c.moveTo(mk.x + sz, mk.y - sz); c.lineTo(mk.x + sz * 0.4, mk.y - sz * 0.4);
-      c.moveTo(mk.x - sz, mk.y + sz); c.lineTo(mk.x - sz * 0.4, mk.y + sz * 0.4); c.moveTo(mk.x + sz, mk.y + sz); c.lineTo(mk.x + sz * 0.4, mk.y + sz * 0.4); c.stroke();
-      if (mk.kill) { c.beginPath(); c.arc(mk.x, mk.y, (20 + 60 * f) / zoom, 0, TAU); c.lineWidth = 2 / zoom; c.stroke(); }
     }
     // my shield and afterburner
     if (!player.dead) {
