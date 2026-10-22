@@ -9,6 +9,7 @@
 //   GET    /api/v1/arena/ws?code=CODE[&create=1&theme=ww2&bots=1]   private arena
 //   GET    /api/v1/arena/online                pilots in public arenas right now
 //   GET    /api/v1/arena/list                  public arenas with people in them (server browser)
+//   GET    /api/v1/league?deviceId=…           this week's league group (see league.js)
 //   GET    /api/v1/arena/leaderboard?deviceId=…   today's top arena pilots by kills
 //   /api/v1/auth/*, /api/v1/me*, /api/v1/pilots/NAME   pilot accounts, friends and profiles (see accounts.js)
 
@@ -16,11 +17,12 @@ import { CoopRoom, ROOM_ALPHABET } from './coop.js';
 import { ArenaRoom, ArenaDirectory } from './arena.js';
 import { serverDay } from './day.js';
 import { handleAccounts, accountFor } from './accounts.js';
+import { joinLeague, leagueView } from './league.js';
 export { CoopRoom, ArenaRoom, ArenaDirectory };
 
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
 const MODS = new Set(['standard', 'glass', 'swarm', 'ironace', 'overcast', 'crosswind', 'hotguns']);
-const PLANES = new Set(['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol', 'hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190', 'f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar', 'lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger', 'vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor', 'fokker7', 'se5a', 'snipe', 'p47', 'bf109', 'zero', 'raptor', 'yf23', 'su57', 'valkyrie', 'manta', 'talon', 'outrun', 'laserwing', 'hexa']);
+const PLANES = new Set(['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol', 'hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190', 'f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar', 'lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger', 'vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor', 'fokker7', 'se5a', 'snipe', 'p47', 'bf109', 'zero', 'raptor', 'yf23', 'su57', 'valkyrie', 'manta', 'talon', 'outrun', 'laserwing', 'hexa', 'eindecker', 'dolphin', 'ssw', 'me262', 'ho229', 'p82', 'sr71', 'su47', 'f117', 'seraph', 'leviathan', 'nova', 'synth', 'glitch', 'arcadex']);
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
 const MAX_PER_IP_PER_DAY = 30;
 const TOP_CACHE_SECONDS = 20;
@@ -114,6 +116,7 @@ async function postScore(req, env, cors) {
 
   const rank = await env.DB.prepare('SELECT COUNT(*) AS n FROM scores WHERE day = ? AND hidden = 0 AND score > ?').bind(entry.day, entry.score).first();
   const total = await env.DB.prepare('SELECT COUNT(*) AS n FROM scores WHERE day = ? AND hidden = 0').bind(entry.day).first();
+  try { await joinLeague(env, entry.deviceId, acct ? acct.id : null, entry.day); } catch (e) { /* leagues are a bonus; never fail a score over them */ }
   return json({ ok: true, rank: rank.n + 1, total: total.n }, 201, cors);
 }
 
@@ -265,6 +268,11 @@ export default {
       if (url.pathname === '/api/v1/arena/ws') return await arenaSocket(req, env, url);
       if (url.pathname === '/api/v1/arena/online' && req.method === 'GET') return await arenaOnline(env, cors);
       if (url.pathname === '/api/v1/arena/list' && req.method === 'GET') return await arenaList(env, cors);
+      if (url.pathname === '/api/v1/league' && req.method === 'GET') {
+        const deviceId = String(url.searchParams.get('deviceId') || '');
+        if (!/^[A-Za-z0-9-]{8,64}$/.test(deviceId)) return json({ error: 'bad_device' }, 400, cors);
+        return json(await leagueView(env, deviceId), 200, cors, { 'cache-control': 'no-store' });
+      }
       if (url.pathname === '/api/v1/arena/leaderboard' && req.method === 'GET') return await arenaBoard(url, env, cors);
       const acct = await handleAccounts(req, env, url, cors);
       if (acct) return acct;

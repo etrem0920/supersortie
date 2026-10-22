@@ -34,16 +34,17 @@ const BOT_FLOOR = 8; // public arenas top up to this many pilots with AI pilots
 const THEMES = ['ww2', 'ww1', 'modern', 'space', 'neon'];
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
 const PLANE_IDS = {
-  ww1: ['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol', 'fokker7', 'se5a', 'snipe'],
-  ww2: ['hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190', 'p47', 'bf109', 'zero'],
-  modern: ['f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar', 'raptor', 'yf23', 'su57'],
-  space: ['lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger', 'valkyrie', 'manta', 'talon'],
-  neon: ['vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor', 'outrun', 'laserwing', 'hexa'],
+  ww1: ['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol', 'fokker7', 'se5a', 'snipe', 'eindecker', 'dolphin', 'ssw'],
+  ww2: ['hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190', 'p47', 'bf109', 'zero', 'me262', 'ho229', 'p82'],
+  modern: ['f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar', 'raptor', 'yf23', 'su57', 'sr71', 'su47', 'f117'],
+  space: ['lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger', 'valkyrie', 'manta', 'talon', 'seraph', 'leviathan', 'nova'],
+  neon: ['vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor', 'outrun', 'laserwing', 'hexa', 'synth', 'glitch', 'arcadex'],
 };
-export const PLANES_PER_THEATER = 9;
+export const PLANES_PER_THEATER = 12; // 9 open to everyone + 3 from crates (same handling types)
 const REVENGE_BONUS = 75;
 // Cosmetic choices the game offers (liveries per theater, contrails, titles); see game.html.
-export const LIVERIES = 13, TRAILS = 12, TITLES = 21;
+export const LIVERIES = 31, TRAILS = 20, TITLES = 21, BULLETS = 9, EMOTES = 8;
+export const WARMUP_MS = 3500; // 3-2-1 at the start of each round: everyone flies, nobody takes damage
 // Each theater has its own boss event: it crosses the arena, shoots back, takes a lot of
 // punishment, and drops Overdrive (the strongest power-up, never found anywhere else).
 export const BOSSES = {
@@ -144,7 +145,7 @@ export class ArenaRoom {
     // If the object restarted mid-round, carry on with the same round instead of starting over.
     const kept = saved ? await this.ctx.storage.get('round') : null;
     const round = kept && kept.ends > now - INTERMISSION_MS ? kept
-      : { n: 1, themeIdx: Math.max(0, themeIdx), phase: 'play', ends: now + this.roundLen(cfg), started: now, seed: seedFor(cfg.name, 1) };
+      : { n: 1, themeIdx: Math.max(0, themeIdx), phase: 'play', ends: now + this.roundLen(cfg) + WARMUP_MS, started: now, warmUntil: now + WARMUP_MS, seed: seedFor(cfg.name, 1) };
     this.s = {
       cfg, nextId: 1, pilots: new Map(), pickups: new Map(), mines: new Map(), fired: new Map(), nextPick: 1, nextMine: 1,
       round, tick: 0, lastReport: 0, blimp: null, nextBlimpId: 1, blimpAt: now + BOSS_TIMING[(cfg.rules && cfg.rules.boss) || 'normal'][0], nextRef: 1e9,
@@ -280,9 +281,9 @@ export class ArenaRoom {
   }
   roundInfo(now) {
     const r = this.s.round;
-    return { n: r.n, theme: this.theme, phase: r.phase, left: Math.max(0, r.ends - now), seed: r.seed };
+    return { n: r.n, theme: this.theme, phase: r.phase, left: Math.max(0, r.ends - now), seed: r.seed, warm: Math.max(0, (r.warmUntil || 0) - now) };
   }
-  roster() { return [...this.s.pilots.values()].map(p => [p.id, p.name, p.plane, p.livery, p.bot ? 1 : 0, p.trail, p.title]); }
+  roster() { return [...this.s.pilots.values()].map(p => [p.id, p.name, p.plane, p.livery, p.bot ? 1 : 0, p.trail, p.title, p.bullet || 0]); }
   sendRoster() { this.broadcast({ t: 'roster', r: this.roster() }); }
   broadcast(obj, except) {
     const raw = typeof obj === 'string' ? obj : JSON.stringify(obj);
@@ -316,6 +317,7 @@ export class ArenaRoom {
         if ('livery' in m) p.livery = small(m.livery, LIVERIES - 1);
         if ('trail' in m) p.trail = small(m.trail, TRAILS - 1);
         if ('title' in m) p.title = small(m.title, TITLES - 1);
+        if ('bullet' in m) p.bullet = small(m.bullet, BULLETS - 1);
         // The elite livery shows only once the leaderboard confirms it.
         if (p.livery === ELITE_LIVERY && !p.eliteOk) {
           p.livery = 0;
@@ -339,6 +341,14 @@ export class ArenaRoom {
       case 'hv': this.onVictimHits(p, m.h, now); break;
       case 'f': this.onFire(p, m, now); break;
       case 'pk': this.onPick(p, m.id, now); break;
+      case 'em': {
+        // Quick-chat emotes, at most one every 1.5 seconds per pilot.
+        const e = small(m.e, EMOTES - 1);
+        if (now - (p.emT || 0) < 1500) break;
+        p.emT = now;
+        this.broadcast({ t: 'em', o: p.id, e });
+        break;
+      }
       case 'ul': if (Array.isArray(m.m)) this.broadcast({ t: 'ul', o: p.id, m: m.m.slice(0, 8).map(Number) }, ws); break;
       default: break;
     }
@@ -472,7 +482,7 @@ export class ArenaRoom {
   startRound(now) {
     const s = this.s, r = s.round;
     r.n++; r.themeIdx = s.cfg.theme && s.cfg.private ? r.themeIdx : (r.themeIdx + 1) % THEMES.length;
-    r.phase = 'play'; r.ends = now + this.roundLen(s.cfg); r.started = now; r.seed = seedFor(s.cfg.name, r.n);
+    r.phase = 'play'; r.ends = now + this.roundLen(s.cfg) + WARMUP_MS; r.started = now; r.warmUntil = now + WARMUP_MS; r.seed = seedFor(s.cfg.name, r.n);
     this.saveRound();
     s.pickups.clear(); s.mines.clear(); s.fired.clear();
     s.blimp = null; s.blimpAt = now + this.bossMs(0);
@@ -503,7 +513,7 @@ export class ArenaRoom {
   }
 
   // ---------- damage ----------
-  canHit(v, now) { return v && v.alive && now >= v.protUntil && this.s.round.phase === 'play'; }
+  canHit(v, now) { return v && v.alive && now >= v.protUntil && this.s.round.phase === 'play' && now >= (this.s.round.warmUntil || 0); }
 
   damage(v, by, w, dmg, now) {
     if (!this.canHit(v, now)) return;
@@ -525,6 +535,8 @@ export class ArenaRoom {
     }
     v.lastKiller = k ? k.id : 0;
     this.saveSeat(v); if (k) this.saveSeat(k);
+    if (v.bot && k && !k.bot && Math.random() < 0.18) this.botEmote(v, [0, 2, 3][Math.floor(Math.random() * 3)], now);
+    else if (k && k.bot && !v.bot && Math.random() < 0.12) this.botEmote(k, [1, 6, 7][Math.floor(Math.random() * 3)], now);
     this.broadcast({ t: 'kill', v: v.id, by: k ? k.id : 0, w, st: k ? k.streak : 0, vs: victimStreak, pts, rv, rs: RESPAWN_MS });
   }
 
@@ -845,6 +857,11 @@ export class ArenaRoom {
       }
       if (ai.fireCd <= 0 && ((b.weapon === 'r' && d < 1150 && err < 0.06) || (b.weapon === 'm' && d < 950 && d > 160 && err < 0.6 && now >= tg.flareUntil))) this.botFire(b, tg, now);
     }
+  }
+  botEmote(b, e, now) {
+    if (now - (b.emT || 0) < 4000) return;
+    b.emT = now;
+    setTimeout(() => { if (this.s && this.s.pilots.get(b.id) === b) this.broadcast({ t: 'em', o: b.id, e }); }, 500 + Math.random() * 900);
   }
   // A bot uses the weapon it carries. Everyone sees the shot; hits on people are still judged
   // by their own game (missiles) or right here (rail, and anything aimed at another bot).

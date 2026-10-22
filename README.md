@@ -108,6 +108,17 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 
 Each day's ace flies its own paint scheme (12 palettes × 6 patterns, chosen from the day), so every ace in the logbook looks different. The logbook shows a small picture of each one.
 
+## Shop and crates (cosmetic only)
+
+- **Credits** come from playing: a daily (150 + score/60), arena rounds (40 + 12 per kill, +100 for a win), co-op missions, practice and zen, challenges, level-ups, medals and league results. New pilots start with 1,500. There is no way to buy credits with money.
+- **Crates** per theater in three tiers: Standard (500), Premium (1,500) and Ace (4,000). The odds are shown in the shop. A CS-style reel spins and lands on your prize, which you keep (and can equip right away) or sell back for its rarity value (60 to 6,000). Duplicates are sold automatically if you close the reveal; new items are twice as likely as ones you own.
+- **Prizes:** 18 plane skins per theater (two for each standard plane, with patterns like hex, carbon, chrome, stars and lightning bolts; legendaries shed sparkles), three crate-only planes per theater (Mythic: Fokker E.III, Sopwith Dolphin, SSW D.IV; Me 262, Ho 229, P-82; SR-71, Su-47, F-117; plus fictional Space and Neon ships), 8 contrails (helix, pixel, lightning, galaxy, inferno and more) and 8 bullet skins. Crate planes use the same four handling types as every other plane.
+- The inventory and credits sync with your account. Like the rest of progression they live in the browser, so a determined cheater could edit them; everything they could unlock is cosmetic.
+
+## Weekly leagues
+
+Weeks run Monday to Sunday (UTC). Your first daily of the week puts you in a group of up to 30 pilots in your division (Bronze, Silver, Gold, Platinum, Diamond, Ace). Your league score is the sum of your dailies that week. The top 5 of each group move up and the bottom 5 move down; the result pays credits (600 up, 200 stay, 80 down) the next time you open the game. Code: `server/league.js`, table `league_members` (`server/migrations/0004_leagues.sql`).
+
 ## Account settings
 
 Signed-in pilots fly under their username (the callsign field is locked). The Friends tab's **Settings** has: profile picture (a squadron badge in a colour, or any plane you've flown in its livery), change password (signs out other devices), log out, log out everywhere, and delete account (needs the password; scores stay on the boards without the name). Leaderboard rows from pilots without an account say "not registered".
@@ -142,6 +153,8 @@ Signed-in pilots fly under their username (the callsign field is locked). The Fr
 - **Rolling** makes you immune to bullets and breaks missile locks.
 - **No clones.** If a connection drops without the arena noticing, the reconnect (same token, or the same device once the old connection has gone quiet) takes over the old seat instead of adding a second copy of the pilot. Pilots who go quiet are removed straight away rather than waiting on a close handshake.
 - **Restarts are seamless.** The arena saves its round in storage and each pilot's score on their connection, so if Cloudflare restarts the object mid-round the round carries on and pilots stay in the air.
+- **Every round starts with a 3-2-1.** The screen drains to grey, counts down, then floods back into colour on FIGHT. Nobody takes damage during those 3.5 seconds.
+- **Quick chat:** eight emotes (GG, Nice shot!, Revenge incoming…) on keys 1–8, T for the wheel, or the chat button on phones. They show as bubbles over your plane; AI pilots use them too. One every 1.5 seconds.
 - **Kill streaks** get a callout at each tier (Double kill, Triple kill, Rampage, Unstoppable, Legendary, Godlike, Ace of aces, then Warlord, Apex predator, Immortal, Mythic, Sky god and Absolute legend at 50) with its own sound, plus a small meter showing how close the next tier is.
 - **Arena today** can be ranked by total kills or by best single-round score. A pilot's round is saved when the round ends or when they leave mid-round.
 - **Dropped connections reconnect.** If a pilot's connection drops, the arena holds their seat, score and streak for 30 seconds while the game reconnects them. Leaving on purpose frees the seat right away. A hidden tab sends a heartbeat so it isn't dropped as idle; pilots who go quiet for 45 seconds are removed. If the server restarts (every deploy restarts it), players are reconnected to a fresh round.
