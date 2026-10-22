@@ -218,6 +218,13 @@
   .pl-row b { font-family: var(--font-display); font-weight: 900; font-size: 24px; text-transform: uppercase; color: var(--accent); }
   .pl-row span { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
   .pl-next { font-size: 13px; color: var(--text); }
+  .ghost-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; }
+  .ghost-btn svg { width: 18px; height: 18px; opacity: .8; }
+  .gh-list li { cursor: pointer; }
+  .gh-list li:hover { background: rgba(255, 255, 255, .05); }
+  .gh-list .go { font-family: var(--font-cond); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: 12px; color: var(--accent); margin-left: 10px; }
+  .gh-list .empty { cursor: default; color: var(--muted); justify-content: center; }
+  #target.ghost-ahead { color: #38d98a; } #target.ghost-behind { color: #ff7a7a; }
   .season { background: linear-gradient(135deg, rgba(255, 211, 79, .10), rgba(177, 75, 255, .10)), var(--panel); padding: 14px 16px; display: grid; gap: 10px; box-shadow: inset 0 0 0 1px var(--line); }
   .ss-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
   .ss-head b { font-family: var(--font-display); font-weight: 900; font-size: 20px; text-transform: uppercase; color: #ffd34f; }
@@ -956,6 +963,7 @@
           <div id="doneTiles" class="tiles"></div>
           <p id="doneVs" class="today-desc"></p>
           <button id="doneShare" class="btn btn-primary btn-block">Share result</button>
+          <button id="ghostBtn" class="btn btn-ghost btn-block ghost-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a8 8 0 0 0-8 8v12l3-2 2.5 2 2.5-2 2.5 2 2.5-2 3 2V10a8 8 0 0 0-8-8zm-3 7.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="currentColor"/></svg>Race today's ghosts</button>
         </div>
         <div class="today-foot"><span id="pilotCount"></span><span id="leader"></span></div>
       </div>
@@ -1091,6 +1099,15 @@
   </div>
 </div>
 
+<div id="ghosts" class="modal hidden">
+  <div class="sheet sheet-wide" role="dialog" aria-modal="true" aria-labelledby="ghTitle">
+    <div class="sheet-head"><span class="eyebrow-s">Ghost race · today's sortie</span><h2 id="ghTitle">Race a ghost</h2></div>
+    <p class="pp-meta">Fly today's map again next to a replay of a top pilot's run. Just for fun: it doesn't change your score on the board.</p>
+    <ol id="ghList" class="board gh-list"></ol>
+    <button class="btn btn-ghost btn-block" data-close>Close</button>
+  </div>
+</div>
+
 <!-- ================= CRATE OPENING ================= -->
 <div id="crate" class="modal crate-modal hidden">
   <div class="crate-stage">
@@ -1211,6 +1228,7 @@
     <div class="cta">
       <button id="shareBtn" class="btn btn-primary">Share result</button>
       <button id="againBtn" class="btn btn-ghost">Practice run</button>
+      <button id="resGhost" class="btn btn-ghost hidden">Race a ghost</button>
     </div>
     <div id="adResults" class="ad-slot hidden"></div>
     <div class="res-foot">
@@ -3329,7 +3347,7 @@ const toScreen = (x, y) => ({ x: W / 2 + (x - cam.x) * zoom, y: H / 2 + (y - cam
    Run flow
    ===================================================================== */
 function startRun(mode) {
-  const seed = mode === 'daily' ? dailySeed() : `${mode === 'zen' ? 'ZEN' : 'PRACTICE'}-${Math.random().toString(36).slice(2, 8)}`;
+  const seed = mode === 'daily' || mode === 'ghost' ? dailySeed() : `${mode === 'zen' ? 'ZEN' : 'PRACTICE'}-${Math.random().toString(36).slice(2, 8)}`;
   R = BASE_R;
   if (Arena.on || ANet.ws) { Arena.on = false; ANet.close(); }
   setArenaHud(false);
@@ -3349,6 +3367,7 @@ function startRun(mode) {
   };
   hideAllOverlays(); show('hud');
   renderHull();
+  Ghost.begin(mode);
   setupTargets(mode);
   $('waveLabel').classList.toggle('hidden', tileWorld);
   $('pips').classList.toggle('hidden', tileWorld);
@@ -3415,7 +3434,8 @@ function finish(won) {
   input.touching = false; input.touchId = null;
   hide('hud'); hide('boss'); hide('warn');
   const earned = awardMedals();
-  if (run.mode === 'daily') recordDaily();
+  if (run.mode === 'daily') { recordDaily(); Ghost.save(); }
+  if (run.mode === 'ghost') Ghost.done();
   recordBest();
   countPlaneUse();
   track('run_end', { mode: run.mode, theme: run.theme, score: run.score, won, mod: world.mod.id });
@@ -3883,6 +3903,7 @@ function update(dt) {
   if (state === 'play') {
     run.totalT += dt;
     if (!player.dead) { steerPlayer(dt); movePlayer(dt); firePlayer(dt); }
+    Ghost.tick();
     if (run.chainT > 0) { run.chainT -= dt; if (run.chainT <= 0) { run.chain = 0; run.mult = 1; } }
     if (run.phase === 'intro') {
       run.phaseT -= dt;
@@ -4367,6 +4388,7 @@ function draw() {
 
   if (Coop.on) Coop.drawPeers(ctx, th);
   if (Arena.on) Arena.draw(ctx, th, inView);
+  if (run && run.mode === 'ghost' && state === 'play') Ghost.draw(ctx, th);
   drawMarks(ctx);
   drawKillFx(ctx);
 
@@ -4550,6 +4572,7 @@ let targets = [], targetT = 0;
 function setupTargets(mode) {
   targets = [];
   const b = Board.last;
+  if (mode === 'ghost') { $('target').classList.remove('hidden'); $('target').dataset.top = ''; return; }
   if (mode === 'daily' && b && b.entries && b.entries.length) targets = b.entries.filter(e => !e.me).map(e => ({ score: e.score, label: `#${e.rank} ${e.name}`, rank: e.rank }));
   else if ((mode === 'daily' || mode === 'practice') && store.best > 0) targets = [{ score: store.best, label: 'Your best' }];
   targets.sort((a, b2) => a.score - b2.score);
@@ -4582,6 +4605,7 @@ function updateHUD(dt) {
   if (Math.abs(run.score - run.shownScore) < 1) run.shownScore = run.score;
   setText('scorePanel', fmtNum(run.shownScore));
   if (run.mode === 'daily' || run.mode === 'practice') updateTarget(dt);
+  else if (run.mode === 'ghost') Ghost.hud();
   if (run.mode === 'arena') {
     Arena.hud(dt);
     const acd = player.rollCd > 0 ? 1 - player.rollCd / ROLL_CD : 1, arb = $('rollBtn');
@@ -4768,6 +4792,7 @@ function renderMenu() {
   if (today) {
     $('doneScore').textContent = fmtNum(today.score);
     $('doneTiles').innerHTML = tilesHTML(today.grades, null, false);
+    $('ghostBtn').classList.toggle('hidden', !(Ghost && Ghost.can()));
     $('doneRank').textContent = today.rank ? `Rank #${fmtNum(today.rank)} of ${fmtNum(today.total)}` : rankFor(today.score);
     const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
     const nextAce = buildWorld(`DD3-${dayKey(tmr)}`).ace;
@@ -5296,6 +5321,7 @@ $('pilot').addEventListener('click', e => { if (e.target.closest('[data-close]')
 // Every menu closes on a click outside it, or with Esc, the same way its own close button would.
 const DISMISS = [
   ['reward', () => Daily.claim()],
+  ['ghosts', () => hide('ghosts')],
   ['crate', () => Shop.close()],
   ['pilot', () => hide('pilot')],
   ['help', () => { helpThen = null; hide('help'); }],
@@ -5642,6 +5668,139 @@ var Season = {
     this.center();
   },
 };
+// Ghost race: today's daily path is sampled every 200 ms and the top runs are kept on the server.
+// Racing is a practice run on today's map, so it never affects the board. It opens once you've flown the daily.
+const GHOST_KEY = 'supersortie.ghost', GHOST_DT = 0.2, GHOST_MAX = 3000;
+var Ghost = {
+  rec: null, recT: 0, active: null,
+  can() { return !!store.history[todayNum]; },
+  begin(mode) {
+    this.rec = mode === 'daily' ? [] : null; this.recT = 0;
+    if (mode !== 'ghost') this.active = null;
+    $('target').classList.remove('ghost-ahead', 'ghost-behind');
+  },
+  tick() {
+    if (!this.rec) return;
+    while (run.totalT >= this.recT && this.rec.length < GHOST_MAX) {
+      const a = Math.atan2(Math.sin(player.a), Math.cos(player.a));
+      this.rec.push([Math.round(player.x), Math.round(player.y), Math.round(a / Math.PI * 127), (player.rollT > 0 ? 1 : 0) | (player.dead ? 2 : 0), Math.min(65535, Math.floor(run.score / 5))]);
+      this.recT += GHOST_DT;
+    }
+  },
+  encode(rows) {
+    const buf = new DataView(new ArrayBuffer(rows.length * 8));
+    rows.forEach(([x, y, a, f, sc], i) => { const o = i * 8; buf.setInt16(o, clamp(x, -32000, 32000), true); buf.setInt16(o + 2, clamp(y, -32000, 32000), true); buf.setInt8(o + 4, a); buf.setUint8(o + 5, f); buf.setUint16(o + 6, sc, true); });
+    let bin = ''; const u = new Uint8Array(buf.buffer);
+    for (let i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+    return btoa(bin);
+  },
+  decode(b64) {
+    const bin = atob(b64), n = Math.floor(bin.length / 8), u = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    const dv = new DataView(u.buffer), out = [];
+    for (let i = 0; i < n; i++) { const o = i * 8; out.push({ x: dv.getInt16(o, true), y: dv.getInt16(o + 2, true), a: dv.getInt8(o + 4) / 127 * Math.PI, roll: !!(dv.getUint8(o + 5) & 1), dead: !!(dv.getUint8(o + 5) & 2), score: dv.getUint16(o + 6, true) * 5 }); }
+    return out;
+  },
+  save() {
+    if (!this.rec || this.rec.length < 20) return;
+    const g = { day: todayNum, data: this.encode(this.rec), score: run.score, plane: run.plane, livery: run.livery, sent: false };
+    try { localStorage.setItem(GHOST_KEY, JSON.stringify(g)); } catch (e) { /* storage full: no ghost today */ }
+    this.rec = null;
+  },
+  mine() { try { const g = JSON.parse(localStorage.getItem(GHOST_KEY) || 'null'); return g && g.day === todayNum ? g : null; } catch (e) { return null; } },
+  async upload() {
+    const g = this.mine();
+    if (!g || g.sent || Board.kind !== 'api') return;
+    try {
+      const r = await fetch(Board.api('/api/v1/ghost'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ day: g.day, deviceId: deviceId(), data: g.data }) });
+      if (r.ok || r.status === 422) { g.sent = true; localStorage.setItem(GHOST_KEY, JSON.stringify(g)); }
+    } catch (e) { /* retried on the next post */ }
+  },
+  async pick() {
+    if (!this.can()) return;
+    const list = $('ghList'), mine = this.mine();
+    const row = (g, i) => `<li data-g="${i}"><span class="rk">${g.rank || '·'}</span>${avatarHTML(resolvePlane(g.plane, g.theme), g.livery || 0)}<span class="nm">${esc(g.name)}${g.me ? ' (you)' : ''}<small>${esc(planeName(resolvePlane(g.plane, g.theme)))}</small></span><span class="sc">${fmtNum(g.score)}</span><span class="go">Race</span></li>`;
+    let ghosts = mine ? [{ me: true, name: store.callsign, score: mine.score, plane: mine.plane, livery: mine.livery, local: true }] : [];
+    list.innerHTML = ghosts.map(row).join('') + `<li class="empty">${Board.kind === 'api' ? 'Loading the top ghosts…' : 'Top ghosts need the online server.'}</li>`;
+    paintAvatars(list); show('ghosts');
+    if (Board.kind === 'api') {
+      try {
+        const r = await (await fetch(Board.api(`/api/v1/ghosts?day=${todayNum}`))).json();
+        const top = (r.ghosts || []).map((g, i) => Object.assign(g, { rank: i + 1 })).filter(g => !(mine && g.score === mine.score && g.name === store.callsign));
+        ghosts = ghosts.concat(top);
+        list.innerHTML = ghosts.length ? ghosts.map(row).join('') + (top.length ? '' : '<li class="empty">No top ghosts yet today. Check back later.</li>') : '<li class="empty">No ghosts yet today. Check back later.</li>';
+      } catch (e) { list.innerHTML = ghosts.map(row).join('') + '<li class="empty">Couldn\'t load the top ghosts.</li>'; }
+      paintAvatars(list);
+    }
+    list.querySelectorAll('[data-g]').forEach(li => li.addEventListener('click', () => { hide('ghosts'); this.race(ghosts[Number(li.dataset.g)]); }));
+  },
+  async race(meta) {
+    let data = meta.local ? (this.mine() || {}).data : null;
+    if (!data) {
+      try { const r = await (await fetch(Board.api(`/api/v1/ghost?day=${todayNum}&id=${meta.id}`))).json(); data = r.data; }
+      catch (e) { toast('Ghost race', 'Couldn\'t load that ghost. Try again in a moment.'); return; }
+    }
+    if (!data) return;
+    const frames = this.decode(data);
+    const info = PLANE_INDEX[meta.plane] || PLANE_INDEX[resolvePlane(meta.plane, 'ww2')];
+    this.active = { meta, frames, craft: CRAFT_PLAYER[info.plane.shape], name: meta.me ? 'Your ghost' : `${meta.name}'s ghost`, final: meta.score };
+    audio(); startRun('ghost');
+    showBanner('Ghost race', this.active.name, `${fmtNum(meta.score)} to beat`);
+    track('ghost_race', { me: !!meta.me });
+  },
+  at(t) {
+    const F = this.active && this.active.frames; if (!F || !F.length) return null;
+    const f = t / GHOST_DT, i = Math.floor(f);
+    if (i >= F.length - 1) return Object.assign({ over: true }, F[F.length - 1]);
+    const a = F[i], b = F[i + 1], k = f - i;
+    let da = b.a - a.a; if (da > Math.PI) da -= TAU; if (da < -Math.PI) da += TAU;
+    return { x: lerp(a.x, b.x, k), y: lerp(a.y, b.y, k), a: a.a + da * k, roll: a.roll, dead: a.dead, score: a.score };
+  },
+  draw(c, th) {
+    const g = this.at(run.totalT); if (!g || g.dead || g.over) return;
+    const pts = [];
+    for (let s = 1.4; s > 0; s -= 0.1) { const p = this.at(Math.max(0, run.totalT - s)); if (p) pts.push({ x: p.x, y: p.y, a: p.a, roll: false }); }
+    pts.push({ x: g.x, y: g.y, a: g.a, roll: false });
+    c.save(); c.globalAlpha = 0.5; drawContrail(c, pts, 7, 20, 0.7); c.restore();
+    c.save(); c.translate(g.x, g.y); c.rotate(g.a); c.globalAlpha = 0.42 + Math.sin(time * 3) * 0.06;
+    drawCraft(c, this.active.craft, colorsFor(th, 'player', 0), 1, { roll: g.roll ? Math.sin(time * 18) : 0, spin: time * 45, t: time });
+    c.restore();
+    c.save(); c.translate(g.x, g.y - 38); c.scale(1 / zoom, 1 / zoom);
+    c.font = '700 13px "Barlow Condensed", "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+    c.lineWidth = 4; c.strokeStyle = 'rgba(5,6,12,.7)'; c.strokeText(this.active.name.toUpperCase(), 0, 0);
+    c.fillStyle = 'rgba(220,235,255,.85)'; c.fillText(this.active.name.toUpperCase(), 0, 0);
+    c.restore();
+    // An edge arrow when the ghost is off screen.
+    const sx = (g.x - cam.x) * zoom + W / 2, sy = (g.y - cam.y) * zoom + H / 2;
+    if (sx < 0 || sy < 0 || sx > W || sy > H) {
+      const ang = Math.atan2(g.y - player.y, g.x - player.x), r = Math.min(W, H) * 0.42 / zoom;
+      c.save(); c.translate(player.x + Math.cos(ang) * r, player.y + Math.sin(ang) * r); c.rotate(ang); c.scale(1 / zoom, 1 / zoom);
+      c.fillStyle = 'rgba(220,235,255,.6)'; c.beginPath(); c.moveTo(12, 0); c.lineTo(-6, -8); c.lineTo(-2, 0); c.lineTo(-6, 8); c.closePath(); c.fill(); c.restore();
+    }
+  },
+  hud() {
+    const g = this.at(run.totalT); if (!g) return;
+    const d = run.score - g.score, el = $('target');
+    el.classList.toggle('ghost-ahead', d > 0); el.classList.toggle('ghost-behind', d < 0);
+    setText('target', g.over ? `Ghost finished · ${fmtNum(this.active.final)}` : d === 0 ? 'Level with the ghost' : `${d > 0 ? 'Ahead of' : 'Behind'} ghost · ${d > 0 ? '+' : '−'}${fmtNum(Math.abs(d))}`);
+  },
+  done() {
+    const A = this.active; if (!A) return;
+    A.won = run.score > A.final;
+    if (A.won) {
+      toast('Ghost beaten', `${fmtNum(run.score)} vs ${fmtNum(A.final)}`);
+      store.ghostWins = store.ghostWins || {};
+      if (!store.ghostWins[todayNum]) { store.ghostWins = { [todayNum]: 1 }; saveStore(); Shop.earn(150, 'Ghost beaten'); }
+    }
+  },
+  verdict() {
+    const A = this.active; if (!A) return 'Ghost race';
+    return `Ghost race · ${A.won ? 'beat' : 'lost to'} ${A.meta.me ? 'your ghost' : A.meta.name} (${fmtNum(A.final)})`;
+  },
+};
+$('ghostBtn').addEventListener('click', () => Ghost.pick());
+$('resGhost').addEventListener('click', () => Ghost.pick());
+$('ghosts').addEventListener('click', e => { if (e.target.closest('[data-close]')) hide('ghosts'); });
 $('ysLevel').addEventListener('click', () => { selectTab('record'); setTimeout(() => $('seasonBox').scrollIntoView({ block: 'center', behavior: 'smooth' }), 60); });
 // A red dot on the Shop tab when there's something to open.
 function renderShopDot() {
@@ -5788,7 +5947,7 @@ function entryFor(h) {
 async function postPending() {
   const h = store.history[todayNum];
   if (!Board.ready || !h || h.posted) return null;
-  try { await Board.submit(entryFor(h)); h.posted = true; saveStore(); track('score_posted', { score: h.score }); return true; }
+  try { await Board.submit(entryFor(h)); h.posted = true; saveStore(); track('score_posted', { score: h.score }); Ghost.upload(); return true; }
   catch (e) { return false; }
 }
 
@@ -5802,7 +5961,9 @@ function showResults(earned) {
   const zen = r.mode === 'zen';
   $('resTiles').classList.toggle('hidden', zen);
   $('againBtn').disabled = false; $('menuBtn').textContent = 'Back to hangar';
-  $('againBtn').textContent = zen ? 'Fly zen again' : 'Practice run';
+  $('againBtn').textContent = zen ? 'Fly zen again' : r.mode === 'ghost' ? 'Race again' : 'Practice run';
+  $('resGhost').classList.toggle('hidden', !(Ghost.can() && (r.mode === 'daily' || r.mode === 'ghost')));
+  $('resGhost').textContent = r.mode === 'ghost' ? 'Pick another ghost' : 'Race a ghost';
   if (zen) {
     const best = store.zenBest;
     $('resKicker').textContent = `Zen flight · ${planeName(r.plane)} · ${theme.name}`;
@@ -5821,7 +5982,7 @@ function showResults(earned) {
     countUp(r.score);
     return;
   }
-  $('resKicker').textContent = r.mode === 'daily' ? `Sortie #${todayNum} · ${DATE_FMT.format(new Date())} · ${planeName(r.plane)}` : `Practice · not ranked · ${planeName(r.plane)}`;
+  $('resKicker').textContent = r.mode === 'daily' ? `Sortie #${todayNum} · ${DATE_FMT.format(new Date())} · ${planeName(r.plane)}` : r.mode === 'ghost' ? Ghost.verdict() : `Practice · not ranked · ${planeName(r.plane)}`;
   const codes = gradeCodes(r.results);
   $('resTitle').textContent = codes === 'ggggg' ? 'Flawless sortie' : r.won ? 'Sortie complete' : `Shot down in wave ${r.waveIdx + 1}`;
   $('resRank').textContent = rankFor(r.score);
@@ -5950,6 +6111,7 @@ $('quitBtn').addEventListener('click', () => { if (run && run.mode === 'arena') 
 $('againBtn').addEventListener('click', () => {
   audio();
   if (run && run.mode === 'coop') { if (Net.isHost) Net.send({ t: 'start' }); return; }
+  if (run && run.mode === 'ghost' && Ghost.active) { Ghost.race(Ghost.active.meta); return; }
   startRun(run && run.mode === 'zen' ? 'zen' : 'practice');
 });
 $('zenBtn').addEventListener('click', () => { audio(); startRun('zen'); });

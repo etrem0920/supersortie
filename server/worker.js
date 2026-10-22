@@ -18,6 +18,7 @@ import { ArenaRoom, ArenaDirectory } from './arena.js';
 import { serverDay } from './day.js';
 import { handleAccounts, accountFor } from './accounts.js';
 import { joinLeague, leagueView } from './league.js';
+import { postGhost, listGhosts, getGhost } from './ghosts.js';
 export { CoopRoom, ArenaRoom, ArenaDirectory };
 
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
@@ -274,6 +275,9 @@ export default {
         return json(await leagueView(env, deviceId), 200, cors, { 'cache-control': 'no-store' });
       }
       if (url.pathname === '/api/v1/arena/leaderboard' && req.method === 'GET') return await arenaBoard(url, env, cors);
+      if (url.pathname === '/api/v1/ghost' && req.method === 'POST') return await postGhost(req, env, json, cors);
+      if (url.pathname === '/api/v1/ghost' && req.method === 'GET') return await getGhost(url, env, json, cors);
+      if (url.pathname === '/api/v1/ghosts' && req.method === 'GET') return await listGhosts(url, env, json, cors);
       const acct = await handleAccounts(req, env, url, cors);
       if (acct) return acct;
       return json({ error: 'not_found' }, 404, cors);
