@@ -3841,7 +3841,7 @@ const Board = {
   async submit(entry) {
     if (this.kind === 'api') {
       const r = await fetch(this.api('/api/v1/scores'), { method: 'POST', headers: Object.assign({ 'content-type': 'application/json' }, Social.headers()), body: JSON.stringify(Object.assign({ deviceId: deviceId() }, entry)) });
-      if (r.status === 409) { const body = await r.json().catch(() => ({})); if (body.error === 'name_taken') throw new Error('name_taken'); }
+      if (r.status === 409) { const body = await r.json().catch(() => ({})); if (body.error === 'name_taken') throw new Error('name_taken'); if (body.error === 'already_submitted' && store.auth) throw new Error('already'); }
       if (!r.ok && r.status !== 409) throw new Error('submit ' + r.status);
       return true;
     }
@@ -6176,6 +6176,7 @@ const Social = {
       this.push();
       refreshMenuBits();
       if (r.body.recovery) this.showCode(r.body.recovery);
+      syncToday().catch(() => {});
       this.friends = null;
       this.render();
     } catch (e) { err.textContent = 'Couldn\'t reach the server. Check your connection.'; }
@@ -6430,11 +6431,11 @@ document.addEventListener('click', e => {
   if (li && CONFIG.apiBase) Social.open(li.dataset.u);
 });
 // Pick up progress made on another device.
-if (store.auth && CONFIG.apiBase) Social.pull().catch(() => {});
+if (store.auth && CONFIG.apiBase) Social.pull().catch(() => {}).then(() => syncToday()).catch(() => {});
 let lastPull = Date.now();
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { if (Social.pending) Social.push(); return; }
-  if (Date.now() - lastPull > 8000) { lastPull = Date.now(); Social.pull().catch(() => {}); }
+  if (Date.now() - lastPull > 8000) { lastPull = Date.now(); Social.pull().catch(() => {}).then(() => { if (state === 'menu') syncToday(); }).catch(() => {}); }
 });
 // Last chance to save before the tab closes.
 addEventListener('pagehide', () => {
@@ -7185,6 +7186,15 @@ async function postPending() {
   try { await Board.submit(entryFor(h)); h.posted = true; saveStore(); track('score_posted', { score: h.score }); Ghost.upload(); return true; }
   catch (e) {
     // A guest flying under a registered pilot's name: pick a fresh callsign and post again.
+    // This account already flew today somewhere else: that score is the one on the board, so show it here too.
+    if (e.message === 'already') {
+      await syncToday(true).catch(() => {});
+      const now = store.history[todayNum];
+      if (now) { now.posted = true; saveStore(); }
+      toast('Already flown today', 'You flew today\'s sortie on another device. That score is the one that counts.');
+      if (state === 'menu') renderMenu();
+      return true;
+    }
     if (e.message === 'name_taken' && !store.auth) {
       const was = store.callsign; store.callsign = randomCallsign(); saveStore(); applyAuthCallsign();
       toast('Callsign taken', `${was} belongs to a registered pilot, so you're flying as ${store.callsign}. Change it in the hangar.`);
@@ -7330,8 +7340,27 @@ function openHelp(then, askName) {
   $('callsign2').value = store.callsign;
   show('help');
 }
-function onPlayDaily() {
+// Signed in: ask the account whether today's sortie was already flown, on any device or browser.
+async function syncToday(force) {
+  if (!store.auth || !CONFIG.apiBase || (store.history[todayNum] && !force)) return false;
+  const r = await Social.call(`/api/v1/me/daily?day=${todayNum}`).catch(() => null);
+  const e = r && r.ok && r.body.entry;
+  if (!e) return false;
+  const had = store.history[todayNum];
+  store.history[todayNum] = { score: e.score, grades: e.grades, time: e.time, hp: e.hp, won: !/[xn]/.test(e.grades), theme: e.theme, kills: e.kills, waveTimes: e.waveTimes || [], mod: e.mod, posted: true, plane: e.plane, livery: e.livery || 0, rank: e.rank, total: e.total, mult: had && had.mult, remote: !had };
+  if (store.lastDay !== todayNum) { store.streak = store.lastDay === todayNum - 1 ? (store.streak || 0) + 1 : Math.max(1, store.streak || 0); store.lastDay = todayNum; store.maxStreak = Math.max(store.maxStreak || 0, store.streak); }
+  saveStore();
+  if (state === 'menu') renderMenu();
+  return true;
+}
+async function onPlayDaily() {
   if (store.history[todayNum]) return;
+  if (store.auth && CONFIG.apiBase) {
+    const btn = $('playBtn'), label = btn.textContent; btn.disabled = true; btn.textContent = 'Checking your account…';
+    const found = await Promise.race([syncToday().catch(() => false), new Promise(r => setTimeout(() => r(false), 2500))]);
+    btn.disabled = false; btn.textContent = label;
+    if (found || store.history[todayNum]) { toast('Already flown today', 'You flew today\'s sortie on another device. Here\'s how it went.'); return; }
+  }
   if (!store.seenHelp) { store.seenHelp = true; saveStore(); openHelp(() => startRun('daily'), true); return; }
   startRun('daily');
 }

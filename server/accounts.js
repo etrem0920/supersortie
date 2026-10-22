@@ -17,7 +17,7 @@
 //   POST   /api/v1/me/recovery     (Bearer) {password}        get a new recovery code
 //   GET    /api/v1/pilots/NAME                                -> public profile
 
-import { serverDay } from './day.js';
+import { serverDay, clientDay } from './day.js';
 import { nameKey, KEY_SQL, reservedName } from './names.js';
 
 const PBKDF2_ITERATIONS = 10000; // kept modest for the Workers free plan's CPU limit
@@ -204,6 +204,16 @@ export async function handleAccounts(req, env, url, cors) {
     const res = await env.DB.prepare('UPDATE accounts SET profile = ?, updated_at = ? WHERE id = ? AND updated_at = ?').bind(profile, rev, me.id, cur.updated_at).run();
     if (!res.meta || !res.meta.changes) return json({ error: 'stale', profile: JSON.parse(cur.profile || '{}'), rev: cur.updated_at }, 409, cors);
     return json({ ok: true, rev }, 200, cors);
+  }
+  // Has this account flown a given day's sortie (on any device)? Each browser asks, so the daily can't be flown twice.
+  if (path === '/api/v1/me/daily' && method === 'GET') {
+    const day = clientDay(url.searchParams.get('day'));
+    const r = await env.DB.prepare('SELECT score, grades, time_s, theme, hp, kills, mod, wave_times, plane, livery FROM scores WHERE day = ? AND account_id = ? AND hidden = 0 ORDER BY created_at ASC LIMIT 1').bind(day, me.id).first();
+    if (!r) return json({ day, entry: null }, 200, cors);
+    const above = await env.DB.prepare('SELECT COUNT(*) AS n FROM scores WHERE day = ? AND hidden = 0 AND score > ?').bind(day, r.score).first();
+    const total = await env.DB.prepare('SELECT COUNT(*) AS n FROM scores WHERE day = ? AND hidden = 0').bind(day).first();
+    let waveTimes = []; try { waveTimes = JSON.parse(r.wave_times || '[]'); } catch (e) { /* old rows */ }
+    return json({ day, entry: { score: r.score, grades: r.grades, time: r.time_s, theme: r.theme, hp: r.hp, kills: r.kills, mod: r.mod, waveTimes, plane: r.plane, livery: r.livery, rank: above.n + 1, total: total.n } }, 200, cors);
   }
   if (path === '/api/v1/me/friends' && method === 'GET') {
     const rows = (await env.DB.prepare('SELECT a.id, a.username, a.profile, a.created_at FROM friends f JOIN accounts a ON a.id = f.friend_id WHERE f.account_id = ? ORDER BY f.created_at DESC').bind(me.id).all()).results || [];
