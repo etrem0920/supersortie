@@ -1575,8 +1575,8 @@ THEMES.neon.planes = [
 
 /* ---------- Crates: cosmetic items you win. Never better, only different. ---------- */
 const RARITY = [
-  { name: 'Common', color: '#b0b8c4', value: 60 }, { name: 'Uncommon', color: '#4dd27a', value: 150 }, { name: 'Rare', color: '#3a8dff', value: 400 },
-  { name: 'Epic', color: '#b14bff', value: 1000 }, { name: 'Legendary', color: '#ffb02e', value: 2500 }, { name: 'Mythic', color: '#ff3b5c', value: 6000 },
+  { name: 'Common', color: '#b0b8c4', value: 25 }, { name: 'Uncommon', color: '#4dd27a', value: 60 }, { name: 'Rare', color: '#3a8dff', value: 150 },
+  { name: 'Epic', color: '#b14bff', value: 400 }, { name: 'Legendary', color: '#ffb02e', value: 1000 }, { name: 'Mythic', color: '#ff3b5c', value: 2500 },
 ];
 // Three crate-only aircraft per theater. They use the same four handling types as everything else.
 const CRATE_PLANES = {
@@ -5255,9 +5255,9 @@ if (store.auth && CONFIG.apiBase) Social.call('/api/v1/me').then(r => { if (r.ok
 /* ---------- shop: credits and crates (all cosmetic) ---------- */
 const COIN_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l9 5.2v10.6l-9 5.2-9-5.2V6.7z" fill="#ffd34f"/><path d="M12 4.5l6.4 3.7v7.6L12 19.5l-6.4-3.7V8.2z" fill="#e0a92a"/><path d="M12 7.5l3.6 2v5l-3.6 2-3.6-2v-5z" fill="#fff3c4"/></svg>';
 const CRATES = [
-  { name: 'Standard crate', cost: 500, odds: [52, 26, 14, 6, 1.7, 0.3], desc: 'Anything can drop', color: '#6b8fbf' },
-  { name: 'Premium crate', cost: 1500, odds: [0, 42, 32, 17, 7.5, 1.5], desc: 'Uncommon or better', color: '#b14bff' },
-  { name: 'Ace crate', cost: 4000, odds: [0, 0, 42, 33, 19, 6], desc: 'Rare or better', color: '#ffb02e' },
+  { name: 'Standard crate', cost: 200, odds: [52, 26, 14, 6, 1.7, 0.3], desc: 'Anything can drop', color: '#6b8fbf' },
+  { name: 'Premium crate', cost: 600, odds: [0, 42, 32, 17, 7.5, 1.5], desc: 'Uncommon or better', color: '#b14bff' },
+  { name: 'Ace crate', cost: 1500, odds: [0, 0, 42, 33, 19, 6], desc: 'Rare or better', color: '#ffb02e' },
 ];
 const crateArt = (c, tid) => `<svg viewBox="0 0 74 64"><path d="M6 20h62v38H6z" fill="#2a2f3c"/><path d="M6 20h62v6H6z" fill="${c}"/><path d="M4 12h66v10H4z" fill="#3a4152"/><path d="M4 12h66v3H4z" fill="rgba(255,255,255,.18)"/><path d="M33 12h8v46h-8z" fill="${c}"/><path d="M6 52h62v6H6z" fill="rgba(0,0,0,.3)"/>${[[6, 20], [62, 20], [6, 52], [62, 52]].map(([x, y]) => `<rect x="${x}" y="${y}" width="6" height="6" fill="#8a93a6"/>`).join('')}<circle cx="37" cy="38" r="8" fill="#151924" stroke="${c}" stroke-width="2"/><text x="37" y="42" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="800" font-size="11" fill="${c}">${esc(THEMES[tid].short.slice(0, 3).toUpperCase())}</text></svg>`;
 function crateItems(tid) {
