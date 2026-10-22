@@ -273,19 +273,29 @@
   .av.pic { display: grid; place-items: center; width: 36px; height: 36px; flex: none; --cut: 6px; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--bg) 70%, #fff), var(--bg) 60%, color-mix(in srgb, var(--bg) 70%, #000)); clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut)); }
   .av.pic svg { width: 62%; height: 62%; fill: #fff; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .45)); }
   .av.pic.xl { width: 88px; height: 88px; --cut: 10px; }
-  .pic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; }
+  .pic-grid { display: grid; grid-template-columns: repeat(auto-fill, 46px); gap: 10px; }
+  .set-body { display: flex; flex-direction: column; gap: 18px; padding-top: 4px; }
+  .set-group { display: flex; flex-direction: column; gap: 10px; }
+  .set-label { font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; color: var(--text); }
+  .set-label small { color: var(--dim); letter-spacing: .06em; margin-left: 6px; font-size: 11px; }
+  .pic-now { display: flex; align-items: center; gap: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .pic-now .av.xl { width: 64px; height: 64px; }
+  .pic-now b { display: block; font-family: var(--font-display); font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: .03em; }
+  .pic-now small { color: var(--muted); font-size: 13px; line-height: 1.4; }
   .pic-grid button { position: relative; border: 0; padding: 0; background: none; cursor: pointer; aspect-ratio: 1; }
   .pic-grid button .av { width: 100%; height: 100%; }
   .pic-grid button[aria-checked="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
   .pic-grid button.locked { opacity: .4; }
   .pic-grid button small { position: absolute; inset: auto 0 2px; text-align: center; font-family: var(--font-cond); font-weight: 700; font-size: 10px; color: #fff; text-shadow: 0 1px 2px #000; }
-  .color-row { display: flex; gap: 6px; flex-wrap: wrap; }
-  .color-row button { width: 26px; height: 26px; border: 0; border-radius: 50%; cursor: pointer; background: var(--c); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .25); }
+  .pic-grid button.locked svg { opacity: .55; }
+  .color-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .color-row button { width: 28px; height: 28px; border: 0; border-radius: 50%; cursor: pointer; background: var(--c); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .25); }
   .color-row button[aria-checked="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
-  .settings { display: flex; flex-direction: column; gap: 12px; }
-  .settings details { background: var(--raise); padding: 12px 14px; --cut: 10px; }
+  .settings { display: flex; flex-direction: column; gap: 10px; }
+  .settings details { background: var(--raise); padding: 14px 16px; --cut: 10px; }
+  .settings details > .field, .settings details > p, .settings details > .acct-row, .settings details > button { margin-top: 10px; }
   .settings summary { cursor: pointer; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 13px; }
-  .settings details[open] summary { margin-bottom: 10px; }
+  .settings details[open] summary { margin-bottom: 12px; }
   .settings .danger { color: var(--bad); }
   .guest { color: var(--dim); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; margin-left: 5px; font-family: var(--font-cond); font-weight: 700; }
   .th-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
@@ -4379,12 +4389,13 @@ const Social = {
     const colors = PIC_COLORS.map((c, i) => `<button role="radio" data-col="${i}" style="--c:${c}" aria-checked="${iconCol === i}" aria-label="Badge colour ${i + 1}"></button>`).join('');
     return `<div class="settings">
       <details open><summary>Profile picture</summary>
-        <div class="section-label"><span>Squadron badges</span><span>More unlock as you level up</span></div>
-        <div class="pic-grid" id="picIcons">${icons}</div>
-        <div class="color-row" id="picColors">${colors}</div>
-        <div class="section-label"><span>Or one of your planes</span><span>In its current livery</span></div>
-        <div class="pic-grid" id="picPlanes">${planes}</div>
-        <div id="picErr" class="acct-err" role="status"></div>
+        <div class="set-body">
+          <div class="pic-now">${picHTML(store.pic, favoritePlane() || currentPlane(theme).id, myLivery(theme.id), 'xl')}<div><b>Your picture</b><small>Shown on your profile, in friends lists and next to your name.</small></div></div>
+          <div class="set-group"><div class="set-label">Squadron badge <small>more unlock as you level up</small></div><div class="pic-grid" id="picIcons">${icons}</div></div>
+          <div class="set-group"><div class="set-label">Badge colour</div><div class="color-row" id="picColors">${colors}</div></div>
+          <div class="set-group"><div class="set-label">Or one of your planes <small>in its current livery</small></div><div class="pic-grid" id="picPlanes">${planes}</div></div>
+          <div id="picErr" class="acct-err" role="status"></div>
+        </div>
       </details>
       <details><summary>Callsign</summary><p class="pp-meta">Signed-in pilots fly under their username, <b>${esc(this.auth.username)}</b>, so friends can always find you. Usernames can't be changed.</p></details>
       <details><summary>Change password</summary>
