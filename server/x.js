@@ -6,6 +6,8 @@
 // Needs four secrets from the X developer portal (an app with Read and Write permission):
 //   X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET
 // and X_POSTING = "on". Anything else and it only composes, never posts.
+// X charges far more for a post with a link in it, so only the slots in X_LINK_SLOTS (default
+// "live") carry supersortie.io. The others point to the link in the profile instead.
 import { serverDay, EPOCH_UTC } from './day.js';
 
 export const SITE = 'supersortie.io';
@@ -92,6 +94,8 @@ export async function composePost(env, slot, now = Date.now()) {
       text = [`Sortie #${day} so far: ${fmt(t.pilots)} pilots in the air.`, '', `${who} with ${fmt(t.top.score)} ${tiles(t.top.grades)}${ERA[t.top.theme] ? ` flying ${ERA[t.top.theme]}` : ''}.`, `${info.ace} is still out there. Think you can beat it?`, '', `${SITE} ${tag}`].join('\n');
     } else text = [`${info.ace} is waiting in wave 5 of Sortie #${day}.`, '', spot, '', `One dogfight a day. ${SITE} ${tag}`].join('\n');
   }
+  const linkSlots = String(env.X_LINK_SLOTS || 'live').split(',').map(x => x.trim());
+  if (!linkSlots.includes(slot)) text = text.replace(/^One dogfight a day\. supersortie\.io/m, 'One dogfight a day. Link in bio.').replace(/supersortie\.io ?/g, 'Free to play, link in bio. ');
   return { day, slot, text: fitPost(text) };
 }
 

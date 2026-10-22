@@ -35,6 +35,8 @@ test('posts carry real data, name only registered pilots, and fit in a post', as
   const board = await composePost(env, 'board', at(d, 22));
   assert.match(board.text, /tremdog leads with 39,000/);
   for (const p of [recap, live, board]) assert.ok(postLength(p.text) <= 280, p.text);
+  assert.doesNotMatch(recap.text, /supersortie\.io/); assert.doesNotMatch(board.text, /supersortie\.io/); assert.match(board.text, /link in bio/);
+  assert.match((await composePost({ DB, X_LINK_SLOTS: 'live,board' }, 'board', at(d, 22))).text, /supersortie\.io/);
   const texts = new Set(); for (let k = 0; k < 9; k++) texts.add((await composePost(env, 'live', at(d + k, 14))).text); assert.equal(texts.size, 9);
 });
 
