@@ -85,7 +85,7 @@
   .hero { display: flex; flex-direction: column; gap: 22px; padding-top: 18px; min-width: 0; }
   .eyebrow { display: flex; align-items: center; gap: 12px; font-family: var(--font-cond); font-weight: 700; letter-spacing: .18em; text-transform: uppercase; font-size: 14px; color: var(--accent); }
   .eyebrow .sep { width: 28px; height: 2px; background: currentColor; opacity: .6; }
-  .title { margin: 0; font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: clamp(68px, 11vw, 148px); line-height: .82; letter-spacing: -.005em; }
+  .title { margin: 0; font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: clamp(64px, 8vw, 116px); line-height: .82; letter-spacing: -.005em; }
   .title em { font-style: normal; color: transparent; -webkit-text-stroke: 2px var(--text); }
   .lede { margin: 0; max-width: 34em; color: #c3c9d6; font-size: 18px; line-height: 1.5; }
   .brief { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); max-width: 680px; --cut: 14px; }
@@ -96,6 +96,29 @@
   .brief-item.mod b { color: var(--accent); }
   .hero-meta { display: flex; gap: 22px; flex-wrap: wrap; font-family: var(--font-cond); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 14px; color: var(--muted); }
   .hero-meta b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .today { max-width: 640px; background: rgba(14, 18, 30, .9); box-shadow: inset 0 0 0 1px var(--line-strong); padding: 20px; --cut: 16px; display: flex; flex-direction: column; gap: 14px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .today-body { display: flex; flex-direction: column; gap: 14px; }
+  .today-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 13px; color: var(--muted); }
+  .today-head small { color: var(--accent); font-size: 13px; letter-spacing: .18em; }
+  .today-head b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .today-intel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .today-intel small { display: block; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .14em; font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .today-intel b { display: block; font-family: var(--font-display); font-weight: 800; font-size: 24px; text-transform: uppercase; letter-spacing: .02em; line-height: 1.05; overflow-wrap: anywhere; }
+  .today-intel b.hot { color: var(--accent); }
+  .today-desc { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
+  .today-desc #beatHint { color: var(--text); }
+  .today-foot { display: flex; gap: 8px 18px; flex-wrap: wrap; font-family: var(--font-cond); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 13px; color: var(--muted); }
+  .today-foot:empty, .today-foot span:empty { display: none; }
+  .you-strip { display: flex; gap: 8px 22px; flex-wrap: wrap; align-items: center; max-width: 640px; font-family: var(--font-cond); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 14px; color: var(--muted); }
+  .you-strip b { color: var(--text); }
+  .you-strip .flame { color: var(--accent); }
+  .modes { display: flex; flex-direction: column; gap: 10px; max-width: 640px; }
+  .mode-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .mode { background: rgba(14, 18, 30, .78); border: 0; box-shadow: inset 0 0 0 1px var(--line); padding: 12px 14px; text-align: left; cursor: pointer; color: var(--text); --cut: 10px; display: flex; flex-direction: column; gap: 3px; min-width: 0; transition: background .15s; }
+  .mode b { font-family: var(--font-display); font-weight: 800; font-size: 22px; text-transform: uppercase; letter-spacing: .03em; line-height: 1; }
+  .mode small { color: var(--muted); font-size: 12px; line-height: 1.3; }
+  .mode .live { color: var(--good); }
+  .mode:hover { background: var(--raise-2); box-shadow: inset 0 0 0 1px var(--accent); }
   .done { display: flex; flex-direction: column; gap: 14px; max-width: 680px; background: rgba(14, 18, 30, .92); box-shadow: inset 0 0 0 1px var(--line-strong); padding: 18px; --cut: 16px; }
   .done-score { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
   .done-score small { font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); font-size: 12px; width: 100%; }
@@ -158,6 +181,7 @@
   .xp-line { display: grid; grid-template-columns: auto auto minmax(60px, 1fr); align-items: center; gap: 10px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: 14px; }
   .xp-line .xp-gain { color: var(--accent); }
   .xp-line .xp-lv { color: var(--muted); }
+  .xp-line .xp-note { grid-column: 1 / -1; font-family: var(--font-body); font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--muted); margin-top: -4px; }
   .livery {
     background: var(--raise); border: 0; box-shadow: inset 0 0 0 1px var(--line); padding: 10px; cursor: pointer; text-align: left; --cut: 8px;
     display: flex; flex-direction: column; gap: 6px; min-width: 0;
@@ -477,7 +501,12 @@
     .hud-wave { justify-self: center; }
     .warn, .boss { top: calc(env(safe-area-inset-top, 0px) + 116px); }
     .hud.warning .boss { top: calc(env(safe-area-inset-top, 0px) + 156px); }
-    .brief { grid-template-columns: minmax(0, 1fr); }
+    .mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .today { padding: 16px; }
+    .today-intel { gap: 10px; }
+    .today-intel b { font-size: 18px; }
+    .hero .title { display: none; }
+    .hero { gap: 18px; }
     .lede { font-size: 16px; }
     .topnav .nav-hide { display: none; }
     .res-grid { grid-template-columns: minmax(0, 1fr); }
@@ -588,31 +617,40 @@
     <section class="hero">
       <div class="eyebrow"><span id="sortieNo">Sortie #1</span><span class="sep"></span><span id="sortieDate">Today</span></div>
       <h1 class="title">Super<br><em>Sortie</em></h1>
-      <p class="lede">One sky, five waves, and the same fight for every pilot on the planet today. Dodge missiles, chain your kills, and climb the leaderboard before midnight.</p>
-      <div class="brief chamfer">
-        <div class="brief-item mod"><small>Today's conditions</small><b id="modName">Standard</b><span id="modDesc"></span></div>
-        <div class="brief-item"><small>Enemy ace</small><b id="aceName">Ace</b><span>Waiting for you in wave 5</span></div>
-        <div class="brief-item"><small>Your theater</small><b id="themeName">Pacific</b><span id="themeEra"></span></div>
+      <p class="lede">One new dogfight every day, the same for every pilot on Earth. Five waves, one ace, one shot at the top of the board.</p>
+
+      <div class="today chamfer">
+        <div id="ctaFresh" class="today-body">
+          <div class="today-head"><small>Today's sortie</small><span>Ends in <b class="js-countdown">--:--:--</b></span></div>
+          <div class="today-intel">
+            <div><small>Conditions</small><b id="modName" class="hot">Standard</b></div>
+            <div><small>Enemy ace</small><b id="aceName">Ace</b></div>
+            <div><small>Theater</small><b id="themeName">Pacific</b></div>
+          </div>
+          <p class="today-desc"><span id="modDesc"></span> <span id="beatHint"></span></p>
+          <button id="playBtn" class="btn btn-primary btn-xl btn-block">Fly today's sortie</button>
+        </div>
+        <div id="ctaDone" class="today-body hidden">
+          <div class="today-head"><small>Your sortie today</small><span>Next in <b class="js-countdown">--:--:--</b></span></div>
+          <div class="done-score"><b id="doneScore">0</b><span id="doneRank"></span></div>
+          <div id="doneTiles" class="tiles"></div>
+          <p id="doneVs" class="today-desc"></p>
+          <button id="doneShare" class="btn btn-primary btn-block">Share result</button>
+        </div>
+        <div class="today-foot"><span id="pilotCount"></span><span id="leader"></span></div>
       </div>
-      <div id="ctaFresh" class="cta">
-        <button id="playBtn" class="btn btn-primary btn-xl">Fly today's sortie</button>
-        <button id="arenaBtn" class="btn btn-ghost btn-xl">Arena<span class="new">12 players</span></button>
-        <button id="practiceBtn" class="btn btn-ghost btn-xl">Practice</button>
-        <button id="zenBtn" class="btn btn-ghost btn-xl">Zen mode</button>
-        <button id="coopBtn" class="btn btn-ghost btn-xl">Co-op</button>
-      </div>
-      <div id="ctaDone" class="done chamfer hidden">
-        <div class="done-score"><small>Your sortie today</small><b id="doneScore">0</b><span id="doneRank"></span></div>
-        <div id="doneTiles" class="tiles"></div>
-        <div class="cta">
-          <button id="doneShare" class="btn btn-primary">Share result</button>
-          <button id="doneArena" class="btn btn-ghost">Arena<span class="new">12 players</span></button>
-          <button id="donePractice" class="btn btn-ghost">Practice run</button>
-          <button id="doneZen" class="btn btn-ghost">Zen mode</button>
-          <button id="doneCoop" class="btn btn-ghost">Co-op</button>
+
+      <div class="you-strip"><span id="ysStreak"></span><span id="ysLevel"></span><button id="chMeta" class="link-btn meta-link"></button></div>
+
+      <div class="modes">
+        <div class="section-label"><span>More ways to fly</span></div>
+        <div class="mode-grid">
+          <button id="arenaBtn" class="mode chamfer"><b>Arena</b><small id="arenaOnline">12-pilot free-for-all</small></button>
+          <button id="coopBtn" class="mode chamfer"><b>Co-op</b><small>Team up with 3 friends</small></button>
+          <button id="zenBtn" class="mode chamfer"><b>Zen</b><small>Endless, no pressure</small></button>
+          <button id="practiceBtn" class="mode chamfer"><b>Practice</b><small>Warm up, unlimited</small></button>
         </div>
       </div>
-      <div class="hero-meta"><span>Next sortie in <b class="js-countdown">--:--:--</b></span><span id="pilotCount"></span><span id="arenaOnline"></span><button id="chMeta" class="link-btn meta-link"></button><span id="leader"></span><span id="champ"></span></div>
     </section>
 
     <aside class="panel chamfer" aria-label="Hangar">
@@ -1200,10 +1238,12 @@ function gainXp(n) {
   }
   return { n, before, after };
 }
-function xpLineHTML(g) {
+function xpLineHTML(g, note) {
   const lv = pilotLevel(), a = xpForLevel(lv), b = xpForLevel(lv + 1), xp = store.xp || 0;
-  const f = lv >= MAX_LEVEL ? 1 : clamp((xp - a) / (b - a), 0, 1);
-  return `<span class="xp-gain">+${fmtNum(g.n)} XP</span><span class="xp-lv">${g.after > g.before ? 'Level up! ' : ''}Level ${lv}</span><span class="xp-bar"><i style="transform:scaleX(${f.toFixed(3)})"></i></span>`;
+  const f = lv >= MAX_LEVEL ? 1 : clamp((xp - a) / (b - a), 0, 1), nx = nextUnlock();
+  const tease = nx ? `${fmtNum(xpForLevel(nx.lv) - xp)} XP to ${nx.list[0]}` : '';
+  return `<span class="xp-gain">+${fmtNum(g.n)} XP</span><span class="xp-lv">${g.after > g.before ? 'Level up! ' : ''}Level ${lv}</span><span class="xp-bar"><i style="transform:scaleX(${f.toFixed(3)})"></i></span>` +
+    (note || tease ? `<small class="xp-note">${esc([note, tease].filter(Boolean).join(' · '))}</small>` : '');
 }
 /* ---------- daily challenges: three goals a day, the same for everyone ---------- */
 const CHALLENGES = [
@@ -1260,7 +1300,7 @@ function challengesHTML() {
   }).join('') + `<small class="pl-how">${CHALLENGE_XP} XP each, ${CHALLENGE_BONUS} bonus for all three. New ones at midnight.</small>`;
 }
 
-function showXp(id, g) { const el = $(id); el.innerHTML = xpLineHTML(g); el.classList.remove('hidden'); }
+function showXp(id, g, note) { const el = $(id); el.innerHTML = xpLineHTML(g, note); el.classList.remove('hidden'); }
 
 // Contrails. Drawn from the trail of recent positions, so remote pilots need no extra data.
 function drawContrail(c, pts, ti, span, k) {
@@ -1606,6 +1646,7 @@ const sfx = {
   lose: () => { [392, 330, 262, 196].forEach((f, i) => tone(f, 0.24, 'triangle', 0.06, null, i * 0.15)); },
   launch: () => { noise(0.5, 0.1, 1800); tone(500, 0.4, 'sawtooth', 0.025, 1400); },
   lock: () => tone(1180, 0.07, 'square', 0.03),
+  hit: () => { const t = performance.now(); if (t - (sfx._hitT || 0) < 70) return; sfx._hitT = t; tone(2200, 0.03, 'square', 0.012, 1600); },
   medal: () => { [660, 880, 1320].forEach((f, i) => tone(f, 0.2, 'triangle', 0.05, null, i * 0.1)); },
 };
 const vibrate = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) { /* not supported */ } };
@@ -1859,9 +1900,10 @@ function finish(won) {
   recordBest();
   countPlaneUse();
   track('run_end', { mode: run.mode, theme: run.theme, score: run.score, won, mod: world.mod.id });
-  const xp = gainXp(run.mode === 'daily' ? 100 + run.score / 40 : 20 + run.score / 100);
+  const streakXp = run.mode === 'daily' ? 50 * Math.min(10, store.streak || 1) : 0;
+  const xp = gainXp(run.mode === 'daily' ? 100 + run.score / 40 + streakXp : 20 + run.score / 100);
   showResults(earned);
-  showXp('resXp', xp);
+  showXp('resXp', xp, streakXp ? `includes ${streakXp} for your ${store.streak}-day streak` : '');
 }
 
 function countPlaneUse() {
@@ -2038,8 +2080,9 @@ function hurtPlayer() {
 
 function damageEnemy(e, n, by) {
   if (e.dead) return;
-  if (Coop.on && !Coop.isHost) { Coop.queueHit(e.id, n); e.flash = 0.07; return; }
+  if (Coop.on && !Coop.isHost) { Coop.queueHit(e.id, n); e.flash = 0.07; sfx.hit(); return; }
   e.hp -= n; e.flash = 0.07;
+  if (!by) sfx.hit();
   if (e.hp <= 0) killEnemy(e, by || Net.you);
 }
 
@@ -2919,11 +2962,45 @@ function shareText(info) {
   if (url) lines.push(url);
   return lines.join('\n');
 }
-async function doShare(text, btn) {
+// A square result card for social posts: plane, score, tiles, rank.
+function shareCard(info) {
+  const S = 1080, cv = document.createElement('canvas'); cv.width = cv.height = S;
+  const c = cv.getContext('2d'), th = THEMES[info.theme] || theme;
+  const info2 = PLANE_INDEX[info.plane] || PLANE_INDEX[th.planes[0].id];
+  c.fillStyle = th.pal.base; c.fillRect(0, 0, S, S);
+  const g = c.createLinearGradient(0, 0, 0, S); g.addColorStop(0, 'rgba(9,12,20,.35)'); g.addColorStop(0.55, 'rgba(9,12,20,.75)'); g.addColorStop(1, 'rgba(9,12,20,.96)');
+  c.fillStyle = g; c.fillRect(0, 0, S, S);
+  const craft = CRAFT_PLAYER[info2.plane.shape], col = colorsFor(THEMES[info2.theme], 'player', info.livery || 0);
+  c.save(); c.translate(780, 300); c.rotate(-0.7); drawCraft(c, craft, col, 9, { roll: 0.15, spin: 0.6, t: 1 }); c.restore();
+  c.textBaseline = 'alphabetic';
+  c.fillStyle = th.accent; c.font = '700 38px "Barlow Condensed", "Arial Narrow", sans-serif';
+  c.fillText(info.mode === 'daily' ? `SORTIE #${todayNum} · ${DATE_FMT.format(new Date()).toUpperCase()}` : 'SUPER SORTIE', 80, 120);
+  c.fillStyle = '#eef1f6'; c.font = '900 190px "Big Shoulders Display", Impact, sans-serif';
+  c.fillText(fmtNum(info.score), 72, 640);
+  c.font = '700 44px "Barlow Condensed", "Arial Narrow", sans-serif'; c.fillStyle = '#c3c9d6';
+  c.fillText(info.rank && info.total ? `RANK #${fmtNum(info.rank)} OF ${fmtNum(info.total)}` : rankFor(info.score).toUpperCase(), 80, 710);
+  const colors = { g: '#38d98a', y: '#ffc53d', o: '#ff8a3d', x: '#ff4d5e', n: '#3a4052' };
+  String(info.grades || 'nnnnn').split('').forEach((k, i) => {
+    const x = 80 + i * 132, y = 770;
+    c.fillStyle = colors[k] || colors.n; c.beginPath(); c.moveTo(x + 18, y); c.lineTo(x + 112, y); c.lineTo(x + 112, y + 112); c.lineTo(x + 94, y + 130); c.lineTo(x, y + 130); c.lineTo(x, y + 18); c.closePath(); c.fill();
+    c.fillStyle = '#0b0d14'; c.font = '900 64px "Big Shoulders Display", Impact, sans-serif'; c.textAlign = 'center'; c.fillText(k === 'x' ? '✕' : String(i + 1), x + 56, y + 88); c.textAlign = 'left';
+  });
+  c.fillStyle = '#eef1f6'; c.font = '800 50px "Big Shoulders Display", Impact, sans-serif'; c.fillText('SUPERSORTIE.IO', 80, 1010);
+  c.fillStyle = th.accent; c.font = '700 34px "Barlow Condensed", "Arial Narrow", sans-serif'; c.textAlign = 'right'; c.fillText('CAN YOU BEAT IT?', S - 80, 1010); c.textAlign = 'left';
+  return new Promise(res => cv.toBlob(res, 'image/png'));
+}
+async function doShare(text, btn, card) {
   const label = btn.textContent;
   const done = msg => { btn.textContent = msg; setTimeout(() => { btn.textContent = label; }, 2000); };
-  track('share', {});
+  track('share', { card: !!card });
   if (navigator.share && isTouch) {
+    if (card && navigator.canShare) {
+      try {
+        const blob = await shareCard(card);
+        const file = blob && new File([blob], 'super-sortie.png', { type: 'image/png' });
+        if (file && navigator.canShare({ files: [file] })) { await navigator.share({ text, files: [file] }); return; }
+      } catch (e) { if (e && e.name === 'AbortError') return; }
+    }
     try { await navigator.share({ text }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
   }
   try { await navigator.clipboard.writeText(text); done('Copied'); return; } catch (e) { /* fall back below */ }
@@ -2943,7 +3020,6 @@ function applyTheme(id) {
   root.setProperty('--accent-ink', theme.accentInk);
   document.body.style.background = theme.pal.base;
   $('themeName').textContent = theme.name;
-  $('themeEra').textContent = `${theme.era} · ${theme.blurb}`;
 }
 
 function renderMenu() {
@@ -2956,16 +3032,26 @@ function renderMenu() {
   const today = store.history[todayNum];
   $('ctaFresh').classList.toggle('hidden', !!today);
   $('ctaDone').classList.toggle('hidden', !today);
+  const prev = store.history[todayNum - 1];
+  $('beatHint').textContent = prev && !today ? `Yesterday you scored ${fmtNum(prev.score)}. Beat it.` : '';
   if (today) {
     $('doneScore').textContent = fmtNum(today.score);
     $('doneTiles').innerHTML = tilesHTML(today.grades, null, false);
     $('doneRank').textContent = today.rank ? `Rank #${fmtNum(today.rank)} of ${fmtNum(today.total)}` : rankFor(today.score);
+    $('doneVs').textContent = prev ? (today.score > prev.score ? `${fmtNum(today.score - prev.score)} better than yesterday. Nice.` : `Yesterday was ${fmtNum(prev.score)}. Get it back tomorrow.`) : 'Practice, zen and the arena are open while you wait.';
   }
+  renderYouStrip();
   $('callsign').value = store.callsign;
   renderHangar(); renderRecord(); setSoundLabels();
   if (CONFIG.siteUrl) $('privacyLink').classList.remove('hidden');
   if (CONFIG.supportUrl) { const a = $('supportLink'); a.href = CONFIG.supportUrl; a.textContent = CONFIG.supportLabel; a.classList.remove('hidden'); }
   renderAd('adMenu');
+}
+function renderYouStrip() {
+  const st = liveStreak();
+  $('ysStreak').innerHTML = st ? `<b class="flame">${st}</b>-day streak` : 'Start a streak today';
+  $('ysLevel').innerHTML = `Level <b>${pilotLevel()}</b> · ${esc(titleName(store.title))}`;
+  renderChallengeMeta();
 }
 function renderAd(id) {
   const el = $(id);
@@ -3189,10 +3275,6 @@ function openMenu() {
   postPending();
   if (Board.ready) {
     Board.fetch(todayNum).then(b => { updatePilotCount(b); if (!$('tab-board').classList.contains('hidden')) renderBoard(b); syncTodayRank(b); }).catch(() => {});
-    Board.fetch(todayNum - 1, { limit: 1 }).then(b => {
-      const top = b && b.entries && b.entries[0];
-      $('champ').textContent = top ? `Yesterday's top ace: ${top.name} · ${fmtNum(top.score)}` : '';
-    }).catch(() => {});
   }
 }
 function syncTodayRank(b) {
@@ -3333,7 +3415,6 @@ function onPlayDaily() {
 
 $('playBtn').addEventListener('click', () => { audio(); onPlayDaily(); });
 $('practiceBtn').addEventListener('click', () => { audio(); startRun('practice'); });
-$('donePractice').addEventListener('click', () => { audio(); startRun('practice'); });
 $('howBtn').addEventListener('click', () => openHelp(null, false));
 $('boardNav').addEventListener('click', () => { selectTab('board'); document.querySelector('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 $('soundBtn').addEventListener('click', toggleSound);
@@ -3349,7 +3430,6 @@ $('againBtn').addEventListener('click', () => {
   startRun(run && run.mode === 'zen' ? 'zen' : 'practice');
 });
 $('zenBtn').addEventListener('click', () => { audio(); startRun('zen'); });
-$('doneZen').addEventListener('click', () => { audio(); startRun('zen'); });
 $('menuBtn').addEventListener('click', () => {
   if (run && run.mode === 'coop' && Net.ws) { if (Net.isHost) Net.send({ t: 'lobby' }); else { Net.close(); openMenu(); } return; }
   openMenu();
@@ -3371,9 +3451,10 @@ $('shareBtn').addEventListener('click', e => {
     return;
   }
   const h = run.mode === 'daily' ? store.history[todayNum] : null;
-  doShare(shareText({ mode: run.mode, theme: run.theme, plane: run.plane, kills: run.kills, grades: gradeCodes(run.results), score: run.score, time: run.totalT, mod: world.mod.id, rank: h && h.rank, total: h && h.total }), e.currentTarget);
+  const info = { mode: run.mode, theme: run.theme, plane: run.plane, livery: run.livery, kills: run.kills, grades: gradeCodes(run.results), score: run.score, time: run.totalT, mod: world.mod.id, rank: h && h.rank, total: h && h.total };
+  doShare(shareText(info), e.currentTarget, run.mode === 'daily' ? info : null);
 });
-$('doneShare').addEventListener('click', e => { const t = store.history[todayNum]; if (t) doShare(shareText(Object.assign({ mode: 'daily' }, t)), e.currentTarget); });
+$('doneShare').addEventListener('click', e => { const t = store.history[todayNum]; if (t) { const info = Object.assign({ mode: 'daily' }, t); doShare(shareText(info), e.currentTarget, info); } });
 
 function tickCountdown() {
   const n = new Date(), next = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1);
@@ -4038,7 +4119,6 @@ function initCoopUi() {
   $('coopCopy').addEventListener('click', e => doShare(`Join my Super Sortie squad! Room ${Net.code}\n${coopInvite()}`, e.currentTarget));
   $('coopLeave').addEventListener('click', () => { Net.close(); hide('coop'); if (state === 'menu') applyTheme(store.theme); });
   $('coopBtn').addEventListener('click', () => { audio(); openCoop(); });
-  $('doneCoop').addEventListener('click', () => { audio(); openCoop(); });
 }
 
 /* =====================================================================
@@ -4355,7 +4435,7 @@ const Arena = {
         if (dx * dx + dy * dy < 22 * 22) {
           if (o.fl & 64) break; // rolling: the bullet passes through
           this.hits[o.id] = (this.hits[o.id] || 0) + 1;
-          o.flash = 0.07;
+          o.flash = 0.07; sfx.hit();
           for (let k = 0; k < 3; k++) puff(b.x, b.y, rand(-90, 90), rand(-90, 90), rand(2, 3.5), 4, 0.18, theme.fx[0], 'fire');
           pBullets.splice(i, 1);
           break;
@@ -4756,7 +4836,8 @@ async function refreshArenaOnline() {
     if (!r.ok) return;
     const j = await r.json();
     const txt = j.pilots ? `${fmtNum(j.pilots)} pilot${j.pilots === 1 ? '' : 's'} in the arena now` : 'Arena open · AI pilots keep it busy';
-    $('arenaOnline').textContent = txt; $('arenaOnlineLine').textContent = txt;
+    $('arenaOnlineLine').textContent = txt;
+    $('arenaOnline').innerHTML = j.pilots ? `<span class="live">●</span> ${fmtNum(j.pilots)} flying now` : '12-pilot free-for-all';
   } catch (e) { /* offline */ }
 }
 function openArena(msg, code) {
@@ -4801,7 +4882,6 @@ function initArenaUi() {
   $('arenaCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('arenaJoin').click(); });
   $('arenaClose').addEventListener('click', () => hide('arena'));
   $('arenaBtn').addEventListener('click', () => { audio(); openArena(); });
-  $('doneArena').addEventListener('click', () => { audio(); openArena(); });
   $('aeShare').addEventListener('click', e => doShare(arenaShareText(), e.currentTarget));
   $('aeLeave').addEventListener('click', leaveArena);
   $('arenaInvite').addEventListener('click', e => doShare(`Fly against me in Super Sortie! Arena ${Arena.info.code}\n${arenaInvite()}`, e.currentTarget));
