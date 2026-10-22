@@ -21,7 +21,9 @@ cd "$(dirname "$0")"
 <meta name="twitter:description" content="A new dogfight every day. Same sky for every pilot on Earth. One shot at the top of the board.">
 <meta name="twitter:image" content="https://supersortie.io/og.png?v=2">
 <link rel="canonical" href="https://supersortie.io/">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23090c14'/%3E%3Cpath fill='%23ff8a3d' d='M16 3l2.2 6.8v3.8l10 5.7v2.4l-10-2.8-.5 5.6 3.3 2.5v1.8l-5-1.4-5 1.4v-1.8l3.3-2.5-.5-5.6-10 2.8v-2.4l10-5.7V9.8z'/%3E%3C/svg%3E">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-180.png">
 <meta name="theme-color" content="#090c14">
