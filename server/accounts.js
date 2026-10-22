@@ -48,12 +48,12 @@ export function cleanProfile(p) {
   const str = (v, max) => String(v == null ? '' : v).replace(/[^\w .\-'·]/g, '').slice(0, max);
   const out = {
     xp: int(p.xp, 1e9), title: int(p.title, 50), trail: int(p.trail, 50),
-    fav: str(p.fav, 16), favLiv: int(p.favLiv, 30), pic: String(p.pic || '').replace(/[^a-z0-9:#]/gi, '').slice(0, 24), streak: int(p.streak, 1e5), maxStreak: int(p.maxStreak, 1e5), lastDay: int(p.lastDay, 1e6),
+    fav: str(p.fav, 16), favLiv: int(p.favLiv, 66), pic: String(p.pic || '').replace(/[^a-z0-9:#]/gi, '').slice(0, 24), streak: int(p.streak, 1e5), maxStreak: int(p.maxStreak, 1e5), lastDay: int(p.lastDay, 1e6),
     played: int(p.played, 1e6), best: int(p.best, 1e6),
     medals: Array.isArray(p.medals) ? p.medals.slice(0, 40).map(m => str(m, 16)).filter(Boolean) : [],
     aces: {}, arena: {}, zenBest: null, planeUse: {}, liveries: {}, planes: {},
-    credits: int(p.credits, 1e9), bullet: int(p.bullet, 20), egg: int(p.egg, 1),
-    inv: Array.isArray(p.inv) ? [...new Set(p.inv.slice(0, 600).map(x => String(x)).filter(x => /^[spbt]:[a-z0-9:]{1,24}$/.test(x)))] : [],
+    credits: int(p.credits, 1e9), bullet: int(p.bullet, 20), killfx: int(p.killfx, 20), egg: int(p.egg, 1),
+    inv: Array.isArray(p.inv) ? [...new Set(p.inv.slice(0, 600).map(x => String(x)).filter(x => /^[spbtk]:[a-z0-9:]{1,24}$/.test(x)))] : [],
   };
   if (p.aces && typeof p.aces === 'object') for (const [d, n] of Object.entries(p.aces).slice(-400)) if (/^\d{1,5}$/.test(d)) out.aces[d] = str(n, 24);
   if (p.arena && typeof p.arena === 'object') for (const k of ['rounds', 'wins', 'kills', 'deaths', 'best', 'top']) out.arena[k] = int(p.arena[k], 1e7);

@@ -43,7 +43,7 @@ const PLANE_IDS = {
 export const PLANES_PER_THEATER = 12; // 9 open to everyone + 3 from crates (same handling types)
 const REVENGE_BONUS = 75;
 // Cosmetic choices the game offers (liveries per theater, contrails, titles); see game.html.
-export const LIVERIES = 31, TRAILS = 20, TITLES = 21, BULLETS = 9, EMOTES = 8;
+export const LIVERIES = 67, TRAILS = 20, TITLES = 21, BULLETS = 9, EMOTES = 8, KILLFX = 10;
 export const WARMUP_MS = 3500; // 3-2-1 at the start of each round: everyone flies, nobody takes damage
 // Each theater has its own boss event: it crosses the arena, shoots back, takes a lot of
 // punishment, and drops Overdrive (the strongest power-up, never found anywhere else).
@@ -283,7 +283,7 @@ export class ArenaRoom {
     const r = this.s.round;
     return { n: r.n, theme: this.theme, phase: r.phase, left: Math.max(0, r.ends - now), seed: r.seed, warm: Math.max(0, (r.warmUntil || 0) - now) };
   }
-  roster() { return [...this.s.pilots.values()].map(p => [p.id, p.name, p.plane, p.livery, p.bot ? 1 : 0, p.trail, p.title, p.bullet || 0]); }
+  roster() { return [...this.s.pilots.values()].map(p => [p.id, p.name, p.plane, p.livery, p.bot ? 1 : 0, p.trail, p.title, p.bullet || 0, p.kfx || 0]); }
   sendRoster() { this.broadcast({ t: 'roster', r: this.roster() }); }
   broadcast(obj, except) {
     const raw = typeof obj === 'string' ? obj : JSON.stringify(obj);
@@ -318,6 +318,7 @@ export class ArenaRoom {
         if ('trail' in m) p.trail = small(m.trail, TRAILS - 1);
         if ('title' in m) p.title = small(m.title, TITLES - 1);
         if ('bullet' in m) p.bullet = small(m.bullet, BULLETS - 1);
+        if ('kfx' in m) p.kfx = small(m.kfx, KILLFX - 1);
         // The elite livery shows only once the leaderboard confirms it.
         if (p.livery === ELITE_LIVERY && !p.eliteOk) {
           p.livery = 0;
