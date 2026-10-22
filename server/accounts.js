@@ -10,6 +10,9 @@
 //   GET    /api/v1/me/friends      (Bearer)                   -> {friends: [...]}
 //   POST   /api/v1/me/friends      (Bearer) {username}
 //   DELETE /api/v1/me/friends/NAME (Bearer)
+//   POST   /api/v1/me/password    (Bearer) {old, password}   change password (ends other sessions)
+//   POST   /api/v1/me/logout-all  (Bearer)                   sign out on every device
+//   DELETE /api/v1/me             (Bearer) {password}        delete the account for good
 //   GET    /api/v1/pilots/NAME                                -> public profile
 
 import { serverDay } from './day.js';
@@ -45,7 +48,7 @@ export function cleanProfile(p) {
   const str = (v, max) => String(v == null ? '' : v).replace(/[^\w .\-'·]/g, '').slice(0, max);
   const out = {
     xp: int(p.xp, 1e9), title: int(p.title, 50), trail: int(p.trail, 50),
-    fav: str(p.fav, 16), favLiv: int(p.favLiv, 9), streak: int(p.streak, 1e5), maxStreak: int(p.maxStreak, 1e5), lastDay: int(p.lastDay, 1e6),
+    fav: str(p.fav, 16), favLiv: int(p.favLiv, 12), pic: String(p.pic || '').replace(/[^a-z0-9:#]/gi, '').slice(0, 24), streak: int(p.streak, 1e5), maxStreak: int(p.maxStreak, 1e5), lastDay: int(p.lastDay, 1e6),
     played: int(p.played, 1e6), best: int(p.best, 1e6),
     medals: Array.isArray(p.medals) ? p.medals.slice(0, 40).map(m => str(m, 16)).filter(Boolean) : [],
     aces: {}, arena: {}, zenBest: null, planeUse: {}, liveries: {}, planes: {},
@@ -53,7 +56,7 @@ export function cleanProfile(p) {
   if (p.aces && typeof p.aces === 'object') for (const [d, n] of Object.entries(p.aces).slice(-400)) if (/^\d{1,5}$/.test(d)) out.aces[d] = str(n, 24);
   if (p.arena && typeof p.arena === 'object') for (const k of ['rounds', 'wins', 'kills', 'deaths', 'best', 'top']) out.arena[k] = int(p.arena[k], 1e7);
   if (p.zenBest && typeof p.zenBest === 'object') out.zenBest = { score: int(p.zenBest.score, 1e8), kills: int(p.zenBest.kills, 1e6), time: int(p.zenBest.time, 1e7) };
-  for (const key of ['planeUse', 'liveries', 'planes']) if (p[key] && typeof p[key] === 'object') for (const [k, v] of Object.entries(p[key]).slice(0, 40)) out[key][str(k, 16)] = int(v, 1e6);
+  for (const key of ['planeUse', 'liveries', 'planes']) if (p[key] && typeof p[key] === 'object') for (const [k, v] of Object.entries(p[key]).slice(0, 60)) out[key][str(k, 16)] = int(v, 1e6);
   return out;
 }
 
@@ -164,6 +167,36 @@ export async function handleAccounts(req, env, url, cors) {
     if (n.n >= MAX_FRIENDS) return json({ error: 'too_many' }, 422, cors);
     await env.DB.prepare('INSERT INTO friends (account_id, friend_id, created_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING').bind(me.id, f.id, Date.now()).run();
     return json({ ok: true, username: f.username }, 201, cors);
+  }
+  if (path === '/api/v1/me/password' && method === 'POST') {
+    if (await rateLimited(req, env)) return json({ error: 'rate_limited' }, 429, cors);
+    const b = await readBody(req);
+    if (!b || !validPassword(b.password)) return json({ error: 'bad_password' }, 422, cors);
+    const a = await env.DB.prepare('SELECT pass_hash, salt FROM accounts WHERE id = ?').bind(me.id).first();
+    if (!a || typeof b.old !== 'string' || !sameString(await hashPassword(b.old, a.salt), a.pass_hash)) return json({ error: 'bad_login' }, 401, cors);
+    const salt = randomHex(16);
+    await env.DB.prepare('UPDATE accounts SET pass_hash = ?, salt = ?, updated_at = ? WHERE id = ?').bind(await hashPassword(b.password, salt), salt, Date.now(), me.id).run();
+    const token = (req.headers.get('authorization') || '').slice(7);
+    await env.DB.prepare('DELETE FROM sessions WHERE account_id = ? AND token_hash != ?').bind(me.id, await sha256(token)).run();
+    return json({ ok: true }, 200, cors);
+  }
+  if (path === '/api/v1/me/logout-all' && method === 'POST') {
+    await env.DB.prepare('DELETE FROM sessions WHERE account_id = ?').bind(me.id).run();
+    return json({ ok: true }, 200, cors);
+  }
+  if (path === '/api/v1/me' && method === 'DELETE') {
+    if (await rateLimited(req, env)) return json({ error: 'rate_limited' }, 429, cors);
+    const b = await readBody(req);
+    const a = await env.DB.prepare('SELECT pass_hash, salt FROM accounts WHERE id = ?').bind(me.id).first();
+    if (!a || !b || typeof b.password !== 'string' || !sameString(await hashPassword(b.password, a.salt), a.pass_hash)) return json({ error: 'bad_login' }, 401, cors);
+    await env.DB.batch([
+      env.DB.prepare('DELETE FROM sessions WHERE account_id = ?').bind(me.id),
+      env.DB.prepare('DELETE FROM friends WHERE account_id = ? OR friend_id = ?').bind(me.id, me.id),
+      env.DB.prepare('UPDATE scores SET account_id = NULL WHERE account_id = ?').bind(me.id),
+      env.DB.prepare('UPDATE arena_scores SET account_id = NULL WHERE account_id = ?').bind(me.id),
+      env.DB.prepare('DELETE FROM accounts WHERE id = ?').bind(me.id),
+    ]);
+    return json({ ok: true }, 200, cors);
   }
   const del = path.match(/^\/api\/v1\/me\/friends\/([A-Za-z0-9_]{3,16})$/);
   if (del && method === 'DELETE') {

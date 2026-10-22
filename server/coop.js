@@ -15,6 +15,8 @@ const MODS = ['random', 'standard', 'glass', 'swarm', 'ironace', 'overcast', 'cr
 const WAVES = [3, 5, 8, 12];
 const DIFFICULTIES = ['easy', 'normal', 'hard', 'brutal'];
 const HULLS = [2, 3, 5];
+import { eliteOk, ELITE_LIVERY } from './elite.js';
+
 const HOST_ONLY = new Set(['h', 'mh', 'unlock', 'pick', 'hurt']);      // guest -> host
 const FROM_HOST = new Set(['s', 'eb', 'kill', 'pk', 'picked', 'wave', 'end']); // host -> everyone
 const RELAY = new Set(['p', ...FROM_HOST, ...HOST_ONLY]);
@@ -103,7 +105,8 @@ export class CoopRoom {
     const [client, server] = Object.values(pair);
     const id = crypto.randomUUID().replace(/-/g, '').slice(0, 8);
     this.ctx.acceptWebSocket(server);
-    server.serializeAttachment({ id, name: 'Pilot', plane: 0, livery: 0, ready: false, joined: Date.now() });
+    const device = /^[A-Za-z0-9-]{8,64}$/.test(url.searchParams.get('device') || '') ? url.searchParams.get('device') : '';
+    server.serializeAttachment({ id, name: 'Pilot', plane: 0, livery: 0, ready: false, joined: Date.now(), device });
     if (!this.meta.host) { this.meta.host = id; await this.saveMeta(); }
     await this.ctx.storage.deleteAlarm();
     server.send(JSON.stringify({ t: 'welcome', you: id }));
@@ -137,9 +140,14 @@ export class CoopRoom {
       case 'hello':
       case 'me':
         if ('name' in msg) me.name = cleanName(msg.name);
-        if ('plane' in msg) me.plane = small(msg.plane, 5);
-        if ('livery' in msg) me.livery = small(msg.livery, 4);
-        if ('trail' in msg) me.trail = small(msg.trail, 8);
+        if ('plane' in msg) me.plane = small(msg.plane, 8);
+        if ('livery' in msg) me.livery = small(msg.livery, 12);
+        if (me.livery === ELITE_LIVERY && !me.eliteOk) {
+          me.livery = 0;
+          const okd = await eliteOk(this.env, me.device, null).catch(() => false);
+          if (okd) { me.eliteOk = true; me.livery = ELITE_LIVERY; }
+        }
+        if ('trail' in msg) me.trail = small(msg.trail, 11);
         if ('ready' in msg) me.ready = !!msg.ready;
         ws.serializeAttachment(me);
         this.sendRoom();

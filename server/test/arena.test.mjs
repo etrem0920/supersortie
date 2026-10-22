@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assignArena, killPoints, pickKind, PICKUPS, cleanName, ARENA_MAX } from '../arena.js';
+import { assignArena, killPoints, pickKind, PICKUPS, cleanName, ARENA_MAX, parseRules } from '../arena.js';
 
 test('quick play fills the busiest arena that still has room', () => {
   const now = Date.now();
@@ -35,4 +35,22 @@ test('every power-up can drop, except Overdrive which only bosses drop', () => {
 test('arena callsigns are cleaned', () => {
   assert.equal(cleanName('  Red <b>Baron</b> '), 'Red bBaronb');
   assert.equal(cleanName(''), 'Pilot');
+});
+
+test('private arena rules are clamped to what the game supports', () => {
+  const q = o => new URLSearchParams(o);
+  assert.deepEqual(parseRules(q({})), { max: ARENA_MAX, round: 0, boss: 'normal', pu: null });
+  assert.equal(parseRules(q({ max: '1' })).max, 2);
+  assert.equal(parseRules(q({ max: '99' })).max, 15);
+  assert.equal(parseRules(q({ round: '5' })).round, 0);
+  assert.equal(parseRules(q({ round: '8' })).round, 8);
+  assert.equal(parseRules(q({ boss: 'fast' })).boss, 'fast');
+  assert.equal(parseRules(q({ boss: 'lots' })).boss, 'normal');
+  assert.deepEqual(parseRules(q({ pu: 'm,r,zz,o' })).pu, ['m', 'r']);
+  assert.deepEqual(parseRules(q({ pu: '' })).pu, []);
+});
+
+test('power-up picks respect a private arena\'s list', () => {
+  for (let i = 0; i < 500; i++) assert.ok(['m', 'z'].includes(pickKind(Math.random(), ['m', 'z'])));
+  assert.equal(pickKind(0.5, []), null);
 });

@@ -76,7 +76,7 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
   - These values came from simulated runs with scripted average and skilled pilots.
   - Against the old 3-segment hull, the average pilot survives about one wave longer, and the skilled pilot clears all five waves in about 20% of runs instead of 3%.
 - **Hull bonus:** the bonus at the end is still worth up to 3,000 points (300 per hull point).
-- **Same chance for everyone:** every aircraft is available from day one, and the six in each theater are trade-offs across the same four handling types. Levels unlock looks only (liveries, contrails, titles), so a brand-new pilot has the same shot at #1.
+- **Same chance for everyone:** every aircraft is available from day one, and the nine in each theater are trade-offs across the same four handling types. Levels unlock looks only (liveries, contrails, titles), so a brand-new pilot has the same shot at #1.
 
 ## How the leaderboard works
 
@@ -108,6 +108,10 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 
 Each day's ace flies its own paint scheme (12 palettes × 6 patterns, chosen from the day), so every ace in the logbook looks different. The logbook shows a small picture of each one.
 
+## Account settings
+
+Signed-in pilots fly under their username (the callsign field is locked). The Friends tab's **Settings** has: profile picture (a squadron badge in a colour, or any plane you've flown in its livery), change password (signs out other devices), log out, log out everywhere, and delete account (needs the password; scores stay on the boards without the name). Leaderboard rows from pilots without an account say "not registered".
+
 ## Pilot progression
 
 - Every mode earns XP:
@@ -116,7 +120,9 @@ Each day's ace flies its own paint scheme (12 palettes × 6 patterns, chosen fro
   - **Zen:** XP for kills and minutes flown.
   - **Co-op:** XP for waves cleared and kills.
   - **Arena:** XP for each round, kills, placing and wins.
-- Levels go up to 50. They unlock nine contrails, two extra liveries per theater (at levels 8 and 16) and titles. A few titles come from medals and arena wins instead of levels.
+- Levels go up to 50. They unlock twelve contrails, nine extra liveries per theater (camo patterns such as splinter, digital, tiger stripes, sharkmouth, D-Day stripes and flames), squadron badges for your profile picture, and titles. Some titles come from medals and arena wins instead of levels. Level-ups and big moments get a confetti burst.
+- **Daily Elite livery:** finishing in the top 10% of a day's daily unlocks a gold livery in every theater until the next sortie. Arena and co-op check the leaderboard (`server/elite.js`) before showing it to anyone else.
+- **Planes:** nine per theater. WWI, WWII and Modern are all real aircraft (Fokker D.VII, S.E.5a, Sopwith Snipe; P-47, Bf 109, A6M Zero; F-22, YF-23, Su-57, plus the Eurofighter Typhoon, F-35 and F-47). Space and Neon stay fictional. Enemies in each theater fly that era's opposition.
 - Contrails are drawn from the plane's recent path, so other pilots see yours in co-op and the arena with no extra network traffic. The arena shows your title on the round podium.
 - Players who started before levels existed got starting XP for the dailies they had flown and the medals they had earned.
 - **Daily challenges:** three a day, the same for everyone and chosen from the date. They span every mode, for example 40 kills, an arena boss or a 4-kill arena streak. Each is worth 250 XP, plus 300 for finishing all three. They live on the Pilot tab, with one line on the home screen.
@@ -131,6 +137,7 @@ Each day's ace flies its own paint scheme (12 palettes × 6 patterns, chosen fro
 - **Power-ups** appear around the map:
   - **Weapons:** missiles, rail gun and mines. Each one fires by itself, so they work the same on phones.
   - **Boosts:** spread guns, rapid fire, shield, repair, afterburner, cloak (nearly invisible, can't be locked), double damage, vampire (each kill restores 5 hull) and shockwave (an instant blast that hurts every pilot nearby).
+  - **Tactical:** EMP (strips weapons and boosts from everyone nearby), wingman drone (orbits you and shoots whoever comes close for 15 seconds) and flares (missiles lose you and mines stay quiet for 12 seconds).
   - **Overdrive** comes only from a boss: 15 seconds of rapid fire, spread guns, double damage, a shield and full hull at once.
 - **Rolling** makes you immune to bullets and breaks missile locks.
 - **No clones.** If a connection drops without the arena noticing, the reconnect (same token, or the same device once the old connection has gone quiet) takes over the old seat instead of adding a second copy of the pilot. Pilots who go quiet are removed straight away rather than waiting on a close handshake.
@@ -139,7 +146,8 @@ Each day's ace flies its own paint scheme (12 palettes × 6 patterns, chosen fro
 - **Arena today** can be ranked by total kills or by best single-round score. A pilot's round is saved when the round ends or when they leave mid-round.
 - **Dropped connections reconnect.** If a pilot's connection drops, the arena holds their seat, score and streak for 30 seconds while the game reconnects them. Leaving on purpose frees the seat right away. A hidden tab sends a heartbeat so it isn't dropped as idle; pilots who go quiet for 45 seconds are removed. If the server restarts (every deploy restarts it), players are reconnected to a fresh round.
 - **A boss** enters each round 35 seconds in, then about every 70 seconds. Each theater has its own: a **Zeppelin** (WW1), a **Destroyer** (Pacific), a **Strategic bomber** (Modern), a **Dreadnought** (Space) and a **Sentinel** (Neon). It has 70 to 110 hull and its turrets fire back at the nearest pilot, so it takes several pilots or a long fight. Rolling dodges its fire. The pilot who finishes it gets +300 points and it drops Overdrive, a weapon and a random power-up.
-- **AI pilots** (marked "AI" on the scoreboard) top a public arena up to 8 pilots. They leave as real people arrive.
+- **AI pilots** (marked "AI" on the scoreboard) top a public arena up to 8 pilots. They leave as real people arrive. Each has a temperament (hunter, vengeful, opportunist, brawler) and a skill level. They pick targets by threat and opportunity, lead their shots, dodge-roll missiles and pilots on their tail, weave under fire, go for repairs when hurt, pick up power-ups they fly through, and use rail guns, missiles and mines.
+- **Custom rules for private arenas:** 2 to 15 pilots, round length (2–8 minutes), bosses off, normal or fast, and which power-ups are in play.
 - **What the arena decides:** each arena is a Cloudflare Durable Object. It runs hull, kills, respawns, power-ups, rounds and the AI pilots, and sends a world update 10 times a second.
 - **Who decides a hit:** guns and the rail gun are judged by the shooter. They are capped by a damage budget that matches the real fire rate, plus a range check. Missiles and mines are judged by the target, so a roll really does dodge them.
 - **Cost:** each pilot sends about 12 messages a second. Cloudflare bills incoming WebSocket messages at 20 per request, so a full 12-pilot arena costs about 26,000 requests an hour.

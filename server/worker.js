@@ -20,7 +20,7 @@ export { CoopRoom, ArenaRoom, ArenaDirectory };
 
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
 const MODS = new Set(['standard', 'glass', 'swarm', 'ironace', 'overcast', 'crosswind', 'hotguns']);
-const PLANES = new Set(['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol', 'hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190', 'f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar', 'lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger', 'vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor']);
+const PLANES = new Set(['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol', 'hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190', 'f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar', 'lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger', 'vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor', 'fokker7', 'se5a', 'snipe', 'p47', 'bf109', 'zero', 'raptor', 'yf23', 'su57', 'valkyrie', 'manta', 'talon', 'outrun', 'laserwing', 'hexa']);
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
 const MAX_PER_IP_PER_DAY = 30;
 const TOP_CACHE_SECONDS = 20;

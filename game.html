@@ -265,6 +265,24 @@
   canvas.av { width: 36px; height: 36px; display: block; --cut: 6px; clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut)); }
   canvas.av.big { width: 100%; height: auto; aspect-ratio: 1; --cut: 8px; }
   canvas.av.xl { width: 88px; height: 88px; flex: none; --cut: 10px; }
+  .av.pic { display: grid; place-items: center; width: 36px; height: 36px; flex: none; --cut: 6px; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--bg) 70%, #fff), var(--bg) 60%, color-mix(in srgb, var(--bg) 70%, #000)); clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut)); }
+  .av.pic svg { width: 62%; height: 62%; fill: #fff; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .45)); }
+  .av.pic.xl { width: 88px; height: 88px; --cut: 10px; }
+  .pic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; }
+  .pic-grid button { position: relative; border: 0; padding: 0; background: none; cursor: pointer; aspect-ratio: 1; }
+  .pic-grid button .av { width: 100%; height: 100%; }
+  .pic-grid button[aria-checked="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pic-grid button.locked { opacity: .4; }
+  .pic-grid button small { position: absolute; inset: auto 0 2px; text-align: center; font-family: var(--font-cond); font-weight: 700; font-size: 10px; color: #fff; text-shadow: 0 1px 2px #000; }
+  .color-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .color-row button { width: 26px; height: 26px; border: 0; border-radius: 50%; cursor: pointer; background: var(--c); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .25); }
+  .color-row button[aria-checked="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
+  .settings { display: flex; flex-direction: column; gap: 12px; }
+  .settings details { background: var(--raise); padding: 12px 14px; --cut: 10px; }
+  .settings summary { cursor: pointer; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 13px; }
+  .settings details[open] summary { margin-bottom: 10px; }
+  .settings .danger { color: var(--bad); }
+  .guest { color: var(--dim); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; margin-left: 5px; font-family: var(--font-cond); font-weight: 700; }
   .th-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
   .th-tab { background: var(--raise); border: 0; box-shadow: inset 0 0 0 1px var(--line); padding: 7px 4px; cursor: pointer; color: var(--text); --cut: 7px; display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; }
   .th-tab small { font-family: var(--font-cond); font-weight: 700; font-size: 11px; letter-spacing: .1em; color: var(--muted); }
@@ -289,11 +307,14 @@
   .pcard.locked { opacity: .45; }
   .sel-name { color: var(--text); letter-spacing: .08em; }
   .swatch-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .swatch { position: relative; width: 44px; height: 30px; border: 0; padding: 0; cursor: pointer; display: grid; grid-template-columns: 1fr 1fr 1fr; --cut: 6px; box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
-  .swatch i { display: block; }
+  .swatch-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 6px; }
+  .swatch { position: relative; aspect-ratio: 1; border: 0; padding: 0; cursor: pointer; --cut: 6px; box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; background: var(--raise); }
+  .swatch canvas { width: 100%; height: 100%; display: block; }
+  .swatch.elite { box-shadow: inset 0 0 0 1px #ffd34f, 0 0 12px rgba(255, 211, 79, .35); }
+  .swatch.elite.locked { opacity: .55; }
   .swatch[aria-checked="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
   .swatch.locked { opacity: .4; }
-  .swatch .lock { position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; }
+  .swatch .lock { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-cond); font-weight: 700; font-size: 11px; letter-spacing: .04em; color: #fff; background: rgba(9, 12, 20, .45); text-shadow: 0 1px 2px #000; }
   .trail-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
   .tchip { background: var(--raise); border: 0; box-shadow: inset 0 0 0 1px var(--line); padding: 4px; cursor: pointer; color: var(--text); --cut: 6px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .tchip canvas { width: 100%; height: auto; display: block; }
@@ -336,6 +357,7 @@
   .acct-err { min-height: 18px; color: var(--bad); font-size: 13px; }
   .acct-err.ok { color: var(--good); }
   .acct-who { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .acct-me { display: flex; align-items: center; gap: 10px; }
   .acct-who b { font-family: var(--font-display); font-weight: 800; font-size: 22px; text-transform: uppercase; }
   .pp-meta { color: var(--muted); font-size: 13px; }
   .pp-today { background: var(--raise); padding: 10px 12px; font-size: 14px; color: var(--muted); --cut: 8px; }
@@ -476,6 +498,18 @@
   .pu b svg { width: 15px; height: 15px; }
   .pu em { font-style: normal; font-size: 11px; color: #ffd700; text-transform: uppercase; letter-spacing: .06em; }
   .pu span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rules { background: var(--raise); padding: 10px 12px; --cut: 8px; }
+  .rules summary { cursor: pointer; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 13px; color: var(--muted); }
+  .rules[open] summary { margin-bottom: 10px; color: var(--text); }
+  .rules-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
+  .rules-grid label { display: flex; flex-direction: column; gap: 4px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; font-size: 11px; color: var(--muted); }
+  .rules-grid select { min-height: 38px; background: var(--raise-2); color: var(--text); border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); padding: 0 8px; font: inherit; font-size: 14px; letter-spacing: 0; text-transform: none; }
+  .rule-pu { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rule-pu button { display: flex; align-items: center; gap: 6px; border: 0; cursor: pointer; background: var(--raise-2); color: var(--muted); padding: 4px 9px 4px 4px; font: inherit; font-size: 12px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); }
+  .rule-pu button b { width: 20px; height: 20px; display: grid; place-items: center; background: var(--c); color: #0b0d14; border-radius: 50%; }
+  .rule-pu button b svg { width: 13px; height: 13px; }
+  .rule-pu button[aria-pressed="false"] { opacity: .45; }
+  .rule-pu button[aria-pressed="false"] b { background: #555; }
   .arena-private { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: center; }
   .arena-private select { min-height: 44px; background: var(--raise); color: var(--text); border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); padding: 0 10px; font: inherit; }
   .arena-private .check { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 14px; white-space: nowrap; }
@@ -626,6 +660,9 @@
   .toast b { display: block; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
   .toast small { color: var(--muted); }
   body.in-arena .toasts { top: auto; right: auto; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(130px + env(safe-area-inset-bottom, 0px)); }
+  .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; overflow: hidden; }
+  .confetti i { position: absolute; top: 46%; width: 8px; height: 12px; border-radius: 1px; animation: conf 1.7s cubic-bezier(.15, .7, .4, 1) both; }
+  @keyframes conf { 0% { transform: translate(0, 0) rotate(0); opacity: 1; } 55% { opacity: 1; } 100% { transform: translate(var(--dx), calc(var(--dy) + 900px)) rotate(var(--r)); opacity: 0; } }
   @keyframes toast { 0% { opacity: 0; transform: translateX(20px); } 8%, 88% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 
   @media (max-width: 960px) {
@@ -787,7 +824,7 @@
         <div class="field">
           <label for="callsign">Callsign</label>
           <input id="callsign" maxlength="16" autocomplete="off" spellcheck="false">
-          <span class="hint-s">Shown on the leaderboard. Letters, numbers and spaces.</span>
+          <span id="callsignHint" class="hint-s">Shown on the leaderboard. Letters, numbers and spaces.</span>
         </div>
         <div class="section-label"><span>Theater</span><span>Looks only · same fight for all</span></div>
         <div id="themeList" class="th-tabs" role="radiogroup" aria-label="Theater"></div>
@@ -924,7 +961,7 @@
         <div><b>12</b><small>pilots per arena</small></div>
         <div><b>4:00</b><small>rounds, a new theater each</small></div>
         <div><b>2.5s</b><small>to respawn</small></div>
-        <div><b>13</b><small>power-ups</small></div>
+        <div><b>16</b><small>power-ups</small></div>
       </div>
       <div class="field"><label for="arenaName">Your callsign</label><input id="arenaName" maxlength="16" autocomplete="off" spellcheck="false"></div>
       <button id="arenaQuick" class="btn btn-primary btn-block btn-xl">Quick play</button>
@@ -939,6 +976,15 @@
         <label class="check"><input id="arenaBots" type="checkbox" checked> AI pilots</label>
         <button id="arenaCreate" class="btn btn-ghost">Create</button>
       </div>
+      <details class="rules"><summary>Custom rules</summary>
+        <div class="rules-grid">
+          <label>Pilots<select id="ruleMax"><option>2</option><option>4</option><option>6</option><option>8</option><option>10</option><option selected>12</option><option>15</option></select></label>
+          <label>Rounds<select id="ruleRound"><option value="2">2 min</option><option value="4" selected>4 min</option><option value="6">6 min</option><option value="8">8 min</option></select></label>
+          <label>Bosses<select id="ruleBoss"><option value="off">Off</option><option value="normal" selected>Normal</option><option value="fast">Fast and often</option></select></label>
+        </div>
+        <div class="section-label"><span>Power-ups in play</span><span><button id="ruleAll" class="link-btn" type="button">All</button> · <button id="ruleNone" class="link-btn" type="button">None</button></span></div>
+        <div id="rulePu" class="rule-pu"></div>
+      </details>
       <div class="join-row"><input id="arenaCode" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Arena code"><button id="arenaJoin" class="btn btn-ghost">Join</button></div>
       <div id="arenaErr" class="coop-err" role="status"></div>
     </div>
@@ -1207,6 +1253,14 @@ const THEMES = {
       { name: 'Night Raider', body: '#3a3f42', wing: '#2a2e31', accent: '#d9b25c', req: 'flawless' },
       { name: 'Hussar', body: '#1d3b2a', wing: '#16301f', accent: '#e8c15a', lvl: 8 },
       { name: 'Lozenge', body: '#6f5b8f', wing: '#4e6e7d', accent: '#f2d16b', lvl: 16 },
+      { name: 'Sharkmouth', body: '#b9a27a', wing: '#7b6a48', accent: '#b8322a', pat: 'shark', pat2: '#b8322a', lvl: 3 },
+      { name: 'Checkmate', body: '#e8e1cf', wing: '#d6cdb6', accent: '#1d1d1d', pat: 'checker', pat2: '#1d1d1d', lvl: 5 },
+      { name: 'Five-Colour', body: '#6f5b8f', wing: '#4e6e7d', accent: '#f2d16b', pat: 'splinter', pat2: '#8a6b3f', pat3: '#3f5a46', lvl: 11 },
+      { name: 'Jasta Stripes', body: '#2f4a7a', wing: '#2f4a7a', accent: '#f2d16b', pat: 'stripes', pat2: '#f2d16b', lvl: 14 },
+      { name: 'Tiger Moth', body: '#d8a13a', wing: '#c68a24', accent: '#1b1406', pat: 'tiger', pat2: '#1b1406', lvl: 22 },
+      { name: 'Parade Silver', body: '#c9ccd1', wing: '#aeb3ba', accent: '#b8322a', pat: 'band', pat2: '#b8322a', lvl: 30 },
+      { name: 'Hedgerow', body: '#6c7a49', wing: '#556238', accent: '#e8c15a', pat: 'blotch', pat2: '#3c4a2a', pat3: '#8a7a4a', lvl: 40 },
+      { name: 'Daily Elite', body: '#e8b931', wing: '#d19e22', accent: '#fff3c4', pat: 'gild', pat2: '#fff3c4', elite: true },
     ],
     enemies: { scout: ['#8a96a8', '#5e6b7d', '#e8e1cf'], fighter: ['#6d7f5c', '#4c5d3f', '#d6c08a'], interceptor: ['#7a6a8e', '#57496b', '#e8e1cf'], bomber: ['#7e7766', '#5c5647', '#b33b2e'], ace: ['#2a2622', '#1f1c19', '#d9b25c'] },
   },
@@ -1225,6 +1279,14 @@ const THEMES = {
       { name: 'Black Cat', body: '#1f2533', wing: '#161b27', accent: '#ff8a3d', req: 'score20' },
       { name: 'Desert Fox', body: '#c8a46a', wing: '#9c7c4a', accent: '#3b5bdb', lvl: 8 },
       { name: 'Midnight', body: '#151b2c', wing: '#0e1320', accent: '#4fd1ff', lvl: 16 },
+      { name: 'Flying Tiger', body: '#7c8a5a', wing: '#66734a', accent: '#f2f2f2', pat: 'shark', pat2: '#c8312b', lvl: 3 },
+      { name: 'D-Day', body: '#7b8a62', wing: '#66734a', accent: '#f2f2f2', pat: 'invasion', pat2: '#f2f2f2', pat3: '#15161a', lvl: 5 },
+      { name: 'Bare Metal', body: '#c7ccd3', wing: '#aab1ba', accent: '#1f5fbf', pat: 'nose', pat2: '#e8b23a', lvl: 11 },
+      { name: 'Jungle Blotch', body: '#6f7c4a', wing: '#5a6638', accent: '#e8b23a', pat: 'blotch', pat2: '#3a4a26', pat3: '#8a8a5a', lvl: 14 },
+      { name: 'Tiger Stripes', body: '#d8a13a', wing: '#c68a24', accent: '#121522', pat: 'tiger', pat2: '#121522', lvl: 22 },
+      { name: 'Red Tails', body: '#c9ccd1', wing: '#aab1ba', accent: '#c8312b', pat: 'tips', pat2: '#c8312b', lvl: 30 },
+      { name: 'Thunderbolt', body: '#151b2c', wing: '#0e1320', accent: '#ffd34f', pat: 'chevron', pat2: '#ffd34f', lvl: 40 },
+      { name: 'Daily Elite', body: '#e8b931', wing: '#d19e22', accent: '#fff3c4', pat: 'gild', pat2: '#fff3c4', elite: true },
     ],
     enemies: { scout: ['#c9cdb7', '#a6ab90', '#c8312b'], fighter: ['#5f7a4e', '#4a623c', '#c8312b'], interceptor: ['#7d7853', '#625e3e', '#c8312b'], bomber: ['#8c8f86', '#6f726a', '#c8312b'], ace: ['#2a2a24', '#1e1e19', '#e3c04a'] },
   },
@@ -1243,6 +1305,14 @@ const THEMES = {
       { name: 'Black Ops', body: '#262a31', wing: '#1b1e24', accent: '#5cf2a0', req: 'score20' },
       { name: 'Splinter', body: '#5d6b4f', wing: '#45523b', accent: '#d9d36a', lvl: 8 },
       { name: 'Red Flag', body: '#b8302a', wing: '#8e241f', accent: '#f2f2f2', lvl: 16 },
+      { name: 'Tiger Meet', body: '#d9a23c', wing: '#c88d22', accent: '#111111', pat: 'tiger', pat2: '#111111', lvl: 3 },
+      { name: 'Digital Desert', body: '#c7b08a', wing: '#b39a72', accent: '#5d4a33', pat: 'digital', pat2: '#8e7752', pat3: '#e2d3b5', lvl: 5 },
+      { name: 'Digital Urban', body: '#8c939b', wing: '#767d85', accent: '#2f3640', pat: 'digital', pat2: '#5a6168', pat3: '#b5bcc4', lvl: 11 },
+      { name: 'Arctic Splinter', body: '#e9eef5', wing: '#d4dce6', accent: '#2f3640', pat: 'splinter', pat2: '#9aa3ad', pat3: '#5d6b78', lvl: 14 },
+      { name: 'Sharkmouth', body: '#6f7c86', wing: '#55616b', accent: '#f2f2f2', pat: 'shark', pat2: '#c43b30', lvl: 22 },
+      { name: 'Blue Angels', body: '#1b3a7a', wing: '#1b3a7a', accent: '#ffd34f', pat: 'stripes', pat2: '#ffd34f', lvl: 30 },
+      { name: 'Flame Job', body: '#1b1e24', wing: '#16191e', accent: '#ff8a3d', pat: 'flame', pat2: '#ff5a2a', pat3: '#ffd34f', lvl: 40 },
+      { name: 'Daily Elite', body: '#e8b931', wing: '#d19e22', accent: '#fff3c4', pat: 'gild', pat2: '#fff3c4', elite: true },
     ],
     enemies: { scout: ['#a7a08f', '#857e6d', '#c43b30'], fighter: ['#6f7c86', '#55616b', '#c43b30'], interceptor: ['#8a7356', '#6b583f', '#c43b30'], bomber: ['#6b6f73', '#54585c', '#c43b30'], ace: ['#3b2323', '#2b1d1d', '#ff5a4d'] },
   },
@@ -1258,6 +1328,14 @@ const THEMES = {
       { name: 'Void Runner', body: '#2f2648', wing: '#1f1834', accent: '#b98cff', req: 'streak3' },
       { name: 'Nebula', body: '#5a3fd6', wing: '#3b2a99', accent: '#5cf2d6', lvl: 8 },
       { name: 'Chrome', body: '#e8edf5', wing: '#b5bfcf', accent: '#ff4fd8', lvl: 16 },
+      { name: 'Hazard', body: '#2b2b30', wing: '#2b2b30', accent: '#ffcf3a', pat: 'stripes', pat2: '#ffcf3a', lvl: 3 },
+      { name: 'Pulsar', body: '#e8edf5', wing: '#c9d1de', accent: '#3a8dff', pat: 'chevron', pat2: '#3a8dff', lvl: 5 },
+      { name: 'Ion Storm', body: '#24305a', wing: '#1c2548', accent: '#6be4ff', pat: 'digital', pat2: '#3a8dff', pat3: '#6be4ff', lvl: 11 },
+      { name: 'Red Giant', body: '#5a1420', wing: '#45101a', accent: '#ffb347', pat: 'flame', pat2: '#ff5a2a', pat3: '#ffb347', lvl: 14 },
+      { name: 'Comet Tail', body: '#f2f2f7', wing: '#dcdce6', accent: '#ff4fd1', pat: 'band', pat2: '#ff4fd1', lvl: 22 },
+      { name: 'Dark Matter', body: '#141220', wing: '#100e1a', accent: '#b98cff', pat: 'splinter', pat2: '#2a2440', pat3: '#3a2f5c', lvl: 30 },
+      { name: 'Supernova', body: '#ffb347', wing: '#ff9b2a', accent: '#ffffff', pat: 'checker', pat2: '#ffffff', lvl: 40 },
+      { name: 'Daily Elite', body: '#e8b931', wing: '#d19e22', accent: '#fff3c4', pat: 'gild', pat2: '#fff3c4', elite: true },
     ],
     enemies: { scout: ['#9a4672', '#6a2a4a', '#ffd0e8'], fighter: ['#7a3aa0', '#4e1f6a', '#ff9ae0'], interceptor: ['#a03848', '#6a1f2a', '#ffb0b8'], bomber: ['#564668', '#382a48', '#ff4fd1'], ace: ['#24142e', '#1a0f22', '#ff4fd1'] },
   },
@@ -1273,6 +1351,14 @@ const THEMES = {
       { name: 'Gold Chrome', body: '#ffd34f', wing: '#ffd34f', accent: '#ffffff', req: 'allthemes' },
       { name: 'Cyber Teal', body: '#2ef2c4', wing: '#2ef2c4', accent: '#ffd34f', lvl: 8 },
       { name: 'Ultraviolet', body: '#9d5cff', wing: '#9d5cff', accent: '#ffffff', lvl: 16 },
+      { name: 'Sunset', body: '#ff7a3d', wing: '#ff7a3d', accent: '#ffe14f', lvl: 3 },
+      { name: 'Arcade Red', body: '#ff3b5c', wing: '#ff3b5c', accent: '#ffffff', lvl: 5 },
+      { name: 'Miami', body: '#3df0ff', wing: '#3df0ff', accent: '#ff4fd8', lvl: 11 },
+      { name: 'Lemon', body: '#fff14f', wing: '#fff14f', accent: '#3df0ff', lvl: 14 },
+      { name: 'White Hot', body: '#ffffff', wing: '#ffffff', accent: '#ff4fd8', lvl: 22 },
+      { name: 'Vaporwave', body: '#ff4fd8', wing: '#ff4fd8', accent: '#6ee8ff', grad: ['#ff4fd8', '#6ee8ff'], lvl: 30 },
+      { name: 'Outrun Sunset', body: '#ffe14f', wing: '#ffe14f', accent: '#ff4fd8', grad: ['#ffe14f', '#ff4fd8', '#7c50ff'], lvl: 40 },
+      { name: 'Daily Elite', body: '#ffd34f', wing: '#ffd34f', accent: '#ffffff', grad: ['#fff3c4', '#ffd34f', '#ff9b2a'], elite: true },
     ],
     enemies: { scout: ['#6ee8ff', '#6ee8ff', '#ffffff'], fighter: ['#ffe14f', '#ffe14f', '#ffffff'], interceptor: ['#ff8a3d', '#ff8a3d', '#ffffff'], bomber: ['#b98cff', '#b98cff', '#ffffff'], ace: ['#ff3b3b', '#ff3b3b', '#ffe14f'] },
   },
@@ -1288,8 +1374,8 @@ const ARCH = {
   gunner: { label: 'Heavy guns', speed: 0.95, turn: 0.94, fire: 1.18 },
 };
 // Every aircraft is open to everyone from day one, so nobody's plane gives them a leaderboard
-// edge; the six are trade-offs across the same four handling types. Levels unlock looks only.
-const PLANE_LEVELS = [0, 0, 0, 0, 0, 0];
+// edge; the nine are trade-offs across the same four handling types. Levels unlock looks only.
+const PLANE_LEVELS = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 const planeOpen = i => pilotLevel() >= (PLANE_LEVELS[i] || 0);
 THEMES.ww1.planes = [
   { id: 'camel', name: 'Sopwith Camel', arch: 'balanced', shape: 'biplane', note: 'The great all-rounder of the Western Front.' },
@@ -1298,6 +1384,9 @@ THEMES.ww1.planes = [
   { id: 'albatros', name: 'Albatros D.III', arch: 'fast', shape: 'albatros', note: 'Shark-nosed sesquiplane built for diving attacks.' },
   { id: 'nieuport', name: 'Nieuport 17', arch: 'agile', shape: 'nieuport', note: 'Featherweight and nimble. Wins the turning fight.' },
   { id: 'bristol', name: 'Bristol F.2b', arch: 'gunner', shape: 'bristol', note: 'Two-seat brawler with a rear gunner’s firepower.' },
+  { id: 'fokker7', name: 'Fokker D.VII', arch: 'gunner', shape: 'fokker7', note: 'So good the Armistice demanded every one be handed over.' },
+  { id: 'se5a', name: 'RAF S.E.5a', arch: 'fast', shape: 'se5a', note: 'Steady gun platform with a Hispano-Suiza V8 up front.' },
+  { id: 'snipe', name: 'Sopwith Snipe', arch: 'agile', shape: 'snipe', note: 'The Camel’s successor: wide wings, sweet handling.' },
 ];
 THEMES.ww2.planes = [
   { id: 'hellcat', name: 'F6F Hellcat', arch: 'balanced', shape: 'prop', note: 'Tough, forgiving carrier fighter.' },
@@ -1306,14 +1395,20 @@ THEMES.ww2.planes = [
   { id: 'spitfire', name: 'Spitfire Mk IX', arch: 'agile', shape: 'spitfire', note: 'Elliptical wings and a famously tight turn.' },
   { id: 'mustang', name: 'P-51D Mustang', arch: 'fast', shape: 'mustang', note: 'Long-range escort with a bubble canopy and speed to spare.' },
   { id: 'fw190', name: 'Fw 190 A', arch: 'gunner', shape: 'fw190', note: 'Compact radial fighter packing heavy cannon.' },
+  { id: 'p47', name: 'P-47 Thunderbolt', arch: 'gunner', shape: 'p47', note: 'The Jug: seven tons and eight .50 cals.' },
+  { id: 'bf109', name: 'Bf 109 G', arch: 'fast', shape: 'bf109', note: 'Slim, fast and built around its engine.' },
+  { id: 'zero', name: 'A6M Zero', arch: 'agile', shape: 'zero', note: 'Long wings and a featherweight frame. Out-turns everything.' },
 ];
 THEMES.modern.planes = [
   { id: 'f16', name: 'F-16', arch: 'balanced', shape: 'jet', note: 'Light, responsive multirole fighter.' },
   { id: 'f18', name: 'F/A-18', arch: 'agile', shape: 'hornet', note: 'Twin tails and a tight turning circle.' },
   { id: 'f15', name: 'F-15', arch: 'fast', shape: 'eagle', note: 'Twin engines built for raw speed.' },
-  { id: 'halberd', name: 'Halberd', arch: 'agile', shape: 'halberd', note: 'Canard delta. Snaps into turns.' },
-  { id: 'specter', name: 'Specter', arch: 'fast', shape: 'specter', note: 'Faceted stealth fighter with twin canted tails.' },
-  { id: 'nightjar', name: 'Nightjar', arch: 'gunner', shape: 'nightjar', note: 'Flying wing with an internal gun bay.' },
+  { id: 'halberd', name: 'Eurofighter Typhoon', arch: 'agile', shape: 'halberd', note: 'Canard delta. Snaps into turns.' },
+  { id: 'specter', name: 'F-35 Lightning II', arch: 'fast', shape: 'specter', note: 'Stealthy, sensor-packed and quick.' },
+  { id: 'nightjar', name: 'F-47 (NGAD)', arch: 'gunner', shape: 'nightjar', note: 'Next-generation tailless air-dominance fighter.' },
+  { id: 'raptor', name: 'F-22 Raptor', arch: 'balanced', shape: 'raptor', note: 'Diamond wings, thrust vectoring, no weak spots.' },
+  { id: 'yf23', name: 'YF-23 Black Widow II', arch: 'fast', shape: 'yf23', note: 'The prototype that lost to the Raptor. Faster, sleeker, rarer.' },
+  { id: 'su57', name: 'Su-57', arch: 'gunner', shape: 'su57', note: 'Wide-set engines and a heavy 30 mm cannon.' },
 ];
 THEMES.space.planes = [
   { id: 'lancer', name: 'Lancer', arch: 'balanced', shape: 'ship', note: 'Standard-issue fleet starfighter.' },
@@ -1322,6 +1417,9 @@ THEMES.space.planes = [
   { id: 'striker', name: 'Striker', arch: 'agile', shape: 'striker', note: 'Split-wing interceptor with wingtip cannons.' },
   { id: 'nomad', name: 'Nomad', arch: 'gunner', shape: 'nomad', note: 'Armored corvette with four engines.' },
   { id: 'harbinger', name: 'Harbinger', arch: 'fast', shape: 'harbinger', note: 'Needle-thin dart with a warp ring.' },
+  { id: 'valkyrie', name: 'Valkyrie', arch: 'fast', shape: 'valkyrie', note: 'Split-foil interceptor with wingtip engines.' },
+  { id: 'manta', name: 'Manta', arch: 'balanced', shape: 'manta', note: 'Wide ray wing that glides through turns.' },
+  { id: 'talon', name: 'Talon', arch: 'gunner', shape: 'talon', note: 'Twin forward prongs, both of them guns.' },
 ];
 THEMES.neon.planes = [
   { id: 'vector', name: 'Vector', arch: 'balanced', shape: 'jet', note: 'Clean lines, even handling.' },
@@ -1330,6 +1428,9 @@ THEMES.neon.planes = [
   { id: 'glide', name: 'Glide', arch: 'agile', shape: 'glide', note: 'Wide swept glider that carves the grid.' },
   { id: 'prism', name: 'Prism', arch: 'gunner', shape: 'prism', note: 'A solid triangle of firepower.' },
   { id: 'razor', name: 'Razor', arch: 'balanced', shape: 'razor', note: 'Twin-hull racer, steady in every turn.' },
+  { id: 'outrun', name: 'Outrun', arch: 'fast', shape: 'outrun', note: 'A wedge with a spoiler. Floor it.' },
+  { id: 'laserwing', name: 'Laserwing', arch: 'agile', shape: 'laserwing', note: 'Two long blades and a needle nose.' },
+  { id: 'hexa', name: 'Hexa', arch: 'gunner', shape: 'hexa', note: 'A hexagon core with cannon pods.' },
 ];
 const PLANE_INDEX = {};
 for (const tid of THEME_ORDER) THEMES[tid].planes.forEach((pl, i) => { PLANE_INDEX[pl.id] = { plane: pl, theme: tid, index: i }; });
@@ -1343,6 +1444,15 @@ function favoritePlane() {
   return best;
 }
 
+// Liveries open by level or medal; the Daily Elite one only for today's top 10%.
+const eliteToday = () => store.elite === todayNum;
+function liveryOpen(tid, i) {
+  const L = (THEMES[tid] || THEMES.ww2).liveries[i];
+  if (!L) return false;
+  if (L.elite) return eliteToday();
+  return (!L.req || !!store.medals[L.req]) && (!L.lvl || pilotLevel() >= L.lvl);
+}
+const myLivery = tid => { const i = store.livery[tid] || 0; return liveryOpen(tid, i) ? i : 0; };
 const MEDALS = [
   { id: 'first', name: 'First sortie', desc: 'Finish a daily sortie' },
   { id: 'acekill', name: 'Ace hunter', desc: 'Shoot down the enemy ace' },
@@ -1355,7 +1465,10 @@ const MEDALS = [
   { id: 'allthemes', name: 'Time traveler', desc: 'Finish a run in all 5 theaters' },
   { id: 'arenawin', name: 'Top gun', desc: 'Win an arena round' },
   { id: 'rampage', name: 'Rampage', desc: 'Get a 5-kill streak in the arena' },
-  { id: 'blimp', name: 'Blimp buster', desc: 'Shoot down a supply blimp' },
+  { id: 'blimp', name: 'Boss slayer', desc: 'Finish off an arena boss' },
+  { id: 'elite', name: 'Top 10%', desc: 'Finish in the top 10% of a daily' },
+  { id: 'godlike', name: 'Godlike', desc: 'Get a 15-kill streak in the arena' },
+  { id: 'hangar', name: 'Hangar rat', desc: 'Fly 9 different planes' },
   { id: 'squad', name: 'Band of brothers', desc: 'Win a co-op mission on Hard or Brutal' },
 ];
 const medalName = id => (MEDALS.find(m => m.id === id) || {}).name || id;
@@ -1375,11 +1488,16 @@ const TRAILS = [
   { name: 'Sparks', lvl: 15, kind: 'sparks', color: '#ffd34f' },
   { name: 'Ghost', lvl: 20, kind: 'dash', color: '#ffffff' },
   { name: 'Gold', lvl: 25, kind: 'line', color: '#ffd34f', glow: true, wide: true },
+  { name: 'Plasma', lvl: 30, kind: 'line', color: '#b98cff', glow: true, wide: true },
+  { name: 'Static', lvl: 35, kind: 'sparks', color: '#7cf2ff' },
+  { name: 'Comet', lvl: 45, kind: 'line', color: '#ff4fd1', glow: true, wide: true },
 ];
 const TITLES = [
   { name: 'Cadet', lvl: 1 }, { name: 'Wingman', lvl: 3 }, { name: 'Flight Lead', lvl: 6 }, { name: 'Ace', lvl: 10 },
   { name: 'Double Ace', lvl: 15 }, { name: 'Squadron Leader', lvl: 20 }, { name: 'Wing Commander', lvl: 30 }, { name: 'Legend', lvl: 40 },
   { name: 'Ace Hunter', medal: 'acekill' }, { name: 'Untouchable', medal: 'untouched' }, { name: 'Time Traveler', medal: 'allthemes' }, { name: 'Arena Champion', arena: true },
+  { name: 'Top Gun', lvl: 25 }, { name: 'Sky Marshal', lvl: 35 }, { name: 'Living Legend', lvl: 45 }, { name: 'Ace of Aces', lvl: 50 },
+  { name: 'Boss Slayer', medal: 'blimp' }, { name: 'Rampager', medal: 'rampage' }, { name: 'Elite', medal: 'elite' }, { name: 'Godlike', medal: 'godlike' },
 ];
 const pilotLevel = () => levelOf(store.xp || 0);
 const titleOpen = t => (t.lvl ? pilotLevel() >= t.lvl : t.medal ? !!store.medals[t.medal] : !!(store.arena && store.arena.wins));
@@ -1404,7 +1522,7 @@ function gainXp(n) {
     const got = [];
     for (let lv = before + 1; lv <= after; lv++) got.push(...unlocksAt(lv));
     toast(`Level ${after}`, got.length ? `Unlocked: ${got.slice(0, 3).join(', ')}` : 'Keep flying for new unlocks');
-    sfx.medal();
+    sfx.medal(); confetti();
   }
   return { n, before, after };
 }
@@ -1513,7 +1631,7 @@ const MEDAL_SVG = '<svg class="m-ico" viewBox="0 0 30 30" aria-hidden="true"><pa
    ===================================================================== */
 const poly = pts => { const p = new Path2D(); pts.forEach(([x, y], i) => (i ? p.lineTo(x, y) : p.moveTo(x, y))); p.closePath(); return p; };
 const mirror = half => half.concat(half.slice().reverse().map(([x, y]) => [x, -y]));
-const ell = (x, y, rx, ry) => { const p = new Path2D(); p.ellipse(x, y, rx, ry, 0, 0, TAU); return p; };
+const ell = (x, y, rx, ry) => { const p = new Path2D(); p.ellipse(x, y, rx, ry, 0, 0, TAU); p.m = [x, y, rx, ry]; return p; };
 const part = (p, f, ns) => ({ p, f, ns: !!ns });
 const pair = (pts, f) => [part(poly(pts), f), part(poly(pts.map(([x, y]) => [x, -y])), f)];
 const pairE = (x, y, rx, ry, f) => [part(ell(x, y, rx, ry), f), part(ell(x, -y, rx, ry), f)];
@@ -1886,10 +2004,180 @@ Object.assign(CRAFT_PLAYER, {
 Object.assign(CRAFT_PLAYER.biplane, { tips: CRAFT_PLAYER.biplane.tips || [3, 26] });
 for (const [k, t] of Object.entries({ triplane: [5.5, 23], spad: [2, 28], prop: [-1, 26], corsair: [-1, 26], p38: [1, 29], jet: [-11, 22], hornet: [-8, 21], eagle: [-11, 24], ship: [-6, 23], wraith: [-14, 21], bulwark: [4, 21], fwdswept: [3, 23] })) if (CRAFT_PLAYER[k] && !CRAFT_PLAYER[k].tips) CRAFT_PLAYER[k].tips = t;
 // Enemy airframes differ by role in every theater; bombers keep the heavy shape.
+
+// Three more per theater, all real aircraft where the era has them.
+Object.assign(CRAFT_PLAYER, {
+  fokker7: {
+    parts: [
+      part(poly([[-14, -2], [-18, -10], [-24, -10], [-24, 10], [-18, 10], [-14, 2]]), 'wing'),
+      part(poly([[2, -22], [-7, -22], [-7, 22], [2, 22]]), 'wingDk'),
+      part(poly([[18, -5], [-6, -5.4], [-22, -1.5], [-22, 1.5], [-6, 5.4], [18, 5]]), 'body'),
+      part(poly([[8, -29], [-3, -29], [-4, -27], [-4, 27], [-3, 29], [8, 29], [9, 27], [9, -27]]), 'wing'),
+      ...pair([[6, -20], [4, -20], [-2, -22], [0, -22]], 'accent'),
+      ...pairE(3, 24, 3.2, 3.2, 'accent'),
+      part(ell(-5, 0, 3, 2.4), 'hole'),
+      part(poly([[21, -4.5], [17, -5], [17, 5], [21, 4.5]]), 'accent'),
+    ],
+    props: [{ x: 22, y: 0, len: 12 }], flames: [], tips: [3, 29],
+  },
+  se5a: {
+    parts: [
+      part(poly([[-15, -2], [-19, -9], [-25, -9], [-25, 9], [-19, 9], [-15, 2]]), 'wing'),
+      part(poly([[1, -24], [-8, -24], [-9, -22], [-9, 22], [-8, 24], [1, 24]]), 'wingDk'),
+      part(poly([[20, -4.6], [-6, -5], [-24, -1.4], [-24, 1.4], [-6, 5], [20, 4.6]]), 'body'),
+      part(poly([[7, -27], [-3, -27], [-5, -24], [-5, 24], [-3, 27], [7, 27]]), 'wing'),
+      ...pairE(1, 21, 3.4, 3.4, 'accent'),
+      part(ell(-8, 0, 3, 2.4), 'hole'),
+      part(poly([[12, -0.9], [2, -0.9], [2, 0.9], [12, 0.9]]), 'hole', true),
+      part(poly([[23, -4], [19, -4.6], [19, 4.6], [23, 4]]), 'accent'),
+    ],
+    props: [{ x: 24, y: 0, len: 12 }], flames: [], tips: [2, 27],
+  },
+  snipe: {
+    parts: [
+      part(ell(-19, 0, 4, 9), 'wing'),
+      part(poly([[0, -26], [-8, -26], [-8, 26], [0, 26]]), 'wingDk'),
+      part(ell(0, 0, 20, 5.4), 'body'),
+      part(poly([[7, -30], [-2, -30], [-3, -28], [-3, 28], [-2, 30], [7, 30], [8, 28], [8, -28]]), 'wing'),
+      ...pair([[5, -14], [3, -14], [-1, -16], [1, -16]], 'accent'),
+      ...pair([[5, -25], [3, -25], [-1, -27], [1, -27]], 'accent'),
+      ...pairE(2.5, 20, 3.4, 3.4, 'accent'),
+      part(ell(-6, 0, 3, 2.5), 'hole'),
+      part(ell(18, 0, 3.8, 5), 'accent'),
+    ],
+    props: [{ x: 21, y: 0, len: 12 }], flames: [], tips: [2.5, 30],
+  },
+  p47: {
+    parts: [
+      part(poly([[-14, -3], [-19, -10], [-24, -10], [-23, 0], [-24, 10], [-19, 10], [-14, 3]]), 'wing'),
+      part(poly(mirror([[9, -4], [6, -22], [2, -27], [-3, -27.5], [-6, -25], [-7, -4]])), 'wing'),
+      ...pairE(0, 19, 3.2, 3.2, 'accent'),
+      part(ell(1, 0, 23, 6.4), 'body'),
+      part(ell(1, 0, 5, 3), 'glass'),
+      part(ell(21, 0, 4, 6), 'accent'),
+    ],
+    props: [{ x: 25, y: 0, len: 14 }], flames: [], tips: [-3, 27],
+  },
+  bf109: {
+    parts: [
+      part(poly([[-15, -2], [-19, -8], [-23, -8], [-23, 8], [-19, 8], [-15, 2]]), 'wing'),
+      part(poly(mirror([[7, -3], [3, -24], [-1, -24.5], [-4, -23], [-5, -3]])), 'wing'),
+      ...pairE(0, 17, 2.6, 2.6, 'accent'),
+      part(poly(mirror([[24, 0], [20, -3.2], [8, -4.2], [-10, -3.6], [-22, -1.4]])), 'body'),
+      ...pair([[14, -4], [10, -4], [10, -5.2], [13, -5.2]], 'wingDk'),
+      part(ell(4, 0, 5, 2.4), 'glass'),
+      part(ell(23, 0, 2.6, 2.6), 'accent'),
+    ],
+    props: [{ x: 25, y: 0, len: 12 }], flames: [], tips: [-1, 24],
+  },
+  zero: {
+    parts: [
+      part(poly([[-15, -2], [-19, -8], [-23, -7], [-24, 0], [-23, 7], [-19, 8], [-15, 2]]), 'wing'),
+      part(poly(mirror([[9, -3], [5, -20], [1, -28], [-3, -29], [-6, -26], [-6, -3]])), 'wing'),
+      ...pairE(-0.5, 20, 3.4, 3.4, 'accent'),
+      part(ell(1, 0, 22, 4.6), 'body'),
+      part(ell(1, 0, 7, 2.6), 'glass'),
+      part(ell(19, 0, 3.6, 4.8), 'wingDk'),
+    ],
+    props: [{ x: 23, y: 0, len: 12 }], flames: [], tips: [-3, 29],
+  },
+  raptor: {
+    parts: [
+      ...pair([[-16, -6], [-24, -14], [-28, -13], [-26, -6]], 'wing'),
+      part(poly(mirror([[8, -6], [-8, -24], [-14, -24], [-12, -14], [-16, -6]])), 'wing'),
+      ...pair([[-10, -7], [-18, -9], [-19, -7.6], [-12, -6]], 'wingDk'),
+      part(poly(mirror([[28, 0], [16, -3.6], [6, -6.4], [-16, -6.4], [-22, -3]])), 'body'),
+      ...pair([[8, -6.6], [2, -6.6], [2, -5], [8, -5]], 'accent'),
+      part(ell(15, 0, 5, 2.2), 'glass'),
+    ],
+    props: [], flames: [{ x: -22, y: 2.4, w: 2.2, len: 12 }, { x: -22, y: -2.4, w: 2.2, len: 12 }], tips: [-14, 24],
+  },
+  yf23: {
+    parts: [
+      part(poly(mirror([[6, -6], [-10, -26], [-15, -26], [-20, -8], [-22, -6]])), 'wing'),
+      ...pair([[-16, -8], [-24, -18], [-28, -17], [-24, -8]], 'wingDk'),
+      ...pairE(-8, 6, 13, 3.2, 'body'),
+      part(poly(mirror([[30, 0], [18, -3], [4, -4.6], [-20, -4], [-24, -1.5]])), 'body'),
+      ...pair([[-11, -25], [-15, -25], [-15.6, -22.6], [-12.6, -22.6]], 'accent'),
+      part(ell(17, 0, 5, 2), 'glass'),
+    ],
+    props: [], flames: [{ x: -21, y: 6, w: 2, len: 10 }, { x: -21, y: -6, w: 2, len: 10 }], tips: [-13, 26],
+  },
+  su57: {
+    parts: [
+      ...pair([[-16, -9], [-24, -17], [-28, -16], [-26, -9]], 'wing'),
+      part(poly(mirror([[10, -6], [-6, -25], [-12, -25], [-14, -8]])), 'wing'),
+      ...pair([[14, -4], [8, -9], [6, -8], [10, -4]], 'wingDk'),
+      ...pairE(-8, 7, 14, 3.4, 'body'),
+      part(poly(mirror([[29, 0], [16, -3.2], [4, -6], [-18, -5], [-22, -2]])), 'body'),
+      ...pair([[-12, -10], [-19, -13], [-20, -11.6], [-13, -9]], 'accent'),
+      part(ell(16, 0, 4.8, 2.1), 'glass'),
+    ],
+    props: [], flames: [{ x: -22, y: 7, w: 2.2, len: 11 }, { x: -22, y: -7, w: 2.2, len: 11 }], tips: [-9, 25],
+  },
+  valkyrie: {
+    parts: [
+      part(poly(mirror([[-2, -4], [-8, -26], [-14, -26], [-14, -4]])), 'wing'),
+      ...pairE(-8, 26, 9, 2.4, 'body'),
+      ...pair([[10, -26.6], [-2, -26.6], [-2, -25.4], [10, -25.4]], 'accent'),
+      part(poly(mirror([[30, 0], [12, -3], [-12, -5], [-18, -3], [-18, 0]])), 'body'),
+      part(ell(4, 0, 5, 2.6), 'glass'),
+    ],
+    props: [], flames: [{ x: -17, y: 26, w: 1.6, len: 7 }, { x: -17, y: -26, w: 1.6, len: 7 }, { x: -18, y: 0, w: 2.4, len: 10 }], tips: [-8, 26],
+  },
+  manta: {
+    parts: [
+      part(poly(mirror([[16, -3], [6, -14], [-4, -26], [-10, -27], [-12, -20], [-10, -8], [-14, -3]])), 'wing'),
+      ...pair([[-4, -26], [-10, -27], [-10.6, -24], [-5, -23]], 'accent'),
+      part(ell(2, 0, 16, 5), 'body'),
+      part(poly([[-14, -1.2], [-28, -0.6], [-28, 0.6], [-14, 1.2]]), 'wingDk'),
+      part(ell(8, 0, 4, 2.4), 'glass'),
+    ],
+    props: [], flames: [{ x: -12, y: 5, w: 1.8, len: 8 }, { x: -12, y: -5, w: 1.8, len: 8 }], tips: [-10, 27],
+  },
+  talon: {
+    parts: [
+      ...pair([[26, -8], [8, -6], [4, -10], [22, -11]], 'wing'),
+      part(poly(mirror([[0, -8], [-10, -22], [-18, -22], [-16, -8]])), 'wing'),
+      ...pair([[-10, -22], [-18, -22], [-18, -19], [-11, -19]], 'accent'),
+      part(poly(mirror([[20, 0], [10, -6], [-14, -8], [-20, -4], [-20, 0]])), 'body'),
+      part(ell(8, 0, 4.4, 2.8), 'glass'),
+      part(ell(-6, 0, 3, 3), 'accent'),
+    ],
+    props: [], flames: [{ x: -20, y: 3, w: 2.4, len: 11 }, { x: -20, y: -3, w: 2.4, len: 11 }], tips: [-14, 22],
+  },
+  outrun: {
+    parts: [
+      part(poly([[-16, -14], [-20, -14], [-20, 14], [-16, 14]]), 'wing'),
+      part(poly(mirror([[28, 0], [-4, -10], [-16, -12], [-18, -4]])), 'body'),
+      ...pair([[20, -1.6], [-8, -6.4], [-8, -5], [18, -0.6]], 'accent'),
+      part(ell(6, 0, 6, 3), 'glass'),
+    ],
+    props: [], flames: [{ x: -18, y: 6, w: 2, len: 10 }, { x: -18, y: -6, w: 2, len: 10 }], tips: [-18, 14],
+  },
+  laserwing: {
+    parts: [
+      part(poly(mirror([[6, -2], [-14, -30], [-18, -29], [-6, -2]])), 'wing'),
+      ...pair([[18, -2], [12, -10], [10, -9], [13, -2]], 'wing'),
+      part(poly(mirror([[30, 0], [10, -2.6], [-18, -2.6], [-20, 0]])), 'body'),
+      part(ell(10, 0, 4.4, 1.8), 'glass'),
+    ],
+    props: [], flames: [{ x: -20, y: 0, w: 2, len: 12 }], tips: [-16, 29],
+  },
+  hexa: {
+    parts: [
+      ...pair([[4, -12], [-4, -22], [-12, -22], [-8, -12]], 'wing'),
+      part(poly([[14, 0], [7, -12], [-7, -12], [-14, 0], [-7, 12], [7, 12]]), 'body'),
+      ...pairE(2, 22, 9, 2.6, 'accent'),
+      part(ell(4, 0, 4, 3), 'glass'),
+    ],
+    props: [], flames: [{ x: -14, y: 5, w: 2, len: 9 }, { x: -14, y: -5, w: 2, len: 9 }], tips: [-6, 22],
+  },
+});
 const ENEMY_SHAPES = {
-  ww1: { scout: 'nieuport', fighter: 'albatros', interceptor: 'spad', ace: 'triplane' },
-  ww2: { scout: 'fw190', fighter: 'prop', interceptor: 'mustang', ace: 'corsair' },
-  modern: { scout: 'jet', fighter: 'hornet', interceptor: 'halberd', ace: 'specter' },
+  ww1: { scout: 'nieuport', fighter: 'albatros', interceptor: 'fokker7', ace: 'triplane' },
+  ww2: { scout: 'bf109', fighter: 'zero', interceptor: 'fw190', ace: 'corsair' },
+  modern: { scout: 'jet', fighter: 'hornet', interceptor: 'su57', ace: 'yf23' },
   space: { scout: 'wraith', fighter: 'ship', interceptor: 'striker', ace: 'harbinger' },
   neon: { scout: 'fwdswept', fighter: 'jet', interceptor: 'glide', ace: 'prism' },
 };
@@ -1905,9 +2193,13 @@ function colorsFor(th, type, liv) {
   let c = colCache.get(key);
   if (c) return c;
   let body, wing, accent;
-  if (type === 'player') { const L = th.liveries[liv] || th.liveries[0]; body = L.body; wing = L.wing; accent = L.accent; }
+  let L = null;
+  if (type === 'player') { L = th.liveries[liv] || th.liveries[0]; body = L.body; wing = L.wing; accent = L.accent; }
   else [body, wing, accent] = th.enemies[type];
   c = { body, wing, wingDk: shade(wing, -0.3), accent, glass: th.glass, ink: th.ink, hole: th.ink, flame: th.flame, neon: !!th.neon, glow: rgba(wing, 0.28), stroke: wing };
+  if (L && L.pat && !th.neon) Object.assign(c, { pat: L.pat, pat2: L.pat2, pat3: L.pat3 || L.pat2 });
+  if (L && L.grad) c.grad = L.grad;
+  if (L && L.elite) c.elite = true;
   colCache.set(key, c);
   return c;
 }
@@ -1936,10 +2228,24 @@ function aceColors(th, key) {
   colCache.set(ck, c);
   return c;
 }
+// Fixed pseudo-random layout for camo shapes, the same on every plane.
+const CAMO = (() => { let h = 1234567; const r = () => ((h = Math.imul(h ^ (h >>> 15), 0x2c1b3c6d) + 0x9e3779b9 | 0) >>> 0) / 4294967296; return Array.from({ length: 40 }, () => [r() * 88 - 44, r() * 88 - 44, r(), r()]); })();
 function drawAcePattern(c, pt, col) {
   c.fillStyle = col.pat2;
   const wing = pt.f === 'wing' || pt.f === 'wingDk';
   switch (col.pat) {
+    case 'splinter': CAMO.forEach(([x, y, a, b], i) => { c.fillStyle = i % 2 ? col.pat2 : col.pat3; c.beginPath(); c.moveTo(x, y); c.lineTo(x + 10 + a * 10, y + (b - 0.5) * 8); c.lineTo(x + 4 + b * 6, y + 7 + a * 6); c.closePath(); c.fill(); }); break;
+    case 'blotch': CAMO.forEach(([x, y, a, b], i) => { if (i % 3 === 2) return; c.fillStyle = i % 2 ? col.pat2 : col.pat3; c.beginPath(); c.ellipse(x, y, 3 + a * 4, 2 + b * 3, a * 3, 0, TAU); c.fill(); }); break;
+    case 'digital': CAMO.forEach(([x, y, a, b], i) => { c.fillStyle = i % 2 ? col.pat2 : col.pat3; const q = 2.2; c.fillRect(Math.round(x / q) * q, Math.round(y / q) * q, q * (1 + (a * 3 | 0)), q * (1 + (b * 2 | 0))); }); break;
+    case 'tiger': if (pt.f !== 'glass') for (let x = -40; x < 40; x += 7) { c.beginPath(); c.moveTo(x, -44); c.quadraticCurveTo(x + 5, -14, x + 1, 0); c.quadraticCurveTo(x - 3, 14, x + 2, 44); c.lineTo(x + 4, 44); c.quadraticCurveTo(x, 14, x + 3.5, 0); c.quadraticCurveTo(x + 7, -14, x + 2.5, -44); c.fill(); } break;
+    case 'shark': if (pt.f === 'body') {
+      c.beginPath(); c.moveTo(24, 0); c.lineTo(13, -5.5); c.lineTo(16, 0); c.lineTo(13, 5.5); c.closePath(); c.fill();
+      c.fillStyle = '#ffffff'; for (const sy of [-1, 1]) for (let k = 0; k < 3; k++) { c.beginPath(); c.moveTo(14 + k * 2.6, sy * (4.8 - k * 1.2)); c.lineTo(15.3 + k * 2.6, sy * (3 - k * 1.2)); c.lineTo(16.6 + k * 2.6, sy * (4.4 - k * 1.2)); c.fill(); }
+      c.fillStyle = '#111111'; c.beginPath(); c.arc(11, -3.4, 0.9, 0, TAU); c.arc(11, 3.4, 0.9, 0, TAU); c.fill();
+    } break;
+    case 'flame': if (pt.f === 'body' || wing) for (let k = 0; k < 5; k++) { const y = -8 + k * 4; c.fillStyle = k % 2 ? col.pat3 : col.pat2; c.beginPath(); c.moveTo(30, y * 0.3); c.quadraticCurveTo(8, y - 2, -6 - k * 2, y * 1.6); c.quadraticCurveTo(10, y + 1.5, 30, y * 0.3 + 1); c.fill(); } break;
+    case 'invasion': if (wing) for (let k = 0; k < 5; k++) { c.fillStyle = k % 2 ? col.pat3 : col.pat2; c.fillRect(-2 - k * 2.4 + 6, -44, 2.4, 88); } break;
+    case 'gild': c.fillStyle = 'rgba(255,255,255,.42)'; c.beginPath(); c.moveTo(-6, -44); c.lineTo(0, -44); c.lineTo(12, 44); c.lineTo(6, 44); c.fill(); c.fillStyle = 'rgba(255,255,255,.22)'; c.beginPath(); c.moveTo(4, -44); c.lineTo(6, -44); c.lineTo(18, 44); c.lineTo(16, 44); c.fill(); break;
     case 'stripes': if (wing) for (let x = -44; x < 44; x += 9) { c.beginPath(); c.moveTo(x, -44); c.lineTo(x + 3.5, -44); c.lineTo(x + 3.5 + 20, 44); c.lineTo(x + 20, 44); c.fill(); } break;
     case 'checker': if (pt.f === 'body') for (let x = -40; x < 40; x += 4) for (let y = -40; y < 40; y += 4) if (((x + y) / 4 & 1) === 0) c.fillRect(x, y, 4, 4); break;
     case 'band': c.fillRect(-9, -44, 5, 88); break;
@@ -1983,8 +2289,10 @@ function drawCraftBody(c, craft, col, o) {
   c.lineJoin = 'round';
   if (col.neon) {
     for (const pt of craft.parts) { c.fillStyle = o.flash ? 'rgba(255,255,255,.95)' : (pt.f === 'glass' ? 'rgba(110,232,255,.35)' : '#12081f'); c.fill(pt.p); }
+    let st = col.stroke;
+    if (col.grad) { st = c.createLinearGradient(30, 0, -30, 0); col.grad.forEach((g, i) => st.addColorStop(i / (col.grad.length - 1), g)); }
     c.strokeStyle = col.glow; c.lineWidth = 5; for (const pt of craft.parts) c.stroke(pt.p);
-    c.strokeStyle = col.stroke; c.lineWidth = 1.6; for (const pt of craft.parts) c.stroke(pt.p);
+    c.strokeStyle = st; c.lineWidth = 1.6; for (const pt of craft.parts) c.stroke(pt.p);
   } else {
     // Each part: base colour, a soft top-lit shade, panel lines, canopy glint, then the outline.
     const shadeG = c.createLinearGradient(0, -34, 0, 34);
@@ -2008,7 +2316,29 @@ function drawCraftBody(c, craft, col, o) {
         c.lineWidth = 1.3; c.strokeStyle = col.ink;
       }
       if (!pt.ns) c.stroke(pt.p);
+      if (!o.flash && !o.plain) partDetail(c, pt, col);
     }
+  }
+}
+// Baked into each sprite once: a rim light along leading edges, roundel insignia on small round
+// accent marks, and a frame across canopies.
+function partDetail(c, pt, col) {
+  const m = pt.p.m;
+  if (pt.f === 'wing' || pt.f === 'body') {
+    c.save(); c.clip(pt.p);
+    c.translate(-1.3, 0); c.strokeStyle = 'rgba(255,255,255,.2)'; c.lineWidth = 1.6; c.stroke(pt.p);
+    c.restore();
+  } else if (pt.f === 'accent' && m && Math.abs(m[2] - m[3]) < 0.01 && m[2] <= 4) {
+    const [x, y, r] = m;
+    c.fillStyle = '#f3eee2'; c.beginPath(); c.arc(x, y, r * 0.64, 0, TAU); c.fill();
+    c.fillStyle = col.accent; c.beginPath(); c.arc(x, y, r * 0.32, 0, TAU); c.fill();
+  } else if (pt.f === 'glass' && m) {
+    const [x, y, rx, ry] = m;
+    c.save(); c.clip(pt.p);
+    c.strokeStyle = rgba(col.ink, 0.45); c.lineWidth = 0.8;
+    c.beginPath(); c.moveTo(x - rx * 0.25, y - ry); c.lineTo(x - rx * 0.25, y + ry); c.stroke();
+    c.fillStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(x + rx * 0.3, y - ry * 0.35, rx * 0.35, ry * 0.22, 0, 0, TAU); c.fill();
+    c.restore();
   }
 }
 
@@ -2154,6 +2484,12 @@ const Board = {
       out = { day, total, avg: total ? rows.reduce((s, x) => s + x.score, 0) / total : 0, entries: rows.slice(0, 100), me: me ? { rank: me.rank, score: me.score, name: me.name, grades: me.grades, theme: me.theme, plane: me.plane, livery: me.livery, fav: me.fav } : null };
     } else return null;
     if (out && out.me && out.total) out.me.percentile = out.total > 1 ? Math.round((out.total - out.me.rank) / (out.total - 1) * 100) : 100;
+    // Top 10% of today's daily unlocks the Daily Elite livery until the next sortie.
+    if (out && day === todayNum) {
+      const elite = !!(out.me && out.me.rank <= Math.max(1, Math.ceil(out.total * 0.1)));
+      if (elite && store.elite !== todayNum) { store.elite = todayNum; saveStore(); toast('Top 10% today', 'Daily Elite livery unlocked in every theater until the next sortie'); sfx.medal(); confetti(); earnMedal('elite'); if (state === 'menu') renderHangar(); }
+      else if (!elite && store.elite === todayNum) { store.elite = 0; saveStore(); }
+    }
     if (day === todayNum) this.last = out;
     return out;
   },
@@ -2164,11 +2500,12 @@ const Board = {
    ===================================================================== */
 const canvas = $('game');
 const ctx = canvas.getContext('2d');
-let W = 0, H = 0, DPR = 1, zoom = 1;
+let W = 0, H = 0, DPR = 1, zoom = 1, dprScale = 1;
 function resize() {
   W = window.innerWidth; H = window.innerHeight;
-  // Sharp on phones, but cap the pixel count on big retina screens so the frame rate holds.
-  DPR = Math.min(2, window.devicePixelRatio || 1, Math.sqrt(3.2e6 / Math.max(1, W * H)));
+  // Full native sharpness on phones (iPhones are 3x), capped by a pixel budget on big screens.
+  // dprScale drops a notch if a device can't hold the frame rate (see frame()).
+  DPR = Math.max(1, Math.min(3, window.devicePixelRatio || 1, Math.sqrt(3.4e6 / Math.max(1, W * H))) * dprScale);
   canvas.width = Math.floor(W * DPR); canvas.height = Math.floor(H * DPR);
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   zoom = clamp(Math.min(W, H) / 760, 0.6, 1.05);
@@ -2291,7 +2628,7 @@ function startRun(mode) {
     mode, theme: theme.id, waveIdx: 0, phase: 'intro', phaseT: 0, waveT: 0, queue: [], totalT: 0,
     score: 0, shownScore: 0, killPts: 0, bonusPts: 0, hullPts: 0, waveTimes: [],
     kills: 0, chain: 0, chainT: 0, mult: 1, bestMult: 1, waveHits: 0, results: [], won: false, aceKilled: false,
-    plane: currentPlane(theme).id, livery: store.livery[theme.id] || 0, zen: { spawnT: 2, aceT: 150, crashes: 0 },
+    plane: currentPlane(theme).id, livery: myLivery(theme.id), zen: { spawnT: 2, aceT: 150, crashes: 0 },
   };
   hideAllOverlays(); show('hud');
   renderHull();
@@ -2373,6 +2710,7 @@ function finish(won) {
 
 function countPlaneUse() {
   store.planeUse[run.plane] = (store.planeUse[run.plane] || 0) + 1;
+  if (Object.keys(store.planeUse).filter(k => PLANE_INDEX[k]).length >= 9) earnMedal('hangar');
   saveStore();
 }
 function finishZen() {
@@ -2750,6 +3088,12 @@ function updatePickups(dt) {
   }
 }
 
+// Elite liveries shed a few gold sparkles as they fly.
+function eliteSparkle(o, col) {
+  if (!col.elite || Math.random() > 0.35) return;
+  const a = (o.a || 0) + Math.PI + rand(-0.5, 0.5);
+  puff(o.x + rand(-10, 10), o.y + rand(-10, 10), Math.cos(a) * 40, Math.sin(a) * 40, rand(1.2, 2.4), -1, rand(0.3, 0.6), Math.random() < 0.5 ? '#ffd34f' : '#fff3c4', 'fire');
+}
 function puff(x, y, vx, vy, r, grow, life, color, kind) {
   if (parts.length > 800) return;
   parts.push({ x, y, vx, vy, r, grow, life, max: life, color, kind, rot: Math.random() * TAU, vr: rand(-8, 8) });
@@ -2893,15 +3237,38 @@ function drawGround(c, th, v, t, wld, camRef) {
       c.moveTo(x - 11, y); c.quadraticCurveTo(x - 5.5, y - 5, x, y); c.quadraticCurveTo(x + 5.5, y - 5, x + 11, y);
     }
     c.stroke();
+    // a few small boats with wakes, drifting slowly
+    const BC = 900;
+    for (let gx = Math.floor(v.x0 / BC); gx <= Math.ceil(v.x1 / BC); gx++) for (let gy = Math.floor(v.y0 / BC); gy <= Math.ceil(v.y1 / BC); gy++) {
+      const h = hash2(gx * 5.3, gy * 2.9); if (h < 0.72) continue;
+      const a = hash2(gy, gx * 3) * TAU, d = (t * 9) % 400;
+      const x = gx * BC + hash2(gx, gy + 9) * BC + Math.cos(a) * d, y = gy * BC + h * BC + Math.sin(a) * d;
+      c.save(); c.translate(x, y); c.rotate(a);
+      c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 2; c.beginPath(); c.moveTo(-10, -3); c.lineTo(-46, -10); c.moveTo(-10, 3); c.lineTo(-46, 10); c.stroke();
+      c.fillStyle = '#7a4a2a'; c.beginPath(); c.moveTo(12, 0); c.lineTo(4, -5); c.lineTo(-10, -4); c.lineTo(-10, 4); c.lineTo(4, 5); c.closePath(); c.fill();
+      c.fillStyle = '#f4efe2'; c.beginPath(); c.moveTo(2, -1); c.lineTo(-6, -11); c.lineTo(-6, -1); c.closePath(); c.fill();
+      c.restore();
+    }
     eachTile(c, v, vv => {
       for (const f of wld.features) {
-        if (!featVisible(f, vv, 30)) continue;
+        if (!featVisible(f, vv, 60)) continue;
+        c.lineWidth = 46; c.strokeStyle = 'rgba(140,232,226,.28)'; c.stroke(f.outer); // shallow reef
         c.lineWidth = 13 + Math.sin(t * 1.6 + f.x) * 3; c.strokeStyle = P.foam; c.stroke(f.outer);
         c.fillStyle = P.sand; c.fill(f.outer);
         c.fillStyle = P.grass; c.fill(f.inner);
         for (const d of f.dots) {
           c.fillStyle = 'rgba(10,40,30,.22)'; c.beginPath(); c.arc(d.x + 6, d.y + 9, 12 * d.s, 0, TAU); c.fill();
           c.fillStyle = P.grassDk; c.beginPath(); c.arc(d.x, d.y, 12 * d.s, 0, TAU); c.fill();
+        }
+        // palms around the beach
+        const sx = f.x, sy = f.y;
+        for (let k = 0; k < 4; k++) {
+          const a = hash2(sx * 0.01 + k, sy * 0.01) * TAU, r = f.rad * (0.74 + 0.08 * hash2(k, sx));
+          const px = sx + Math.cos(a) * r, py = sy + Math.sin(a) * r * 0.85, sw = Math.sin(t * 1.2 + k) * 0.08;
+          c.fillStyle = 'rgba(10,40,30,.2)'; c.beginPath(); c.arc(px + 7, py + 10, 11, 0, TAU); c.fill();
+          c.fillStyle = '#3f8a4a';
+          for (let j = 0; j < 5; j++) { const fa = j * TAU / 5 + sw + a; c.beginPath(); c.ellipse(px + Math.cos(fa) * 7, py + Math.sin(fa) * 7, 9, 3.2, fa, 0, TAU); c.fill(); }
+          c.fillStyle = '#8a6a3a'; c.beginPath(); c.arc(px, py, 2.6, 0, TAU); c.fill();
         }
       }
     });
@@ -2928,6 +3295,22 @@ function drawGround(c, th, v, t, wld, camRef) {
     for (let gx = gx0; gx <= gx1; gx++) for (let gy = gy0; gy <= gy1; gy++) {
       const h = hash2(gx * 3.1, gy * 1.7); if (h < 0.55) continue;
       for (let k = 0; k < 3; k++) { const hx = hash2(gx + k, gy - k), hy = hash2(gy + k * 2, gx); c.beginPath(); c.arc(gx * C + hx * C, gy * C + hy * C, 7 + h * 14 * (1 - k * 0.25), 0, TAU); c.fill(); }
+    }
+    // farmhouses and haystacks in some fields
+    for (let gx = gx0; gx <= gx1; gx++) for (let gy = gy0; gy <= gy1; gy++) {
+      const h = hash2(gx * 2.3 + 11, gy * 4.1);
+      if (h > 0.8) {
+        const x = gx * C + 60 + hash2(gx, gy * 3) * (C - 140), y = gy * C + 60 + hash2(gy, gx * 5) * (C - 140), w = 34, hh = 22;
+        c.fillStyle = 'rgba(20,24,10,.3)'; c.fillRect(x + 6, y + 8, w, hh);
+        c.fillStyle = '#9c3b2c'; c.fillRect(x, y, w, hh);
+        c.fillStyle = '#b5503d'; c.fillRect(x, y, w, hh / 2);
+        c.strokeStyle = 'rgba(30,18,10,.5)'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(x, y + hh / 2); c.lineTo(x + w, y + hh / 2); c.stroke();
+        c.fillStyle = '#d9cfb4'; c.fillRect(x + w + 4, y + 4, 12, 14);
+      } else if (h > 0.62) {
+        c.fillStyle = 'rgba(20,24,10,.25)';
+        for (let k = 0; k < 4; k++) { const x = gx * C + 40 + k * 46, y = gy * C + 70 + (k % 2) * 60; c.beginPath(); c.arc(x + 4, y + 5, 9, 0, TAU); c.fill(); }
+        for (let k = 0; k < 4; k++) { const x = gx * C + 40 + k * 46, y = gy * C + 70 + (k % 2) * 60; c.fillStyle = '#d6b964'; c.beginPath(); c.arc(x, y, 9, 0, TAU); c.fill(); c.strokeStyle = 'rgba(120,90,30,.5)'; c.lineWidth = 1.2; c.beginPath(); c.arc(x, y, 5, 0, TAU); c.stroke(); }
+      }
     }
     eachTile(c, v, vv => {
       for (const pts of wld.lines) {
@@ -2957,6 +3340,14 @@ function drawGround(c, th, v, t, wld, camRef) {
       c.moveTo(x - 46, y); c.quadraticCurveTo(x, y - 16, x + 46, y);
     }
     c.stroke();
+    // scrub and rocks
+    const SC = 110;
+    for (let gx = Math.floor(v.x0 / SC); gx <= Math.ceil(v.x1 / SC); gx++) for (let gy = Math.floor(v.y0 / SC); gy <= Math.ceil(v.y1 / SC); gy++) {
+      const h = hash2(gx * 1.9 + 3, gy * 2.7); if (h < 0.6) continue;
+      const x = gx * SC + hash2(gy * 3, gx) * SC, y = gy * SC + hash2(gx * 7, gy) * SC;
+      if (h > 0.86) { c.fillStyle = 'rgba(70,36,12,.28)'; c.beginPath(); c.ellipse(x + 4, y + 5, 9, 6, 0, 0, TAU); c.fill(); c.fillStyle = '#9a7652'; c.beginPath(); c.ellipse(x, y, 8, 5.5, 0.4, 0, TAU); c.fill(); c.fillStyle = '#b48d63'; c.beginPath(); c.ellipse(x - 2, y - 1.5, 4, 2.5, 0.4, 0, TAU); c.fill(); }
+      else { c.fillStyle = '#8a8a4a'; for (let k = 0; k < 3; k++) { c.beginPath(); c.arc(x + k * 4 - 4, y + (k % 2) * 3, 3.4, 0, TAU); c.fill(); } }
+    }
     eachTile(c, v, vv => {
       for (const pts of wld.lines.slice(0, 2)) {
         c.lineJoin = 'round'; c.lineCap = 'round';
@@ -2976,6 +3367,7 @@ function drawGround(c, th, v, t, wld, camRef) {
           const bx = d.x + f.rad * 1.15, by = d.y, s = 16 * d.s;
           c.fillStyle = P.mesaShadow; c.fillRect(bx + 6, by + 8, s, s * 0.8);
           c.fillStyle = P.building; c.fillRect(bx, by, s, s * 0.8);
+          c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(bx + s * 0.2, by + s * 0.15, s * 0.3, s * 0.25);
         }
       }
     });
@@ -2984,9 +3376,16 @@ function drawGround(c, th, v, t, wld, camRef) {
     for (const L of STAR_LAYERS) {
       const ox = cx * L.f, oy = cy * L.f;
       c.fillStyle = `rgba(255,255,255,${L.a})`;
+      const tw = [];
       for (let gx = Math.floor((v.x0 - ox) / L.C); gx <= Math.ceil((v.x1 - ox) / L.C); gx++) for (let gy = Math.floor((v.y0 - oy) / L.C); gy <= Math.ceil((v.y1 - oy) / L.C); gy++) {
         const h = hash2(gx * 1.7 + L.C, gy * 0.9);
-        c.fillRect(gx * L.C + h * L.C + ox, gy * L.C + hash2(gy, gx + L.C) * L.C + oy, L.s, L.s);
+        const x = gx * L.C + h * L.C + ox, y = gy * L.C + hash2(gy, gx + L.C) * L.C + oy;
+        if (L.s > 2 && h > 0.9) tw.push([x, y, h]); else c.fillRect(x, y, L.s, L.s);
+      }
+      // the brightest stars twinkle with a little cross
+      for (const [x, y, h] of tw) {
+        const k = 0.5 + 0.5 * Math.sin(t * 2.2 + h * 40);
+        c.fillStyle = `rgba(200,235,255,${0.45 + 0.5 * k})`; c.fillRect(x - 0.5, y - 3 - k * 2, 1.6, 6 + k * 4); c.fillRect(x - 3 - k * 2, y + 0.5, 6 + k * 4, 1.6);
       }
     }
     const px = 700 + cx * 0.8, py = -650 + cy * 0.8;
@@ -2995,6 +3394,12 @@ function drawGround(c, th, v, t, wld, camRef) {
       g.addColorStop(0, '#4d78e0'); g.addColorStop(0.7, '#1a2a6a'); g.addColorStop(1, '#0a1030');
       c.fillStyle = g; c.beginPath(); c.arc(px, py, 320, 0, TAU); c.fill();
       c.strokeStyle = 'rgba(160,200,255,.25)'; c.lineWidth = 10; c.beginPath(); c.ellipse(px, py, 470, 110, -0.35, 0, TAU); c.stroke();
+    }
+    const mx = -900 + cx * 0.7, my = 520 + cy * 0.7;
+    if (mx + 120 > v.x0 && mx - 120 < v.x1 && my + 120 > v.y0 && my - 120 < v.y1) {
+      c.fillStyle = '#8c86a6'; c.beginPath(); c.arc(mx, my, 90, 0, TAU); c.fill();
+      c.fillStyle = 'rgba(0,0,0,.28)'; c.beginPath(); c.arc(mx + 30, my + 26, 82, 0, TAU); c.fill();
+      c.fillStyle = 'rgba(60,54,84,.6)'; for (const [dx, dy, r] of [[-30, -20, 16], [18, -36, 9], [-6, 22, 12], [34, 6, 7]]) { c.beginPath(); c.arc(mx + dx, my + dy, r, 0, TAU); c.fill(); }
     }
     eachTile(c, v, vv => {
       for (const f of wld.features) {
@@ -3016,6 +3421,11 @@ function drawGround(c, th, v, t, wld, camRef) {
     for (let gx = Math.floor(v.x0 / M); gx <= Math.ceil(v.x1 / M); gx++) { c.moveTo(gx * M, v.y0 - 60); c.lineTo(gx * M, v.y1 + 60); }
     for (let gy = Math.floor(v.y0 / M); gy <= Math.ceil(v.y1 / M); gy++) { c.moveTo(v.x0 - 60, gy * M); c.lineTo(v.x1 + 60, gy * M); }
     c.stroke();
+    for (let gx = Math.floor(v.x0 / M); gx <= Math.ceil(v.x1 / M); gx++) for (let gy = Math.floor(v.y0 / M); gy <= Math.ceil(v.y1 / M); gy++) {
+      const k = 0.5 + 0.5 * Math.sin(t * 2 + (gx * 7 + gy * 3));
+      c.fillStyle = `rgba(110,232,255,${0.25 + 0.45 * k})`; c.fillRect(gx * M - 3, gy * M - 3, 6, 6);
+      c.strokeStyle = `rgba(255,79,216,${0.35 * k})`; c.lineWidth = 2; c.strokeRect(gx * M - 9 - k * 4, gy * M - 9 - k * 4, 18 + k * 8, 18 + k * 8);
+    }
     eachTile(c, v, vv => {
       for (const f of wld.features) {
         if (!featVisible(f, vv, 30)) continue;
@@ -3137,7 +3547,7 @@ function draw() {
   }
 
   const pRoll = player.rollT > 0 ? (1 - player.rollT / ROLL_T) * TAU : 0;
-  const pCraft = craftFor(th, 'player'), pCol = colorsFor(th, 'player', store.livery[th.id] || 0);
+  const pCraft = craftFor(th, 'player'), pCol = colorsFor(th, 'player', myLivery(th.id));
 
   // shadows
   if (th.shadows) {
@@ -3218,6 +3628,7 @@ function draw() {
     if (blink) ctx.globalAlpha = 0.35;
     if (Arena.on && Arena.flags & 128) ctx.globalAlpha = 0.4;
     drawCraft(ctx, pCraft, pCol, 1, { roll: pRoll + player.bank, spin: player.spin, t: time });
+    if (state === 'play') eliteSparkle(player, pCol);
     ctx.restore();
   }
 
@@ -3307,7 +3718,38 @@ function drawAvatar(cv, planeId, liv) {
 function avatarHTML(planeId, liv, size) {
   const px = size === 'big' || size === 'xl' ? 176 : 72;
   const id = PLANE_INDEX[planeId] ? planeId : 'hellcat';
-  return `<canvas class="av ${size || ''}" width="${px}" height="${px}" data-plane="${id}" data-liv="${Math.max(0, Math.min(4, Number(liv) || 0))}" aria-hidden="true"></canvas>`;
+  return `<canvas class="av ${size || ''}" width="${px}" height="${px}" data-plane="${id}" data-liv="${Math.max(0, Math.min(12, Number(liv) || 0))}" aria-hidden="true"></canvas>`;
+}
+// Profile pictures: any plane in any livery you own, or a squadron badge.
+const PIC_ICONS = [
+  { id: 'star', d: 'M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7.1L12 17.3 5.8 21l1.6-7.1L2 9.2l7.1-.6z' },
+  { id: 'bolt', d: 'M13.5 2L4 14h6.5L9 22l11-13h-6.8z' },
+  { id: 'wings', d: 'M12 9c-2-2.5-6-4-10-4 1 2 2 3 4 3.6C4 9 3 9.6 2 10.5c3 .6 5 .6 7-.2-.8 1-1.7 1.8-3 2.4 2.6.4 4.6-.4 6-1.6 1.4 1.2 3.4 2 6 1.6-1.3-.6-2.2-1.4-3-2.4 2 .8 4 .8 7 .2-1-.9-2-1.5-4-1.9 2-.6 3-1.6 4-3.6-4 0-8 1.5-10 4zm0 3.2l-1.4 7.8L12 22l1.4-2z' },
+  { id: 'target', d: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 3a7 7 0 1 1 0 14 7 7 0 0 1 0-14zm0 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 2.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z' },
+  { id: 'spade', d: 'M12 2C9 6 4 9 4 13a4 4 0 0 0 6.6 3L9 21h6l-1.6-5A4 4 0 0 0 20 13c0-4-5-7-8-11z' },
+  { id: 'heart', d: 'M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11z' },
+  { id: 'flame', d: 'M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3-1-3 0-6 1-9.5z' },
+  { id: 'anchor', d: 'M12 2a2.5 2.5 0 0 0-1 4.8V9H8v2h3v8.9C8 19.5 6 17.6 5.2 15H7l-3-4-3 4h2.1C4.2 19 7.7 22 12 22s7.8-3 8.9-7H23l-3-4-3 4h1.8c-.8 2.6-2.8 4.5-5.8 4.9V11h3V9h-3V6.8A2.5 2.5 0 0 0 12 2z' },
+  { id: 'skull', lvl: 5, d: 'M12 2C7 2 4 5.5 4 10c0 2.6 1.2 4.4 3 5.5V19h2v-2h2v2h2v-2h2v2h2v-3.5c1.8-1.1 3-2.9 3-5.5 0-4.5-3-8-8-8zM8.5 9a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm7 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4z' },
+  { id: 'rocket', lvl: 8, d: 'M14.5 2c3 1 5.5 3.5 6.5 6.5l-6 6-2.5-.5-4-4-.5-2.5zM9 12l3 3-4 4-1.5-.5L4 21l.5-2.5L3 17l-.5-1.5zM15.5 6a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6z' },
+  { id: 'crown', lvl: 12, d: 'M3 7l4.5 4L12 4l4.5 7L21 7l-2 11H5zm2 13h14v2H5z' },
+  { id: 'ghost', lvl: 15, d: 'M12 2a7 7 0 0 0-7 7v13l2.5-2 2 2 2.5-2 2.5 2 2-2 2.5 2V9a7 7 0 0 0-7-7zM9.5 8a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z' },
+  { id: 'moon', lvl: 20, d: 'M15 2a9 9 0 1 0 7 13.5A8 8 0 0 1 15 2z' },
+  { id: 'diamond', lvl: 25, d: 'M6 3h12l4 6-10 13L2 9zm1.2 2L4.8 8.5h4.4L11 5zm9.6 0H13l1.8 3.5h4.4z' },
+  { id: 'swords', lvl: 30, d: 'M3 3l7.5 7.5-1.4 1.4L3 5.8zm18 0v2.8l-11 11 1 1-1.4 1.4-1.8-1.8L5 20.2 3.8 19l2.8-2.8-1.8-1.8 1.4-1.4 1 1 11-11zM14.9 13.5l1.4-1.4 1 1-1.4 1.4 1.8 1.8L20.2 19 19 20.2l-2.8-2.8-1.8 1.8-1.4-1.4z' },
+  { id: 'eye', lvl: 40, d: 'M12 5C6 5 2 12 2 12s4 7 10 7 10-7 10-7-4-7-10-7zm0 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 2.4a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2z' },
+];
+const PIC_COLORS = ['#ff8a3d', '#e0b867', '#5cf2a0', '#6be4ff', '#3a8dff', '#b98cff', '#ff4fd8', '#ff4d5e', '#2a2f3a', '#f2f2f2'];
+const picOpen = ic => !ic.lvl || pilotLevel() >= ic.lvl;
+// pic is 'i:<icon>:<colour index>' or 'p:<plane>:<livery>'; anything else falls back to the plane.
+function picHTML(pic, planeId, liv, size) {
+  const m = String(pic || '').split(':');
+  if (m[0] === 'i') {
+    const ic = PIC_ICONS.find(x => x.id === m[1]);
+    if (ic) { const bg = PIC_COLORS[Number(m[2]) || 0] || PIC_COLORS[0]; return `<span class="av pic ${size || ''}" style="--bg:${bg}" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="${ic.d}"/></svg></span>`; }
+  }
+  if (m[0] === 'p' && PLANE_INDEX[m[1]]) return avatarHTML(m[1], Number(m[2]) || 0, size);
+  return avatarHTML(planeId, liv, size);
 }
 function paintAvatars(root) {
   root.querySelectorAll('canvas[data-plane]').forEach(cv => drawAvatar(cv, cv.dataset.plane, Number(cv.dataset.liv)));
@@ -3433,6 +3875,19 @@ function showBanner(kicker, title, sub) {
   const b = $('banner');
   $('bKicker').textContent = kicker; $('bTitle').textContent = title; $('bSub').textContent = sub || '';
   b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+}
+// A short burst of confetti over everything for the big moments.
+function confetti(n = 46) {
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const box = document.createElement('div'); box.className = 'confetti';
+  const cols = ['#ffd34f', '#ff8a3d', '#5cf2a0', '#6be4ff', '#ff4fd8', '#ffffff'];
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement('i');
+    p.style.cssText = `left:${50 + (Math.random() - 0.5) * 30}%;background:${cols[i % cols.length]};--dx:${(Math.random() - 0.5) * 900}px;--dy:${-200 - Math.random() * 420}px;--r:${Math.random() * 900 - 450}deg;animation-delay:${Math.random() * 0.08}s`;
+    box.appendChild(p);
+  }
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 1900);
 }
 function toast(title, sub) {
   const el = document.createElement('div');
@@ -3594,7 +4049,7 @@ function renderHangar() {
     list.querySelectorAll('.th-tab').forEach(btn => btn.addEventListener('click', () => { applyTheme(btn.dataset.theme); renderHangar(); track('theme', { theme: btn.dataset.theme }); }));
   }
   list.querySelectorAll('.th-tab').forEach(btn => btn.setAttribute('aria-checked', String(btn.dataset.theme === theme.id)));
-  const lv = pilotLevel(), cur = store.livery[theme.id] || 0, curPlane = theme.planes.indexOf(currentPlane(theme)), pl = theme.planes[curPlane], a = ARCH[pl.arch];
+  const lv = pilotLevel(), cur = myLivery(theme.id), curPlane = theme.planes.indexOf(currentPlane(theme)), pl = theme.planes[curPlane], a = ARCH[pl.arch];
   // showcase
   drawShowcase($('showCv'), theme, cur);
   $('scTheme').textContent = `${theme.name} · ${theme.era}`;
@@ -3617,11 +4072,12 @@ function renderHangar() {
   // liveries
   let unlocked = 0;
   $('liveryList').innerHTML = theme.liveries.map((L, i) => {
-    const open = (!L.req || store.medals[L.req]) && (!L.lvl || lv >= L.lvl);
+    const open = liveryOpen(theme.id, i);
     if (open) unlocked++;
-    const why = open ? L.name : `${L.name} · ${L.lvl ? `reach level ${L.lvl}` : 'earn ' + medalName(L.req)}`;
-    return `<button class="swatch chamfer ${open ? '' : 'locked'}" role="radio" data-liv="${i}" aria-checked="${i === cur}" title="${esc(why)}" aria-label="${esc(why)}" data-why="${esc(why)}"><i style="background:${L.body}"></i><i style="background:${L.wing}"></i><i style="background:${L.accent}"></i>${open ? '' : '<span class="lock">🔒</span>'}</button>`;
+    const why = open ? L.name : `${L.name} · ${L.elite ? 'finish in the top 10% of today\'s daily (lasts until the next sortie)' : L.lvl ? `reach level ${L.lvl}` : 'earn ' + medalName(L.req)}`;
+    return `<button class="swatch chamfer ${open ? '' : 'locked'} ${L.elite ? 'elite' : ''}" role="radio" data-liv="${i}" aria-checked="${i === cur}" title="${esc(why)}" aria-label="${esc(why)}" data-why="${esc(why)}"><canvas data-plane="${pl.id}" data-liv="${i}" width="88" height="88" aria-hidden="true"></canvas>${open ? '' : `<span class="lock">${L.elite ? '★' : L.lvl ? 'Lv ' + L.lvl : '🔒'}</span>`}</button>`;
   }).join('');
+  paintAvatars($('liveryList'));
   $('liveryName').textContent = theme.liveries[cur].name;
   $('liveryCount').textContent = `${unlocked}/${theme.liveries.length}`;
   $('liveryList').querySelectorAll('.swatch').forEach(btn => btn.addEventListener('click', () => {
@@ -3681,7 +4137,7 @@ function renderProfile() {
   const uses = Object.entries(store.planeUse || {}).filter(([id]) => PLANE_INDEX[id]).sort((a, b) => b[1] - a[1]);
   const flights = n => `${n} flight${n === 1 ? '' : 's'}`;
   const zb = store.zenBest;
-  $('profileCard').innerHTML = `${avatarHTML(shown, store.livery[info.theme] || 0, 'xl')}
+  $('profileCard').innerHTML = `${picHTML(store.auth ? store.pic : '', shown, myLivery(info.theme), 'xl')}
     <div class="pf-body">
       <small>Level ${pilotLevel()} · ${esc(titleName(store.title))}</small>
       <b>${esc(store.callsign)}</b>
@@ -3733,7 +4189,7 @@ function renderRecord() {
 function boardRowHTML(e) {
   const pid = resolvePlane(e.plane, e.theme);
   const fav = PLANE_INDEX[e.fav] && e.fav !== pid ? ` · fav ${planeName(e.fav)}` : '';
-  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : ''}<small>${esc(planeName(pid) + fav)}</small></span>${miniTiles(e.grades)}<span class="sc">${fmtNum(e.score)}</span></li>`;
+  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : CONFIG.apiBase ? '<span class="guest">not registered</span>' : ''}<small>${esc(planeName(pid) + fav)}</small></span>${miniTiles(e.grades)}<span class="sc">${fmtNum(e.score)}</span></li>`;
 }
 let boardMode = 'daily', arenaSort = 'kills';
 async function loadArenaBoard() {
@@ -3749,7 +4205,7 @@ async function loadArenaBoard() {
 }
 function arenaRowHTML(e) {
   const pid = PLANE_INDEX[e.plane] ? e.plane : 'hellcat';
-  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : ''}<small>${e.rounds} round${e.rounds === 1 ? '' : 's'} · ${e.wins} win${e.wins === 1 ? '' : 's'} · best streak ${e.streak}</small></span><span class="coop-k">${arenaSort === 'round' ? `${fmtNum(e.kills)} kills` : `${e.deaths} deaths`}</span><span class="sc">${fmtNum(arenaSort === 'round' ? e.best : e.kills)}</span></li>`;
+  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : '<span class="guest">not registered</span>'}<small>${e.rounds} round${e.rounds === 1 ? '' : 's'} · ${e.wins} win${e.wins === 1 ? '' : 's'} · best streak ${e.streak}</small></span><span class="coop-k">${arenaSort === 'round' ? `${fmtNum(e.kills)} kills` : `${e.deaths} deaths`}</span><span class="sc">${fmtNum(arenaSort === 'round' ? e.best : e.kills)}</span></li>`;
 }
 function renderArenaBoard(b) {
   const el = $('boardBody');
@@ -3819,7 +4275,7 @@ const Social = {
   profile() {
     const fav = favoritePlane();
     return {
-      xp: store.xp || 0, title: store.title || 0, trail: store.trail || 0, fav: fav || '', favLiv: fav ? (store.livery[PLANE_INDEX[fav].theme] || 0) : 0,
+      xp: store.xp || 0, title: store.title || 0, trail: store.trail || 0, pic: store.pic || '', fav: fav || '', favLiv: fav ? myLivery(PLANE_INDEX[fav].theme) : 0,
       streak: liveStreak(), maxStreak: store.maxStreak || 0, lastDay: store.lastDay || 0, played: store.played || 0, best: store.best || 0,
       medals: Object.keys(store.medals || {}), aces: store.aces || {}, arena: store.arena || {}, zenBest: store.zenBest || null,
       planeUse: store.planeUse || {}, liveries: store.livery || {}, planes: store.plane || {},
@@ -3839,6 +4295,7 @@ const Social = {
     for (const [k, v] of Object.entries(p.liveries || {})) if (store.livery[k] == null) store.livery[k] = v;
     for (const [k, v] of Object.entries(p.planes || {})) if (store.plane[k] == null) store.plane[k] = v;
     if (!store.title && p.title) store.title = p.title;
+    if (!store.pic && p.pic) store.pic = p.pic;
     if (!store.trail && p.trail) store.trail = p.trail;
   },
   dirty() {
@@ -3863,7 +4320,7 @@ const Social = {
       if (r.body.profile) this.merge(r.body.profile);
       store.callsign = r.body.username;
       saveStore();
-      $('callsign').value = store.callsign;
+      applyAuthCallsign();
       this.call('/api/v1/me/profile', { method: 'PUT', body: JSON.stringify({ profile: this.profile() }) }).catch(() => {});
       this.friends = null;
       this.render();
@@ -3872,7 +4329,70 @@ const Social = {
   },
   signOut(expired) {
     if (!expired && this.auth) this.call('/api/v1/auth/logout', { method: 'POST' }).catch(() => {});
-    delete store.auth; this.friends = null; saveStore(); this.render();
+    delete store.auth; this.friends = null; saveStore(); this.render(); applyAuthCallsign();
+  },
+  // Account settings: picture, password, sessions, deleting the account.
+  settingsHTML() {
+    const cur = store.pic || '', parts = cur.split(':'), iconCol = parts[0] === 'i' ? Number(parts[2]) || 0 : 0;
+    const flown = new Set(Object.keys(store.planeUse || {}).filter(k => PLANE_INDEX[k]));
+    for (const id of THEME_ORDER) flown.add(currentPlane(THEMES[id]).id);
+    const planes = [...flown].map(id => { const liv = myLivery(PLANE_INDEX[id].theme), v = `p:${id}:${liv}`; return `<button role="radio" data-pic="${v}" aria-checked="${cur === v}" title="${esc(planeName(id))}">${avatarHTML(id, liv)}</button>`; }).join('');
+    const icons = PIC_ICONS.map(ic => { const v = `i:${ic.id}:${iconCol}`, open = picOpen(ic); return `<button role="radio" class="${open ? '' : 'locked'}" data-pic="${v}" ${open ? '' : `data-lock="${ic.lvl}"`} aria-checked="${cur.startsWith(`i:${ic.id}:`)}" title="${open ? ic.id : `Reach level ${ic.lvl}`}">${picHTML(v)}${open ? '' : `<small>Lv ${ic.lvl}</small>`}</button>`; }).join('');
+    const colors = PIC_COLORS.map((c, i) => `<button role="radio" data-col="${i}" style="--c:${c}" aria-checked="${iconCol === i}" aria-label="Badge colour ${i + 1}"></button>`).join('');
+    return `<div class="settings">
+      <details open><summary>Profile picture</summary>
+        <div class="section-label"><span>Squadron badges</span><span>More unlock as you level up</span></div>
+        <div class="pic-grid" id="picIcons">${icons}</div>
+        <div class="color-row" id="picColors">${colors}</div>
+        <div class="section-label"><span>Or one of your planes</span><span>In its current livery</span></div>
+        <div class="pic-grid" id="picPlanes">${planes}</div>
+        <div id="picErr" class="acct-err" role="status"></div>
+      </details>
+      <details><summary>Callsign</summary><p class="pp-meta">Signed-in pilots fly under their username, <b>${esc(this.auth.username)}</b>, so friends can always find you. Usernames can't be changed.</p></details>
+      <details><summary>Change password</summary>
+        <div class="field"><label for="pwOld">Current password</label><input id="pwOld" type="password" autocomplete="current-password" maxlength="100"></div>
+        <div class="field"><label for="pwNew">New password</label><input id="pwNew" type="password" autocomplete="new-password" maxlength="100"></div>
+        <div id="pwErr" class="acct-err" role="status"></div>
+        <button id="pwGo" class="btn btn-ghost btn-small">Change password</button>
+      </details>
+      <details><summary>Sessions</summary>
+        <p class="pp-meta">Signed in on a shared computer? Sign out everywhere, including here.</p>
+        <div class="acct-row"><button id="acctOut2" class="btn btn-ghost btn-small">Log out</button><button id="acctOutAll" class="btn btn-ghost btn-small">Log out everywhere</button></div>
+      </details>
+      <details><summary class="danger">Delete account</summary>
+        <p class="pp-meta">Removes your account, profile and friends list for good. Your scores stay on the leaderboards without your name linked. This can't be undone.</p>
+        <div class="field"><label for="delPw">Password</label><input id="delPw" type="password" autocomplete="current-password" maxlength="100"></div>
+        <div id="delErr" class="acct-err" role="status"></div>
+        <button id="delGo" class="btn btn-ghost btn-small danger">Delete my account</button>
+      </details>
+    </div>`;
+  },
+  bindSettings(el) {
+    const setPic = v => { store.pic = v; saveStore(); this.render(); renderRecord(); };
+    el.querySelectorAll('#picIcons [data-pic], #picPlanes [data-pic]').forEach(b => b.onclick = () => {
+      if (b.dataset.lock) { $('picErr').textContent = `Reach level ${b.dataset.lock} to use that badge.`; return; }
+      setPic(b.dataset.pic);
+    });
+    el.querySelectorAll('#picColors [data-col]').forEach(b => b.onclick = () => {
+      const m = String(store.pic || '').split(':');
+      setPic(`i:${m[0] === 'i' ? m[1] : 'star'}:${b.dataset.col}`);
+    });
+    $('pwGo').onclick = async () => {
+      const e = $('pwErr'); e.className = 'acct-err';
+      if ($('pwNew').value.length < 6) { e.textContent = 'New passwords need at least 6 characters.'; return; }
+      const r = await this.call('/api/v1/me/password', { method: 'POST', body: JSON.stringify({ old: $('pwOld').value, password: $('pwNew').value }) }).catch(() => null);
+      if (!r || !r.ok) { e.textContent = r && r.status === 401 ? 'Your current password is wrong.' : r && r.status === 429 ? 'Too many tries. Wait a while.' : 'Couldn\'t change it. Try again.'; return; }
+      e.className = 'acct-err ok'; e.textContent = 'Password changed. Other devices were signed out.'; $('pwOld').value = $('pwNew').value = '';
+    };
+    $('acctOut2').onclick = () => this.signOut();
+    $('acctOutAll').onclick = async () => { await this.call('/api/v1/me/logout-all', { method: 'POST' }).catch(() => {}); this.signOut(true); };
+    $('delGo').onclick = async () => {
+      const e = $('delErr'); e.className = 'acct-err';
+      if (!confirm(`Delete the account ${this.auth.username} for good?`)) return;
+      const r = await this.call('/api/v1/me', { method: 'DELETE', body: JSON.stringify({ password: $('delPw').value }) }).catch(() => null);
+      if (!r || !r.ok) { e.textContent = r && r.status === 401 ? 'Wrong password.' : 'Couldn\'t delete it. Try again.'; return; }
+      delete store.pic; this.signOut(true); toast('Account deleted', 'Your progress on this device is still here.');
+    };
   },
   async loadFriends() {
     const r = await this.call('/api/v1/me/friends');
@@ -3892,7 +4412,7 @@ const Social = {
     const p = f.profile || {}, fav = PLANE_INDEX[p.fav] ? p.fav : 'hellcat';
     const t = f.today, at = f.arenaToday;
     const line = t ? `Today #${fmtNum(t.rank)} · ${fmtNum(t.score)}` : 'Hasn\'t flown today\'s sortie';
-    return `<li class="tap" data-u="${esc(f.username)}"><span class="rk">${levelOf(p.xp || 0)}</span>${avatarHTML(fav, p.favLiv || 0)}<span class="nm">${esc(f.username)}<small>${esc(titleName(p.title))} · ${line}${at ? ` · arena ${at.kills} kills` : ''}</small></span><span class="coop-k">${p.streak ? `${p.streak} day streak` : ''}</span><span class="sc">${t ? fmtNum(t.score) : '—'}</span></li>`;
+    return `<li class="tap" data-u="${esc(f.username)}"><span class="rk">${levelOf(p.xp || 0)}</span>${picHTML(p.pic, fav, p.favLiv || 0)}<span class="nm">${esc(f.username)}<small>${esc(titleName(p.title))} · ${line}${at ? ` · arena ${at.kills} kills` : ''}</small></span><span class="coop-k">${p.streak ? `${p.streak} day streak` : ''}</span><span class="sc">${t ? fmtNum(t.score) : '—'}</span></li>`;
   },
   render() {
     const el = $('friendsBody');
@@ -3915,14 +4435,20 @@ const Social = {
     }
     if (this.friends === null) { this.friends = []; this.loadFriends().catch(() => {}); }
     const list = this.friends.slice().sort((a, b) => ((b.today && b.today.score) || 0) - ((a.today && a.today.score) || 0));
-    el.innerHTML = `<div class="acct-who"><span>Signed in as <b>${esc(this.auth.username)}</b></span><span class="acct-row"><button id="acctMe" class="btn btn-ghost btn-small">My profile</button><button id="acctOut" class="btn btn-ghost btn-small">Log out</button></span></div>
+    if (this.view === 'settings') {
+      el.innerHTML = `<div class="acct-who"><span>Account · <b>${esc(this.auth.username)}</b></span><button id="acctBack" class="btn btn-ghost btn-small">Done</button></div>${this.settingsHTML()}`;
+      $('acctBack').onclick = () => { this.view = ''; this.render(); };
+      this.bindSettings(el); paintAvatars(el);
+      return;
+    }
+    el.innerHTML = `<div class="acct-who"><span class="acct-me">${picHTML(store.pic, favoritePlane() || currentPlane(theme).id, myLivery(theme.id))}<span>Signed in as <b>${esc(this.auth.username)}</b></span></span><span class="acct-row"><button id="acctMe" class="btn btn-ghost btn-small">My profile</button><button id="acctOut" class="btn btn-ghost btn-small">Settings</button></span></div>
       <div class="section-label"><span>Add a friend</span></div>
       <div class="join-row"><input id="friendName" maxlength="16" placeholder="Their username" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Friend's username"><button id="friendAdd" class="btn btn-ghost">Add</button></div>
       <div id="friendErr" class="acct-err" role="status"></div>
       <div class="section-label"><span>Friends</span><span>${list.length ? 'Ranked by today\'s sortie' : ''}</span></div>
       ${list.length ? `<ol class="board">${list.map(f => this.friendRow(f)).join('')}</ol>` : '<div class="notice chamfer">No friends yet. Ask yours for their username, or tap a pilot with a ● on the leaderboard and add them from their profile.</div>'}`;
     $('acctMe').onclick = () => this.open(this.auth.username);
-    $('acctOut').onclick = () => this.signOut();
+    $('acctOut').onclick = () => { this.view = 'settings'; this.render(); };
     $('friendAdd').onclick = () => this.addFriend();
     $('friendName').onkeydown = e => { if (e.key === 'Enter') this.addFriend(); };
     paintAvatars(el);
@@ -3941,7 +4467,7 @@ const Social = {
     const streak = (p.lastDay === todayNum || p.lastDay === todayNum - 1) ? p.streak || 0 : 0;
     const since = new Date(d.since || Date.now()).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
     sh.innerHTML = `
-      <div class="profile chamfer">${avatarHTML(fav, p.favLiv || 0, 'xl')}<div class="pf-body"><small>Level ${lv} · ${esc(titleName(p.title))}</small><b id="ppName">${esc(d.username)}</b>
+      <div class="profile chamfer">${picHTML(p.pic, fav, p.favLiv || 0, 'xl')}<div class="pf-body"><small>Level ${lv} · ${esc(titleName(p.title))}</small><b id="ppName">${esc(d.username)}</b>
         <span class="pp-meta">${PLANE_INDEX[p.fav] ? `Flies the <strong>${esc(planeName(fav))}</strong> · ` : ''}Pilot since ${esc(since)}</span></div></div>
       <div class="pp-today chamfer">${d.today ? `Today's sortie: <b>#${fmtNum(d.today.rank)}</b> with <b>${fmtNum(d.today.score)}</b> ${miniTiles(d.today.grades)}` : 'Hasn\'t flown today\'s sortie yet.'}${d.arenaToday ? ` · Arena today: <b>${d.arenaToday.kills}</b> kills in ${d.arenaToday.rounds} round${d.arenaToday.rounds === 1 ? '' : 's'}` : ''}</div>
       ${chips([[streak, 'Streak'], [p.maxStreak || 0, 'Best streak'], [p.played || 0, 'Played'], [(p.best || 0) >= 1000 ? ((p.best / 1000).toFixed(1) + 'k') : (p.best || 0), 'Best']])}
@@ -4001,6 +4527,7 @@ function setView(name) {
 
 function openMenu() {
   state = 'menu';
+  applyAuthCallsign();
   tileWorld = false;
   Coop.on = false;
   hide('squad');
@@ -4139,7 +4666,15 @@ function applyDeviceCopy() {
 }
 function setSoundLabels() { const t = `Sound ${store.muted ? 'off' : 'on'}`; $('soundBtn').textContent = t; $('pauseSound').textContent = t; }
 function toggleSound() { store.muted = !store.muted; saveStore(); setSoundLabels(); }
+// Signed-in pilots fly under their username; the callsign fields show it and can't be edited.
+function applyAuthCallsign() {
+  const a = store.auth;
+  if (a && store.callsign !== a.username) { store.callsign = a.username; saveStore(); }
+  for (const id of ['callsign', 'callsign2', 'coopName', 'arenaName']) { const el = $(id); if (!el) continue; el.readOnly = !!a; el.value = store.callsign; el.title = a ? 'Signed in: your callsign is your username. Change account settings in the Friends tab.' : ''; }
+  $('callsignHint').textContent = a ? `Signed in as ${a.username}. Account settings are in the Friends tab.` : 'Shown on the leaderboard. Letters, numbers and spaces.';
+}
 function saveCallsign(v) {
+  if (store.auth) { applyAuthCallsign(); return; }
   const c = cleanCallsign(v);
   if (c) { store.callsign = c; saveStore(); }
   $('callsign').value = store.callsign; $('callsign2').value = store.callsign;
@@ -4279,7 +4814,7 @@ function coopWave(i, s, n, seed) {
 
 const Net = {
   ws: null, you: null, room: null, code: null, quitting: false,
-  url(code, create) { return CONFIG.apiBase.replace(/\/$/, '').replace(/^http/, 'ws') + `/api/v1/rooms/${code}/ws` + (create ? '?create=1' : ''); },
+  url(code, create) { return CONFIG.apiBase.replace(/\/$/, '').replace(/^http/, 'ws') + `/api/v1/rooms/${code}/ws?device=${encodeURIComponent(deviceId())}` + (create ? '&create=1' : ''); },
   connect(code, create) {
     return new Promise((resolve, reject) => {
       this.close();
@@ -4330,7 +4865,7 @@ const Coop = {
     Net.room = m;
     const mine = m.players.find(p => p.id === Net.you);
     if (mine) {
-      const want = planeIdx(THEMES[m.settings.theme] || theme), liv = store.livery[m.settings.theme] || 0;
+      const want = planeIdx(THEMES[m.settings.theme] || theme), liv = myLivery(m.settings.theme);
       if (mine.plane !== want || mine.livery !== liv) Net.send({ t: 'me', plane: want, livery: liv });
     }
     if (this.on) for (const id of Object.keys(this.peers)) if (!m.players.some(p => p.id === id)) delete this.peers[id];
@@ -4682,6 +5217,7 @@ const Coop = {
     for (const pr of this.peerList()) {
       if (!pr.seen || pr.dead) continue;
       const pl = th.planes[pr.plane] || th.planes[0], craft = CRAFT_PLAYER[pl.shape], col = colorsFor(th, 'player', pr.livery);
+      eliteSparkle(pr, col);
       drawContrail(c, pr.trail, pr.trailId || 0, 20, 0.8);
       if (th.shadows) { c.save(); c.translate(pr.x + 16, pr.y + 26); c.rotate(pr.a); drawCraft(c, craft, null, 1, { roll: pr.roll, shadow: th.pal.shadow }); c.restore(); }
       c.save(); c.translate(pr.x, pr.y); c.rotate(pr.a); drawCraft(c, craft, col, 1, { roll: pr.roll, spin: time * 45, t: time }); c.restore();
@@ -4730,7 +5266,7 @@ function startCoop(m) {
     mode: 'coop', theme: theme.id, waveIdx: 0, phase: 'intro', phaseT: 3, waveT: 0, queue: [], totalT: 0, totalWaves: s.waves,
     score: 0, shownScore: 0, killPts: 0, bonusPts: 0, hullPts: 0, waveTimes: [],
     kills: 0, chain: 0, chainT: 0, mult: 1, bestMult: 1, waveHits: 0, results: [], won: false, aceKilled: false,
-    plane: currentPlane(theme).id, livery: store.livery[theme.id] || 0, zen: { spawnT: 0, aceT: 0, crashes: 0 },
+    plane: currentPlane(theme).id, livery: myLivery(theme.id), zen: { spawnT: 0, aceT: 0, crashes: 0 },
   };
   hide('coop'); hideAllOverlays(); show('hud'); show('squad');
   renderHull();
@@ -4842,7 +5378,7 @@ function renderCoopLobby() {
   }).join('') + Array.from({ length: 4 - room.players.length }, () => '<li class="gap">Open seat · share the code</li>').join('');
   paintAvatars($('coopPlayers'));
 
-  const cur = planeIdx(th), liv = store.livery[th.id] || 0;
+  const cur = planeIdx(th), liv = myLivery(th.id);
   $('coopTheater').textContent = th.name;
   $('coopPlanes').innerHTML = th.planes.map((pl, i) => planeOpen(i) ? `<button class="plane chamfer" role="radio" data-plane="${i}" aria-checked="${i === cur}">${avatarHTML(pl.id, liv, 'big')}<b>${esc(pl.name)}</b><small>${ARCH[pl.arch].label}</small></button>` : '').join('');
   paintAvatars($('coopPlanes'));
@@ -4910,6 +5446,9 @@ const PU_ICONS = {
   z: 'M12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm0-6.5a9.5 9.5 0 1 1 0 19 9.5 9.5 0 0 1 0-19zm0 2.5a7 7 0 1 0 0 14 7 7 0 0 0 0-14z',
   v: 'M12 21.5l-1.6-1.4C4.8 15.1 1.5 12.1 1.5 8.4 1.5 5.4 3.9 3 6.9 3c1.8 0 3.6.9 4.6 2.2.1.1.4.1.5 0C13 3.9 14.8 3 16.6 3c3 0 5.4 2.4 5.4 5.4 0 3.7-3.3 6.7-8.9 11.7z',
   o: 'M12 1l3.3 6.8 7.4 1-5.4 5.2 1.3 7.4L12 17.9l-6.6 3.5 1.3-7.4L1.3 8.8l7.4-1z',
+  x: 'M12 1l2.2 7.3L21.5 6l-4.8 6 4.8 6-7.3-2.3L12 23l-2.2-7.3L2.5 18l4.8-6-4.8-6 7.3 2.3z',
+  t: 'M5.5 2.5a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm13 0a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm-13 13a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm13 0a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM9 8h6l1 4-1 4H9l-1-4z',
+  y: 'M12 2c2 3 3 5 3 7a3 3 0 0 1-6 0c0-2 1-4 3-7zM5 8c1.4 2 2 3.4 2 4.6a2 2 0 0 1-4 0C3 11.4 3.6 10 5 8zm14 0c1.4 2 2 3.4 2 4.6a2 2 0 0 1-4 0c0-1.2.6-2.6 2-4.6zM11 14h2v8h-2zM4 16h2v5H4zm14 0h2v5h-2z',
 };
 const puSvg = k => `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="${PU_ICONS[k]}"/></svg>`;
 const puPaths = {};
@@ -4927,11 +5466,14 @@ const ARENA_PICKUPS = {
   d: { name: 'Double damage', color: '#ff2d55', hint: 'Double damage: your guns hit twice as hard for 8 seconds', ms: 8000 },
   z: { name: 'Shockwave', color: '#7cf2ff', hint: 'Shockwave! Everyone close to you just took 4 damage' },
   v: { name: 'Vampire', color: '#c2185b', hint: 'Vampire: every kill restores half your hull for 15 seconds', ms: 15000 },
+  x: { name: 'EMP', color: '#8fa8ff', hint: 'EMP! Everyone near you just lost their weapons and boosts' },
+  t: { name: 'Wingman drone', color: '#9ae66e', hint: 'Wingman drone: it shoots anyone who comes close, for 15 seconds', ms: 15000 },
+  y: { name: 'Flares', color: '#ffb347', hint: 'Flares: missiles lose you and mines stay quiet for 12 seconds', ms: 12000 },
   o: { name: 'Overdrive', color: '#ffd700', hint: 'OVERDRIVE: triple guns, double fire rate, double damage and a shield for 15 seconds', ms: 15000, boss: true },
 };
 const ARENA_AMMO = { m: 3, r: 3, n: 4 };
 const ARENA_ERRORS = {
-  full: 'That arena is full: 12 pilots. Try quick play.',
+  full: 'That arena is full. Try quick play or another arena.',
   no_room: 'No arena with that code. Check it with your friend.',
   taken: 'That code is already in use. Try again.',
   closed: "Couldn't reach the arena server. Check your connection and try again.",
@@ -4962,7 +5504,7 @@ function renderStreakMeter(st, dead) {
   const pips = nx ? Array.from({ length: nx[0] - lo }, (_, i) => `<i class="${lo + i < st ? 'on' : ''}"></i>`).join('') : '';
   el.innerHTML = `<b>${st}</b>${pips}<span>${nx ? `&nbsp;${esc(nx[1])}` : '&nbsp;max tier'}</span>`;
 }
-const WEAPON_TAGS = { g: 'GUNS', r: 'RAIL', m: 'MISSILE', n: 'MINE', z: 'SHOCK', b: 'BOSS' };
+const WEAPON_TAGS = { g: 'GUNS', r: 'RAIL', m: 'MISSILE', n: 'MINE', z: 'SHOCK', b: 'BOSS', d: 'DRONE' };
 const BOSS_DIMS = { ww1: [64, 26], ww2: [74, 18], modern: [50, 58], space: [80, 30], neon: [44, 44] };
 
 const ANet = {
@@ -5034,6 +5576,8 @@ const Arena = {
       case 'bl': showHint(`${m.name} inbound! It shoots back. Bring it down for Overdrive.`, 4600); this.bossName = m.name; sfx.bossHorn(); break;
       case 'bf': this.tracers.push({ x: m.x, y: m.y, tx: m.tx, ty: m.ty, life: 0.14 }); if (Math.hypot(m.x - player.x, m.y - player.y) < 700) tone(140 + Math.random() * 40, 0.05, 'square', 0.015); break;
       case 'sw': this.onShock(m); break;
+      case 'emp': this.onEmp(m); break;
+      case 'df': this.onDroneFire(m); break;
       case 'bx': this.onBlimpDown(m); break;
       default: break;
     }
@@ -5162,6 +5706,7 @@ const Arena = {
       this.kills++; this.streak = m.st; this.best = Math.max(this.best, m.st); this.score += m.pts;
       progress('kills', 1); progress('arenaKills', 1); progress('streak', m.st, true);
       if (m.st >= 5) earnMedal('rampage');
+      if (m.st >= 15) earnMedal('godlike');
       if (vp) { floater(vp.x, vp.y - 24, `+${fmtNum(m.pts)}`, theme.accent, 1); marks.push({ x: vp.x, y: vp.y, t: 0, kill: true }); }
       const tag = m.vs >= 3 ? 'SHUT DOWN' : m.rv ? 'REVENGE' : '';
       killPop(victim, 0, tag, m.pts);
@@ -5237,7 +5782,7 @@ const Arena = {
     player = makePlayer(hp); player.baseSp = player.sp; player.baseFi = player.fi; player.dead = true;
     this.missiles = []; this.mines.clear(); this.pickups.clear(); this.beams = []; this.rBullets = []; this.feed = [];
     this.kills = 0; this.deaths = 0; this.streak = 0; this.best = 0; this.score = 0; run.score = 0; run.shownScore = 0; run.theme = theme.id; run.plane = currentPlane(theme).id;
-    ANet.send({ t: 'me', plane: planeIdx(theme), livery: store.livery[theme.id] || 0 });
+    ANet.send({ t: 'me', plane: planeIdx(theme), livery: myLivery(theme.id) });
     showBanner(`Round ${m.n}`, theme.name, 'New theater · scores reset');
     sfx.wave();
   },
@@ -5329,7 +5874,7 @@ const Arena = {
       if (Math.random() < 0.8) puff(m.x - Math.cos(m.a) * 8, m.y - Math.sin(m.a) * 8, rand(-10, 10), rand(-10, 10), rand(2.5, 4.5), 9, 0.55, theme.neon ? theme.accent : '#d8d8d8', 'smoke');
       let gone = m.life <= 0;
       if (!gone && alive && (t.x - m.x) ** 2 + (t.y - m.y) ** 2 < 24 * 24) {
-        if (t === player) { if (vulnerable() && this.phase === 'play') { this.hv.push([m.o, 'm', m.ref]); gone = true; explode(m.x, m.y, 0.8); } }
+        if (t === player) { if (this.flags & 4096) { m.lock = false; } else if (vulnerable() && this.phase === 'play') { this.hv.push([m.o, 'm', m.ref]); gone = true; explode(m.x, m.y, 0.8); } }
         else if (!(t.fl & 64) && !(t.fl & 32)) {
           gone = true; explode(m.x, m.y, 0.8);
           if (m.o === this.you && t.bot && this.phase === 'play') ANet.send({ t: 'hit', h: [[t.id, 5, 'm', m.ref]] });
@@ -5340,7 +5885,7 @@ const Arena = {
     for (let i = this.beams.length - 1; i >= 0; i--) { this.beams[i].life -= dt; if (this.beams[i].life <= 0) this.beams.splice(i, 1); }
     for (const mn of this.mines.values()) {
       mn.t += dt;
-      if (mn.o !== this.you && !player.dead && vulnerable() && this.phase === 'play' && (mn.x - player.x) ** 2 + (mn.y - player.y) ** 2 < 36 * 36) {
+      if (mn.o !== this.you && !player.dead && !(this.flags & 4096) && vulnerable() && this.phase === 'play' && (mn.x - player.x) ** 2 + (mn.y - player.y) ** 2 < 36 * 36) {
         this.hv.push([mn.o, 'n', mn.id]); explode(mn.x, mn.y, 1); this.mines.delete(mn.id);
       }
     }
@@ -5366,7 +5911,7 @@ const Arena = {
     if (k === 'm') {
       let best = null, bd = 0.5;
       for (const o of this.others.values()) {
-        if (!this.hittable(o) || o.fl & 128) continue;
+        if (!this.hittable(o) || o.fl & 128 || o.fl & 4096) continue;
         const d = Math.hypot(o.x - p.x, o.y - p.y), off = Math.abs(angDiff(Math.atan2(o.y - p.y, o.x - p.x), p.a));
         if (d < 850 && off < bd) { bd = off; best = o; }
       }
@@ -5481,6 +6026,7 @@ const Arena = {
       if (!o.alive || !o.seen || !inView(o.x, o.y, 90)) continue;
       const pl = th.planes[o.plane] || th.planes[0], craft = CRAFT_PLAYER[pl.shape], col = colorsFor(th, 'player', o.livery);
       const ghost = this.cloaked(o);
+      if (!ghost && !(o.fl & 128)) eliteSparkle(o, col);
       if (ghost) c.globalAlpha = 0.1;
       if (!ghost) drawContrail(c, o.trail, o.trailId || 0, 20, 0.8);
       const blink = o.fl & 32 && Math.floor(time * 12) % 2 === 0;
@@ -5596,6 +6142,34 @@ const Arena = {
       if (Math.random() < 0.5) puff(x + rand(-20, 20), y + rand(-20, 20), rand(-30, 30), rand(-30, 30), rand(1.5, 3), 0, 0.4, '#ffd700', 'fire');
     }
     if (fl & 1024) { c.strokeStyle = `rgba(194,24,91,${0.5 + Math.sin(time * 6) * 0.25})`; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 28, 0, TAU); c.stroke(); }
+    if (fl & 2048) {
+      const [dx, dy] = this.dronePos(x, y);
+      c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.arc(dx + 4, dy + 6, 6, 0, TAU); c.fill();
+      c.fillStyle = '#3d4a2e'; c.fillRect(dx - 4, dy - 4, 8, 8);
+      c.strokeStyle = '#9ae66e'; c.lineWidth = 1.5;
+      for (const [ox, oy] of [[-5, -5], [5, -5], [-5, 5], [5, 5]]) { c.beginPath(); c.arc(dx + ox, dy + oy, 3.2, 0, TAU); c.stroke(); }
+      c.fillStyle = '#9ae66e'; c.beginPath(); c.arc(dx, dy, 1.8, 0, TAU); c.fill();
+    }
+    if (fl & 4096 && Math.random() < 0.35) puff(x + rand(-14, 14), y + rand(-14, 14), rand(-60, 60), rand(-60, 60), rand(1.5, 3), -2, rand(0.3, 0.5), Math.random() < 0.5 ? '#ffb347' : '#fff1c4', 'fire');
+  },
+  dronePos(x, y) { const a = time * 3.2; return [x + Math.cos(a) * 34, y + Math.sin(a) * 34]; },
+  onEmp(m) {
+    for (const r of [[24, 1000, 0.45, '#8fa8ff'], [12, 700, 0.35, '#ffffff']]) parts.push({ x: m.x, y: m.y, vx: 0, vy: 0, r: r[0], grow: r[1], life: r[2], max: r[2], color: r[3], kind: 'ring', rot: 0, vr: 0 });
+    const near = Math.hypot(m.x - player.x, m.y - player.y) < 900;
+    if (near) { noise(0.4, 0.2, 2400); tone(220, 0.4, 'square', 0.04, 60); }
+    if (m.hit.includes(this.you)) {
+      this.weapon = ''; this.buffs = {}; this.lock = null;
+      floater(player.x, player.y - 40, "EMP'D", '#8fa8ff', 1.3); shake = Math.max(shake, 12); vibrate(80);
+    }
+    if (m.by === this.you) floater(player.x, player.y - 40, m.hit.length ? `EMP × ${m.hit.length}` : 'EMP', '#8fa8ff', 1.3);
+  },
+  onDroneFire(m) {
+    const o = this.posOf(m.o);
+    if (!o) return;
+    const [dx, dy] = this.dronePos(o.x, o.y);
+    this.tracers.push({ x: dx, y: dy, tx: m.x + rand(-8, 8), ty: m.y + rand(-8, 8), life: 0.12 });
+    if (Math.hypot(dx - player.x, dy - player.y) < 700) tone(900 + Math.random() * 200, 0.03, 'square', 0.012);
+    if (m.h && m.o === this.you) { sfx.hit(); if (marks.length < 30) marks.push({ x: m.x, y: m.y, t: 0 }); }
   },
   edgeArrows(edgeArrow) {
     if (this.blimp) edgeArrow(this.blimp.x, this.blimp.y, '#ffd700', 1.6);
@@ -5704,18 +6278,18 @@ function startArena(m) {
     mode: 'arena', theme: theme.id, waveIdx: 0, phase: 'play', phaseT: 0, waveT: 0, queue: [], totalT: 0,
     score: 0, shownScore: 0, killPts: 0, bonusPts: 0, hullPts: 0, waveTimes: [],
     kills: 0, chain: 0, chainT: 0, mult: 1, bestMult: 1, waveHits: 0, results: [], won: false, aceKilled: false,
-    plane: currentPlane(theme).id, livery: store.livery[theme.id] || 0, zen: { spawnT: 0, aceT: 0, crashes: 0 },
+    plane: currentPlane(theme).id, livery: myLivery(theme.id), zen: { spawnT: 0, aceT: 0, crashes: 0 },
   };
   Arena.setRoster(m.roster);
   for (const [id, x, y, k] of m.pk) Arena.pickups.set(id, { id, x, y, k, t: 0 });
   for (const [id, x, y, o] of m.mines) Arena.mines.set(id, { id, x, y, o, t: 0 });
-  ANet.send({ t: 'hello', name: store.callsign, plane: planeIdx(theme), livery: store.livery[theme.id] || 0, trail: store.trail || 0, title: store.title || 0 });
+  ANet.send({ t: 'hello', name: store.callsign, plane: planeIdx(theme), livery: myLivery(theme.id), trail: store.trail || 0, title: store.title || 0 });
   hide('arena'); hideAllOverlays(); show('hud');
   $('waveLabel').classList.add('hidden'); $('pips').classList.add('hidden'); $('zenLabel').classList.add('hidden');
   setArenaHud(true);
   renderHull();
   state = 'play';
-  showBanner(m.private ? `Private arena · ${m.code}` : 'Arena · free-for-all', theme.name, `${Arena.roster.size} pilots · round ${m.round.n}`);
+  showBanner(m.private ? `Private arena · ${m.code}` : 'Arena · free-for-all', theme.name, m.rules ? rulesLine(m.rules) : `${Arena.roster.size} pilots · round ${m.round.n}`);
   sfx.wave();
   showHint(isTouch ? 'Drag to steer · ROLL dodges bullets and missiles · fly through power-ups' : 'Mouse to steer · click or Space to roll · fly through power-ups', 5500);
   if (m.round.phase === 'end') { Arena.phase = 'end'; }
@@ -5826,15 +6400,29 @@ async function arenaConnect(q, label, tries = 0) {
     $('arenaErr').textContent = ARENA_ERRORS[e] || ARENA_ERRORS.closed;
   }
 }
+function rulesLine(r) {
+  const bits = [`${r.max} pilots max`];
+  if (r.round) bits.push(`${r.round}-minute rounds`);
+  if (r.boss !== 'normal') bits.push(r.boss === 'off' ? 'no bosses' : 'fast bosses');
+  if (r.pu) bits.push(r.pu.length ? `${r.pu.length} power-ups` : 'no power-ups');
+  return bits.join(' · ');
+}
 function arenaInvite() { return `${CONFIG.siteUrl || (location.origin + location.pathname)}?arena=${Arena.info && Arena.info.code}`; }
 function initArenaUi() {
   $('arenaTheme').innerHTML = '<option value="">Rotate each round</option>' + THEME_ORDER.map(id => `<option value="${id}">${esc(THEMES[id].name)}</option>`).join('');
   $('puList').innerHTML = Object.entries(ARENA_PICKUPS).map(([k, d]) => `<div class="pu ${d.boss ? 'pu-boss' : ''}" style="--c:${d.color}"><b>${puSvg(k)}</b><span>${esc(d.name)}${d.boss ? ' <em>boss drop</em>' : ''}</span></div>`).join('');
   $('arenaQuick').addEventListener('click', () => { audio(); arenaConnect('quick=1', 'Finding an arena…'); });
+  const ruleKinds = Object.keys(ARENA_PICKUPS).filter(k => k !== 'o');
+  $('rulePu').innerHTML = ruleKinds.map(k => `<button type="button" data-k="${k}" aria-pressed="true" style="--c:${ARENA_PICKUPS[k].color}"><b>${puSvg(k)}</b>${esc(ARENA_PICKUPS[k].name)}</button>`).join('');
+  $('rulePu').querySelectorAll('button').forEach(b => b.addEventListener('click', () => b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'))));
+  $('ruleAll').addEventListener('click', () => $('rulePu').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'true')));
+  $('ruleNone').addEventListener('click', () => $('rulePu').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false')));
   $('arenaCreate').addEventListener('click', () => {
     audio();
     const th = $('arenaTheme').value, bots = $('arenaBots').checked ? 1 : 0;
-    arenaConnect(`code=${randomRoomCode()}&create=1&bots=${bots}${th ? `&theme=${th}` : ''}`, 'Opening a private arena…');
+    const on = [...$('rulePu').querySelectorAll('button[aria-pressed="true"]')].map(b => b.dataset.k);
+    const rules = `&max=${$('ruleMax').value}&round=${$('ruleRound').value}&boss=${$('ruleBoss').value}${on.length === ruleKinds.length ? '' : `&pu=${on.join(',')}`}`;
+    arenaConnect(`code=${randomRoomCode()}&create=1&bots=${bots}${th ? `&theme=${th}` : ''}${rules}`, 'Opening a private arena…');
   });
   $('arenaJoin').addEventListener('click', () => {
     audio();
@@ -5858,9 +6446,21 @@ function initArenaUi() {
    Main loop
    ===================================================================== */
 let last = 0;
+// Quality governor: if frames run long for a few seconds of play, render fewer pixels.
+const perf = { n: 0, sum: 0 };
+function governQuality(raw) {
+  if (state !== 'play' || document.hidden || raw > 0.25) { perf.n = 0; perf.sum = 0; return; }
+  perf.n++; perf.sum += raw;
+  if (perf.n < 180) return;
+  const avg = perf.sum / perf.n;
+  perf.n = 0; perf.sum = 0;
+  if (avg > 1 / 45 && dprScale > 0.6 && DPR > 1.2) { dprScale = Math.max(0.6, dprScale - 0.15); resize(); }
+}
 function frame(ts) {
-  let dt = last ? Math.min(1 / 30, (ts - last) / 1000) : 1 / 60;
+  const raw = last ? (ts - last) / 1000 : 0;
+  let dt = last ? Math.min(1 / 30, raw) : 1 / 60;
   last = ts;
+  if (raw) governQuality(raw);
   pollGamepad();
   if (state !== 'pause') {
     if (freezeT > 0) freezeT -= dt;

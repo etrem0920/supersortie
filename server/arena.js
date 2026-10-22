@@ -18,6 +18,7 @@
 //   arena -> client:  welcome, roster, w (world), f, ul, kill, spawn, pk, pg, mx, s (scores), round, error
 
 import { serverDay } from './day.js';
+import { eliteOk, ELITE_LIVERY } from './elite.js';
 
 export const ARENA_MAX = 12;
 export const ARENA_R = 2200;
@@ -33,14 +34,16 @@ const BOT_FLOOR = 8; // public arenas top up to this many pilots with AI pilots
 const THEMES = ['ww2', 'ww1', 'modern', 'space', 'neon'];
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
 const PLANE_IDS = {
-  ww1: ['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol'], ww2: ['hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190'],
-  modern: ['f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar'], space: ['lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger'],
-  neon: ['vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor'],
+  ww1: ['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol', 'fokker7', 'se5a', 'snipe'],
+  ww2: ['hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190', 'p47', 'bf109', 'zero'],
+  modern: ['f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar', 'raptor', 'yf23', 'su57'],
+  space: ['lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger', 'valkyrie', 'manta', 'talon'],
+  neon: ['vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor', 'outrun', 'laserwing', 'hexa'],
 };
-export const PLANES_PER_THEATER = 6;
+export const PLANES_PER_THEATER = 9;
 const REVENGE_BONUS = 75;
 // Cosmetic choices the game offers (liveries per theater, contrails, titles); see game.html.
-export const LIVERIES = 5, TRAILS = 9, TITLES = 12;
+export const LIVERIES = 13, TRAILS = 12, TITLES = 20;
 // Each theater has its own boss event: it crosses the arena, shoots back, takes a lot of
 // punishment, and drops Overdrive (the strongest power-up, never found anywhere else).
 export const BOSSES = {
@@ -52,6 +55,7 @@ export const BOSSES = {
 };
 export const BLIMP_HP = 70; // kept for the tests; the real number comes from BOSSES
 const BLIMP_FIRST_MS = 35000, BLIMP_EVERY_MS = 70000, BLIMP_POINTS = 300;
+const BOSS_TIMING = { normal: [BLIMP_FIRST_MS, BLIMP_EVERY_MS], fast: [15000, 32000], off: [Infinity, Infinity] };
 const BOT_NAMES = ['Viper', 'Ghost', 'Maverick', 'Kestrel', 'Nova', 'Raptor', 'Falcon', 'Talon', 'Havoc', 'Comet', 'Banshee', 'Jester', 'Rook', 'Wolfhound', 'Sabre', 'Hornet'];
 
 // Power-ups. Weapons replace each other; the rest stack with whatever you carry.
@@ -68,9 +72,13 @@ export const PICKUPS = {
   d: { name: 'Double damage', ms: 8000, weight: 9 },
   z: { name: 'Shockwave', weight: 7 },
   v: { name: 'Vampire', ms: 15000, weight: 8 },
+  x: { name: 'EMP', weight: 7 },                 // wipes nearby pilots' weapons and boosts
+  t: { name: 'Wingman drone', ms: 15000, weight: 7 }, // a drone that shoots whoever is near you
+  y: { name: 'Flares', ms: 12000, weight: 8 },   // missiles can't lock on, mines don't go off
   o: { name: 'Overdrive', ms: 15000, weight: 0 }, // boss drop only
 };
 const SHOCK_RANGE = 330, SHOCK_DMG = 4, VAMPIRE_HEAL = 5;
+const EMP_RANGE = 420, DRONE_RANGE = 380, DRONE_EVERY = 0.45;
 export const DAMAGE = { g: 1, r: 7, m: 5, n: 6 };
 const GUN_RANGE = 820;          // bullets travel ~620; the rest is latency slack
 const GUN_RATE = 21;            // bullets per second for a standard plane, both guns
@@ -86,11 +94,27 @@ const num = (v, lim) => { const n = Number(v); return Number.isFinite(n) ? Math.
 const wrap = a => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-export function pickKind(r = Math.random()) {
-  const total = Object.values(PICKUPS).reduce((s, p) => s + p.weight, 0);
+export function pickKind(r = Math.random(), allowed = null) {
+  const list = Object.entries(PICKUPS).filter(([k, p]) => p.weight > 0 && (!allowed || allowed.includes(k)));
+  if (!list.length) return null;
+  const total = list.reduce((s, [, p]) => s + p.weight, 0);
   let x = r * total;
-  for (const [k, p] of Object.entries(PICKUPS)) { if ((x -= p.weight) <= 0) return k; }
-  return 'm';
+  for (const [k, p] of list) { if ((x -= p.weight) <= 0) return k; }
+  return list[list.length - 1][0];
+}
+// Private arenas can set their own rules; public arenas use the defaults.
+export const RULE_LIMITS = { max: [2, 15], round: [2, 4, 6, 8], boss: ['off', 'normal', 'fast'] };
+export function parseRules(q) {
+  const max = Math.round(Number(q.get('max')) || ARENA_MAX);
+  const round = Number(q.get('round')) || 0;
+  const boss = RULE_LIMITS.boss.includes(q.get('boss')) ? q.get('boss') : 'normal';
+  const pu = q.get('pu');
+  const kinds = pu == null ? null : String(pu).split(',').filter(k => PICKUPS[k] && k !== 'o');
+  return {
+    max: Math.max(RULE_LIMITS.max[0], Math.min(RULE_LIMITS.max[1], max)),
+    round: RULE_LIMITS.round.includes(round) ? round : 0,
+    boss, pu: kinds && kinds.length < Object.keys(PICKUPS).length - 1 ? kinds : null,
+  };
 }
 
 // Kill points: 100, plus 25 for each kill already in your streak (up to +200), plus a
@@ -112,7 +136,7 @@ export class ArenaRoom {
   async load(name, opts) {
     if (this.s) return this.s;
     const saved = (await this.ctx.storage.get('cfg')) || null;
-    const cfg = saved || (opts ? { name, private: !!opts.private, theme: opts.theme || null, bots: opts.bots !== false, created: Date.now() } : null);
+    const cfg = saved || (opts ? { name, private: !!opts.private, theme: opts.theme || null, bots: opts.bots !== false, rules: opts.rules || null, created: Date.now() } : null);
     if (!cfg) return null;
     if (!saved) await this.ctx.storage.put('cfg', cfg);
     const themeIdx = cfg.theme ? THEMES.indexOf(cfg.theme) : (hash(cfg.name) + Math.floor(Date.now() / 86400000)) % THEMES.length;
@@ -120,10 +144,10 @@ export class ArenaRoom {
     // If the object restarted mid-round, carry on with the same round instead of starting over.
     const kept = saved ? await this.ctx.storage.get('round') : null;
     const round = kept && kept.ends > now - INTERMISSION_MS ? kept
-      : { n: 1, themeIdx: Math.max(0, themeIdx), phase: 'play', ends: now + this.roundMs, started: now, seed: seedFor(cfg.name, 1) };
+      : { n: 1, themeIdx: Math.max(0, themeIdx), phase: 'play', ends: now + this.roundLen(cfg), started: now, seed: seedFor(cfg.name, 1) };
     this.s = {
       cfg, nextId: 1, pilots: new Map(), pickups: new Map(), mines: new Map(), fired: new Map(), nextPick: 1, nextMine: 1,
-      round, tick: 0, lastReport: 0, blimp: null, nextBlimpId: 1, blimpAt: now + BLIMP_FIRST_MS,
+      round, tick: 0, lastReport: 0, blimp: null, nextBlimpId: 1, blimpAt: now + BOSS_TIMING[(cfg.rules && cfg.rules.boss) || 'normal'][0], nextRef: 1e9,
     };
     if (round !== kept) this.saveRound();
     // Pilots still connected after a restart keep their seat, score and plane: they stay in the
@@ -139,6 +163,11 @@ export class ArenaRoom {
     return this.s;
   }
   get theme() { return THEMES[this.s.round.themeIdx]; }
+  get rules() { return (this.s && this.s.cfg.rules) || null; }
+  get maxPilots() { return this.rules ? this.rules.max : ARENA_MAX; }
+  bossMs(i) { return BOSS_TIMING[(this.rules && this.rules.boss) || 'normal'][i]; }
+  roundLen(cfg) { const r = cfg && cfg.rules; return r && r.round && !(this.env && this.env.ARENA_ROUND_MS) ? r.round * 60000 : this.roundMs; }
+  pick() { return pickKind(Math.random(), this.rules && this.rules.pu); }
   saveRound() { this.ctx.waitUntil(this.ctx.storage.put('round', this.s.round).catch(() => {})); }
   // What a pilot's connection remembers, so a restarted arena can put them back as they were.
   saveSeat(p) {
@@ -162,9 +191,9 @@ export class ArenaRoom {
       token: info.token || null, away: false, awayAt: 0, bye: false,
       x: 0, y: 0, a: 0, r: 0, rl: false, hp: MAX_HP, alive: false, respawnAt: Date.now() + 300, protUntil: 0,
       kills: 0, deaths: 0, score: 0, streak: 0, best: 0,
-      weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, shieldUntil: 0, cloakUntil: 0, ddUntil: 0, vampUntil: 0, odUntil: 0,
+      weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, shieldUntil: 0, cloakUntil: 0, ddUntil: 0, vampUntil: 0, odUntil: 0, droneUntil: 0, droneT: 0, flareUntil: 0,
       budget: 8, budgetT: Date.now(), lastP: Date.now(), joined: Date.now(),
-      ai: info.bot ? { tg: null, tgT: 0, wander: Math.random() * Math.PI * 2, skill: 0.75 + Math.random() * 0.35, gunT: 0 } : null,
+      ai: info.bot ? { tg: null, tgT: 0, wander: Math.random() * Math.PI * 2, skill: 0.72 + Math.random() * 0.4, gunT: 0, style: ['hunter', 'vengeful', 'opportunist', 'brawler'][Math.floor(Math.random() * 4)] } : null,
     };
     this.s.pilots.set(id, p);
     return p;
@@ -197,7 +226,7 @@ export class ArenaRoom {
         const theme = THEMES.includes(url.searchParams.get('theme')) ? url.searchParams.get('theme') : null;
         await this.ctx.storage.deleteAll();
         this.s = null;
-        s = await this.load(name, { private: true, theme, bots: url.searchParams.get('bots') !== '0' });
+        s = await this.load(name, { private: true, theme, bots: url.searchParams.get('bots') !== '0', rules: parseRules(url.searchParams) });
       } else if (!s || !this.humans().length) return this.reject('no_room');
     } else if (!s) s = await this.load(name, { private: false });
 
@@ -221,7 +250,7 @@ export class ArenaRoom {
       this.startTicking();
       return new Response(null, { status: 101, webSocket: client });
     }
-    if (this.humans().length >= ARENA_MAX) return this.reject('full');
+    if (this.humans().length >= this.maxPilots) return this.reject('full');
 
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair);
@@ -242,7 +271,7 @@ export class ArenaRoom {
   welcome(p) {
     const s = this.s, now = Date.now();
     return {
-      t: 'welcome', you: p.id, token: p.token, R: ARENA_R, max: ARENA_MAX, hp: MAX_HP, name: s.cfg.name, private: s.cfg.private,
+      t: 'welcome', you: p.id, token: p.token, R: ARENA_R, max: this.maxPilots, hp: MAX_HP, name: s.cfg.name, private: s.cfg.private, rules: s.cfg.rules || null,
       code: s.cfg.private ? s.cfg.name.slice(4) : null,
       round: this.roundInfo(now), roster: this.roster(),
       pk: [...s.pickups.values()].map(k => [k.id, Math.round(k.x), Math.round(k.y), k.k]),
@@ -287,6 +316,11 @@ export class ArenaRoom {
         if ('livery' in m) p.livery = small(m.livery, LIVERIES - 1);
         if ('trail' in m) p.trail = small(m.trail, TRAILS - 1);
         if ('title' in m) p.title = small(m.title, TITLES - 1);
+        // The elite livery shows only once the leaderboard confirms it.
+        if (p.livery === ELITE_LIVERY && !p.eliteOk) {
+          p.livery = 0;
+          eliteOk(this.env, p.device, p.account).then(okd => { if (okd && this.s.pilots.get(p.id) === p) { p.eliteOk = true; p.livery = ELITE_LIVERY; this.saveSeat(p); this.sendRoster(); } }).catch(() => {});
+        }
         this.saveSeat(p);
         this.sendRoster();
         break;
@@ -344,7 +378,7 @@ export class ArenaRoom {
   balanceBots() {
     const s = this.s;
     const humans = this.humans().length;
-    const want = s.cfg.bots && humans ? Math.max(0, Math.min(ARENA_MAX - humans, BOT_FLOOR - humans)) : 0;
+    const want = s.cfg.bots && humans ? Math.max(0, Math.min(this.maxPilots - humans, Math.min(this.maxPilots, BOT_FLOOR) - humans)) : 0;
     const bots = [...s.pilots.values()].filter(p => p.bot);
     for (let i = bots.length; i < want; i++) {
       const used = new Set([...s.pilots.values()].map(p => p.name));
@@ -378,6 +412,7 @@ export class ArenaRoom {
       else if (p.away && now - p.awayAt > AWAY_MS) this.dropPilot(p, now);
     }
     this.botTick(0.1, now);
+    this.droneTick(0.1, now);
     this.blimpTick(0.1, now);
     this.keepPickups(now);
     for (const [id, m] of s.mines) if (now > m.until) s.mines.delete(id);
@@ -391,7 +426,7 @@ export class ArenaRoom {
   world(now) {
     const out = [];
     for (const p of this.s.pilots.values()) {
-      const fl = (p.alive ? 1 : 0) | (p.shield > 0 ? 2 : 0) | (now < p.boostUntil ? 4 : 0) | (now < p.rapidUntil ? 8 : 0) | (now < p.spreadUntil ? 16 : 0) | (now < p.protUntil ? 32 : 0) | (p.rl ? 64 : 0) | (now < p.cloakUntil ? 128 : 0) | (now < p.ddUntil ? 256 : 0) | (now < p.odUntil ? 512 : 0) | (now < p.vampUntil ? 1024 : 0);
+      const fl = (p.alive ? 1 : 0) | (p.shield > 0 ? 2 : 0) | (now < p.boostUntil ? 4 : 0) | (now < p.rapidUntil ? 8 : 0) | (now < p.spreadUntil ? 16 : 0) | (now < p.protUntil ? 32 : 0) | (p.rl ? 64 : 0) | (now < p.cloakUntil ? 128 : 0) | (now < p.ddUntil ? 256 : 0) | (now < p.odUntil ? 512 : 0) | (now < p.vampUntil ? 1024 : 0) | (now < p.droneUntil ? 2048 : 0) | (now < p.flareUntil ? 4096 : 0);
       out.push([p.id, Math.round(p.x), Math.round(p.y), Math.round(p.a * 100), Math.round(p.r * 100), p.hp, fl, p.weapon ? p.weapon + p.ammo : '']);
     }
     const b = this.s.blimp;
@@ -437,14 +472,14 @@ export class ArenaRoom {
   startRound(now) {
     const s = this.s, r = s.round;
     r.n++; r.themeIdx = s.cfg.theme && s.cfg.private ? r.themeIdx : (r.themeIdx + 1) % THEMES.length;
-    r.phase = 'play'; r.ends = now + this.roundMs; r.started = now; r.seed = seedFor(s.cfg.name, r.n);
+    r.phase = 'play'; r.ends = now + this.roundLen(s.cfg); r.started = now; r.seed = seedFor(s.cfg.name, r.n);
     this.saveRound();
     s.pickups.clear(); s.mines.clear(); s.fired.clear();
-    s.blimp = null; s.blimpAt = now + BLIMP_FIRST_MS;
+    s.blimp = null; s.blimpAt = now + this.bossMs(0);
     // Announce the round first so clients have the new theater loaded before the respawns land.
     this.broadcast({ t: 'round', ...this.roundInfo(now) });
     for (const p of s.pilots.values()) {
-      Object.assign(p, { kills: 0, deaths: 0, score: 0, streak: 0, best: 0, lastKiller: 0, weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, cloakUntil: 0, ddUntil: 0, vampUntil: 0, odUntil: 0 });
+      Object.assign(p, { kills: 0, deaths: 0, score: 0, streak: 0, best: 0, lastKiller: 0, weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, cloakUntil: 0, ddUntil: 0, vampUntil: 0, odUntil: 0, droneUntil: 0, flareUntil: 0 });
       this.spawn(p, now);
     }
     this.broadcast({ t: 's', b: this.board() });
@@ -477,7 +512,7 @@ export class ArenaRoom {
     v.hp -= dmg;
     if (v.hp > 0) return;
     v.hp = 0; v.alive = false; v.deaths++; v.respawnAt = now + RESPAWN_MS;
-    v.spreadUntil = 0; v.rapidUntil = 0; v.boostUntil = 0; v.shield = 0; v.cloakUntil = 0; v.ddUntil = 0; v.vampUntil = 0; v.odUntil = 0;
+    v.spreadUntil = 0; v.rapidUntil = 0; v.boostUntil = 0; v.shield = 0; v.cloakUntil = 0; v.ddUntil = 0; v.vampUntil = 0; v.odUntil = 0; v.droneUntil = 0; v.flareUntil = 0;
     const victimStreak = v.streak; v.streak = 0;
     const k = by && by !== v ? by : null;
     let pts = 0, rv = 0;
@@ -531,6 +566,7 @@ export class ArenaRoom {
     for (const h of list.slice(0, 6)) {
       if (!Array.isArray(h)) continue;
       const w = h[1], ref = Number(h[2]);
+      if (now < v.flareUntil) continue;
       if (w === 'm') {
         const f = this.s.fired.get(ref);
         if (!f || f.w !== 'm' || f.tg !== v.id || f.hit.size || now - f.at > 7000) continue;
@@ -580,7 +616,7 @@ export class ArenaRoom {
     }
     const b = s.blimp, cfg = b.cfg;
     b.x += Math.cos(b.a) * cfg.speed * dt; b.y += Math.sin(b.a) * cfg.speed * dt;
-    if (Math.hypot(b.x, b.y) > ARENA_R + 250) { s.blimp = null; s.blimpAt = now + BLIMP_EVERY_MS / 2; return; }
+    if (Math.hypot(b.x, b.y) > ARENA_R + 250) { s.blimp = null; s.blimpAt = now + this.bossMs(1) / 2; return; }
     // It shoots back: the turret picks the nearest pilot in range; closer pilots get hit more.
     b.gunT -= dt;
     if (b.gunT > 0) return;
@@ -617,11 +653,12 @@ export class ArenaRoom {
     if (!b) return;
     b.hp -= n;
     if (b.hp > 0) return;
-    s.blimp = null; s.blimpAt = now + BLIMP_EVERY_MS;
+    s.blimp = null; s.blimpAt = now + this.bossMs(1);
     if (by) by.score += BLIMP_POINTS;
     this.broadcast({ t: 'bx', id: b.id, x: Math.round(b.x), y: Math.round(b.y), by: by ? by.id : 0, pts: BLIMP_POINTS, kind: b.kind });
     // The drop: Overdrive, plus a weapon and a random power-up for whoever's close behind.
-    const kinds = ['o', ['m', 'r', 'n'][Math.floor(Math.random() * 3)], pickKind()];
+    const allowed = this.rules && this.rules.pu, weapons = ['m', 'r', 'n'].filter(k => !allowed || allowed.includes(k));
+    const kinds = ['o', weapons.length ? weapons[Math.floor(Math.random() * weapons.length)] : null, this.pick()].filter(Boolean);
     kinds.forEach((kind, i) => {
       const a = i / 3 * Math.PI * 2 + Math.random(), d = 50 + Math.random() * 40;
       const k = { id: s.nextPick++, x: b.x + Math.cos(a) * d, y: b.y + Math.sin(a) * d, k: kind };
@@ -635,7 +672,9 @@ export class ArenaRoom {
     const s = this.s, want = 7 + Math.ceil(s.pilots.size / 2);
     if (s.round.phase !== 'play' || s.pickups.size >= want || s.tick % 5) return;
     const ang = Math.random() * Math.PI * 2, d = Math.sqrt(Math.random()) * ARENA_R * 0.86;
-    const k = { id: s.nextPick++, x: Math.cos(ang) * d, y: Math.sin(ang) * d, k: pickKind() };
+    const kind = this.pick();
+    if (!kind) return;
+    const k = { id: s.nextPick++, x: Math.cos(ang) * d, y: Math.sin(ang) * d, k: kind };
     s.pickups.set(k.id, k);
     this.broadcast({ t: 'pk', id: k.id, x: Math.round(k.x), y: Math.round(k.y), k: k.k });
   }
@@ -656,6 +695,22 @@ export class ArenaRoom {
     else if (k.k === 'c') p.cloakUntil = now + def.ms;
     else if (k.k === 'd') p.ddUntil = now + def.ms;
     else if (k.k === 'v') p.vampUntil = now + def.ms;
+    else if (k.k === 't') { p.droneUntil = now + def.ms; p.droneT = 0.6; }
+    else if (k.k === 'y') {
+      p.flareUntil = now + def.ms;
+      // Any missile already chasing you loses you.
+      const refs = [...this.s.fired.entries()].filter(([, f]) => f.w === 'm' && f.tg === p.id && !f.hit.size).map(([ref]) => ref);
+      for (const ref of refs) this.s.fired.get(ref).hit.add(-1);
+      if (refs.length) this.broadcast({ t: 'ul', o: p.id, m: refs.slice(0, 8) });
+    } else if (k.k === 'x') {
+      const hit = [];
+      for (const o of this.s.pilots.values()) {
+        if (o === p || !o.alive || Math.hypot(o.x - p.x, o.y - p.y) > EMP_RANGE) continue;
+        Object.assign(o, { weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, cloakUntil: 0, ddUntil: 0, vampUntil: 0, droneUntil: 0, flareUntil: 0, odUntil: Math.min(o.odUntil, now) });
+        hit.push(o.id);
+      }
+      this.broadcast({ t: 'emp', x: Math.round(p.x), y: Math.round(p.y), by: p.id, hit });
+    }
     else if (k.k === 'o') {
       const until = now + def.ms;
       Object.assign(p, { odUntil: until, rapidUntil: Math.max(p.rapidUntil, until), spreadUntil: Math.max(p.spreadUntil, until), ddUntil: Math.max(p.ddUntil, until), shield: 8, shieldUntil: until, hp: MAX_HP });
@@ -668,48 +723,105 @@ export class ArenaRoom {
   }
 
   // ---------- AI pilots ----------
-  // Bots fly the same planes with slightly slower turns. Their guns are resolved here: a bot
-  // that holds its aim on a target in range lands roughly the hits a decent pilot would.
+  // Bots fly the same planes. Each has a temperament and a skill; they pick targets by threat
+  // and opportunity, dodge-roll missiles and pilots on their tail, weave under fire, go for
+  // repairs when hurt, and use the weapons they pick up. Their hits are resolved here.
   botTick(dt, now) {
     const s = this.s;
     const pilots = [...s.pilots.values()];
+    const leader = pilots.reduce((a, p) => (!a || p.score > a.score ? p : a), null);
+    // missiles a bot fired at another bot land after their flight time unless the target rolled
+    if (s.botShots && s.botShots.length) {
+      s.botShots = s.botShots.filter(sh => {
+        if (now < sh.at) return true;
+        const f = s.fired.get(sh.ref), tg = s.pilots.get(sh.tg), by = s.pilots.get(sh.by);
+        if (f && !f.hit.size && tg && tg.alive && !tg.rl && now >= tg.flareUntil) { f.hit.add(tg.id); this.damage(tg, by || null, 'm', DAMAGE.m, now); }
+        return false;
+      });
+    }
     for (const b of pilots) {
       if (!b.bot || !b.alive) continue;
       const ai = b.ai;
-      ai.tgT -= dt;
+      ai.tgT -= dt; ai.rollCd = (ai.rollCd || 0) - dt; ai.fireCd = (ai.fireCd || 0) - dt;
+      if (b.rl && now > (ai.rollUntil || 0)) b.rl = false;
+
+      // Threats: someone close behind with their nose on us, or a missile on its way.
+      let threat = null, td = 460;
+      for (const o of pilots) {
+        if (o === b || !o.alive) continue;
+        const d = Math.hypot(o.x - b.x, o.y - b.y);
+        if (d < td && Math.abs(wrap(Math.atan2(b.y - o.y, b.x - o.x) - o.a)) < 0.35) { threat = o; td = d; }
+      }
+      let incoming = false;
+      for (const f of s.fired.values()) if (f.w === 'm' && f.tg === b.id && !f.hit.size && now - f.at > 350 && now - f.at < 4000) { incoming = true; break; }
+      if (!b.rl && ai.rollCd <= 0 && (incoming ? Math.random() < 0.06 * ai.skill : threat && td < 300 && Math.random() < 0.015 * ai.skill)) {
+        b.rl = true; ai.rollUntil = now + 450; ai.rollCd = 2.0 + Math.random() * 1.6;
+      }
+
+      // Pick a target: close, in front, hurt, on a streak, the leader, or whoever shot us last.
       let tg = ai.tg ? s.pilots.get(ai.tg) : null;
-      if (!tg || !tg.alive || ai.tgT <= 0 || Math.hypot(tg.x - b.x, tg.y - b.y) > 1500) {
-        tg = null; let bd = 1500;
+      if (!tg || !tg.alive || ai.tgT <= 0 || Math.hypot(tg.x - b.x, tg.y - b.y) > 1600 || (threat && threat !== tg && Math.random() < 0.02)) {
+        tg = null; let best = Infinity;
         for (const o of pilots) {
           if (o === b || !o.alive || now < o.protUntil) continue;
           const d = Math.hypot(o.x - b.x, o.y - b.y);
-          if (now < o.cloakUntil && d > 220) continue;
-          if (d < bd) { bd = d; tg = o; }
+          if (d > 1600 || (now < o.cloakUntil && d > 220)) continue;
+          const off = Math.abs(wrap(Math.atan2(o.y - b.y, o.x - b.x) - b.a));
+          let sc = d + off * 260 - (MAX_HP - o.hp) * 40 - o.streak * 30;
+          if (ai.style === 'hunter' && o === leader) sc -= 500;
+          if (o.id === b.lastKiller) sc -= ai.style === 'vengeful' ? 600 : 250;
+          if (o === threat) sc -= 350;
+          if (!o.bot) sc -= 60; // a little more interested in people
+          if (sc < best) { best = sc; tg = o; }
         }
-        ai.tg = tg ? tg.id : null; ai.tgT = 3 + Math.random() * 2;
+        ai.tg = tg ? tg.id : null; ai.tgT = 2.5 + Math.random() * 2;
       }
-      // With nobody close, go after the supply blimp or a nearby power-up.
+
       let want;
+      // Anything flown through gets picked up, same as for people.
+      for (const k of s.pickups.values()) if (Math.abs(k.x - b.x) < 60 && Math.abs(k.y - b.y) < 60 && Math.hypot(k.x - b.x, k.y - b.y) < 60) { this.grant(b, k, now); break; }
+      // Unarmed: a weapon close by is worth a short detour.
+      const arm = !b.weapon ? [...s.pickups.values()].filter(k => PICKUPS[k.k].ammo).map(k => [k, Math.hypot(k.x - b.x, k.y - b.y)]).filter(([, d]) => d < 520).sort((a, c) => a[1] - c[1])[0] : null;
+      const heal = b.hp <= 4 ? [...s.pickups.values()].filter(k => k.k === 'w' || k.k === 'h').map(k => [k, Math.hypot(k.x - b.x, k.y - b.y)]).filter(([, d]) => d < 1100).sort((a, c) => a[1] - c[1])[0] : null;
       const bl = s.blimp && Math.hypot(s.blimp.x - b.x, s.blimp.y - b.y) < 1300 ? s.blimp : null;
-      if (bl && (!tg || Math.hypot(tg.x - b.x, tg.y - b.y) > 700)) {
+      if (heal && (!tg || Math.hypot(tg.x - b.x, tg.y - b.y) > 380)) {
+        const [k, d] = heal;
+        want = Math.atan2(k.y - b.y, k.x - b.x);
+        if (d < 60) this.grant(b, k, now);
+        tg = null;
+      } else if (arm && (!tg || Math.hypot(tg.x - b.x, tg.y - b.y) > 450)) {
+        want = Math.atan2(arm[0].y - b.y, arm[0].x - b.x);
+      } else if (bl && (!tg || Math.hypot(tg.x - b.x, tg.y - b.y) > (ai.style === 'opportunist' ? 1000 : 700))) {
         const d = Math.hypot(bl.x - b.x, bl.y - b.y);
-        want = Math.atan2(bl.y - b.y, bl.x - b.x) + (d < 160 ? 1.2 : 0);
+        want = Math.atan2(bl.y - b.y, bl.x - b.x) + (d < 170 ? 1.2 : 0);
         if (d < 550 && Math.abs(wrap(Math.atan2(bl.y - b.y, bl.x - b.x) - b.a)) < 0.2 && Math.random() < 0.3 * ai.skill) this.damageBlimp(b, 1, now);
         tg = null;
       } else if (tg) {
-        const d = Math.hypot(tg.x - b.x, tg.y - b.y), lead = d / 1030;
-        want = Math.atan2(tg.y + Math.sin(tg.a) * 260 * lead - b.y, tg.x + Math.cos(tg.a) * 260 * lead - b.x);
-        if (d < 150) want += 1.1;
+        // Lead the target by its measured velocity.
+        const d = Math.hypot(tg.x - b.x, tg.y - b.y), lead = Math.min(0.9, d / 1030);
+        const vx = ai.lx != null && ai.lid === tg.id ? (tg.x - ai.lx) / dt : Math.cos(tg.a) * 255, vy = ai.ly != null && ai.lid === tg.id ? (tg.y - ai.ly) / dt : Math.sin(tg.a) * 255;
+        ai.lx = tg.x; ai.ly = tg.y; ai.lid = tg.id;
+        want = Math.atan2(tg.y + clamp(vy, -500, 500) * lead - b.y, tg.x + clamp(vx, -500, 500) * lead - b.x);
+        // Head-on and too close: break off instead of ramming.
+        if (d < 170) want += Math.abs(wrap(tg.a - b.a)) > 2.4 ? 1.4 : 0.9;
       } else {
-        let pk = null, pd = 900;
-        for (const k of s.pickups.values()) { const d = Math.hypot(k.x - b.x, k.y - b.y); if (d < pd) { pd = d; pk = k; } }
+        let pk = null, pd = 1000;
+        for (const k of s.pickups.values()) { const d = Math.hypot(k.x - b.x, k.y - b.y) - (PICKUPS[k.k].ammo ? 150 : 0); if (d < pd) { pd = d; pk = k; } }
         ai.wander += (Math.random() - 0.5) * 0.4;
         want = pk ? Math.atan2(pk.y - b.y, pk.x - b.x) : ai.wander;
-        if (pk && pd < 60) this.grant(b, pk, now);
+        if (pk && Math.hypot(pk.x - b.x, pk.y - b.y) < 60) this.grant(b, pk, now);
+      }
+      // Under fire: weave so the shooter can't settle.
+      if (threat && threat !== tg) want += Math.sin(now / 210 + b.id * 1.7) * 0.9;
+      // Keep a little space from other pilots.
+      for (const o of pilots) {
+        if (o === b || o === tg || !o.alive) continue;
+        const d = Math.hypot(o.x - b.x, o.y - b.y);
+        if (d < 80) { want += wrap(Math.atan2(b.y - o.y, b.x - o.x) - want) * 0.35; break; }
       }
       if (Math.hypot(b.x, b.y) > ARENA_R - 180) want = Math.atan2(-b.y, -b.x);
       for (const [id, mine] of s.mines) {
-        if (mine.o !== b.id && Math.hypot(mine.x - b.x, mine.y - b.y) < 36 && this.canHit(b, now)) {
+        if (mine.o !== b.id && Math.hypot(mine.x - b.x, mine.y - b.y) < 36 && this.canHit(b, now) && now >= b.flareUntil) {
           s.mines.delete(id);
           this.broadcast({ t: 'mx', id });
           this.damage(b, s.pilots.get(mine.o), 'n', DAMAGE.n, now);
@@ -717,17 +829,63 @@ export class ArenaRoom {
         }
       }
       if (!b.alive) continue;
-      const turn = 3.5 * ai.skill;
+      const turn = 3.5 * ai.skill * (b.rl ? 0.6 : 1);
       b.a = wrap(b.a + clamp(wrap(want - b.a) * 4, -turn, turn) * dt);
-      const sp = 255 * (now < b.boostUntil ? 1.45 : 1);
+      const sp = 255 * (now < b.boostUntil ? 1.45 : 1) * (b.rl ? 1.25 : 1);
       b.x += Math.cos(b.a) * sp * dt; b.y += Math.sin(b.a) * sp * dt;
       b.r = clamp(wrap(want - b.a) * 0.5, -0.6, 0.6);
+
+      // Mines go out the back when someone's on our tail.
+      if (b.weapon === 'n' && threat && td < 420 && ai.fireCd <= 0) this.botFire(b, null, now);
       if (!tg) continue;
       const d = Math.hypot(tg.x - b.x, tg.y - b.y), err = Math.abs(wrap(Math.atan2(tg.y - b.y, tg.x - b.x) - b.a));
       if (d < 600 && err < 0.16 && !tg.rl) {
-        const hits = Math.random() < 0.5 * ai.skill * (now < b.rapidUntil ? 1.8 : 1) ? 1 : 0;
+        const hits = Math.random() < 0.5 * ai.skill * (now < b.rapidUntil ? 1.8 : 1) * (now < b.spreadUntil ? 1.3 : 1) ? 1 : 0;
         if (hits) this.damage(tg, b, 'g', hits * (now < b.ddUntil ? 2 : 1), now);
       }
+      if (ai.fireCd <= 0 && ((b.weapon === 'r' && d < 1150 && err < 0.06) || (b.weapon === 'm' && d < 950 && d > 160 && err < 0.6 && now >= tg.flareUntil))) this.botFire(b, tg, now);
+    }
+  }
+  // A bot uses the weapon it carries. Everyone sees the shot; hits on people are still judged
+  // by their own game (missiles) or right here (rail, and anything aimed at another bot).
+  botFire(b, tg, now) {
+    const s = this.s, w = b.weapon;
+    if (!w || b.ammo <= 0) return;
+    b.ammo--; if (b.ammo <= 0) b.weapon = null;
+    b.ai.fireCd = w === 'r' ? 1.3 : w === 'm' ? 1.6 : 1.1;
+    if (w === 'n') {
+      const id = s.nextMine++, x = b.x - Math.cos(b.a) * 30, y = b.y - Math.sin(b.a) * 30;
+      s.mines.set(id, { id, x, y, o: b.id, until: now + 25000 });
+      this.broadcast({ t: 'f', o: b.id, w: 'n', x: Math.round(x), y: Math.round(y), id });
+      return;
+    }
+    const ref = s.nextRef = (s.nextRef || 1e9) + 1;
+    s.fired.set(ref, { o: b.id, w, tg: tg.id, at: now, hit: new Set() });
+    this.broadcast({ t: 'f', o: b.id, w, x: Math.round(b.x), y: Math.round(b.y), a: Math.round(b.a * 100), tg: tg.id, ref });
+    if (w === 'r') {
+      if (!tg.rl && Math.random() < 0.55 + 0.3 * b.ai.skill) { s.fired.get(ref).hit.add(tg.id); this.damage(tg, b, 'r', DAMAGE.r * (now < b.ddUntil ? 2 : 1), now); }
+    } else if (tg.bot) {
+      (s.botShots || (s.botShots = [])).push({ at: now + Math.hypot(tg.x - b.x, tg.y - b.y) / 380 * 1000, ref, tg: tg.id, by: b.id });
+    }
+  }
+  // Wingman drones: a few quick shots at whoever comes near their owner.
+  droneTick(dt, now) {
+    const s = this.s;
+    for (const p of s.pilots.values()) {
+      if (!p.alive || now >= p.droneUntil) continue;
+      p.droneT -= dt;
+      if (p.droneT > 0) continue;
+      p.droneT = DRONE_EVERY;
+      let tg = null, bd = DRONE_RANGE;
+      for (const o of s.pilots.values()) {
+        if (o === p || !o.alive || now < o.protUntil || now < o.cloakUntil) continue;
+        const d = Math.hypot(o.x - p.x, o.y - p.y);
+        if (d < bd) { bd = d; tg = o; }
+      }
+      if (!tg) continue;
+      const hit = !tg.rl && Math.random() < 0.6;
+      this.broadcast({ t: 'df', o: p.id, v: tg.id, x: Math.round(tg.x), y: Math.round(tg.y), h: hit ? 1 : 0 });
+      if (hit) this.damage(tg, p, 'd', 1, now);
     }
   }
 }
