@@ -86,6 +86,19 @@ const GUN_RANGE = 820;          // bullets travel ~620; the rest is latency slac
 const GUN_RATE = 21;            // bullets per second for a standard plane, both guns
 const PICK_RANGE = 170;
 
+// AI pilots wear a random loadout from everything in the game, apart from the things that mean something:
+// the Daily Elite skin (12), the season-pass contrail (20) and every Apex plane, skin, contrail, bullet and kill effect.
+const pickOut = (n, skip) => { let v; do v = Math.floor(Math.random() * n); while (skip.includes(v)); return v; };
+const lastFive = n => [n - 5, n - 4, n - 3, n - 2, n - 1]; // the Apex items are the last five of each list
+export function botLook() {
+  return {
+    plane: pickOut(PLANES_PER_THEATER, [PLANES_PER_THEATER - 1]),
+    livery: pickOut(LIVERIES, [12, LIVERIES - 1]),
+    trail: pickOut(TRAILS, [20, ...lastFive(TRAILS)]),
+    bullet: pickOut(BULLETS, lastFive(BULLETS)),
+    kfx: pickOut(KILLFX, lastFive(KILLFX)),
+  };
+}
 export function cleanName(s) {
   s = String(s || '').replace(/[^A-Za-z0-9 _.\-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
   if (!s || BLOCKED.test(s.replace(/[^a-z]/gi, ''))) return 'Pilot';
@@ -401,7 +414,7 @@ export class ArenaRoom {
     for (let i = bots.length; i < want; i++) {
       const used = new Set([...s.pilots.values()].map(p => p.name));
       const name = BOT_NAMES.find(n => !used.has(n)) || `Bot ${s.nextId}`;
-      this.addPilot(s.nextId++, { name, plane: Math.floor(Math.random() * PLANES_PER_THEATER), livery: Math.floor(Math.random() * 3), trail: Math.floor(Math.random() * 4), bot: true });
+      Object.assign(this.addPilot(s.nextId++, { name, bot: true }), botLook());
     }
     // Retire the weakest bots first so a newcomer doesn't shuffle the leaderboard.
     bots.sort((a, b) => a.score - b.score);
@@ -497,9 +510,11 @@ export class ArenaRoom {
     // Announce the round first so clients have the new theater loaded before the respawns land.
     this.broadcast({ t: 'round', ...this.roundInfo(now) });
     for (const p of s.pilots.values()) {
+      if (p.bot) Object.assign(p, botLook()); // a fresh look every round
       Object.assign(p, { kills: 0, deaths: 0, score: 0, streak: 0, best: 0, lastKiller: 0, weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, cloakUntil: 0, ddUntil: 0, vampUntil: 0, odUntil: 0, droneUntil: 0, flareUntil: 0 });
       this.spawn(p, now);
     }
+    this.sendRoster();
     this.broadcast({ t: 's', b: this.board() });
   }
 

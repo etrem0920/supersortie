@@ -54,3 +54,14 @@ test('power-up picks respect a private arena\'s list', () => {
   for (let i = 0; i < 500; i++) assert.ok(['m', 'z'].includes(pickKind(Math.random(), ['m', 'z'])));
   assert.equal(pickKind(0.5, []), null);
 });
+
+test('AI pilots wear a random loadout, never the Elite, season or Apex items', async () => {
+  const { botLook, PLANES_PER_THEATER, LIVERIES, TRAILS, BULLETS, KILLFX } = await import('../arena.js');
+  const seen = { livery: new Set(), trail: new Set(), bullet: new Set(), kfx: new Set(), plane: new Set() };
+  for (let i = 0; i < 4000; i++) { const l = botLook(); for (const k of Object.keys(seen)) seen[k].add(l[k]); }
+  assert.ok(!seen.livery.has(12) && !seen.livery.has(LIVERIES - 1) && seen.livery.size > 120, 'skins');
+  assert.ok(!seen.trail.has(20) && !seen.trail.has(TRAILS - 1) && seen.trail.size === TRAILS - 6, 'contrails');
+  assert.ok(!seen.bullet.has(BULLETS - 1) && seen.bullet.size === BULLETS - 5, 'bullets');
+  assert.ok(!seen.kfx.has(KILLFX - 1) && seen.kfx.size === KILLFX - 5, 'kill effects');
+  assert.ok(!seen.plane.has(PLANES_PER_THEATER - 1) && seen.plane.size === PLANES_PER_THEATER - 1, 'planes');
+});
