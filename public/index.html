@@ -966,6 +966,7 @@
       <button id="howBtn" class="link-btn">How to play</button>
       <button id="boardNav" class="link-btn nav-hide">Leaderboard</button>
       <button id="soundBtn" class="link-btn">Sound on</button>
+      <button id="musicBtn" class="link-btn nav-hide">Music on</button>
       <button id="fsBtn" class="link-btn hidden">Fullscreen</button>
     </nav>
   </header>
@@ -1235,6 +1236,7 @@
     <div class="cta">
       <button id="pauseHow" class="btn btn-ghost btn-small">How to fly</button>
       <button id="pauseSound" class="btn btn-ghost btn-small">Sound on</button>
+      <button id="pauseMusic" class="btn btn-ghost btn-small">Music on</button>
       <button id="pauseFs" class="btn btn-ghost btn-small hidden">Fullscreen</button>
       <button id="arenaInvite" class="btn btn-ghost btn-small hidden">Copy invite</button>
     </div>
@@ -3196,6 +3198,118 @@ const sfx = {
   bossDown: () => { noise(1.4, 0.4, 500); tone(60, 0.9, 'sine', 0.2, 28); [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.22, 'square', 0.035, null, 0.25 + i * 0.07)); },
   overdrive: () => { [196, 247, 294, 392, 494, 587, 784].forEach((f, i) => tone(f, 0.3, 'sawtooth', 0.03, f * 1.02, i * 0.045)); tone(55, 0.8, 'sine', 0.18, 110); },
   shock: () => { tone(120, 0.5, 'sine', 0.2, 30); noise(0.5, 0.28, 450); },
+};
+/* ---------- music: a small step sequencer with a different band for every era ---------- */
+const SCALES = { maj: [0, 2, 4, 5, 7, 9, 11], min: [0, 2, 3, 5, 7, 8, 10], dor: [0, 2, 3, 5, 7, 9, 10] };
+// kit: kick / snare / hat on 16 steps. bass: r root, t third, f fifth, o octave, s sixth.
+const KITS = {
+  march: ['x.......x.......', '....x..x....x.xx', '................'],
+  swing: ['x.......x.......', '....x.......x...', 'x.x.x.x.x.x.x.x.'],
+  rock: ['x.....x.x.....x.', '....x.......x...', 'x.x.x.x.x.x.x.x.'],
+  soft: ['x.........x.....', '............x...', '..x...x...x...x.'],
+  gated: ['x...x...x...x...', '....x.......x...', '..x...x...x...x.'],
+};
+const MUSIC = {
+  ww1: { bpm: 108, key: 50, sc: 'maj', prog: [0, 3, 4, 0], kit: 'march', bassPat: 'r...f...r...f...', bass: 'triangle', lead: 'square', cut: 2600, pad: false, seed: 11 },
+  ww2: { bpm: 126, key: 53, sc: 'maj', prog: [0, 5, 1, 4], kit: 'swing', bassPat: 'r...t...f...s...', bass: 'triangle', lead: 'sawtooth', cut: 1700, pad: true, swing: 0.16, seed: 23 },
+  modern: { bpm: 142, key: 40, sc: 'min', prog: [0, 5, 2, 6], kit: 'rock', bassPat: 'r.r.r.r.r.r.r.ro', bass: 'sawtooth', lead: 'sawtooth', cut: 2200, pad: true, seed: 37 },
+  space: { bpm: 96, key: 45, sc: 'dor', prog: [0, 3, 5, 4], kit: 'soft', bassPat: 'r.......f.......', bass: 'sine', lead: 'triangle', cut: 3200, pad: true, arp: true, seed: 41 },
+  neon: { bpm: 116, key: 45, sc: 'min', prog: [0, 5, 3, 4], kit: 'gated', bassPat: 'r.ro.r.ro.r.ro.r', bass: 'sawtooth', lead: 'square', cut: 2000, pad: true, arp: true, seed: 53 },
+};
+const midiHz = m => 440 * Math.pow(2, (m - 69) / 12);
+var Music = {
+  playing: false, id: null, bus: null, filt: null, step: 0, nextT: 0, timer: null, motif: null,
+  want() { return !store.muted && store.music !== false && !!actx && (state === 'play' || state === 'pause') && !document.hidden; },
+  sync() {
+    const want = this.want();
+    if (want && (!this.playing || this.id !== theme.id)) this.start(theme.id);
+    else if (!want && this.playing) this.stop();
+    if (this.playing) {
+      // Muffle the band while paused or shot down.
+      const muffled = state === 'pause' || !!(player && player.dead);
+      if (muffled !== this.muffled) { this.muffled = muffled; this.filt.frequency.setTargetAtTime(muffled ? 700 : 18000, actx.currentTime, 0.12); }
+    }
+  },
+  start(id) {
+    if (this.playing) this.stop(true);
+    const a = actx, M = MUSIC[id] || MUSIC.ww2;
+    this.id = id; this.M = M; this.playing = true; this.step = 0; this.nextT = a.currentTime + 0.1;
+    this.filt = a.createBiquadFilter(); this.filt.type = 'lowpass'; this.filt.frequency.value = 18000; this.muffled = false;
+    this.bus = a.createGain(); this.bus.gain.setValueAtTime(0, a.currentTime); this.bus.gain.linearRampToValueAtTime(0.5, a.currentTime + 1.2);
+    this.bus.connect(this.filt).connect(a.destination);
+    this.motif = this.makeMotif(M);
+    clearInterval(this.timer); this.timer = setInterval(() => this.schedule(), 40);
+  },
+  stop(now) {
+    clearInterval(this.timer); this.timer = null; this.playing = false;
+    const bus = this.bus; if (!bus) return;
+    const t = actx.currentTime; bus.gain.cancelScheduledValues(t); bus.gain.setValueAtTime(bus.gain.value, t); bus.gain.linearRampToValueAtTime(0, t + (now ? 0.05 : 0.6));
+    setTimeout(() => { try { bus.disconnect(); } catch (e) { /* already gone */ } }, 900);
+    this.bus = null;
+  },
+  // A two-bar hook per era, built from a fixed seed so it's the same tune every time.
+  makeMotif(M) {
+    let x = M.seed; const r = () => ((x = (x * 9301 + 49297) % 233280) / 233280);
+    const out = [];
+    for (let i = 0; i < 32; i++) {
+      const strong = i % 4 === 0, play = strong ? r() < 0.85 : i % 2 === 0 ? r() < 0.45 : r() < 0.18;
+      out.push(play ? { deg: [0, 2, 4, 2, 1, 4, 5, 7][Math.floor(r() * 8)], len: strong && r() < 0.5 ? 3 : 1 } : null);
+    }
+    out[0] = { deg: 4, len: 2 }; out[28] = { deg: 0, len: 4 }; for (let i = 29; i < 32; i++) out[i] = null;
+    return out;
+  },
+  hz(M, deg, oct) { const sc = SCALES[M.sc], d = ((deg % 7) + 7) % 7, o = Math.floor(deg / 7); return midiHz(M.key + 12 * (oct + o) + sc[d]); },
+  schedule() {
+    if (!this.playing || !actx) return;
+    const M = this.M, spb = 60 / M.bpm / 4;
+    while (this.nextT < actx.currentTime + 0.15) {
+      let t = this.nextT;
+      if (M.swing && this.step % 2) t += spb * M.swing;
+      this.play(this.step, t, spb);
+      this.nextT += spb; this.step++;
+    }
+  },
+  play(step, t, spb) {
+    const M = this.M, s16 = step % 16, bar = Math.floor(step / 16), chordDeg = M.prog[bar % 4], phrase = Math.floor(bar / 4);
+    const hot = run && state === 'play' && (run.waveIdx >= 4 || (run.mode === 'zen' && run.totalT > 240));
+    const [kick, snare, hat] = KITS[M.kit];
+    if (kick[s16] === 'x') this.kick(t);
+    if (snare[s16] === 'x') this.snare(t, M.kit === 'gated' ? 0.32 : M.kit === 'soft' ? 0.06 : 0.11, M.kit === 'soft' ? 0.02 : 0.05);
+    if (hat[s16] === 'x') this.hat(t);
+    if (hot && s16 % 4 === 2) this.kick(t, 0.07);
+    const b = M.bassPat[s16];
+    if (b !== '.') { const off = { r: 0, t: 2, f: 4, o: 7, s: 5 }[b]; this.voice(this.hz(M, chordDeg + off, b === 'o' ? 0 : -1), t, spb * (M.kit === 'rock' || M.kit === 'gated' ? 1.6 : 3.5), M.bass, 0.07, 700); }
+    if (M.pad && s16 === 0) [0, 2, 4].forEach(d => this.voice(this.hz(M, chordDeg + d, 0), t, spb * 15, 'sawtooth', 0.012, 900, 0.35, 6));
+    if (M.arp && s16 % 2 === 0) { const d = [0, 2, 4, 7, 4, 2, 0, 4][(s16 / 2) % 8]; this.voice(this.hz(M, chordDeg + d, 1), t, spb * 1.4, 'triangle', 0.018, 3000); }
+    // The hook: every other phrase, and every phrase in the boss wave.
+    if (phrase % 2 === 0 || hot) {
+      const n = this.motif[(bar % 2) * 16 + s16];
+      if (n) this.voice(this.hz(M, chordDeg * (bar % 4 === 3 ? 0 : 1) + n.deg, 1), t, spb * n.len * 0.95, M.lead, hot ? 0.032 : 0.024, M.cut, 0.01, 4);
+    }
+  },
+  voice(f, t, dur, type, vol, cut, att = 0.008, det = 0) {
+    const a = actx, g = a.createGain(), lp = a.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = cut;
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + att); g.gain.setTargetAtTime(0.0001, t + Math.max(att, dur * 0.6), dur * 0.25);
+    lp.connect(g).connect(this.bus);
+    for (const d of det ? [-det, det] : [0]) { const o = a.createOscillator(); o.type = type; o.frequency.value = f; o.detune.value = d; o.connect(lp); o.start(t); o.stop(t + dur + 0.4); }
+  },
+  kick(t, vol = 0.16) {
+    const a = actx, o = a.createOscillator(), g = a.createGain();
+    o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.14);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    o.connect(g).connect(this.bus); o.start(t); o.stop(t + 0.25);
+  },
+  noiseHit(t, dur, vol, type, freq) {
+    const a = actx;
+    if (!noiseBuf) { noiseBuf = a.createBuffer(1, a.sampleRate, a.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+    const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+    s.buffer = noiseBuf; f.type = type; f.frequency.value = freq;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f).connect(g).connect(this.bus); s.start(t, Math.random() * 0.5); s.stop(t + dur + 0.02);
+  },
+  snare(t, dur, vol) { this.noiseHit(t, dur, vol, 'bandpass', 1900); },
+  hat(t) { this.noiseHit(t, 0.035, 0.018, 'highpass', 7500); },
 };
 const vibrate = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) { /* not supported */ } };
 
@@ -6082,7 +6196,8 @@ function applyDeviceCopy() {
   $('rollText').innerHTML = 'Tap <kbd>ROLL</kbd> or tap with a second finger. You burst forward, bullets pass through you, and homing missiles lose their lock.';
   $('rollKey').textContent = 'Tap';
 }
-function setSoundLabels() { const t = `Sound ${store.muted ? 'off' : 'on'}`; $('soundBtn').textContent = t; $('pauseSound').textContent = t; }
+function setSoundLabels() { const t = `Sound ${store.muted ? 'off' : 'on'}`, m = `Music ${store.music === false ? 'off' : 'on'}`; $('soundBtn').textContent = t; $('pauseSound').textContent = t; $('musicBtn').textContent = m; $('pauseMusic').textContent = m; }
+function toggleMusic() { store.music = store.music === false; saveStore(); setSoundLabels(); if (store.music) audio(); }
 function toggleSound() { store.muted = !store.muted; saveStore(); setSoundLabels(); }
 // Signed-in pilots fly under their username; the callsign fields show it and can't be edited.
 function applyAuthCallsign() {
@@ -6133,6 +6248,8 @@ $('pauseFs').addEventListener('click', toggleFullscreen);
 document.addEventListener('fullscreenchange', setFsLabels);
 document.addEventListener('webkitfullscreenchange', setFsLabels);
 $('pauseSound').addEventListener('click', toggleSound);
+$('pauseMusic').addEventListener('click', toggleMusic);
+$('musicBtn').addEventListener('click', toggleMusic);
 $('helpGo').addEventListener('click', () => { if (!$('helpCallsign').classList.contains('hidden')) saveCallsign($('callsign2').value); hide('help'); const f = helpThen; helpThen = null; if (f) f(); });
 $('pauseBtn').addEventListener('click', pauseGame);
 $('resumeBtn').addEventListener('click', resumeGame);
@@ -7948,6 +8065,7 @@ function frame(ts) {
   }
   updateHUD(dt);
   draw();
+  Music.sync();
   requestAnimationFrame(frame);
 }
 
