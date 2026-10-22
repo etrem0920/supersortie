@@ -98,6 +98,7 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 - Levels go up to 50. They unlock nine contrails, two extra liveries per theater (at levels 8 and 16) and titles. A few titles come from medals and arena wins instead of levels.
 - Contrails are drawn from the plane's recent path, so other pilots see yours in co-op and the arena with no extra network traffic. The arena shows your title on the round podium.
 - Players who started before levels existed got starting XP for the dailies they had flown and the medals they had earned.
+- **Daily challenges:** three a day, the same for everyone and chosen from the date. They span every mode, for example 40 kills, a supply blimp or a 4-kill arena streak. Each is worth 250 XP, plus 300 for finishing all three. They live on the Pilot tab, with one line on the home screen.
 - Everything is stored on the device, like medals.
 
 ## How the arena works
