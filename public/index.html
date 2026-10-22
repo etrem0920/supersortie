@@ -1649,7 +1649,7 @@ const CRATE_SKINS = {
     ['Star of Africa', '#c8a46a', '#b38f58', '#ffd34f', 'hex', '#9c7c4a', '#d8c08a', 2], ['Black Knight', '#15161a', '#101114', '#c8312b', 'bolt', '#c8312b', null, 3, '#c8312b'],
     ['Sakura', '#f2c8d4', '#e4b0c0', '#c8312b', 'stars', '#ffffff', null, 1], ['Golden Zero', '#e8b931', '#d19e22', '#c8312b', 'gild', '#fff3c4', null, 4, '#ffd34f']],
   modern: [['Thunderbirds', '#f2f2f2', '#e2e2e2', '#c8312b', 'chevron', '#1b3a7a', null, 2], ['Viper Grey', '#8c939b', '#767d85', '#2f3640', 'carbon', '#5a6168', null, 0],
-    ['Blue Angels', '#1b3a7a', '#1b3a7a', '#ffd34f', 'band', '#ffd34f', null, 1], ['Jolly Hornet', '#262a31', '#1b1e24', '#f2f2f2', 'stars', '#f2f2f2', null, 2],
+    ['Diamond Formation', '#1b3a7a', '#1b3a7a', '#ffd34f', 'band', '#ffd34f', null, 1], ['Jolly Hornet', '#262a31', '#1b1e24', '#f2f2f2', 'stars', '#f2f2f2', null, 2],
     ['Mudhen', '#4f5b66', '#3f4a54', '#2f3640', 'digital', '#3a434c', '#5d6b78', 0], ['Eagle Gold', '#e8b931', '#d19e22', '#1b1406', 'gild', '#fff3c4', null, 4, '#ffd34f'],
     ['Tiger Typhoon', '#d9a23c', '#c88d22', '#111111', 'tiger', '#111111', null, 3, '#ff8a3d'], ['Union Blue', '#2a3f6e', '#22345a', '#c8312b', 'stripes', '#f2f2f2', null, 0],
     ['Beast Mode', '#3a3f45', '#2f343a', '#c8312b', 'hex', '#2a2f34', '#4a5056', 1], ['Ghost Mesh', '#c9ced4', '#b4bac1', '#5a6168', 'carbon', '#9aa1a8', null, 0],
@@ -1690,6 +1690,9 @@ const BULLET_SKINS = [
   { name: 'Ice', color: '#9ff7ff', glow: true, rarity: 1 }, { name: 'Gold Rounds', color: '#ffd34f', glow: true, rarity: 1 },
   { name: 'Plasma', color: '#ff4fd8', glow: true, wide: true, rarity: 2 }, { name: 'Void', color: '#ffffff', halo: '#b98cff', glow: true, rarity: 2 },
   { name: 'Rainbow', kind: 'rainbow', glow: true, rarity: 3 }, { name: 'Solar Flare', color: '#fff1a8', halo: '#ff7a1a', glow: true, wide: true, long: true, rarity: 4 },
+  { name: 'Sapphire', color: '#5a9bff', glow: true, rarity: 0 }, { name: 'Toxic', color: '#b6ff4f', glow: true, rarity: 1 },
+  { name: 'Hellfire', color: '#ff5a2a', halo: '#ffb347', glow: true, wide: true, rarity: 2 }, { name: 'Frostbite', color: '#ffffff', halo: '#7cf2ff', glow: true, wide: true, long: true, rarity: 3 },
+  { name: 'Neon Twin', kind: 'dual', color: '#ff4fd8', color2: '#3df0ff', rarity: 3 }, { name: 'Stardust', kind: 'stardust', color: '#ffe7a0', halo: '#ffd34f', rarity: 4 },
 ];
 BULLET_SKINS.forEach((b, i) => { if (i) b.crate = `b:${i}`; });
 const owned = id => !!(store.inv && store.inv.includes(id));
@@ -1719,17 +1722,33 @@ const owned = id => !!(store.inv && store.inv.includes(id));
   const PATS = [['band', 'tips', 'nose'], ['stripes', 'checker', 'chevron'], ['splinter', 'digital', 'blotch', 'hex'], ['tiger', 'shark', 'flame', 'bolt', 'stars', 'carbon']];
   const NEON = [['#ff7a3d', null], ['#3df0ff', ['#3df0ff', '#7c50ff']], ['#ff4fd8', ['#ff4fd8', '#ffe14f']], ['#b6ff4f', ['#b6ff4f', '#3df0ff']], ['#ffffff', ['#ffffff', '#ff4fd8', '#3df0ff']], ['#ffe14f', ['#ffe14f', '#ff3b5c', '#7c50ff']]];
   const SLOTS = [[0, 2, 4], [1, 2, 3], [0, 3, 3], [1, 2, 4], [0, 2, 3], [1, 3, 4], [0, 2, 3], [1, 3, 3], [0, 2, 4], [2, 3, 4], [3, 3, 4], [2, 4, 4]];
-  for (const tid of THEME_ORDER) {
-    const th = THEMES[tid], [A, N] = WORDS[tid], used = new Set(th.liveries.map(L => L.name));
-    th.planes.forEach((pl, i) => SLOTS[i].forEach((r, j) => {
-      const k = i * 3 + j;
+  // A second wave of six per plane, with its own words so every name stays unique.
+  const WORDS2 = {
+    ww1: [['Ypres', 'Marne', 'Scarlet', 'Silver', 'Copper', 'Ivory', 'Sable', 'Ember', 'Thistle', 'Oak', 'Gilded', 'Rook'], ['Kestrel', 'Banner', 'Sabre', 'Lance', 'Owl', 'Raven', 'Comet', 'Viking', 'Stag', 'Herald', 'Sparrow', 'Crown']],
+    ww2: [['Okinawa', 'Guadal', 'Bamboo', 'Monsoon', 'Lagoon', 'Atoll', 'Reef', 'Harbor', 'Cobalt', 'Crimson', 'Silver', 'Mariner'], ['Belle', 'Bandit', 'Cobra', 'Mustang', 'Pelican', 'Falcon', 'Rocket', 'Kraken', 'Gremlin', 'Jester', 'Lancer', 'Ranger']],
+    modern: [['Sierra', 'Delta', 'Tango', 'Echo', 'Cobalt', 'Crimson', 'Carbon', 'Titan', 'Stealth', 'Sand', 'Glacier', 'Inferno'], ['Hawk', 'Saber', 'Hornet', 'Cobra', 'Mako', 'Wraith', 'Bolt', 'Havoc', 'Reaper', 'Jackal', 'Kodiak', 'Onyx']],
+    space: [['Galactic', 'Lunar', 'Photon', 'Graviton', 'Zenith', 'Aurora', 'Eclipse', 'Comet', 'Meteor', 'Radiant', 'Hyper', 'Xeno'], ['Lance', 'Ghost', 'Specter', 'Nomad', 'Ranger', 'Pulse', 'Fang', 'Vortex', 'Sentinel', 'Spire', 'Corsair', 'Dawn']],
+    neon: [['Pixel', 'Disco', 'Lazer', 'Night', 'Cassette', 'Mega', 'Ultra', 'Holo', 'Bit', 'Sunset', 'Magenta', 'Cyan'], ['Racer', 'Beat', 'Flash', 'Glow', 'Mix', 'Tape', 'Zone', 'Shift', 'Spark', 'Vibe', 'Boost', 'Loop']],
+  };
+  const SLOTS2 = [[0, 0, 1, 2, 3, 4], [0, 1, 1, 2, 3, 3], [0, 1, 2, 2, 3, 4], [0, 1, 1, 2, 2, 4], [0, 0, 1, 2, 3, 3], [1, 1, 2, 2, 3, 4], [0, 1, 2, 3, 3, 4], [0, 1, 1, 2, 3, 4], [0, 0, 1, 2, 2, 3],
+    [2, 2, 3, 3, 4, 4], [2, 3, 3, 4, 4, 4], [2, 2, 3, 4, 4, 4]];
+  for (const [slots, words, base, per] of [[SLOTS, WORDS, 18, 3], [SLOTS2, WORDS2, 54, 6]]) for (const tid of THEME_ORDER) {
+    const th = THEMES[tid], [A, N] = words[tid], used = new Set(th.liveries.map(L => L.name));
+    th.planes.forEach((pl, i) => slots[i].forEach((r, j) => {
+      const k = i * per + j;
       let name, q = 0;
-      do { name = `${A[(k * 5 + q) % 12]} ${N[(k * 7 + j * 3 + i + q * 5) % 12]}`; q++; } while (used.has(name) && q < 40);
+      do { name = `${A[(k * 5 + q) % 12]} ${N[(k * 7 + j * 3 + i + q * 5 + Math.floor(q / 12)) % 12]}`; q++; } while (used.has(name) && q < 144);
       used.add(name);
-      const L = { name, rarity: r, plane: pl.id, crate: `s:${tid}:${18 + k}` };
+      const L = { name, rarity: r, plane: pl.id, crate: `s:${tid}:${base + k}` };
       if (tid === 'neon') { const [c, g] = NEON[(k + r) % NEON.length]; Object.assign(L, { body: c, wing: c, accent: '#ffffff', grad: r >= 2 ? g || undefined : undefined }); if (r >= 4) { L.grad = ['#ff3b5c', '#ffe14f', '#4fffb0', '#3df0ff', '#7c50ff']; L.sparkle = '#ffffff'; } }
       else if (r >= 4) { const [b, a, pat, p2, sp] = LEG[(k + i) % LEG.length]; Object.assign(L, { body: b, wing: hx(b, 0.88), accent: a, pat, pat2: p2, sparkle: sp }); }
-      else { const P = PAL[tid], [b, a, p2, p3] = P[(k * 3 + i + j * 5) % P.length], ps = PATS[r]; Object.assign(L, { body: b, wing: hx(b, 0.85), accent: a, pat: ps[(k + j) % ps.length], pat2: p2, pat3: p3 }); if (r === 3) L.sparkle = a; }
+      else {
+        // the first wave keeps its original look; the second spreads colours and patterns evenly
+        const P = PAL[tid], pi = per === 3 ? (k * 3 + i + j * 5) % P.length : (i * 5 + j * 3 + 1) % P.length, ps = PATS[r];
+        const [b, a, p2, p3] = P[pi];
+        Object.assign(L, { body: b, wing: hx(b, 0.85), accent: a, pat: ps[per === 3 ? (k + j) % ps.length : (i * 7 + j * 5) % ps.length], pat2: p2, pat3: p3 });
+        if (r === 3) L.sparkle = a;
+      }
       th.liveries.push(L);
     }));
   }
@@ -2082,6 +2101,20 @@ function drawBullets(c, list, th, skinOf, lenK) {
     const path = () => { c.beginPath(); for (const b of bs) { c.moveTo(b.x, b.y); c.lineTo(b.x - b.vx * len, b.y - b.vy * len); } };
     if (S.kind === 'rainbow') {
       for (const b of bs) { const h = (b.x * 0.3 + b.y * 0.3 + time * 400) % 360; c.strokeStyle = `hsla(${h},95%,62%,.35)`; c.lineWidth = 8; c.beginPath(); c.moveTo(b.x, b.y); c.lineTo(b.x - b.vx * len, b.y - b.vy * len); c.stroke(); c.strokeStyle = `hsl(${h},95%,70%)`; c.lineWidth = 3; c.stroke(); }
+      continue;
+    }
+    if (S.kind === 'dual') {
+      for (const [col, side] of [[S.color, -1], [S.color2, 1]]) {
+        c.beginPath();
+        for (const b of bs) { const v = Math.hypot(b.vx, b.vy) || 1, nx = -b.vy / v * 2.6 * side, ny = b.vx / v * 2.6 * side; c.moveTo(b.x + nx, b.y + ny); c.lineTo(b.x - b.vx * len + nx, b.y - b.vy * len + ny); }
+        c.strokeStyle = rgba(col, 0.35); c.lineWidth = 6; c.stroke(); c.strokeStyle = col; c.lineWidth = 2; c.stroke();
+      }
+      continue;
+    }
+    if (S.kind === 'stardust') {
+      path(); c.strokeStyle = rgba(S.halo, 0.3); c.lineWidth = 9; c.stroke();
+      path(); c.strokeStyle = S.color; c.lineWidth = 3; c.stroke();
+      for (const b of bs) for (let q = 1; q <= 3; q++) { const f = q / 4, tw = (Math.sin(time * 30 + q * 2 + b.x * 0.05) + 1) / 2; c.fillStyle = `rgba(255,240,190,${0.5 + 0.5 * tw})`; const px = b.x - b.vx * len * f * 1.6 + Math.sin(q * 7 + b.y) * 4, py = b.y - b.vy * len * f * 1.6 + Math.cos(q * 5 + b.x) * 4; c.fillRect(px - 1, py - 1, 2.2, 2.2); }
       continue;
     }
     if (S.glow) { path(); c.strokeStyle = rgba(S.halo || S.color, 0.32); c.lineWidth = S.wide ? 11 : 8; c.stroke(); }
@@ -4399,7 +4432,7 @@ function drawAvatar(cv, planeId, liv) {
 function avatarHTML(planeId, liv, size) {
   const px = size === 'big' || size === 'xl' ? 176 : 72;
   const id = PLANE_INDEX[planeId] ? planeId : 'hellcat';
-  return `<canvas class="av ${size || ''}" width="${px}" height="${px}" data-plane="${id}" data-liv="${Math.max(0, Math.min(66, Number(liv) || 0))}" aria-hidden="true"></canvas>`;
+  return `<canvas class="av ${size || ''}" width="${px}" height="${px}" data-plane="${id}" data-liv="${Math.max(0, Math.min(138, Number(liv) || 0))}" aria-hidden="true"></canvas>`;
 }
 // Profile pictures: any plane in any livery you own, or a squadron badge.
 const PIC_ICONS = [

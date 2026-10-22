@@ -48,7 +48,7 @@ export function cleanProfile(p) {
   const str = (v, max) => String(v == null ? '' : v).replace(/[^\w .\-'·]/g, '').slice(0, max);
   const out = {
     xp: int(p.xp, 1e9), title: int(p.title, 50), trail: int(p.trail, 50),
-    fav: str(p.fav, 16), favLiv: int(p.favLiv, 66), pic: String(p.pic || '').replace(/[^a-z0-9:#]/gi, '').slice(0, 24), streak: int(p.streak, 1e5), maxStreak: int(p.maxStreak, 1e5), lastDay: int(p.lastDay, 1e6),
+    fav: str(p.fav, 16), favLiv: int(p.favLiv, 138), pic: String(p.pic || '').replace(/[^a-z0-9:#]/gi, '').slice(0, 24), streak: int(p.streak, 1e5), maxStreak: int(p.maxStreak, 1e5), lastDay: int(p.lastDay, 1e6),
     played: int(p.played, 1e6), best: int(p.best, 1e6),
     medals: Array.isArray(p.medals) ? p.medals.slice(0, 40).map(m => str(m, 16)).filter(Boolean) : [],
     aces: {}, arena: {}, zenBest: null, planeUse: {}, liveries: {}, planes: {},
