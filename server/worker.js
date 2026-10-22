@@ -15,7 +15,7 @@
 
 import { CoopRoom, ROOM_ALPHABET } from './coop.js';
 import { ArenaRoom, ArenaDirectory } from './arena.js';
-import { serverDay } from './day.js';
+import { serverDay, clientDay } from './day.js';
 import { handleAccounts, accountFor } from './accounts.js';
 import { joinLeague, leagueView } from './league.js';
 import { postGhost, listGhosts, getGhost } from './ghosts.js';
@@ -24,7 +24,7 @@ export { CoopRoom, ArenaRoom, ArenaDirectory };
 
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
 const MODS = new Set(['standard', 'glass', 'swarm', 'ironace', 'overcast', 'crosswind', 'hotguns']);
-const PLANES = new Set(['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol', 'hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190', 'f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar', 'lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger', 'vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor', 'fokker7', 'se5a', 'snipe', 'p47', 'bf109', 'zero', 'raptor', 'yf23', 'su57', 'valkyrie', 'manta', 'talon', 'outrun', 'laserwing', 'hexa', 'eindecker', 'dolphin', 'ssw', 'me262', 'ho229', 'p82', 'sr71', 'su47', 'f117', 'seraph', 'leviathan', 'nova', 'synth', 'glitch', 'arcadex']);
+const PLANES = new Set(['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol', 'hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190', 'f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar', 'lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger', 'vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor', 'fokker7', 'se5a', 'snipe', 'p47', 'bf109', 'zero', 'raptor', 'yf23', 'su57', 'valkyrie', 'manta', 'talon', 'outrun', 'laserwing', 'hexa', 'eindecker', 'dolphin', 'ssw', 'me262', 'ho229', 'p82', 'sr71', 'su47', 'f117', 'seraph', 'leviathan', 'nova', 'synth', 'glitch', 'arcadex', 'junkers', 'do335', 'darkstar', 'dreadwing', 'phoenix']);
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
 const MAX_PER_IP_PER_DAY = 30;
 const TOP_CACHE_SECONDS = 20;
@@ -212,28 +212,32 @@ async function arenaSocket(req, env, url) {
   const stub = env.ARENAS.get(env.ARENAS.idFromName(name));
   return stub.fetch(new Request(fwd, req));
 }
-async function arenaBoard(url, env, cors) {
-  const day = serverDay();
+async function arenaBoard(url, env, cors, req) {
+  const day = clientDay(url.searchParams.get('day'));
   const deviceId = String(url.searchParams.get('deviceId') || '');
   const byRound = url.searchParams.get('sort') === 'round';
-  const order = byRound ? 's.best_round DESC, s.kills DESC, s.updated_at ASC' : 's.kills DESC, s.best_round DESC, s.updated_at ASC';
+  const viewer = req ? await accountFor(env, req).catch(() => null) : null;
+  // One line per pilot: rows from the same account (any device) are added together.
   const rows = (await env.DB.prepare(
-    `SELECT s.device_id, s.name, s.plane, s.livery, s.kills, s.deaths, s.rounds, s.wins, s.best_round, s.best_streak, a.username FROM arena_scores s LEFT JOIN accounts a ON a.id = s.account_id WHERE s.day = ? AND s.hidden = 0 ORDER BY ${order} LIMIT 50`
+    'SELECT s.device_id, s.name, s.plane, s.livery, s.kills, s.deaths, s.rounds, s.wins, s.best_round, s.best_streak, s.updated_at, s.account_id, a.username FROM arena_scores s LEFT JOIN accounts a ON a.id = s.account_id WHERE s.day = ? AND s.hidden = 0 ORDER BY s.updated_at DESC LIMIT 5000'
   ).bind(day).all()).results || [];
-  const total = await env.DB.prepare('SELECT COUNT(*) AS n FROM arena_scores WHERE day = ? AND hidden = 0').bind(day).first();
-  const row = (r, rank) => ({ rank, name: r.name, plane: r.plane, livery: r.livery, kills: r.kills, deaths: r.deaths, rounds: r.rounds, wins: r.wins, best: r.best_round, streak: r.best_streak, u: r.username || undefined, me: !!deviceId && r.device_id === deviceId });
-  const entries = rows.map((r, i) => row(r, i + 1));
-  let me = null;
-  if (/^[A-Za-z0-9-]{8,64}$/.test(deviceId) && !entries.some(e => e.me)) {
-    const mine = await env.DB.prepare('SELECT * FROM arena_scores WHERE day = ? AND device_id = ? AND hidden = 0').bind(day, deviceId).first();
-    if (mine) {
-      const above = byRound
-        ? await env.DB.prepare('SELECT COUNT(*) AS n FROM arena_scores WHERE day = ? AND hidden = 0 AND (best_round > ? OR (best_round = ? AND kills > ?))').bind(day, mine.best_round, mine.best_round, mine.kills).first()
-        : await env.DB.prepare('SELECT COUNT(*) AS n FROM arena_scores WHERE day = ? AND hidden = 0 AND (kills > ? OR (kills = ? AND best_round > ?))').bind(day, mine.kills, mine.kills, mine.best_round).first();
-      me = row(mine, above.n + 1);
-    }
+  // A device that signed in today belongs to that account all day; other guests are grouped by callsign.
+  const deviceAcct = new Map();
+  for (const r of rows) if (r.account_id) deviceAcct.set(r.device_id, r.account_id);
+  const byWho = new Map();
+  for (const r of rows) {
+    const acct = r.account_id || deviceAcct.get(r.device_id);
+    const who = acct ? 'a' + acct : 'n' + String(r.name || '').trim().toLowerCase();
+    let e = byWho.get(who);
+    if (!e) { e = { name: r.username || r.name, plane: r.plane, livery: r.livery, kills: 0, deaths: 0, rounds: 0, wins: 0, best: 0, streak: 0, first: r.updated_at, u: r.username || undefined, me: false }; byWho.set(who, e); }
+    e.kills += r.kills; e.deaths += r.deaths; e.rounds += r.rounds; e.wins += r.wins;
+    e.best = Math.max(e.best, r.best_round); e.streak = Math.max(e.streak, r.best_streak); e.first = Math.min(e.first, r.updated_at);
+    if ((deviceId && r.device_id === deviceId) || (viewer && r.account_id === viewer.id)) e.me = true;
   }
-  return json({ day, total: total.n, entries, me }, 200, cors, { 'cache-control': 'no-store' });
+  const all = [...byWho.values()].sort(byRound ? (a, b) => b.best - a.best || b.kills - a.kills || a.first - b.first : (a, b) => b.kills - a.kills || b.best - a.best || a.first - b.first);
+  all.forEach((e, i) => { e.rank = i + 1; delete e.first; });
+  const entries = all.slice(0, 50), mine = all.find(e => e.me);
+  return json({ day, total: all.length, entries, me: mine && !entries.includes(mine) ? mine : null }, 200, cors, { 'cache-control': 'no-store' });
 }
 // Server browser: public arenas with people in them right now, busiest first.
 async function arenaList(env, cors) {
@@ -275,7 +279,7 @@ export default {
         if (!/^[A-Za-z0-9-]{8,64}$/.test(deviceId)) return json({ error: 'bad_device' }, 400, cors);
         return json(await leagueView(env, deviceId), 200, cors, { 'cache-control': 'no-store' });
       }
-      if (url.pathname === '/api/v1/arena/leaderboard' && req.method === 'GET') return await arenaBoard(url, env, cors);
+      if (url.pathname === '/api/v1/arena/leaderboard' && req.method === 'GET') return await arenaBoard(url, env, cors, req);
       if (url.pathname === '/api/v1/feedback' && req.method === 'POST') { const who = await accountFor(env, req); return await postFeedback(req, env, json, cors, who && who.username); }
       if (url.pathname === '/api/v1/admin/feedback' && req.method === 'GET') return await listFeedback(url, req, env, json, cors);
       if (url.pathname === '/api/v1/ghost' && req.method === 'POST') return await postGhost(req, env, json, cors);

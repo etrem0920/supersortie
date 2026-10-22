@@ -52,7 +52,7 @@ export function cleanProfile(p) {
     played: int(p.played, 1e6), best: int(p.best, 1e6),
     medals: Array.isArray(p.medals) ? p.medals.slice(0, 40).map(m => str(m, 16)).filter(Boolean) : [],
     aces: {}, arena: {}, zenBest: null, planeUse: {}, liveries: {}, planes: {}, planeLiv: {},
-    credits: int(p.credits, 1e9), bullet: int(p.bullet, 20), killfx: int(p.killfx, 20), egg: int(p.egg, 1), tokens: Array.isArray(p.tokens) ? p.tokens.slice(0, 3).map(n => int(n, 99)) : [0, 0, 0],
+    credits: int(p.credits, 1e9), bullet: int(p.bullet, 60), killfx: int(p.killfx, 60), egg: int(p.egg, 1), tokens: Array.isArray(p.tokens) ? p.tokens.slice(0, 3).map(n => int(n, 99)) : [0, 0, 0],
     login: p.login && typeof p.login === 'object' ? { day: int(p.login.day, 1e6), n: int(p.login.n, 1e5) } : null,
     ghostWin: int(p.ghostWin, 1e6),
     season: p.season && typeof p.season === 'object' ? { id: int(p.season.id, 1e6), xp: int(p.season.xp, 15000) } : null,
@@ -120,7 +120,7 @@ async function publicProfile(env, row, viewer) {
   const today = await env.DB.prepare('SELECT score, grades, theme, plane FROM scores WHERE day = ? AND account_id = ? AND hidden = 0 ORDER BY score DESC LIMIT 1').bind(day, row.id).first();
   let rank = null;
   if (today) { const above = await env.DB.prepare('SELECT COUNT(*) AS n FROM scores WHERE day = ? AND hidden = 0 AND score > ?').bind(day, today.score).first(); rank = above.n + 1; }
-  const arena = await env.DB.prepare('SELECT kills, deaths, rounds, wins FROM arena_scores WHERE day = ? AND account_id = ? AND hidden = 0').bind(day, row.id).first();
+  const arena = await env.DB.prepare('SELECT SUM(kills) AS kills, SUM(deaths) AS deaths, SUM(rounds) AS rounds, SUM(wins) AS wins FROM arena_scores WHERE day IN (?, ?) AND account_id = ? AND hidden = 0 AND updated_at > ?').bind(day, day + 1, row.id, Date.now() - 86400000).first().then(r => (r && r.rounds ? r : null));
   const out = { username: row.username, since: row.created_at, profile: JSON.parse(row.profile || '{}'), today: today ? { ...today, rank } : null, arenaToday: arena || null };
   if (viewer) out.friend = !!(await env.DB.prepare('SELECT 1 FROM friends WHERE account_id = ? AND friend_id = ?').bind(viewer.id, row.id).first());
   return out;

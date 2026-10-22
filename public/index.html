@@ -227,6 +227,26 @@
   .pl-row b { font-family: var(--font-display); font-weight: 900; font-size: 24px; text-transform: uppercase; color: var(--accent); }
   .pl-row span { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
   .pl-next { font-size: 13px; color: var(--text); }
+  .showcase { position: relative; cursor: pointer; }
+  .sc-load { position: absolute; left: 12px; bottom: 10px; right: 120px; display: flex; flex-wrap: wrap; gap: 4px 10px; font-family: var(--font-cond); font-weight: 700; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255, 255, 255, .8); text-shadow: 0 1px 3px rgba(0, 0, 0, .8); pointer-events: none; }
+  .sc-load b { color: #fff; font-weight: 800; }
+  @media (max-width: 560px) { .sc-load { display: none; } .sc-kfx { left: 10px; right: auto; } }
+  .sc-load span { white-space: nowrap; }
+  .sc-kfx { position: absolute; right: 10px; bottom: 8px; background: rgba(9, 12, 20, .7); border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text); font-family: var(--font-cond); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; padding: 6px 10px; cursor: pointer; }
+  .sc-kfx:hover { box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); }
+  .board li.elite .nmt { background: linear-gradient(90deg, #fff3c4, #ffd34f, #ff9b2a, #ffd34f, #fff3c4); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: goldFlow 3s linear infinite; }
+  .board li.elite .crown { color: #ffd34f; margin-right: 4px; text-shadow: 0 0 8px rgba(255, 211, 79, .7); }
+  @keyframes goldFlow { to { background-position: -200% 0; } }
+  .elite-chip { color: #ffd34f; text-shadow: 0 0 10px rgba(255, 211, 79, .5); }
+  .zen-sheet { display: grid; gap: 14px; }
+  .zs-rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; }
+  .zs-row { display: grid; gap: 5px; min-width: 0; }
+  .zs-row > span { font-family: var(--font-cond); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: 11px; color: var(--muted); }
+  .zs-row .seg button, .zs-presets button { font-size: 12px; padding: 8px 4px; }
+  .zs-row small { font-size: 11px; color: var(--dim); }
+  @media (max-width: 560px) { .zs-rows { grid-template-columns: minmax(0, 1fr); } }
+  .hud.zen-min #scorePanel, .hud.zen-min #target, .hud.zen-min .hud-wave, .hud.zen-min #hint { opacity: 0; pointer-events: none; }
+  .hud.zen-min .hpanel { background: rgba(10, 12, 20, .35); }
   .lad-label { margin-top: 16px; }
   .ladder { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
   .rung { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 6px 10px; background: var(--raise); box-shadow: inset 3px 0 0 var(--c), inset 0 0 0 1px var(--line); }
@@ -879,6 +899,9 @@
   .item.unowned::after { content: '?'; position: absolute; top: 0; left: 0; right: 0; aspect-ratio: 1; display: grid; place-items: center; font-family: var(--font-display); font-weight: 900; font-size: 30px; color: rgba(255, 255, 255, .25); }
   .item.equipped { box-shadow: inset 0 0 0 2px var(--good), inset 0 -3px 0 var(--rc); }
   .item { position: relative; }
+  .item.apex { box-shadow: inset 0 0 0 2px #41ffd9, 0 0 18px rgba(65, 255, 217, .35); animation: apexHue 3s linear infinite; }
+  @keyframes apexHue { to { filter: hue-rotate(360deg); } }
+  .item.apex canvas { animation: apexHue 3s linear infinite reverse; }
   .item.equipped::after, .tchip[aria-checked="true"]::after, .swatch[aria-checked="true"]::after, .pcard[aria-checked="true"]::after {
     content: ''; position: absolute; top: 4px; right: 4px; width: 18px; height: 18px; border-radius: 50%; z-index: 2; pointer-events: none;
     background: var(--good) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%230b0d14' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 13px no-repeat;
@@ -1118,13 +1141,13 @@
         <div class="news-grid">
           <article class="news-card now chamfer">
             <small class="nk">Out now · Oct 22</small>
-            <b>Ghosts, seasons &amp; Military mode</b>
+            <b>Apex planes, Zen your way &amp; Military mode</b>
             <ul>
-              <li><strong>Ghost races:</strong> after the daily, fly against a replay of today's top runs.</li>
-              <li><strong>Season pass:</strong> 30 free tiers every month, with an exclusive title and contrail.</li>
+              <li><strong>Apex:</strong> a new rarity above Mythic. One legendary plane per theater, with its own animated skin, bullets, contrail and kill effect.</li>
+              <li><strong>Zen settings:</strong> calm skies by default, plus power-ups, sunsets, night, rain and full control over the fight.</li>
               <li><strong>Military mode:</strong> OPFOR, bandits, splash one. Toggle it at the top.</li>
-              <li>Daily rewards, music for every era, and planes that splash into the sea or kick up dust when they go down.</li>
-              <li>New Mythic skins, contrails and bullets. Skins now stay with each plane and sync across devices.</li>
+              <li>Bigger payouts everywhere, gold names and an animated skin for the daily top 10%, ghost races, a free season pass and a league ladder.</li>
+              <li>Planes splash into the sea or kick up dust when they go down. Skins stay with each plane and sync across devices.</li>
             </ul>
           </article>
           <article class="news-card spooky chamfer">
@@ -1173,6 +1196,8 @@
         <div class="showcase chamfer">
           <canvas id="showCv" width="880" height="360" aria-hidden="true"></canvas>
           <div class="sc-info"><small id="scTheme"></small><b id="scName"></b><span id="scArch"></span><span id="scBars" class="bars"></span></div>
+          <div id="scLoad" class="sc-load"></div>
+          <button id="scKfx" class="sc-kfx" type="button" title="Play your kill effect">Kill effect ▶</button>
         </div>
         <div id="planeNote" class="plane-note"></div>
         <div class="section-label"><span>Aircraft</span><span id="planeArch"></span></div>
@@ -1284,6 +1309,15 @@
     <p class="pp-meta">Fly today's map again next to a replay of a top pilot's run. Just for fun: it doesn't change your score on the board.</p>
     <ol id="ghList" class="board gh-list"></ol>
     <button class="btn btn-ghost btn-block" data-close>Close</button>
+  </div>
+</div>
+
+<div id="zenSet" class="modal hidden">
+  <div class="sheet sheet-wide zen-sheet" role="dialog" aria-modal="true" aria-labelledby="zsTitle">
+    <div class="sheet-head"><span class="eyebrow-s">Zen · endless skies, no edges</span><h2 id="zsTitle">Fly your way</h2></div>
+    <div class="zs-presets seg" role="radiogroup" aria-label="Preset"><button data-preset="calm">Calm</button><button data-preset="classic">Classic</button><button data-preset="sandbox">Sandbox</button></div>
+    <div id="zsRows" class="zs-rows"></div>
+    <div class="acct-row"><button id="zsFly" class="btn btn-primary btn-xl">Fly zen</button><button class="btn btn-ghost" data-close>Close</button></div>
   </div>
 </div>
 
@@ -1647,7 +1681,7 @@ const THEMES = {
       { name: 'Tiger Moth', body: '#d8a13a', wing: '#c68a24', accent: '#1b1406', pat: 'tiger', pat2: '#1b1406', lvl: 22 },
       { name: 'Parade Silver', body: '#c9ccd1', wing: '#aeb3ba', accent: '#b8322a', pat: 'band', pat2: '#b8322a', lvl: 30 },
       { name: 'Hedgerow', body: '#6c7a49', wing: '#556238', accent: '#e8c15a', pat: 'blotch', pat2: '#3c4a2a', pat3: '#8a7a4a', lvl: 40 },
-      { name: 'Daily Elite', body: '#e8b931', wing: '#d19e22', accent: '#fff3c4', pat: 'gild', pat2: '#fff3c4', elite: true },
+      { name: 'Daily Elite', body: '#e8b931', wing: '#d19e22', accent: '#fff3c4', pat: 'elitegold', pat2: '#fff3c4', pat3: '#ff9b2a', elite: true, glowA: '#ffd34f' },
     ],
     enemies: { scout: ['#8a96a8', '#5e6b7d', '#e8e1cf'], fighter: ['#6d7f5c', '#4c5d3f', '#d6c08a'], interceptor: ['#7a6a8e', '#57496b', '#e8e1cf'], bomber: ['#7e7766', '#5c5647', '#b33b2e'], ace: ['#2a2622', '#1f1c19', '#d9b25c'] },
   },
@@ -1673,7 +1707,7 @@ const THEMES = {
       { name: 'Tiger Stripes', body: '#d8a13a', wing: '#c68a24', accent: '#121522', pat: 'tiger', pat2: '#121522', lvl: 22 },
       { name: 'Red Tails', body: '#c9ccd1', wing: '#aab1ba', accent: '#c8312b', pat: 'tips', pat2: '#c8312b', lvl: 30 },
       { name: 'Thunderbolt', body: '#151b2c', wing: '#0e1320', accent: '#ffd34f', pat: 'chevron', pat2: '#ffd34f', lvl: 40 },
-      { name: 'Daily Elite', body: '#e8b931', wing: '#d19e22', accent: '#fff3c4', pat: 'gild', pat2: '#fff3c4', elite: true },
+      { name: 'Daily Elite', body: '#e8b931', wing: '#d19e22', accent: '#fff3c4', pat: 'elitegold', pat2: '#fff3c4', pat3: '#ff9b2a', elite: true, glowA: '#ffd34f' },
     ],
     enemies: { scout: ['#c9cdb7', '#a6ab90', '#c8312b'], fighter: ['#5f7a4e', '#4a623c', '#c8312b'], interceptor: ['#7d7853', '#625e3e', '#c8312b'], bomber: ['#8c8f86', '#6f726a', '#c8312b'], ace: ['#2a2a24', '#1e1e19', '#e3c04a'] },
   },
@@ -1699,7 +1733,7 @@ const THEMES = {
       { name: 'Sharkmouth', body: '#6f7c86', wing: '#55616b', accent: '#f2f2f2', pat: 'shark', pat2: '#c43b30', lvl: 22 },
       { name: 'Blue Angels', body: '#1b3a7a', wing: '#1b3a7a', accent: '#ffd34f', pat: 'stripes', pat2: '#ffd34f', lvl: 30 },
       { name: 'Flame Job', body: '#1b1e24', wing: '#16191e', accent: '#ff8a3d', pat: 'flame', pat2: '#ff5a2a', pat3: '#ffd34f', lvl: 40 },
-      { name: 'Daily Elite', body: '#e8b931', wing: '#d19e22', accent: '#fff3c4', pat: 'gild', pat2: '#fff3c4', elite: true },
+      { name: 'Daily Elite', body: '#e8b931', wing: '#d19e22', accent: '#fff3c4', pat: 'elitegold', pat2: '#fff3c4', pat3: '#ff9b2a', elite: true, glowA: '#ffd34f' },
     ],
     enemies: { scout: ['#a7a08f', '#857e6d', '#c43b30'], fighter: ['#6f7c86', '#55616b', '#c43b30'], interceptor: ['#8a7356', '#6b583f', '#c43b30'], bomber: ['#6b6f73', '#54585c', '#c43b30'], ace: ['#3b2323', '#2b1d1d', '#ff5a4d'] },
   },
@@ -1722,7 +1756,7 @@ const THEMES = {
       { name: 'Comet Tail', body: '#f2f2f7', wing: '#dcdce6', accent: '#ff4fd1', pat: 'band', pat2: '#ff4fd1', lvl: 22 },
       { name: 'Dark Matter', body: '#141220', wing: '#100e1a', accent: '#b98cff', pat: 'splinter', pat2: '#2a2440', pat3: '#3a2f5c', lvl: 30 },
       { name: 'Supernova', body: '#ffb347', wing: '#ff9b2a', accent: '#ffffff', pat: 'checker', pat2: '#ffffff', lvl: 40 },
-      { name: 'Daily Elite', body: '#e8b931', wing: '#d19e22', accent: '#fff3c4', pat: 'gild', pat2: '#fff3c4', elite: true },
+      { name: 'Daily Elite', body: '#e8b931', wing: '#d19e22', accent: '#fff3c4', pat: 'elitegold', pat2: '#fff3c4', pat3: '#ff9b2a', elite: true, glowA: '#ffd34f' },
     ],
     enemies: { scout: ['#9a4672', '#6a2a4a', '#ffd0e8'], fighter: ['#7a3aa0', '#4e1f6a', '#ff9ae0'], interceptor: ['#a03848', '#6a1f2a', '#ffb0b8'], bomber: ['#564668', '#382a48', '#ff4fd1'], ace: ['#24142e', '#1a0f22', '#ff4fd1'] },
   },
@@ -1745,7 +1779,7 @@ const THEMES = {
       { name: 'White Hot', body: '#ffffff', wing: '#ffffff', accent: '#ff4fd8', lvl: 22 },
       { name: 'Vaporwave', body: '#ff4fd8', wing: '#ff4fd8', accent: '#6ee8ff', grad: ['#ff4fd8', '#6ee8ff'], lvl: 30 },
       { name: 'Outrun Sunset', body: '#ffe14f', wing: '#ffe14f', accent: '#ff4fd8', grad: ['#ffe14f', '#ff4fd8', '#7c50ff'], lvl: 40 },
-      { name: 'Daily Elite', body: '#ffd34f', wing: '#ffd34f', accent: '#ffffff', grad: ['#fff3c4', '#ffd34f', '#ff9b2a'], elite: true },
+      { name: 'Daily Elite', body: '#ffd34f', wing: '#ffd34f', accent: '#ffffff', grad: ['#fff3c4', '#ffd34f', '#ff9b2a', '#fff3c4'], elite: true, glowA: '#ffd34f', apexGrad: true },
     ],
     enemies: { scout: ['#6ee8ff', '#6ee8ff', '#ffffff'], fighter: ['#ffe14f', '#ffe14f', '#ffffff'], interceptor: ['#ff8a3d', '#ff8a3d', '#ffffff'], bomber: ['#b98cff', '#b98cff', '#ffffff'], ace: ['#ff3b3b', '#ff3b3b', '#ffe14f'] },
   },
@@ -1915,7 +1949,9 @@ const BULLET_SKINS = [
   { name: 'Phoenix Fire', kind: 'phoenix', color: '#fff1a8', halo: '#ff5a2a', rarity: 5 }, { name: 'Singularity', kind: 'singularity', color: '#ffffff', halo: '#7c50ff', rarity: 5 },
 ];
 BULLET_SKINS.forEach((b, i) => { if (i) b.crate = `b:${i}`; });
-const owned = id => !!(store.inv && store.inv.includes(id));
+// Apex bundles: the plane's own skin, bullets, contrail and kill effect count as owned with the plane.
+var APEX_GRANT = {};
+const owned = id => !!(store.inv && (store.inv.includes(id) || (APEX_GRANT[id] && store.inv.includes(APEX_GRANT[id]))));
 // Three more skins for every aircraft, crate planes included. The rarer, the fancier.
 {
   const hx = (h, f) => '#' + hexToRgb(h).map(v => Math.max(0, Math.min(255, Math.round(v * f)))).map(v => v.toString(16).padStart(2, '0')).join('');
@@ -1997,6 +2033,38 @@ const owned = id => !!(store.inv && store.inv.includes(id));
     });
   }
 }
+// Apex: one plane per theater above Mythic, very rare and the best looking of the lot. It flies like
+// one of the usual four handling types. Unboxing it also unlocks its own skin, bullets, contrail and kill effect.
+const APEX = {
+  ww1: { id: 'junkers', name: 'Junkers D.I', arch: 'fast', shape: 'junkers', note: 'The first all-metal fighter: corrugated steel, cold and fast.', col: ['#c9ced6', '#ffb02e', '#fff3c4', '#ff5a2a'], skin: 'Molten Steel', bullet: 'Iron Rain', trail: 'Steel Thunder', kfx: 'Shrapnel Storm', v: 0 },
+  ww2: { id: 'do335', name: 'Dornier Do 335 Pfeil', arch: 'fast', shape: 'do335', note: 'The "Arrow": a propeller at each end and the fastest piston fighter of the war.', col: ['#2a3550', '#ff5a2a', '#ffd34f', '#ffffff'], skin: 'Arrow of Fire', bullet: 'Pfeil Tracers', trail: 'Twin Vortex', kfx: 'Firestorm', v: 1 },
+  modern: { id: 'darkstar', name: 'SR-72 Darkstar', arch: 'fast', shape: 'darkstar', note: 'Hypersonic. Mach 10 on a good day.', col: ['#10141c', '#3df0ff', '#ffffff', '#7c50ff'], skin: 'Hypersonic', bullet: 'Scramjet Lances', trail: 'Shock Diamonds', kfx: 'Sonic Boom', v: 2 },
+  space: { id: 'dreadwing', name: 'Celestial Dreadwing', arch: 'gunner', shape: 'dreadwing', note: 'Carved from a dead star. Its wings bend the light around it.', col: ['#160c34', '#b98cff', '#ffe7a3', '#5cf2d6'], skin: 'Starforged', bullet: 'Starlances', trail: 'Comet Tail', kfx: 'Big Bang', v: 3 },
+  neon: { id: 'phoenix', name: 'Neon Phoenix', arch: 'agile', shape: 'nphoenix', note: 'Reborn every frame in pure light.', col: ['#ff3b5c', '#ffe14f', '#3df0ff', '#ff4fd8'], skin: 'Rebirth', bullet: 'Phoenix Feathers', trail: 'Firewings', kfx: 'Rebirth Nova', v: 4 },
+};
+RARITY.push({ name: 'Apex', color: '#41ffd9', value: 10000 });
+function apexBurst(c, x, y, t, sd) {
+  const [c1, c2, c3, c4] = this.cols, k = t / this.dur, e = 1 - Math.pow(1 - Math.min(1, k * 1.4), 3), fade = Math.max(0, 1 - k);
+  // core flash and two shock rings
+  if (t < 0.35) { c.fillStyle = rgba(c3, 0.9 * (1 - t / 0.35)); c.beginPath(); c.arc(x, y, 30 + 120 * t, 0, TAU); c.fill(); }
+  for (const [d, col, w] of [[0, c2, 10], [0.12, c4, 5]]) { const q = Math.max(0, Math.min(1, (t - d) / (this.dur * 0.75))); if (q <= 0 || q >= 1) continue; c.strokeStyle = rgba(col, (1 - q) * 0.9); c.lineWidth = w * (1 - q) + 1; c.beginPath(); c.arc(x, y, 20 + 230 * (1 - Math.pow(1 - q, 2)), 0, TAU); c.stroke(); }
+  // light rays
+  for (let i = 0; i < 12; i++) { const a = i / 12 * TAU + sd + t * 0.8, r0 = 30 * e, r1 = 60 + 200 * e; c.strokeStyle = rgba(i % 2 ? c2 : c3, 0.55 * fade); c.lineWidth = 4 * fade + 0.5; c.beginPath(); c.moveTo(x + Math.cos(a) * r0, y + Math.sin(a) * r0); c.lineTo(x + Math.cos(a) * r1, y + Math.sin(a) * r1); c.stroke(); }
+  // the theater's own flourish
+  if (this.v === 0) for (let i = 0; i < 26; i++) { const a = fxR(sd, i) * TAU, d = (40 + fxR(sd, i + 3) * 190) * e; c.save(); c.translate(x + Math.cos(a) * d, y + Math.sin(a) * d + 60 * t * t); c.rotate(t * 10 + i); c.fillStyle = i % 3 ? rgba(c1, fade) : rgba(c2, fade); c.fillRect(-6, -2, 12, 4); c.restore(); }
+  else if (this.v === 1) for (let i = 0; i < 40; i++) { const a = i / 40 * TAU * 2 + t * 5, d = (20 + i * 4) * e; c.fillStyle = rgba(i % 2 ? c2 : c3, fade * 0.8); c.beginPath(); c.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, 6 * fade + 2, 0, TAU); c.fill(); }
+  else if (this.v === 2) { c.fillStyle = `rgba(255,255,255,${0.35 * fade})`; c.beginPath(); c.ellipse(x, y, 40 + 260 * e, (40 + 260 * e) * 0.35, sd, 0, TAU); c.fill(); for (let i = 0; i < 5; i++) { c.strokeStyle = rgba(c2, fade * (1 - i / 5)); c.lineWidth = 2; c.beginPath(); c.moveTo(x + (i * 40 + 30) * e, y - 12); c.lineTo(x + (i * 40 + 50) * e, y); c.lineTo(x + (i * 40 + 30) * e, y + 12); c.stroke(); } }
+  else if (this.v === 3) for (let i = 0; i < 60; i++) { const a = fxR(sd, i) * TAU, d = (10 + fxR(sd, i + 5) * 280) * e, tw = 0.5 + 0.5 * Math.sin(t * 20 + i); c.fillStyle = rgba(i % 3 === 0 ? c4 : i % 3 === 1 ? c3 : '#ffffff', fade * tw); c.fillRect(x + Math.cos(a) * d - 1.5, y + Math.sin(a) * d - 1.5, 3, 3); }
+  else for (const sdn of [-1, 1]) for (let i = 0; i < 9; i++) { const a = -Math.PI / 2 + sdn * (0.3 + i * 0.16), d = (60 + i * 14) * e, q = 6 + i; c.fillStyle = rgba([c1, c2, c3, c4][i % 4], fade); c.fillRect(x + Math.cos(a) * d * 1.6 - q / 2, y + Math.sin(a) * d * 0.9 - q / 2 + 40, q, q); }
+}
+for (const tid of THEME_ORDER) {
+  const A = APEX[tid], th = THEMES[tid], pid = 'p:' + A.id, [c1, c2, c3, c4] = A.col;
+  th.planes.push({ id: A.id, name: A.name, arch: A.arch, shape: A.shape, note: A.note, crate: true, rarity: 6, apex: true });
+  const L = { name: A.skin, rarity: 6, plane: A.id, crate: `s:${tid}:132`, apex: pid, body: c1, wing: shade(c1, -0.12), accent: c3, pat: 'apex', pat2: c2, pat3: c4, sparkle: c3, glowA: c2 };
+  if (tid === 'neon') Object.assign(L, { body: c3, wing: c3, accent: '#ffffff', grad: [c1, c2, c3, c4, c1] });
+  th.liveries.push(L); APEX_GRANT[L.crate] = pid;
+}
+PLANE_LEVELS.push(0);
 
 // Kill effects: what your victims go out in. Each draws itself for an age t (seconds) from a seed,
 // so the game, the hangar previews and the shop all use the same code.
@@ -2158,6 +2226,7 @@ const MEDALS = [
   { id: 'loyal', name: 'Loyal', desc: 'Claim 7 daily rewards in a row' },
   { id: 'ghost', name: 'Ghostbuster', desc: 'Beat a ghost in a ghost race' },
   { id: 'season', name: 'Season ace', desc: 'Reach tier 30 of a season pass' },
+  { id: 'apex', name: 'Apex predator', desc: 'Unbox an Apex plane' },
 ];
 const medalName = id => (MEDALS.find(m => m.id === id) || {}).name || id;
 
@@ -2196,6 +2265,13 @@ const TRAILS = [
   { name: 'Aurora', crate: 't:23', rarity: 3, kind: 'aurora', color: '#5cf2a0', color2: '#b98cff' },
   { name: 'Black Hole', crate: 't:24', rarity: 5, kind: 'void', color: '#7c50ff', color2: '#ff4fd8' },
 ];
+// Each Apex plane's own contrail, bullets and kill effect (see APEX).
+for (const tid of THEME_ORDER) {
+  const A = APEX[tid], pid = 'p:' + A.id, [, c2, c3, c4] = A.col;
+  const T = { name: A.trail, crate: `t:${TRAILS.length}`, rarity: 6, kind: 'apex', color: c2, color2: c3, color3: c4, apex: pid }; TRAILS.push(T); APEX_GRANT[T.crate] = pid;
+  const B = { name: A.bullet, kind: 'apex', color: c3, halo: c2, color2: c4, rarity: 6, crate: `b:${BULLET_SKINS.length}`, apex: pid }; BULLET_SKINS.push(B); APEX_GRANT[B.crate] = pid;
+  const F = { name: A.kfx, rarity: 6, dur: 1.9, crate: `k:${KILL_FX.length}`, apex: pid, cols: A.col, v: A.v, draw: apexBurst }; KILL_FX.push(F); APEX_GRANT[F.crate] = pid;
+}
 const trailOpen = i => { const T = TRAILS[i]; return !!T && (T.crate || T.season ? owned(T.crate || T.season) : pilotLevel() >= T.lvl); };
 const myTrail = () => (trailOpen(store.trail || 0) ? store.trail || 0 : 0);
 const myBullet = () => { const i = store.bullet || 0; return i && BULLET_SKINS[i] && owned(BULLET_SKINS[i].crate) ? i : 0; };
@@ -2232,7 +2308,7 @@ function gainXp(n) {
     for (let lv = before + 1; lv <= after; lv++) got.push(...unlocksAt(lv));
     toast(`Level ${after}`, got.length ? `Unlocked: ${got.slice(0, 3).join(', ')}` : 'Keep flying for new unlocks');
     sfx.medal(); confetti();
-    if (typeof Shop !== 'undefined') Shop.earn(200 * (after - before), `Level ${after}`);
+    if (typeof Shop !== 'undefined') Shop.earn(300 * (after - before), `Level ${after}`);
   }
   return { n, before, after };
 }
@@ -2279,8 +2355,8 @@ function progress(id, n, isMax) {
   if (st.p[id] >= c.goal) {
     st.done[id] = true;
     toast('Challenge complete', `${c.text(c.goal)} · +${CHALLENGE_XP} XP`);
-    gainXp(CHALLENGE_XP); Shop.earn(120, 'Challenge');
-    if (!st.bonus && list.every(x => st.done[x.id])) { st.bonus = true; toast('All three done', `+${CHALLENGE_BONUS} bonus XP. New challenges tomorrow.`); gainXp(CHALLENGE_BONUS); Shop.earn(200, 'All challenges'); }
+    gainXp(CHALLENGE_XP); Shop.earn(200, 'Challenge');
+    if (!st.bonus && list.every(x => st.done[x.id])) { st.bonus = true; toast('All three done', `+${CHALLENGE_BONUS} bonus XP. New challenges tomorrow.`); gainXp(CHALLENGE_BONUS); Shop.earn(400, 'All challenges'); }
   }
   saveStore();
   renderChallengeMeta();
@@ -2315,7 +2391,7 @@ function drawContrail(c, pts, ti, span, k) {
     }
     return;
   }
-  if (['helix', 'pixel', 'galaxy', 'fire', 'zap', 'ribbon', 'bubbles', 'hearts', 'aurora', 'void'].includes(T.kind)) { drawFancyTrail(c, pts, T, span, k, side); return; }
+  if (['helix', 'pixel', 'galaxy', 'fire', 'zap', 'ribbon', 'bubbles', 'hearts', 'aurora', 'void', 'apex'].includes(T.kind)) { drawFancyTrail(c, pts, T, span, k, side); return; }
   const passes = T.glow ? [[7, 0.22], [2, 1]] : [[2, 1]];
   if (T.kind === 'dash') c.setLineDash([5, 9]);
   for (const [lw, al] of passes) for (const sd of [-1, 1]) for (let i = 1; i < n; i++) {
@@ -2351,6 +2427,15 @@ function drawFancyTrail(c, pts, T, span, k, side) {
     for (let i = 0; i < n; i += 3) { const p = pts[i], f = i / n, tw = 0.5 + 0.5 * Math.sin(time * 10 + i); for (const sd of [-1, 1]) { const [x, y] = side(p, sd * (0.6 + Math.sin(i * 7.3) * 0.5)); c.fillStyle = `rgba(255,255,255,${f * k * tw})`; c.fillRect(x - 1, y - 1, 2, 2); } }
   } else if (T.kind === 'fire') {
     for (let i = 0; i < n; i += 1) { const p = pts[i], f = i / n; for (const sd of [-0.9, 0.9]) { const [x, y] = side(p, sd); const r = 2 + (1 - f) * 7; c.fillStyle = `rgba(255,${Math.round(120 + f * 110)},${Math.round(f * 60)},${0.35 * f * k})`; c.beginPath(); c.arc(x + Math.sin(i * 3.1 + time * 14) * (1 - f) * 3, y, r, 0, TAU); c.fill(); } }
+  } else if (T.kind === 'apex') {
+    // Twin glowing streams that braid around each other, shedding sparks and flashing diamonds.
+    const rgb3 = hexToRgb(T.color3 || T.color2).join(',');
+    for (const [ph, col, lw, al] of [[0, rgb, 9, 0.28], [Math.PI, rgb3, 9, 0.28], [0, rgb, 3, 0.9], [Math.PI, rgb2, 3, 0.9]]) {
+      c.lineWidth = lw; c.beginPath();
+      for (let i = 0; i < n; i++) { const p = pts[i], o = Math.sin(i * 0.4 - time * 8 + ph) * span * 0.55; const x = p.x - Math.sin(p.a) * o, y = p.y + Math.cos(p.a) * o; i ? c.lineTo(x, y) : c.moveTo(x, y); }
+      c.strokeStyle = `rgba(${col},${al * k})`; c.stroke();
+    }
+    for (let i = 0; i < n; i += 4) { const p = pts[i], f = i / n, q = 2 + 3 * f, tw = 0.5 + 0.5 * Math.sin(time * 14 + i); c.fillStyle = `rgba(255,255,255,${0.9 * f * k * tw})`; c.beginPath(); c.moveTo(p.x + q, p.y); c.lineTo(p.x, p.y + q); c.lineTo(p.x - q, p.y); c.lineTo(p.x, p.y - q); c.fill(); }
   } else if (T.kind === 'bubbles') {
     for (let i = 0; i < n; i += 2) { const p = pts[i], f = i / n; for (const sd of [-1, 1]) { const [x, y] = side(p, sd); const r = (1.5 + (1 - f) * 4) * (0.7 + 0.3 * Math.sin(i * 1.7 + sd)); const wob = Math.sin(time * 6 + i) * (1 - f) * 3; c.strokeStyle = `rgba(${rgb},${0.75 * f * k})`; c.lineWidth = 1.2; c.beginPath(); c.arc(x + wob, y - wob, r, 0, TAU); c.stroke(); c.fillStyle = `rgba(255,255,255,${0.6 * f * k})`; c.fillRect(x + wob - r * 0.4, y - wob - r * 0.5, 1.2, 1.2); } }
   } else if (T.kind === 'hearts') {
@@ -2410,6 +2495,18 @@ function drawBullets(c, list, th, skinOf, lenK) {
       path(); c.strokeStyle = rgba(S.halo, 0.3); c.lineWidth = 9; c.stroke();
       path(); c.strokeStyle = S.color; c.lineWidth = 3; c.stroke();
       for (const b of bs) for (let q = 1; q <= 3; q++) { const f = q / 4, tw = (Math.sin(time * 30 + q * 2 + b.x * 0.05) + 1) / 2; c.fillStyle = `rgba(255,240,190,${0.5 + 0.5 * tw})`; const px = b.x - b.vx * len * f * 1.6 + Math.sin(q * 7 + b.y) * 4, py = b.y - b.vy * len * f * 1.6 + Math.cos(q * 5 + b.x) * 4; c.fillRect(px - 1, py - 1, 2.2, 2.2); }
+      continue;
+    }
+    if (S.kind === 'apex') {
+      for (const b of bs) {
+        const ex = b.x - b.vx * len * 1.7, ey = b.y - b.vy * len * 1.7, g = c.createLinearGradient(b.x, b.y, ex, ey);
+        g.addColorStop(0, '#ffffff'); g.addColorStop(0.25, S.color); g.addColorStop(0.7, S.halo); g.addColorStop(1, rgba(S.color2, 0));
+        c.strokeStyle = rgba(S.halo, 0.3); c.lineWidth = 12; c.beginPath(); c.moveTo(b.x, b.y); c.lineTo(ex, ey); c.stroke();
+        c.strokeStyle = g; c.lineWidth = 4; c.stroke();
+        const v = Math.hypot(b.vx, b.vy) || 1, ux = b.vx / v, uy = b.vy / v;
+        c.fillStyle = '#ffffff'; c.beginPath(); c.moveTo(b.x + ux * 6, b.y + uy * 6); c.lineTo(b.x - uy * 3.5, b.y + ux * 3.5); c.lineTo(b.x + uy * 3.5, b.y - ux * 3.5); c.fill();
+        for (let q = 0; q < 2; q++) { const a = time * 16 + q * Math.PI + b.x * 0.03; c.fillStyle = q ? S.color2 : S.color; c.fillRect(b.x - ux * 8 + Math.cos(a) * 6 - 1.2, b.y - uy * 8 + Math.sin(a) * 6 - 1.2, 2.4, 2.4); }
+      }
       continue;
     }
     if (S.kind === 'zap') {
@@ -3168,6 +3265,67 @@ Object.assign(CRAFT_PLAYER, {
     props: [], flames: [{ x: -16, y: 0, w: 2, len: 10 }], tips: [-13, 25],
   },
 });
+// Apex aircraft
+Object.assign(CRAFT_PLAYER, {
+  junkers: {
+    parts: [
+      part(poly([[-14, -2], [-18, -9], [-23, -8], [-24, 0], [-23, 8], [-18, 9], [-14, 2]]), 'wing'),
+      part(poly(mirror([[9, -2], [7, -25], [1, -28], [-6, -26], [-7, -2]])), 'wing'),
+      ...[[5, -6, -24], [1, -6, -26], [-3, -6, -25]].flatMap(([x, y0, y1]) => pair([[x + 1, y0], [x + 0.6, y1], [x - 0.4, y1], [x, y0]], 'wingDk')),
+      part(poly([[18, -4], [6, -4.8], [-20, -1.4], [-20, 1.4], [6, 4.8], [18, 4]]), 'body'),
+      part(ell(17, 0, 3.6, 4.4), 'accent'),
+      part(ell(-2, 0, 3.2, 2.3), 'hole'),
+      ...pair([[-18, -8.6], [-23, -7.8], [-23, -6], [-18, -6.4]], 'accent'),
+    ],
+    props: [{ x: 20, y: 0, len: 12 }], flames: [], tips: [-1, 27],
+  },
+  do335: {
+    parts: [
+      ...pair([[-21, -2], [-27, -11], [-31, -11], [-30, -2]], 'wing'),
+      part(poly(mirror([[7, -4], [3, -27], [-3, -29], [-8, -27], [-6, -4]])), 'wing'),
+      part(poly(mirror([[29, 0], [22, -4], [2, -5.2], [-22, -4], [-29, 0]])), 'body'),
+      ...pair([[3, -25], [-3, -26.6], [-5, -24], [1, -23]], 'accent'),
+      part(ell(10, 0, 4.2, 2.3), 'glass'),
+      part(ell(27, 0, 2.6, 3.4), 'accent'),
+      part(ell(-27, 0, 2.2, 2.8), 'accent'),
+    ],
+    props: [{ x: 31, y: 0, len: 12 }, { x: -31, y: 0, len: 11 }], flames: [], tips: [-4, 28],
+  },
+  darkstar: {
+    parts: [
+      part(poly(mirror([[38, 0], [24, -3.6], [6, -8], [-10, -15], [-24, -20], [-29, -17], [-27, -7], [-31, 0]])), 'body'),
+      ...pair([[-6, -9], [-20, -17.4], [-25, -18], [-23, -9]], 'wingDk'),
+      ...pair([[-16, -5], [-27, -10], [-30, -9], [-25, -4]], 'accent'),
+      ...pair([[20, -3], [8, -6.5], [8, -5.2], [20, -2.2]], 'accent'),
+      part(ell(18, 0, 4.6, 1.7), 'glass'),
+    ],
+    props: [], flames: [{ x: -31, y: 5, w: 2.6, len: 18 }, { x: -31, y: -5, w: 2.6, len: 18 }], tips: [-24, 20],
+  },
+  dreadwing: {
+    parts: [
+      part(poly(mirror([[22, 0], [10, -6], [2, -18], [-6, -33], [-10, -26], [-16, -31], [-19, -22], [-25, -24], [-22, -8], [-26, 0]])), 'wing'),
+      ...pair([[-6, -33], [-10, -26], [-8.5, -24], [-4, -29]], 'accent'),
+      ...pair([[-16, -31], [-19, -22], [-17.5, -21], [-14.5, -27]], 'accent'),
+      part(poly(mirror([[32, 0], [14, -4.2], [-18, -4.2], [-25, 0]])), 'body'),
+      part(ell(0, 0, 5.4, 5.4), 'accent'),
+      part(ell(0, 0, 2.8, 2.8), 'glass'),
+      part(ell(18, 0, 3.6, 1.8), 'glass'),
+    ],
+    props: [], flames: [{ x: -25, y: 0, w: 3.2, len: 16 }, { x: -20, y: 8, w: 1.6, len: 9 }, { x: -20, y: -8, w: 1.6, len: 9 }], tips: [-6, 32],
+  },
+  nphoenix: {
+    parts: [
+      ...pair([[4, -3], [11, -14], [7, -26], [-1, -31], [-6, -22], [-12, -29], [-15, -18], [-8, -4]], 'wing'),
+      ...pair([[-14, -2], [-26, -9], [-31, -5], [-22, 0]], 'wing'),
+      part(poly([[-14, -1.6], [-33, 0], [-14, 1.6]]), 'wingDk'),
+      part(ell(4, 0, 14, 3.6), 'body'),
+      part(poly([[23, 0], [16, -2.6], [16, 2.6]]), 'accent'),
+      ...pair([[7, -26], [-1, -31], [0, -28], [5, -24]], 'accent'),
+      part(ell(10, 0, 3, 1.6), 'glass'),
+    ],
+    props: [], flames: [{ x: -12, y: 0, w: 2, len: 10 }], tips: [-2, 30],
+  },
+});
 const ENEMY_SHAPES = {
   ww1: { scout: 'nieuport', fighter: 'albatros', interceptor: 'fokker7', ace: 'triplane' },
   ww2: { scout: 'bf109', fighter: 'zero', interceptor: 'fw190', ace: 'corsair' },
@@ -3195,6 +3353,10 @@ function colorsFor(th, type, liv) {
   if (L && L.grad) c.grad = L.grad;
   if (L && L.elite) c.elite = true;
   if (L && L.sparkle) c.sparkle = L.sparkle;
+  if (L && L.glowA) c.glowA = L.glowA;
+  if (L && L.apex) c.apex = true;
+  if (L && (['apex', 'holo', 'galaxy', 'elitegold'].includes(L.pat) || ((L.apex || L.apexGrad) && L.grad))) c.anim = true;
+  if (L && L.apexGrad) c.apex = true; // animated finishes skip the sprite cache
   colCache.set(key, c);
   return c;
 }
@@ -3244,6 +3406,19 @@ function drawAcePattern(c, pt, col) {
     case 'bolt': if (wing || pt.f === 'body') { c.beginPath(); c.moveTo(14, -44); c.lineTo(2, -6); c.lineTo(8, -6); c.lineTo(-6, 44); c.lineTo(-2, 4); c.lineTo(-8, 4); c.closePath(); c.fill(); } break;
     case 'hex': c.strokeStyle = col.pat2; c.lineWidth = 0.9; for (let y = -44, r = 0; y < 44; y += 4.2, r++) for (let x = -44 + (r % 2) * 3.6; x < 44; x += 7.2) { c.beginPath(); for (let q = 0; q < 6; q++) { const ang = q * Math.PI / 3; c.lineTo(x + Math.cos(ang) * 2.4, y + Math.sin(ang) * 2.4); } c.closePath(); c.stroke(); } break;
     case 'carbon': for (let x = -44; x < 44; x += 2.4) for (let y = -44; y < 44; y += 2.4) if ((Math.round(x / 2.4) + Math.round(y / 2.4)) % 2 === 0) { c.globalAlpha = 0.5; c.fillRect(x, y, 2.4, 1.2); c.globalAlpha = 1; } break;
+    case 'elitegold': {
+      // molten gold: slow ripples, a bright sweep and a ring of glints
+      for (let x = -60; x < 60; x += 10) { const w = Math.sin(time * 2 + x * 0.12) * 3; c.fillStyle = rgba(col.pat3, 0.28); c.beginPath(); c.moveTo(x + w, -44); c.lineTo(x + 4 + w, -44); c.lineTo(x + 4 - w, 44); c.lineTo(x - w, 44); c.fill(); }
+      const sw = ((time * 0.8) % 1.4) * 120 - 70, g = c.createLinearGradient(sw - 12, -12, sw + 12, 12); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.5, 'rgba(255,250,220,.85)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      c.fillStyle = g; c.fillRect(-44, -44, 88, 88);
+      for (let q = 0; q < 6; q++) { const a = q / 6 * TAU + time, tw = 0.5 + 0.5 * Math.sin(time * 6 + q * 2); c.fillStyle = `rgba(255,255,255,${tw})`; c.fillRect(Math.cos(a) * 14 - 0.8, Math.sin(a) * 14 - 0.8, 1.6, 1.6); }
+    } break;
+    case 'apex': {
+      // bands of colour that flow down the airframe, with a bright sweep passing over them
+      const sh = (time * 26) % 24;
+      for (let x = -72 + sh; x < 60; x += 12) { c.fillStyle = rgba(col.pat2, 0.5); c.beginPath(); c.moveTo(x, -44); c.lineTo(x + 5, -44); c.lineTo(x + 25, 44); c.lineTo(x + 20, 44); c.fill(); c.fillStyle = rgba(col.pat3, 0.35); c.beginPath(); c.moveTo(x + 6, -44); c.lineTo(x + 8, -44); c.lineTo(x + 28, 44); c.lineTo(x + 26, 44); c.fill(); }
+      const sw = ((time * 0.6) % 1.6) * 110 - 70; const g = c.createLinearGradient(sw - 10, 0, sw + 10, 0); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.5, 'rgba(255,255,255,.7)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(sw - 10, -44, 20, 88);
+    } break;
     case 'holo': for (let x = -70; x < 60; x += 6) { c.fillStyle = `hsla(${(x * 5 + time * 80) % 360},95%,64%,.42)`; c.beginPath(); c.moveTo(x, -44); c.lineTo(x + 4, -44); c.lineTo(x + 26, 44); c.lineTo(x + 22, 44); c.fill(); } break;
     case 'galaxy': {
       const g = c.createRadialGradient(-4, 0, 0, -4, 0, 30); g.addColorStop(0, rgba(col.pat3, 0.55)); g.addColorStop(0.5, rgba(col.pat2, 0.3)); g.addColorStop(1, 'rgba(0,0,0,0)');
@@ -3296,7 +3471,7 @@ function drawCraftBody(c, craft, col, o) {
   if (col.neon) {
     for (const pt of craft.parts) { c.fillStyle = o.flash ? 'rgba(255,255,255,.95)' : (pt.f === 'glass' ? 'rgba(110,232,255,.35)' : '#12081f'); c.fill(pt.p); }
     let st = col.stroke;
-    if (col.grad) { st = c.createLinearGradient(30, 0, -30, 0); col.grad.forEach((g, i) => st.addColorStop(i / (col.grad.length - 1), g)); }
+    if (col.grad) { const ca = col.apex ? Math.cos(time * 2) * 30 : 30, sa = col.apex ? Math.sin(time * 2) * 30 : 0; st = c.createLinearGradient(ca, sa, -ca, -sa); col.grad.forEach((g, i) => st.addColorStop(i / (col.grad.length - 1), g)); }
     c.strokeStyle = col.glow; c.lineWidth = 5; for (const pt of craft.parts) c.stroke(pt.p);
     c.strokeStyle = st; c.lineWidth = 1.6; for (const pt of craft.parts) c.stroke(pt.p);
   } else {
@@ -3374,12 +3549,13 @@ function drawCraft(c, craft, col, scale, o) {
   c.save();
   c.scale(scale, scale * Math.cos(o.roll || 0));
   if (!o.shadow && col) for (const f of craft.flames) drawFlame(c, f, o.t || 0, col.flame);
-  if (c === ctx) {
+  if (c === ctx && !(col && col.anim && !o.shadow)) {
     const res = Math.max(1, Math.ceil(scale * zoom * DPR));
     const spr = craftSprite(craft, o.shadow ? null : col, o, res);
     c.drawImage(spr, -SPR, -SPR, SPR * 2, SPR * 2);
   } else drawCraftBody(c, craft, col, o);
   if (o.shadow) { c.restore(); return; }
+  if (col && col.glowA && !o.flash) { c.strokeStyle = rgba(col.glowA, 0.35 + 0.25 * Math.sin(time * 4)); c.lineWidth = 2.6; for (const pt of craft.parts) c.stroke(pt.p); }
   if (craft.tips && !o.flash) {
     const [tx, ty] = craft.tips, on = !o.t || Math.sin((o.t || 0) * 6) > -0.2;
     c.globalAlpha *= on ? 1 : 0.35;
@@ -3454,21 +3630,24 @@ const KITS = {
   rock: ['x.....x.x.....x.', '....x.......x...', 'x.x.x.x.x.x.x.x.'],
   soft: ['x.........x.....', '............x...', '..x...x...x...x.'],
   gated: ['x...x...x...x...', '....x.......x...', '..x...x...x...x.'],
+  none: ['................', '................', '................'],
 };
 const MUSIC = {
   ww1: { bpm: 108, key: 50, sc: 'maj', prog: [0, 3, 4, 0], kit: 'march', bassPat: 'r...f...r...f...', bass: 'triangle', lead: 'square', cut: 2600, pad: false, seed: 11 },
   ww2: { bpm: 126, key: 53, sc: 'maj', prog: [0, 5, 1, 4], kit: 'swing', bassPat: 'r...t...f...s...', bass: 'triangle', lead: 'sawtooth', cut: 1700, pad: true, swing: 0.16, seed: 23 },
   modern: { bpm: 142, key: 40, sc: 'min', prog: [0, 5, 2, 6], kit: 'rock', bassPat: 'r.r.r.r.r.r.r.ro', bass: 'sawtooth', lead: 'sawtooth', cut: 2200, pad: true, seed: 37 },
   space: { bpm: 96, key: 45, sc: 'dor', prog: [0, 3, 5, 4], kit: 'soft', bassPat: 'r.......f.......', bass: 'sine', lead: 'triangle', cut: 3200, pad: true, arp: true, seed: 41 },
+  zen: { bpm: 68, key: 50, sc: 'maj', prog: [0, 3, 5, 4], kit: 'none', bassPat: 'r...............', bass: 'sine', lead: 'triangle', cut: 1800, pad: true, arp: true, seed: 7, soft: true },
   neon: { bpm: 116, key: 45, sc: 'min', prog: [0, 5, 3, 4], kit: 'gated', bassPat: 'r.ro.r.ro.r.ro.r', bass: 'sawtooth', lead: 'square', cut: 2000, pad: true, arp: true, seed: 53 },
 };
 const midiHz = m => 440 * Math.pow(2, (m - 69) / 12);
 var Music = {
   playing: false, id: null, bus: null, filt: null, step: 0, nextT: 0, timer: null, motif: null,
-  want() { return !store.muted && store.music !== false && !!actx && (state === 'play' || state === 'pause') && !document.hidden; },
+  want() { return !store.muted && store.music !== false && !!actx && (state === 'play' || state === 'pause') && !document.hidden && !(run && run.zenCfg && run.zenCfg.music === 'off'); },
+  band() { return run && run.zenCfg && run.zenCfg.music === 'calm' ? 'zen' : theme.id; },
   sync() {
     const want = this.want();
-    if (want && (!this.playing || this.id !== theme.id)) this.start(theme.id);
+    if (want && (!this.playing || this.id !== this.band())) this.start(this.band());
     else if (!want && this.playing) this.stop();
     if (this.playing) {
       // Muffle the band while paused or shot down.
@@ -3517,7 +3696,7 @@ var Music = {
   },
   play(step, t, spb) {
     const M = this.M, s16 = step % 16, bar = Math.floor(step / 16), chordDeg = M.prog[bar % 4], phrase = Math.floor(bar / 4);
-    const hot = run && state === 'play' && (run.waveIdx >= 4 || (run.mode === 'zen' && run.totalT > 240));
+    const hot = !M.soft && run && state === 'play' && (run.waveIdx >= 4 || (run.mode === 'zen' && run.totalT > 240));
     const [kick, snare, hat] = KITS[M.kit];
     if (kick[s16] === 'x') this.kick(t);
     if (snare[s16] === 'x') this.snare(t, M.kit === 'gated' ? 0.32 : M.kit === 'soft' ? 0.06 : 0.11, M.kit === 'soft' ? 0.02 : 0.05);
@@ -3526,6 +3705,7 @@ var Music = {
     const b = M.bassPat[s16];
     if (b !== '.') { const off = { r: 0, t: 2, f: 4, o: 7, s: 5 }[b]; this.voice(this.hz(M, chordDeg + off, b === 'o' ? 0 : -1), t, spb * (M.kit === 'rock' || M.kit === 'gated' ? 1.6 : 3.5), M.bass, 0.07, 700); }
     if (M.pad && s16 === 0) [0, 2, 4].forEach(d => this.voice(this.hz(M, chordDeg + d, 0), t, spb * 15, 'sawtooth', 0.012, 900, 0.35, 6));
+    if (M.soft) { if (s16 % 4 === 0) { const d = [0, 4, 7, 9, 7, 4][(step / 4) % 6]; this.voice(this.hz(M, chordDeg + d, 1), t, spb * 6, 'sine', 0.016, 2200, 0.05); } if (s16 === 8 && bar % 2) this.voice(this.hz(M, chordDeg + 2, 2), t, spb * 10, 'triangle', 0.01, 3000, 0.4); return; }
     if (M.arp && s16 % 2 === 0) { const d = [0, 2, 4, 7, 4, 2, 0, 4][(s16 / 2) % 8]; this.voice(this.hz(M, chordDeg + d, 1), t, spb * 1.4, 'triangle', 0.018, 3000); }
     // The hook: every other phrase, and every phrase in the boss wave.
     if (phrase % 2 === 0 || hot) {
@@ -3745,7 +3925,12 @@ function startRun(mode) {
   Coop.on = false; hide('squad');
   if (Net.ws) { Net.close(); hide('coop'); }
   tileWorld = mode === 'zen';
-  if (tileWorld) { world.mod = MODS[0]; world.wind = { x: 0, y: 0 }; }
+  if (tileWorld) {
+    world.mod = MODS[0]; world.wind = { x: 0, y: 0 };
+    const zc = zenCfg(), keep = { few: 0.45, normal: 1, lots: 1 }[zc.clouds];
+    if (keep < 1) world.clouds = world.clouds.filter((_, i) => i % 2 === 0 || i % 5 === 0);
+    if (zc.clouds === 'lots') world.clouds = world.clouds.concat(world.clouds.map(c => Object.assign({}, c, { x: c.x + 640, y: c.y - 420 })));
+  }
   resetEntities();
   player = makePlayer(world.mod.hearts || SOLO_HULL);
   cam.x = 0; cam.y = 0; slowT = 0; freezeT = 0;
@@ -3754,7 +3939,11 @@ function startRun(mode) {
     score: 0, shownScore: 0, killPts: 0, bonusPts: 0, hullPts: 0, waveTimes: [],
     kills: 0, chain: 0, chainT: 0, mult: 1, bestMult: 1, waveHits: 0, results: [], won: false, aceKilled: false,
     plane: currentPlane(theme).id, livery: myLivery(theme.id), zen: { spawnT: 2, aceT: 150, crashes: 0 },
+    zenCfg: mode === 'zen' ? zenCfg() : null,
   };
+  player.pu = {};
+  if (run.zenCfg && run.zenCfg.speed === 'cruise') player.speed *= 0.82;
+  $('hud').classList.toggle('zen-min', !!(run.zenCfg && run.zenCfg.hud === 'min'));
   hideAllOverlays(); show('hud');
   renderHull();
   Ghost.begin(mode);
@@ -3765,7 +3954,7 @@ function startRun(mode) {
   state = 'play';
   if (tileWorld) {
     run.phase = 'zen';
-    showBanner('Zen mode', 'Endless skies', 'No edges. Fly as long as you like.');
+    showBanner('Zen mode', run.zenCfg.enemies === 'off' ? 'Just you and the sky' : 'Endless skies', 'No edges. Fly as long as you like. Pause any time to end the flight.');
     sfx.wave();
   } else startWave(0);
   showHint(isTouch ? 'Drag anywhere to steer · tap ROLL to dodge' : 'Mouse to steer · click or Space to roll', 5500);
@@ -3831,7 +4020,7 @@ function finish(won) {
   track('run_end', { mode: run.mode, theme: run.theme, score: run.score, won, mod: world.mod.id });
   const streakXp = run.mode === 'daily' ? 50 * Math.min(10, store.streak || 1) : 0;
   const xp = gainXp(run.mode === 'daily' ? 100 + run.score / 40 + streakXp : 20 + run.score / 100);
-  Shop.earn(run.mode === 'daily' ? 150 + Math.floor(run.score / 60) : 20 + (run.kills || 0) * 2, run.mode === 'daily' ? 'Daily sortie' : 'Practice');
+  Shop.earn(run.mode === 'daily' ? 300 + Math.floor(run.score / 30) : 40 + (run.kills || 0) * 4, run.mode === 'daily' ? 'Daily sortie' : run.mode === 'ghost' ? 'Ghost race' : 'Practice');
   showResults(earned);
   showXp('resXp', xp, streakXp ? `includes ${streakXp} for your ${store.streak}-day streak` : '');
 }
@@ -3854,7 +4043,7 @@ function finishZen() {
   track('zen_end', { theme: run.theme, plane: run.plane, score: run.score, minutes: Math.round(run.totalT / 60) });
   progress('zenMin', run.totalT / 60);
   const xp = gainXp(Math.min(800, 10 + run.kills * 5 + run.totalT / 60 * 8));
-  Shop.earn(Math.min(400, 20 + run.kills * 2), 'Zen flight');
+  Shop.earn(Math.min(600, 30 + run.kills * 4), 'Zen flight');
   showResults([]);
   showXp('resXp', xp);
 }
@@ -3884,7 +4073,7 @@ function recordBest() {
   store.bests = store.bests.slice(0, 5);
   saveStore();
 }
-function grantMedal(id, list) { if (!store.medals[id]) { store.medals[id] = todayNum; if (list) list.push(id); gainXp(200); if (typeof Shop !== 'undefined') Shop.earn(150, 'Medal'); } }
+function grantMedal(id, list) { if (!store.medals[id]) { store.medals[id] = todayNum; if (list) list.push(id); gainXp(200); if (typeof Shop !== 'undefined') Shop.earn(250, 'Medal'); } }
 // Medals earned outside the solo results screen get a toast instead.
 function earnMedal(id) { if (store.medals[id]) return; grantMedal(id); saveStore(); toast('Medal earned', `${medalName(id)} · +200 XP`); sfx.medal(); }
 function awardMedals() {
@@ -3961,11 +4150,12 @@ function firePlayer(dt) {
   const p = player;
   p.fireT -= dt;
   if (p.fireT > 0) return;
-  p.fireT = 0.1 / (world.mod.fire || 1) / p.fi;
+  p.fireT = 0.1 / (world.mod.fire || 1) / p.fi / (p.pu && p.pu.rapid > 0 ? 2 : 1);
   const c = Math.cos(p.a), s = Math.sin(p.a), sp = 900 + p.speed * 0.5;
   for (const side of [-1, 1]) {
     pBullets.push({ x: p.x + c * 12 - s * 8 * side, y: p.y + s * 12 + c * 8 * side, vx: c * sp, vy: s * sp, life: 0.6 });
   }
+  if (p.pu && p.pu.spread > 0) for (const da of [-0.22, 0.22]) { const a = p.a + da; pBullets.push({ x: p.x + c * 12, y: p.y + s * 12, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.5 }); }
 }
 
 function attractPlayer(dt) {
@@ -3981,6 +4171,10 @@ const vulnerable = () => state === 'play' && !player.dead && player.inv <= 0 && 
 
 function hurtPlayer(n = 1) {
   const p = player, bar = p.maxHp > 5;
+  if (run && run.mode === 'zen') {
+    if (p.pu && p.pu.shield > 0) { delete p.pu.shield; p.inv = 1.2; floater(p.x, p.y - 30, 'SHIELD HELD', '#5cf2a0', 0.9); sfx.pickup(); return; }
+    if (run.zenCfg && run.zenCfg.hull === 'god') { p.inv = 0.8; shake = Math.max(shake, 4); return; }
+  }
   p.hp = Math.max(0, p.hp - n); p.inv = bar ? HULL.inv : 1.7;
   run.waveHits++; run.chain = 0; run.chainT = 0; run.mult = 1;
   if (run.mode === 'coop' && Coop.on) { if (Coop.isHost) delete Coop.h.chains[Net.you]; else Net.send({ t: 'hurt' }); }
@@ -4050,11 +4244,13 @@ function killEnemy(e, by) {
 }
 
 function shootE(x, y, a, spd) {
+  if (run && run.mode === 'zen' && run.zenCfg && run.zenCfg.fire === 'off') return;
   const b = { x: x + Math.cos(a) * 16, y: y + Math.sin(a) * 16, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, life: 2.8 };
   eBullets.push(b);
   if (Coop.on) Coop.outBullets.push([Math.round(b.x), Math.round(b.y), Math.round(b.vx), Math.round(b.vy)]);
 }
 function launchMissile(e) {
+  if (run && run.mode === 'zen' && run.zenCfg && run.zenCfg.fire === 'off') return;
   const m = { x: e.x + Math.cos(e.a) * 20, y: e.y + Math.sin(e.a) * 20, a: e.a, speed: 210, lock: true, life: 4.6, t: 0 };
   if (Coop.on) { m.id = ++Coop.h.mid; m.target = e.tid || Net.you; }
   missiles.push(m);
@@ -4204,10 +4400,18 @@ function updatePickups(dt) {
     k.t += dt;
     const dx = player.x - k.x, dy = player.y - k.y, d = Math.hypot(dx, dy);
     if (state === 'play' && !player.dead) {
-      if (d < 170 && d > 1) { const pull = 520 * (1 - d / 220); k.x += dx / d * pull * dt; k.y += dy / d * pull * dt; }
+      const reach = player.pu && player.pu.magnet > 0 ? 520 : 170;
+      if (d < reach && d > 1) { const pull = 520 * (1 - Math.min(d, 210) / 220) * (reach > 170 ? 1.6 : 1); k.x += dx / d * pull * dt; k.y += dy / d * pull * dt; }
       if (d < 26 && Coop.on) {
         if (!k.pending) { k.pending = true; if (Coop.isHost) Coop.resolvePick(k.id, Net.you); else Net.send({ t: 'pick', id: k.id }); }
         continue;
+      }
+      if (d < 26 && ZEN_PU[k.kind]) {
+        const [label, col] = ZEN_PU[k.kind];
+        player.pu = player.pu || {};
+        if (k.kind === 'shower') for (let q = 0; q < 10; q++) { const a = q / 10 * TAU, r = rand(60, 160); pickups.push({ x: player.x + Math.cos(a) * r, y: player.y + Math.sin(a) * r, kind: 'star', t: 0 }); }
+        else player.pu[k.kind] = 12;
+        floater(k.x, k.y, label, col, 1); sfx.pickup(); vibrate(20); pickups.splice(i, 1); continue;
       }
       if (d < 26) {
         if (k.kind === 'heart' && player.hp < player.maxHp) { player.hp++; renderHull(); floater(k.x, k.y, 'HULL REPAIRED', '#38d98a', 0.9); }
@@ -4215,7 +4419,7 @@ function updatePickups(dt) {
         sfx.pickup(); pickups.splice(i, 1); continue;
       }
     }
-    if (k.t > 9) pickups.splice(i, 1);
+    if (k.t > (k.life || 9)) pickups.splice(i, 1);
   }
 }
 
@@ -4314,11 +4518,55 @@ function updateFx(dt) {
 // Zen: a steady, never-overwhelming stream. Starts with 3 enemies at a time and adds
 // one per minute up to 6; an ace drops in every two and a half minutes.
 const ZEN_MIX = [['scout', 0.42], ['fighter', 0.33], ['interceptor', 0.12], ['bomber', 0.13]];
+// Zen settings. Calm is the default: few planes, nobody shoots back, power-ups to play with, soft music at sunset.
+const ZEN_OPTS = [
+  ['enemies', 'Enemy planes', [['off', 'None'], ['few', 'Few'], ['normal', 'Normal'], ['swarm', 'Swarm']]],
+  ['fire', 'Enemy fire', [['off', 'Off'], ['on', 'On']]],
+  ['aces', 'Aces', [['off', 'Off'], ['on', 'On']]],
+  ['pu', 'Power-ups', [['off', 'Off'], ['some', 'Some'], ['lots', 'Lots']]],
+  ['hull', 'Hull', [['normal', 'Normal'], ['god', 'Invincible']]],
+  ['hud', 'HUD', [['full', 'Full'], ['min', 'Minimal']]],
+  ['music', 'Music', [['calm', 'Calm'], ['theater', 'Theater'], ['off', 'Off']]],
+  ['amb', 'Ambience', [['clear', 'Clear'], ['sunset', 'Sunset'], ['night', 'Night'], ['rain', 'Rain']]],
+  ['speed', 'Speed', [['cruise', 'Cruise'], ['normal', 'Normal']]],
+  ['clouds', 'Clouds', [['few', 'Few'], ['normal', 'Normal'], ['lots', 'Lots']]],
+];
+const ZEN_PRESETS = {
+  calm: { enemies: 'few', fire: 'off', aces: 'off', pu: 'some', hull: 'normal', hud: 'min', music: 'calm', amb: 'sunset', speed: 'cruise', clouds: 'normal' },
+  classic: { enemies: 'normal', fire: 'on', aces: 'on', pu: 'off', hull: 'normal', hud: 'full', music: 'theater', amb: 'clear', speed: 'normal', clouds: 'normal' },
+  sandbox: { enemies: 'swarm', fire: 'off', aces: 'on', pu: 'lots', hull: 'god', hud: 'full', music: 'theater', amb: 'clear', speed: 'normal', clouds: 'few' },
+};
+const zenCfg = () => Object.assign({}, ZEN_PRESETS.calm, store.zenCfg || {});
+const ZenSet = {
+  open() { this.render(); show('zenSet'); },
+  render() {
+    const c = zenCfg(), preset = Object.keys(ZEN_PRESETS).find(k => ZEN_OPTS.every(([key]) => ZEN_PRESETS[k][key] === c[key]));
+    document.querySelectorAll('.zs-presets button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.preset === preset)));
+    $('zsRows').innerHTML = ZEN_OPTS.map(([key, label, opts]) => `<div class="zs-row"><span>${label}</span><div class="seg" role="radiogroup" aria-label="${label}">${opts.map(([v, l]) => `<button data-k="${key}" data-v="${v}" aria-selected="${c[key] === v}">${l}</button>`).join('')}</div></div>`).join('');
+    $('zsRows').querySelectorAll('button').forEach(b => b.onclick = () => { store.zenCfg = Object.assign(zenCfg(), { [b.dataset.k]: b.dataset.v }); saveStore(); this.render(); });
+  },
+};
+document.querySelectorAll('.zs-presets button').forEach(b => b.addEventListener('click', () => { store.zenCfg = Object.assign({}, ZEN_PRESETS[b.dataset.preset]); saveStore(); ZenSet.render(); }));
+$('zsFly').addEventListener('click', () => { hide('zenSet'); audio(); startRun('zen'); });
+$('zenSet').addEventListener('click', e => { if (e.target.closest('[data-close]')) hide('zenSet'); });
+const ZEN_PU = { rapid: ['RAPID FIRE', '#ff8a3d'], spread: ['SPREAD SHOT', '#6be4ff'], shield: ['SHIELD', '#5cf2a0'], shower: ['STAR SHOWER', '#ffd34f'], magnet: ['MAGNET', '#ff4fd8'] };
 function zenTick(dt) {
+  const zc = run.zenCfg || ZEN_PRESETS.classic;
+  if (zc.pu !== 'off') {
+    run.zen.puT = (run.zen.puT == null ? 4 : run.zen.puT) - dt;
+    if (run.zen.puT <= 0) {
+      run.zen.puT = zc.pu === 'lots' ? rand(4, 7) : rand(10, 16);
+      const kinds = Object.keys(ZEN_PU), a = player.a + rand(-0.7, 0.7), d = rand(280, 480);
+      pickups.push({ x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, kind: kinds[Math.floor(Math.random() * kinds.length)], t: 0, life: 16 });
+    }
+  }
+  for (const k of Object.keys(player.pu || {})) { player.pu[k] -= dt; if (player.pu[k] <= 0) delete player.pu[k]; }
+  if (zc.enemies === 'off') { run.zen.aceT = 999; return zenRetire(); }
   const z = run.zen;
-  const target = Math.min(6, 3 + Math.floor(run.waveT / 60));
+  const base = { few: [2, 3], normal: [3, 6], swarm: [8, 12] }[zc.enemies] || [3, 6];
+  const target = Math.min(base[1], base[0] + Math.floor(run.waveT / 60));
   z.spawnT -= dt; z.aceT -= dt;
-  if (z.aceT <= 0 && !enemies.some(e => e.type === 'ace')) {
+  if (zc.aces !== 'off' && z.aceT <= 0 && !enemies.some(e => e.type === 'ace')) {
     z.aceT = 150;
     spawnEnemy({ type: 'ace', ang: Math.random() * TAU, drop: 'heart', phase: Math.random() * TAU, hpMul: 0.65 });
     showBanner('Zen mode', 'An ace joins the fight', '');
@@ -4327,11 +4575,12 @@ function zenTick(dt) {
     let roll = Math.random(), type = 'scout';
     for (const [t, w] of ZEN_MIX) { if ((roll -= w) <= 0) { type = t; break; } }
     spawnEnemy({ type, ang: Math.random() * TAU, drop: Math.random() < 0.2 ? (Math.random() < 0.3 ? 'heart' : 'star') : null, phase: Math.random() * TAU });
-    z.spawnT = rand(1.6, 3);
+    z.spawnT = zc.enemies === 'swarm' ? rand(0.6, 1.2) : rand(1.6, 3);
   }
-  // Planes left far behind are retired; fresh ones arrive from the edge of the screen instead.
-  for (const e of enemies) if (Math.hypot(e.x - player.x, e.y - player.y) > 2300) e.dead = true;
+  zenRetire();
 }
+// Planes left far behind are retired; fresh ones arrive from the edge of the screen instead.
+function zenRetire() { for (const e of enemies) if (Math.hypot(e.x - player.x, e.y - player.y) > 2300) e.dead = true; }
 
 function update(dt) {
   if (state === 'play' && run && run.mode === 'coop') { coopUpdate(dt); return; }
@@ -4762,7 +5011,13 @@ function draw() {
     ctx.save(); ctx.translate(k.x, k.y + bob);
     ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(6, 13, 10, 4, 0, 0, TAU); ctx.fill();
     ctx.lineWidth = 2; ctx.strokeStyle = '#0b0d14'; ctx.lineJoin = 'round';
-    if (k.kind === 'star') {
+    if (ZEN_PU[k.kind]) {
+      const col = ZEN_PU[k.kind][1];
+      ctx.fillStyle = rgba(col, 0.25); ctx.beginPath(); ctx.arc(0, 0, 18 + Math.sin(time * 6) * 2, 0, TAU); ctx.fill();
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(0, 0, 12, 0, TAU); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#0b0d14'; ctx.font = '800 13px "Barlow Condensed", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText({ rapid: '»', spread: 'W', shield: 'S', shower: '★', magnet: 'U' }[k.kind], 0, 1);
+    } else if (k.kind === 'star') {
       ctx.rotate(time * 1.5);
       ctx.beginPath();
       for (let i = 0; i < 10; i++) { const rr = i % 2 ? 5.5 : 12, a = i / 10 * TAU - Math.PI / 2; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
@@ -4850,6 +5105,7 @@ function draw() {
   drawKillFx(ctx);
 
   if (MIL.on && !Arena.on && state === 'play') MIL.brackets(ctx, enemies);
+  if (player.pu && player.pu.shield > 0 && !player.dead) { ctx.strokeStyle = `rgba(92,242,160,${0.5 + 0.3 * Math.sin(time * 8)})`; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(player.x, player.y, 30, 0, TAU); ctx.stroke(); }
   // player
   if (!player.dead) {
     const blink = player.inv > 0 && Math.floor(time * 18) % 2 === 0;
@@ -4923,6 +5179,7 @@ function draw() {
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     }
   }
+  if (run && run.mode === 'zen' && run.zenCfg && state !== 'menu') drawZenAmbience(run.zenCfg.amb);
   if (!vignette || vignette.w !== W || vignette.h !== H) {
     const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.45, W / 2, H / 2, Math.max(W, H) * 0.8);
     vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.35)');
@@ -4931,6 +5188,30 @@ function draw() {
   ctx.fillStyle = vignette.g; ctx.fillRect(0, 0, W, H);
 }
 
+// Zen ambience, drawn over the world in screen space: a sunset glow with drifting petals, a moonlit night
+// with fireflies, or a soft rain.
+function drawZenAmbience(amb) {
+  if (amb === 'sunset') {
+    const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(255,140,60,.34)'); g.addColorStop(0.55, 'rgba(255,100,110,.16)'); g.addColorStop(1, 'rgba(110,50,150,.30)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    for (let i = 0; i < 26; i++) {
+      const sp = 0.6 + (i % 4) * 0.25, x = ((i * 137.5 + time * 28 * sp) % (W + 60)) - 30, y = ((i * 91.3 + time * 18 * sp + Math.sin(time * 0.8 + i) * 20) % (H + 60)) - 30;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(time * (0.6 + i % 3 * 0.3) + i); ctx.fillStyle = i % 3 ? 'rgba(255,190,200,.55)' : 'rgba(255,214,150,.55)'; ctx.beginPath(); ctx.ellipse(0, 0, 4, 2, 0, 0, TAU); ctx.fill(); ctx.restore();
+    }
+  } else if (amb === 'night') {
+    const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.12, W / 2, H / 2, Math.max(W, H) * 0.7);
+    g.addColorStop(0, 'rgba(10,16,48,.40)'); g.addColorStop(1, 'rgba(4,6,22,.78)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    for (let i = 0; i < 22; i++) {
+      const x = (i * 173.3 % W) + Math.sin(time * 0.5 + i * 1.7) * 40, y = (i * 97.1 % H) + Math.cos(time * 0.4 + i) * 30, a = 0.35 + 0.35 * Math.sin(time * 2.4 + i * 2.1);
+      const fg = ctx.createRadialGradient(x, y, 0, x, y, 9); fg.addColorStop(0, `rgba(220,255,140,${a})`); fg.addColorStop(1, 'rgba(220,255,140,0)'); ctx.fillStyle = fg; ctx.fillRect(x - 9, y - 9, 18, 18);
+    }
+  } else if (amb === 'rain') {
+    ctx.fillStyle = 'rgba(40,60,90,.20)'; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(200,220,255,.28)'; ctx.lineWidth = 1.2; ctx.beginPath();
+    for (let i = 0; i < 90; i++) { const x = ((i * 61.7 + time * 160) % (W + 80)) - 40, y = ((i * 133.1 + time * 820) % (H + 80)) - 40; ctx.moveTo(x, y); ctx.lineTo(x - 5, y + 16); }
+    ctx.stroke();
+  }
+}
 // A pilot's "profile picture": their plane, nose up, in their livery, on the theater's ground colour.
 function drawAvatar(cv, planeId, liv) {
   const info = PLANE_INDEX[planeId] || PLANE_INDEX.hellcat;
@@ -5077,7 +5358,7 @@ function updateHUD(dt) {
     if (Coop.squadT <= 0) { Coop.squadT = 0.25; Coop.renderSquad(); }
     if (player.dead) { Coop.downHintT -= dt; if (Coop.downHintT <= 0) { Coop.downHintT = 1; showHint('You are down. You rejoin when your squad clears this wave.', 1400); } }
   }
-  if (run.mode === 'zen') setText('zenInfo', `${fmtClock(run.totalT)} · ${run.kills} down`);
+  if (run.mode === 'zen') { const pu = Object.entries(player.pu || {}).map(([k, t]) => `${ZEN_PU[k][0]} ${Math.ceil(t)}s`).join(' · '); setText('zenInfo', `${fmtClock(run.totalT)} · ${run.kills} down${pu ? ' · ' + pu : ''}`); }
   else setText('leftCount', run.phase === 'fight' || run.phase === 'intro' ? `${left} left` : 'clear');
   const combo = $('combo');
   if (run.mult > 1) { combo.classList.add('on'); setText('comboText', `×${run.mult} combo`); $('comboBar').style.transform = `scaleX(${clamp(run.chainT / CHAIN_T, 0, 1)})`; }
@@ -5342,7 +5623,7 @@ function renderDoneExtras(h) {
 }
 function renderYouStrip() {
   const st = liveStreak();
-  $('ysStreak').innerHTML = st ? `<b class="flame">${st}</b>-day streak` : 'Start a streak today';
+  $('ysStreak').innerHTML = (st ? `<b class="flame">${st}</b>-day streak` : 'Start a streak today') + (eliteToday() ? ' · <span class="elite-chip">✦ Top 10% today</span>' : '');
   $('ysLevel').innerHTML = `Level <b>${pilotLevel()}</b> · Season tier <b>${Season ? Season.tier() : 0}</b>`;
   const L = League.data, me = L && L.joined && L.entries.find(e => e.me);
   $('ysLeague').innerHTML = me ? `<span class="lg-dot" style="--c:${LEAGUE_COLORS[L.division]}"></span>${esc(L.divisions[L.division])} league · <b>#${me.rank}</b>` : '';
@@ -5362,7 +5643,8 @@ function renderHangar() {
   list.querySelectorAll('.th-tab').forEach(btn => btn.setAttribute('aria-checked', String(btn.dataset.theme === theme.id)));
   const lv = pilotLevel(), cur = myLivery(theme.id), curPlane = theme.planes.indexOf(currentPlane(theme)), pl = theme.planes[curPlane], a = ARCH[pl.arch];
   // showcase
-  drawShowcase($('showCv'), theme, cur);
+  Showcase.start();
+  $('scLoad').innerHTML = [['Skin', theme.liveries[cur].name], ['Contrail', TRAILS[myTrail()].name], ['Bullets', BULLET_SKINS[myBullet()].name], ['Kill', KILL_FX[myKillFx()].name]].map(([k, v]) => `<span>${k} <b>${esc(v)}</b></span>`).join('');
   $('scTheme').textContent = `${theme.name} · ${theme.era}`;
   $('scName').textContent = pl.name;
   $('scArch').textContent = a.label;
@@ -5401,8 +5683,8 @@ function renderHangar() {
   // contrails
   const curTrail = myTrail();
   $('trailList').innerHTML = TRAILS.map((T, i) => {
-    const open = trailOpen(i), rare = T.crate || T.season, why = T.season ? `${T.name} · reach tier 30 of the season pass` : T.crate ? `${T.name} · ${RARITY[T.rarity].name} contrail from crates in the Shop` : `${T.name} · reach level ${T.lvl}`;
-    return `<button class="tchip chamfer ${open ? '' : 'locked'} ${rare ? 'crate' : ''}" ${rare ? `style="--rc:${RARITY[T.rarity].color}"` : ''} role="radio" data-trail="${i}" aria-checked="${i === curTrail}" title="${esc(open ? T.name : why)}" data-why="${esc(why)}"><canvas width="96" height="30" aria-hidden="true"></canvas><small>${open ? esc(T.name) : T.season ? 'Season' : T.crate ? 'Crate' : `Lv ${T.lvl}`}</small></button>`;
+    const open = trailOpen(i), rare = T.crate || T.season, why = T.apex ? `${T.name} · comes with an Apex plane` : T.season ? `${T.name} · reach tier 30 of the season pass` : T.crate ? `${T.name} · ${RARITY[T.rarity].name} contrail from crates in the Shop` : `${T.name} · reach level ${T.lvl}`;
+    return `<button class="tchip chamfer ${open ? '' : 'locked'} ${rare ? 'crate' : ''}" ${rare ? `style="--rc:${RARITY[T.rarity].color}"` : ''} role="radio" data-trail="${i}" aria-checked="${i === curTrail}" title="${esc(open ? T.name : why)}" data-why="${esc(why)}"><canvas width="96" height="30" aria-hidden="true"></canvas><small>${open ? esc(T.name) : T.apex ? 'Apex' : T.season ? 'Season' : T.crate ? 'Crate' : `Lv ${T.lvl}`}</small></button>`;
   }).join('');
   $('trailName').textContent = TRAILS[curTrail].name;
   $('trailCount').textContent = `${TRAILS.filter((T, i) => trailOpen(i)).length}/${TRAILS.length}`;
@@ -5417,14 +5699,14 @@ function renderHangar() {
   const curB = myBullet();
   $('bulletList').innerHTML = BULLET_SKINS.map((B, i) => {
     const open = !i || owned(B.crate);
-    return `<button class="tchip chamfer ${open ? '' : 'locked'} ${i ? 'crate' : ''}" ${i ? `style="--rc:${RARITY[B.rarity].color}"` : ''} role="radio" data-bullet="${i}" aria-checked="${i === curB}" data-why="${esc(`${B.name} · ${i ? RARITY[B.rarity].name + ' bullets from crates in the Shop' : ''}`)}"><canvas width="96" height="30" aria-hidden="true"></canvas><small>${open ? esc(B.name) : 'Crate'}</small></button>`;
+    return `<button class="tchip chamfer ${open ? '' : 'locked'} ${i ? 'crate' : ''}" ${i ? `style="--rc:${RARITY[B.rarity].color}"` : ''} role="radio" data-bullet="${i}" aria-checked="${i === curB}" data-why="${esc(`${B.name} · ${B.apex ? 'comes with an Apex plane' : i ? RARITY[B.rarity].name + ' bullets from crates in the Shop' : ''}`)}"><canvas width="96" height="30" aria-hidden="true"></canvas><small>${open ? esc(B.name) : B.apex ? 'Apex' : 'Crate'}</small></button>`;
   }).join('');
   $('bulletName').textContent = BULLET_SKINS[curB].name;
   $('bulletCount').textContent = `${BULLET_SKINS.filter((B, i) => !i || owned(B.crate)).length}/${BULLET_SKINS.length}`;
   const curK = myKillFx();
   $('kfxList').innerHTML = KILL_FX.map((F, i) => {
     const open = !i || owned(F.crate);
-    return `<button class="tchip chamfer ${open ? '' : 'locked'} ${i ? 'crate' : ''}" ${i ? `style="--rc:${RARITY[F.rarity].color}"` : ''} role="radio" data-k="${i}" aria-checked="${i === curK}" data-why="${esc(`${F.name}${i ? ' · ' + RARITY[F.rarity].name + ' kill effect from crates in the Shop' : ''}`)}"><canvas width="96" height="60" aria-hidden="true"></canvas><small>${open ? esc(F.name) : 'Crate'}</small></button>`;
+    return `<button class="tchip chamfer ${open ? '' : 'locked'} ${i ? 'crate' : ''}" ${i ? `style="--rc:${RARITY[F.rarity].color}"` : ''} role="radio" data-k="${i}" aria-checked="${i === curK}" data-why="${esc(`${F.name}${F.apex ? ' · comes with an Apex plane' : i ? ' · ' + RARITY[F.rarity].name + ' kill effect from crates in the Shop' : ''}`)}"><canvas width="96" height="60" aria-hidden="true"></canvas><small>${open ? esc(F.name) : F.apex ? 'Apex' : 'Crate'}</small></button>`;
   }).join('');
   $('kfxName').textContent = KILL_FX[curK].name;
   $('kfxCount').textContent = `${KILL_FX.filter((F, i) => !i || owned(F.crate)).length}/${KILL_FX.length}`;
@@ -5449,6 +5731,68 @@ function renderHangar() {
   });
 }
 // The hangar's big picture: your plane in your livery, over the theater's ground.
+// The hangar showcase, live: the plane in your current loadout flies over today's map, trailing your contrail and
+// firing your bullets. Every few seconds a bandit crosses the guns and goes out in your kill effect.
+const Showcase = {
+  raf: 0, t0: 0, boomAt: 4, bg: null, bgKey: '',
+  start() {
+    if (this.raf) return;
+    this.t0 = performance.now(); this.boomAt = 2.5;
+    const loop = now => {
+      if (state !== 'menu') { this.raf = 0; return; }
+      const cv = $('showCv');
+      if (cv && cv.offsetParent && !document.hidden) this.draw(cv, (now - this.t0) / 1000);
+      this.raf = requestAnimationFrame(loop);
+    };
+    this.raf = requestAnimationFrame(loop);
+  },
+  boom() { this.boomAt = (performance.now() - this.t0) / 1000 - 0.4; },
+  background(cv, th) {
+    const key = `${th.id}|${world.seed}|${cv.width}`;
+    if (this.bgKey === key) return this.bg;
+    const b = this.bg || document.createElement('canvas'); b.width = cv.width; b.height = cv.height;
+    const c = b.getContext('2d'), w = b.width, h = b.height, f = world.features[1] || world.features[0], z = w / 360, px = f.x + f.rad * 0.8, py = f.y;
+    c.setTransform(z, 0, 0, z, w / 2 - px * z, h / 2 - py * z);
+    drawGround(c, th, { x0: px - w / 2 / z, x1: px + w / 2 / z, y0: py - h / 2 / z, y1: py + h / 2 / z }, 0, world, { x: px, y: py });
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    const g = c.createLinearGradient(0, 0, w, 0); g.addColorStop(0, 'rgba(9,12,20,0)'); g.addColorStop(0.55, 'rgba(9,12,20,.1)'); g.addColorStop(1, 'rgba(9,12,20,.75)');
+    c.fillStyle = g; c.fillRect(0, 0, w, h);
+    const g2 = c.createLinearGradient(0, h * 0.7, 0, h); g2.addColorStop(0, 'rgba(9,12,20,0)'); g2.addColorStop(1, 'rgba(9,12,20,.55)'); c.fillStyle = g2; c.fillRect(0, 0, w, h);
+    this.bg = b; this.bgKey = key; return b;
+  },
+  draw(cv, t) {
+    const th = theme, c = cv.getContext('2d'), w = cv.width, h = cv.height;
+    c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(this.background(cv, th), 0, 0);
+    const sc = h / 135, ang = -0.92 + Math.sin(t * 0.7) * 0.05, ca = Math.cos(ang), sa = Math.sin(ang);
+    const cx = w * 0.24 + Math.sin(t * 0.9) * 6, cy = h * 0.66 + Math.cos(t * 1.1) * 5;
+    const pl = currentPlane(th), craft = CRAFT_PLAYER[pl.shape], col = colorsFor(th, 'player', myLivery(th.id));
+    // work in game units from here: the plane at the origin, nose along +x
+    c.save(); c.translate(cx, cy); c.scale(sc, sc);
+    const pts = [];
+    for (let i = 30; i >= 0; i--) { const d = 14 + i * 6, wob = Math.sin(t * 2 - i * 0.25) * Math.min(1, i / 6) * 3; pts.push({ x: -ca * d - sa * wob, y: -sa * d + ca * wob, a: ang, roll: false }); }
+    drawContrail(c, pts, myTrail(), th.shape === 'biplane' ? 24 : 20, 1.3);
+    // bullets out of the nose, until they reach the top of the frame
+    const reach = (cy / sc) / Math.max(0.3, -sa) + 40, bl = [], gap = 30;
+    for (let i = 0; i < 16; i++) { const d = 24 + ((t * 420 + i * gap) % reach); for (const off of [-4.5, 4.5]) bl.push({ x: ca * d - sa * off, y: sa * d + ca * off, vx: ca * 900, vy: sa * 900 }); }
+    const laser = th.ground === 'space' || th.neon;
+    drawBullets(c, bl, th, () => myBullet(), laser ? 0.03 : 0.018);
+    if (th.shadows) { c.save(); c.translate(6, 10); c.rotate(ang); drawCraft(c, craft, null, 1, { shadow: th.pal.shadow }); c.restore(); }
+    c.save(); c.rotate(ang); drawCraft(c, craft, col, 1, { roll: Math.sin(t * 1.3) * 0.15, spin: t * 45, t }); c.restore();
+    // the bandit and the kill effect, every few seconds (or when you click)
+    const tb = t - this.boomAt, F = KILL_FX[myKillFx()], dur = F && F.draw ? F.dur : 0.7, d = reach * 0.62, tx = ca * d, ty = sa * d;
+    if (tb > -1.2 && tb < 0) {
+      const ex = tx + (tb + 0.6) * 140 * -sa, ey = ty + (tb + 0.6) * 140 * ca;
+      c.save(); c.translate(ex, ey); c.rotate(ang + Math.PI / 2); drawCraft(c, craftFor(th, 'fighter'), colorsFor(th, 'fighter'), 0.95, { t, spin: t * 45, flash: tb > -0.35 && Math.floor(tb * 20) % 2 === 0 }); c.restore();
+    } else if (tb >= 0 && tb < dur + 0.2) {
+      const ex = tx + 0.6 * 140 * -sa, ey = ty + 0.6 * 140 * ca;
+      if (F && F.draw) { c.save(); c.translate(ex, ey); c.scale(0.45, 0.45); F.draw(c, 0, 0, Math.min(tb, F.dur), 7); c.restore(); }
+      else { const q = tb / dur; c.fillStyle = `rgba(255,170,60,${1 - q})`; c.beginPath(); c.arc(ex, ey, 6 + 40 * q, 0, TAU); c.fill(); c.strokeStyle = `rgba(255,255,255,${1 - q})`; c.lineWidth = 2; c.beginPath(); c.arc(ex, ey, 10 + 60 * q, 0, TAU); c.stroke(); }
+    } else if (tb >= dur + 0.2) this.boomAt = t + 3.2;
+    c.restore();
+  },
+};
+$('scKfx').addEventListener('click', e => { e.stopPropagation(); Showcase.boom(); });
+document.querySelector('.showcase').addEventListener('click', () => Showcase.boom());
 function drawShowcase(cv, th, liv) {
   const c = cv.getContext('2d'), w = cv.width, h = cv.height;
   const f = world.features[1] || world.features[0];
@@ -5538,14 +5882,14 @@ function renderRecord() {
 function boardRowHTML(e) {
   const pid = resolvePlane(e.plane, e.theme);
   const fav = PLANE_INDEX[e.fav] && e.fav !== pid ? ` · fav ${planeName(e.fav)}` : '';
-  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : CONFIG.apiBase ? '<span class="guest">not registered</span>' : ''}<small>${esc(planeName(pid) + fav)}</small></span>${miniTiles(e.grades)}<span class="sc">${fmtNum(e.score)}</span></li>`;
+  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}${e.elite ? ' elite' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${e.elite ? '<span class="crown" title="Top 10% today">✦</span>' : ''}<span class="nmt">${esc(e.name)}</span>${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : CONFIG.apiBase ? '<span class="guest">not registered</span>' : ''}<small>${esc(planeName(pid) + fav)}</small></span>${miniTiles(e.grades)}<span class="sc">${fmtNum(e.score)}</span></li>`;
 }
 let boardMode = 'daily', arenaSort = 'kills';
 async function loadArenaBoard() {
   const el = $('boardBody');
   if (!CONFIG.apiBase) { el.innerHTML = '<div class="notice chamfer">The arena leaderboard needs the online server. Play at supersortie.io.</div>'; return; }
   try {
-    const r = await fetch(CONFIG.apiBase.replace(/\/$/, '') + `/api/v1/arena/leaderboard?deviceId=${encodeURIComponent(deviceId())}${arenaSort === 'round' ? '&sort=round' : ''}`);
+    const r = await fetch(CONFIG.apiBase.replace(/\/$/, '') + `/api/v1/arena/leaderboard?day=${todayNum}&deviceId=${encodeURIComponent(deviceId())}${arenaSort === 'round' ? '&sort=round' : ''}`);
     if (!r.ok) throw new Error('arena board ' + r.status);
     renderArenaBoard(await r.json());
   } catch (e) {
@@ -5554,7 +5898,7 @@ async function loadArenaBoard() {
 }
 function arenaRowHTML(e) {
   const pid = PLANE_INDEX[e.plane] ? e.plane : 'hellcat';
-  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : '<span class="guest">not registered</span>'}<small>${e.rounds} round${e.rounds === 1 ? '' : 's'} · ${e.wins} win${e.wins === 1 ? '' : 's'} · best streak ${e.streak}</small></span><span class="coop-k">${arenaSort === 'round' ? `${fmtNum(e.kills)} kills` : `${e.deaths} deaths`}</span><span class="sc">${fmtNum(arenaSort === 'round' ? e.best : e.kills)}</span></li>`;
+  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}${e.elite ? ' elite' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : '<span class="guest">not registered</span>'}<small>${e.rounds} round${e.rounds === 1 ? '' : 's'} · ${e.wins} win${e.wins === 1 ? '' : 's'} · best streak ${e.streak}</small></span><span class="coop-k">${arenaSort === 'round' ? `${fmtNum(e.kills)} kills` : `${e.deaths} deaths`}</span><span class="sc">${fmtNum(arenaSort === 'round' ? e.best : e.kills)}</span></li>`;
 }
 function renderArenaBoard(b) {
   const el = $('boardBody');
@@ -5592,6 +5936,9 @@ function renderBoard(b) {
   if (!b || !b.total) { el.innerHTML = '<div class="notice chamfer"><b>No scores yet today.</b> Fly the daily sortie and take first place.</div>'; return; }
   const me = b.me;
   const summary = `<div class="board-sum"><b>${fmtNum(b.total)} pilot${b.total === 1 ? '' : 's'} today</b><span>Average ${fmtNum(b.avg)}${me ? ` · You're #${fmtNum(me.rank)}. ${standing(me, b.total)}` : ''}</span></div>`;
+  const cut = Math.max(1, Math.ceil(b.total * 0.1));
+  b.entries.forEach(e => { e.elite = e.rank <= cut; });
+  if (me) me.elite = me.rank <= cut;
   let rows = b.entries.map(boardRowHTML).join('');
   if (me && !b.entries.some(e => e.me)) rows += `<li class="gap">···</li>` + boardRowHTML(Object.assign({ me: true, name: store.callsign }, me));
   el.innerHTML = summary + `<ol class="board">${rows}</ol>`;
@@ -5917,6 +6264,7 @@ $('pilot').addEventListener('click', e => { if (e.target.closest('[data-close]')
 // Every menu closes on a click outside it, or with Esc, the same way its own close button would.
 const DISMISS = [
   ['reward', () => Daily.claim()],
+  ['zenSet', () => hide('zenSet')],
   ['ghosts', () => hide('ghosts')],
   ['crate', () => Shop.close()],
   ['pilot', () => hide('pilot')],
@@ -5964,24 +6312,24 @@ function refreshMenuBits() {
 /* ---------- shop: credits and crates (all cosmetic) ---------- */
 const COIN_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l9 5.2v10.6l-9 5.2-9-5.2V6.7z" fill="#ffd34f"/><path d="M12 4.5l6.4 3.7v7.6L12 19.5l-6.4-3.7V8.2z" fill="#e0a92a"/><path d="M12 7.5l3.6 2v5l-3.6 2-3.6-2v-5z" fill="#fff3c4"/></svg>';
 const CRATES = [
-  { name: 'Standard crate', cost: 200, odds: [52, 26, 14, 6, 1.7, 0.3], desc: 'Anything can drop', color: '#6b8fbf' },
-  { name: 'Premium crate', cost: 600, odds: [0, 42, 32, 17, 7.5, 1.5], desc: 'Uncommon or better', color: '#b14bff' },
-  { name: 'Ace crate', cost: 1500, odds: [0, 0, 42, 33, 19, 6], desc: 'Rare or better', color: '#ffb02e' },
+  { name: 'Standard crate', cost: 200, odds: [53, 26, 14, 5.3, 1.53, 0.15, 0.02], desc: 'Anything can drop', color: '#6b8fbf' },
+  { name: 'Premium crate', cost: 600, odds: [0, 43, 33, 16, 7.12, 0.8, 0.08], desc: 'Uncommon or better', color: '#b14bff' },
+  { name: 'Ace crate', cost: 1500, odds: [0, 0, 44, 34, 18.1, 3.5, 0.4], desc: 'Rare or better', color: '#ffb02e' },
 ];
 const crateArt = (c, tid) => `<svg viewBox="0 0 74 64"><path d="M6 20h62v38H6z" fill="#2a2f3c"/><path d="M6 20h62v6H6z" fill="${c}"/><path d="M4 12h66v10H4z" fill="#3a4152"/><path d="M4 12h66v3H4z" fill="rgba(255,255,255,.18)"/><path d="M33 12h8v46h-8z" fill="${c}"/><path d="M6 52h62v6H6z" fill="rgba(0,0,0,.3)"/>${[[6, 20], [62, 20], [6, 52], [62, 52]].map(([x, y]) => `<rect x="${x}" y="${y}" width="6" height="6" fill="#8a93a6"/>`).join('')}<circle cx="37" cy="38" r="8" fill="#151924" stroke="${c}" stroke-width="2"/><text x="37" y="42" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="800" font-size="11" fill="${c}">${esc(THEMES[tid].short.slice(0, 3).toUpperCase())}</text></svg>`;
 function crateItems(tid) {
   const th = THEMES[tid], out = [];
-  th.liveries.forEach((L, i) => { if (L.crate) out.push({ id: L.crate, kind: 'skin', name: L.name, rarity: L.rarity, tid, plane: L.plane, liv: i, sub: `${planeName(L.plane)} skin` }); });
-  th.planes.forEach((pl, i) => { if (pl.crate) out.push({ id: 'p:' + pl.id, kind: 'plane', name: pl.name, rarity: 5, tid, plane: pl.id, pi: i, sub: `${th.short} aircraft` }); });
-  TRAILS.forEach((T, i) => { if (T.crate) out.push({ id: T.crate, kind: 'trail', name: T.name, rarity: T.rarity, idx: i, sub: 'Contrail' }); });
-  BULLET_SKINS.forEach((B, i) => { if (B.crate) out.push({ id: B.crate, kind: 'bullet', name: B.name, rarity: B.rarity, idx: i, sub: 'Bullet skin' }); });
-  KILL_FX.forEach((F, i) => { if (F.crate) out.push({ id: F.crate, kind: 'kfx', name: F.name, rarity: F.rarity, idx: i, sub: 'Kill effect' }); });
+  th.liveries.forEach((L, i) => { if (L.crate && !L.apex) out.push({ id: L.crate, kind: 'skin', name: L.name, rarity: L.rarity, tid, plane: L.plane, liv: i, sub: `${planeName(L.plane)} skin` }); });
+  th.planes.forEach((pl, i) => { if (pl.crate) out.push({ id: 'p:' + pl.id, kind: 'plane', name: pl.name, rarity: pl.rarity || 5, tid, plane: pl.id, pi: i, sub: pl.apex ? `${th.short} Apex aircraft · with its own skin, bullets, contrail and kill effect` : `${th.short} aircraft` }); });
+  TRAILS.forEach((T, i) => { if (T.crate && !T.apex) out.push({ id: T.crate, kind: 'trail', name: T.name, rarity: T.rarity, idx: i, sub: 'Contrail' }); });
+  BULLET_SKINS.forEach((B, i) => { if (B.crate && !B.apex) out.push({ id: B.crate, kind: 'bullet', name: B.name, rarity: B.rarity, idx: i, sub: 'Bullet skin' }); });
+  KILL_FX.forEach((F, i) => { if (F.crate && !F.apex) out.push({ id: F.crate, kind: 'kfx', name: F.name, rarity: F.rarity, idx: i, sub: 'Kill effect' }); });
   return out;
 }
 function itemPreview(cv, it, t) {
   if (it.kind === 'skin') return drawAvatar(cv, it.plane, it.liv);
   if (it.kind === 'kfx') return drawKillFxPreview(cv, it.idx, t);
-  if (it.kind === 'plane') return drawAvatar(cv, it.plane, 0);
+  if (it.kind === 'plane') return drawAvatar(cv, it.plane, it.rarity === 6 ? Math.max(0, THEMES[it.tid].liveries.findIndex(L => L.apex === it.id)) : 0);
   const c = cv.getContext('2d'), w = cv.width, h = cv.height, k = w / 96;
   c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#0d1120'; c.fillRect(0, 0, w, h);
   const g = c.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.7); g.addColorStop(0, rgba(RARITY[it.rarity].color, 0.22)); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, w, h);
@@ -5990,7 +6338,7 @@ function itemPreview(cv, it, t) {
   else { const list = []; for (let q = 0; q < 4; q++) list.push({ x: 26 + q * 20, y: 15 + (q % 2 ? -6 : 6), vx: 900, vy: 0 }); drawBullets(c, list, theme, () => it.idx, 0.018); }
   c.setTransform(1, 0, 0, 1, 0, 0);
 }
-const itemCardHTML = (it, cls = '') => `<button class="item ${cls}" style="--rc:${RARITY[it.rarity].color}" data-id="${esc(it.id)}"><canvas width="132" height="132" aria-hidden="true"></canvas><span>${esc(it.name)}<small>${RARITY[it.rarity].name} · ${esc(it.sub)}</small></span></button>`;
+const itemCardHTML = (it, cls = '') => `<button class="item ${cls} ${it.rarity === 6 ? 'apex' : ''}" style="--rc:${RARITY[it.rarity].color}" data-id="${esc(it.id)}"><canvas width="132" height="132" aria-hidden="true"></canvas><span>${esc(it.name)}<small>${RARITY[it.rarity].name} · ${esc(it.sub)}</small></span></button>`;
 function paintItems(root, list) { root.querySelectorAll('.item[data-id]').forEach(el => { const it = list.find(x => x.id === el.dataset.id); if (it) itemPreview(el.querySelector('canvas'), it); }); }
 const isEquipped = it => it.kind === 'skin' ? (store.planeLiv || {})[it.plane] === it.liv
   : it.kind === 'plane' ? currentPlane(THEMES[it.tid]).id === it.plane : it.kind === 'trail' ? myTrail() === it.idx : it.kind === 'kfx' ? myKillFx() === it.idx : myBullet() === it.idx;
@@ -6061,7 +6409,7 @@ const Shop = {
     const C = CRATES[tier], total = C.odds.reduce((a, b) => a + b, 0);
     let x = Math.random() * total, r = 0;
     for (; r < C.odds.length; r++) { if ((x -= C.odds[r]) <= 0) break; }
-    r = Math.min(r, 5);
+    r = Math.min(r, RARITY.length - 1);
     const pool = crateItems(tid).filter(it => it.rarity === r);
     // new items are twice as likely as ones you already have
     const w = pool.map(it => (owned(it.id) ? 1 : 2)), tw = w.reduce((a, b) => a + b, 0);
@@ -6138,10 +6486,11 @@ const Shop = {
   },
   reveal(win, tier) {
     const dupe = owned(win.id), R = RARITY[win.rarity], wrap = $('reelWin');
-    if (win.rarity === 5) setTimeout(() => earnMedal('mythic'), 1500);
+    if (win.rarity >= 5) setTimeout(() => earnMedal(win.rarity === 6 ? 'apex' : 'mythic'), 1500);
     wrap.style.setProperty('--win', R.color); wrap.classList.add('landed');
     const w = $('reel').querySelector('.item.w'); if (w) w.classList.add('win');
-    $('crTitle').textContent = win.rarity >= 4 ? (win.rarity === 5 ? 'MYTHIC!' : 'LEGENDARY!') : win.rarity === 3 ? 'Epic!' : 'You got';
+    $('crTitle').textContent = win.rarity >= 4 ? (win.rarity === 6 ? 'APEX!!!' : win.rarity === 5 ? 'MYTHIC!' : 'LEGENDARY!') : win.rarity === 3 ? 'Epic!' : 'You got';
+    if (win.rarity === 6) { confetti(220); setTimeout(() => confetti(160), 600); [262, 330, 392, 523, 659, 784, 1047, 1319, 1568].forEach((f, i) => tone(f, 0.5, 'triangle', 0.04, null, i * 0.07)); }
     if (win.rarity >= 3) { confetti(win.rarity >= 5 ? 110 : win.rarity === 4 ? 80 : 50); shake = 0; }
     if (win.rarity >= 4) { [392, 523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.4, 'sawtooth', 0.035, null, i * 0.08)); tone(60, 1, 'sine', 0.2, 30); }
     else if (win.rarity === 3) [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.25, 'square', 0.035, null, i * 0.07));
@@ -6198,7 +6547,11 @@ const Shop = {
   },
   equip(it) {
     if (it.kind === 'skin') { store.plane[it.tid] = THEMES[it.tid].planes.findIndex(p => p.id === it.plane); setLivery(it.tid, it.plane, it.liv); }
-    else if (it.kind === 'plane') store.plane[it.tid] = it.pi;
+    else if (it.kind === 'plane') {
+      store.plane[it.tid] = it.pi;
+      const pl = THEMES[it.tid].planes[it.pi];
+      if (pl && pl.apex) { const li = THEMES[it.tid].liveries.findIndex(L => L.apex === it.id); setLivery(it.tid, pl.id, li); store.trail = TRAILS.findIndex(T => T.apex === it.id); store.bullet = BULLET_SKINS.findIndex(B => B.apex === it.id); store.killfx = KILL_FX.findIndex(F => F.apex === it.id); }
+    }
     else if (it.kind === 'trail') store.trail = it.idx;
     else if (it.kind === 'kfx') store.killfx = it.idx;
     else store.bullet = it.idx;
@@ -6227,9 +6580,6 @@ const Shop = {
     this.kind = this.kind || 'all';
     const sorted = items.filter(it => this.kind === 'all' || it.kind === this.kind).sort((a, b) => b.rarity - a.rarity || (owned(b.id) ? 1 : 0) - (owned(a.id) ? 1 : 0));
     el.innerHTML = `<div class="shop-head"><div class="credits">${COIN_SVG}<div><b>${fmtNum(cr)}</b><small>credits</small></div></div><span class="shop-note">Earn credits in every mode. Everything in crates is cosmetic: no item flies better.</span></div>
-      <div class="loadout chamfer"><canvas id="loCv" width="640" height="240" aria-label="Your plane with your bullets and contrail"></canvas><div class="lo-info"><small>Your loadout · ${esc(THEMES[tid].short)}</small><b>${esc(currentPlane(THEMES[tid]).name)}</b>
-        <ul><li>Skin: <b>${esc(THEMES[tid].liveries[myLivery(tid)].name)}</b></li><li>Contrail: <b>${esc(TRAILS[myTrail()].name)}</b></li><li>Bullets: <b>${esc(BULLET_SKINS[myBullet()].name)}</b></li><li>Kill effect: <b>${esc(KILL_FX[myKillFx()].name)}</b></li></ul>
-        <button id="loKfx" class="btn btn-ghost btn-small" type="button">Preview kill effect</button></div></div>
       <div class="shop-th" role="radiogroup" aria-label="Crate theater">${THEME_ORDER.map(t => `<button role="radio" data-t="${t}" aria-checked="${t === tid}">${esc(THEMES[t].short)}</button>`).join('')}</div>
       <div class="crates">${CRATES.map((C, i) => `<button class="crate-card chamfer ${cr < C.cost ? 'poor' : ''}" data-tier="${i}" style="--cc:${C.color}"><div class="crate-art">${crateArt(C.color, tid)}</div><b>${esc(C.name)}</b><small>${esc(C.desc)}</small><span class="price">${COIN_SVG}${fmtNum(C.cost)}</span>${(store.tokens || [])[i] > 0 ? `<span class="free">${store.tokens[i]} free</span>` : ''}</button>`).join('')}</div>
       <div id="shopMsg" class="acct-err" role="status"></div>
@@ -6238,8 +6588,6 @@ const Shop = {
       <div class="coll-filter">${KINDS.map(([k, l]) => `<button data-kind="${k}" aria-pressed="${this.kind === k}">${l}</button>`).join('')}</div>
       <div class="coll-grid">${sorted.map(it => itemCardHTML(it, `${owned(it.id) ? '' : 'unowned'} ${owned(it.id) && isEquipped(it) ? 'equipped' : ''}`)).join('')}</div>`;
     paintItems(el, items);
-    Loadout.run($('loCv'), tid);
-    $('loKfx').onclick = () => Loadout.boom();
     el.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { this.tid = b.dataset.t; this.render(); });
     el.querySelectorAll('[data-kind]').forEach(b => b.onclick = () => { this.kind = b.dataset.kind; this.render(); });
     el.querySelectorAll('.crate-card').forEach(b => b.onclick = () => this.open(Number(b.dataset.tier)));
@@ -6252,7 +6600,7 @@ const Shop = {
 };
 Shop.init();
 // Daily login rewards: a 7-day streak of credits, with free crates on days 3 and 7.
-const LOGIN_REWARDS = [{ c: 100 }, { c: 150 }, { c: 200, t: 0 }, { c: 250 }, { c: 300 }, { c: 400 }, { c: 500, t: 1 }];
+const LOGIN_REWARDS = [{ c: 150 }, { c: 200 }, { c: 300, t: 0 }, { c: 350 }, { c: 400 }, { c: 500 }, { c: 750, t: 1 }];
 const Daily = {
   due() { return (store.login || {}).day !== todayNum; },
   nextN() { const L = store.login || {}; return L.day === todayNum - 1 ? (L.n || 0) + 1 : 1; },
@@ -6290,10 +6638,10 @@ $('rwClaim').addEventListener('click', () => Daily.claim());
 // Season pass: free, resets on the 1st of every month. Every bit of XP you earn also fills it.
 var SEASON_TIERS = 30, SEASON_TIER_XP = 500; // var: the hangar and home strip render before this runs
 var SEASON_REWARDS = Array.from({ length: SEASON_TIERS }, (_, i) => {
-  const t = i + 1, r = { c: 100 + Math.round(t * 6 / 10) * 10 };
-  if ({ 5: 1, 10: 1, 15: 1, 25: 1 }[t]) { r.c = 150; r.t = t >= 15 ? 1 : 0; }
-  if (t === 20) { r.c = 300; r.x = 'x:21'; r.xn = 'Season Ace title'; }
-  if (t === 30) { r.c = 500; r.t = 2; r.x = 't:20'; r.xn = 'Victory Ribbon contrail'; }
+  const t = i + 1, r = { c: 150 + t * 10 };
+  if ({ 5: 1, 10: 1, 15: 1, 25: 1 }[t]) { r.c = 250; r.t = t >= 15 ? 1 : 0; }
+  if (t === 20) { r.c = 500; r.x = 'x:21'; r.xn = 'Season Ace title'; }
+  if (t === 30) { r.c = 1000; r.t = 2; r.x = 't:20'; r.xn = 'Victory Ribbon contrail'; }
   return r;
 });
 var Season = {
@@ -6465,7 +6813,7 @@ var Ghost = {
     if (A.won) {
       toast('Ghost beaten', `${fmtNum(run.score)} vs ${fmtNum(A.final)}`);
       earnMedal('ghost');
-      if (store.ghostWin !== todayNum) { store.ghostWin = todayNum; saveStore(); Shop.earn(150, 'Ghost beaten'); }
+      if (store.ghostWin !== todayNum) { store.ghostWin = todayNum; saveStore(); Shop.earn(250, 'Ghost beaten'); }
     }
   },
   verdict() {
@@ -6532,7 +6880,7 @@ setTimeout(() => { renderShopDot(); Daily.maybe(); }, 1200);
 
 /* ---------- weekly leagues ---------- */
 const LEAGUE_COLORS = ['#cd8a4a', '#c3ccd8', '#ffd34f', '#7cf2ff', '#b98cff', '#ff4d5e'];
-const LEAGUE_PAY = { up: 600, stay: 200, down: 80 };
+const LEAGUE_PAY = { up: 1000, stay: 400, down: 150 };
 const leagueBadge = (d, c) => {
   const n = Math.min(3, d + 1), star = 'M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7.1L12 17.3 5.8 21l1.6-7.1L2 9.2l7.1-.6z';
   const stars = Array.from({ length: n }, (_, i) => `<path d="${star}" fill="#fff" transform="translate(${32 - n * 6.5 + i * 13 - 6.5} ${d >= 3 ? 20 : 24}) scale(.55)"/>`).join('');
@@ -6631,6 +6979,7 @@ function setView(name) {
 
 function openMenu() {
   state = 'menu';
+  $('hud').classList.remove('zen-min');
   setTimeout(() => Daily.maybe(), 700);
   applyAuthCallsign();
   tileWorld = false;
@@ -6733,6 +7082,7 @@ function showResults(earned) {
     postPending().then(ok => Board.fetch(todayNum).then(b => {
       syncTodayRank(b);
       if (b && b.me) {
+        const cut = Math.max(1, Math.ceil(b.total * 0.1)); b.entries.forEach(e => { e.elite = e.rank <= cut; }); b.me.elite = b.me.rank <= cut;
         const top = b.entries.slice(0, 3).map(boardRowHTML).join('');
         rb.innerHTML = `<div class="rb-line"><b>#${fmtNum(b.me.rank)} of ${fmtNum(b.total)}</b><span>${standing(b.me, b.total)}</span></div><ol class="board">${top}${b.entries.slice(0, 3).some(e => e.me) ? '' : '<li class="gap">···</li>' + boardRowHTML(Object.assign({ me: true, name: store.callsign }, b.me))}</ol>`;
         paintAvatars(rb);
@@ -6822,6 +7172,7 @@ if (fsOK) { $('fsBtn').classList.remove('hidden'); $('pauseFs').classList.remove
 $('fsBtn').addEventListener('click', toggleFullscreen);
 $('milBtn').addEventListener('click', () => MIL.set(!MIL.on));
 $('pauseMil').addEventListener('click', () => MIL.set(!MIL.on));
+MIL.on = !!store.mil; for (const id of ['milBtn', 'pauseMil']) $(id).innerHTML = `<span class="mb-l">${MIL.on ? 'Military: on' : 'Military mode'}</span><span class="mb-s">MIL ${MIL.on ? 'ON' : 'OFF'}</span>`;
 if (store.mil) MIL.set(true);
 $('pauseFs').addEventListener('click', toggleFullscreen);
 document.addEventListener('fullscreenchange', setFsLabels);
@@ -6840,7 +7191,7 @@ $('againBtn').addEventListener('click', () => {
   if (run && run.mode === 'ghost' && Ghost.active) { Ghost.race(Ghost.active.meta); return; }
   startRun(run && run.mode === 'zen' ? 'zen' : 'practice');
 });
-$('zenBtn').addEventListener('click', () => { audio(); startRun('zen'); });
+$('zenBtn').addEventListener('click', () => { audio(); ZenSet.open(); });
 $('menuBtn').addEventListener('click', () => {
   if (run && run.mode === 'coop' && Net.ws) { if (Net.isHost) Net.send({ t: 'lobby' }); else { Net.close(); openMenu(); } return; }
   openMenu();
@@ -7340,7 +7691,7 @@ const Coop = {
       c.save(); c.translate(pr.x, pr.y - 38); c.scale(1 / zoom, 1 / zoom);
       c.font = '700 14px "Barlow Condensed", "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
       c.lineWidth = 4; c.strokeStyle = 'rgba(5,6,12,.85)'; c.strokeText(pr.name.toUpperCase(), 0, 0);
-      c.fillStyle = '#38d98a'; c.fillText(pr.name.toUpperCase(), 0, 0);
+      c.fillStyle = pr.livery === 12 ? '#ffd34f' : '#38d98a'; c.fillText((pr.livery === 12 ? '✦ ' : '') + pr.name.toUpperCase(), 0, 0);
       const n = pr.mh || 3;
       for (let i = 0; i < n; i++) { c.fillStyle = i < pr.hp ? '#38d98a' : 'rgba(255,255,255,.2)'; c.fillRect(-n * 5 + i * 10, 10, 8, 4); }
       c.restore();
@@ -7410,7 +7761,7 @@ function coopUpdate(dt) {
 
 function showCoopResults(ev) {
   const s = Coop.settings, host = Net.isHost;
-  Shop.earn(80 + (ev.win ? 80 : 0), ev.win ? 'Mission complete' : 'Co-op mission');
+  Shop.earn(150 + (ev.win ? 150 : 0) + 6 * (run.kills || 0), ev.win ? 'Mission complete' : 'Co-op mission');
   $('resTiles').classList.add('hidden');
   ['resMedals', 'resCountdown'].forEach(hide);
   $('resKicker').textContent = `Co-op · Room ${Net.code} · ${COOP_DIFF[s.difficulty].label} · ${theme.name}`;
@@ -7746,7 +8097,7 @@ const Arena = {
       await new Promise(r => setTimeout(r, 400 + i * 900));
       if (!this.on) break;
       try {
-        await ANet.connect(`${q}&resume=${encodeURIComponent(this.info.token || '')}&callsign=${encodeURIComponent(store.callsign)}&device=${encodeURIComponent(deviceId())}${Social.authQ()}`);
+        await ANet.connect(`${q}&resume=${encodeURIComponent(this.info.token || '')}&callsign=${encodeURIComponent(store.callsign)}&device=${encodeURIComponent(deviceId())}&tz=${new Date().getTimezoneOffset()}${Social.authQ()}`);
         this.reconnecting = false;
         showHint('Reconnected', 1500);
         track('arena_reconnect', { tries: i + 1 });
@@ -8199,9 +8550,10 @@ const Arena = {
       }
       c.save(); c.translate(o.x, o.y - 40); c.scale(1 / zoom, 1 / zoom);
       c.font = '700 14px "Barlow Condensed", "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
-      const label = (o.id === leader ? '♛ ' : '') + o.name.toUpperCase();
+      const elite = o.livery === 12, label = (o.id === leader ? '♛ ' : elite ? '✦ ' : '') + o.name.toUpperCase();
       c.lineWidth = 4; c.strokeStyle = 'rgba(5,6,12,.85)'; c.strokeText(label, 0, 0);
-      c.fillStyle = o.id === leader ? '#ffd34f' : '#ffffff'; c.fillText(label, 0, 0);
+      if (elite) { c.shadowColor = '#ffd34f'; c.shadowBlur = 10; }
+      c.fillStyle = o.id === leader ? '#ffd34f' : elite ? `hsl(${44 + Math.sin(time * 3) * 6},100%,${66 + Math.sin(time * 4) * 8}%)` : '#ffffff'; c.fillText(label, 0, 0); c.shadowBlur = 0;
       const w = 40, f = clamp(o.hp / this.info.hp, 0, 1);
       c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(-w / 2 - 1, 9, w + 2, 6);
       c.fillStyle = f > 0.5 ? '#38d98a' : f > 0.25 ? '#ffc53d' : '#ff4d5e'; c.fillRect(-w / 2, 10, w * f, 4);
@@ -8508,7 +8860,7 @@ function showArenaEnd(m) {
   const a = store.arena || (store.arena = { rounds: 0, wins: 0, kills: 0, deaths: 0, best: 0, top: 0 });
   a.rounds++; a.kills += mine[1]; a.deaths += mine[2]; a.best = Math.max(a.best, best); a.top = Math.max(a.top, mine[3]);
   if (me === 0 && board.length > 1 && mine[3] > 0) { a.wins++; earnMedal('arenawin'); }
-  Shop.earn(40 + mine[1] * 12 + (me === 0 && board.length > 1 ? 100 : 0), me === 0 ? 'Round won' : 'Arena round');
+  Shop.earn(60 + mine[1] * 20 + (me === 0 && board.length > 1 ? 150 : 0), me === 0 ? 'Round won' : 'Arena round');
   if (me >= 0 && me < 3 && board.length > 3) progress('arenaTop3', 1);
   saveStore();
   showXp('aeXp', gainXp(40 + 25 * mine[1] + (me === 0 && mine[3] > 0 ? 150 : 0) + Math.max(0, 5 - me) * 15));
@@ -8565,7 +8917,7 @@ async function arenaConnect(q, label, tries = 0) {
   ['arenaQuick', 'arenaCreate', 'arenaJoin'].forEach(id => { $(id).disabled = true; });
   $('arenaList').querySelectorAll('button').forEach(bt => { bt.disabled = true; });
   try {
-    await ANet.connect(`${q}&callsign=${encodeURIComponent(store.callsign)}&device=${encodeURIComponent(deviceId())}${Social.authQ()}`);
+    await ANet.connect(`${q}&callsign=${encodeURIComponent(store.callsign)}&device=${encodeURIComponent(deviceId())}&tz=${new Date().getTimezoneOffset()}${Social.authQ()}`);
   } catch (e) {
     if (e === 'full' && q === 'quick=1' && tries < 3) return arenaConnect(q, label, tries + 1);
     if (e === 'taken' && /create=1/.test(q) && tries < 4) return arenaConnect(q.replace(/code=[A-Z0-9]{4}/, `code=${randomRoomCode()}`), label, tries + 1);

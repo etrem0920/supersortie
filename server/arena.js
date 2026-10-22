@@ -17,7 +17,7 @@
 //                     ul {m: [ref]}                      a roll broke these missile locks
 //   arena -> client:  welcome, roster, w (world), f, ul, kill, spawn, pk, pg, mx, s (scores), round, error
 
-import { serverDay } from './day.js';
+import { serverDay, localDay } from './day.js';
 import { eliteOk, ELITE_LIVERY } from './elite.js';
 
 export const ARENA_MAX = 12;
@@ -34,16 +34,16 @@ const BOT_FLOOR = 8; // public arenas top up to this many pilots with AI pilots
 const THEMES = ['ww2', 'ww1', 'modern', 'space', 'neon'];
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
 const PLANE_IDS = {
-  ww1: ['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol', 'fokker7', 'se5a', 'snipe', 'eindecker', 'dolphin', 'ssw'],
-  ww2: ['hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190', 'p47', 'bf109', 'zero', 'me262', 'ho229', 'p82'],
-  modern: ['f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar', 'raptor', 'yf23', 'su57', 'sr71', 'su47', 'f117'],
-  space: ['lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger', 'valkyrie', 'manta', 'talon', 'seraph', 'leviathan', 'nova'],
-  neon: ['vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor', 'outrun', 'laserwing', 'hexa', 'synth', 'glitch', 'arcadex'],
+  ww1: ['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol', 'fokker7', 'se5a', 'snipe', 'eindecker', 'dolphin', 'ssw', 'junkers'],
+  ww2: ['hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190', 'p47', 'bf109', 'zero', 'me262', 'ho229', 'p82', 'do335'],
+  modern: ['f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar', 'raptor', 'yf23', 'su57', 'sr71', 'su47', 'f117', 'darkstar'],
+  space: ['lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger', 'valkyrie', 'manta', 'talon', 'seraph', 'leviathan', 'nova', 'dreadwing'],
+  neon: ['vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor', 'outrun', 'laserwing', 'hexa', 'synth', 'glitch', 'arcadex', 'phoenix'],
 };
-export const PLANES_PER_THEATER = 12; // 9 open to everyone + 3 from crates (same handling types)
+export const PLANES_PER_THEATER = 13; // 9 open to everyone + 3 Mythic + 1 Apex from crates (same handling types)
 const REVENGE_BONUS = 75;
 // Cosmetic choices the game offers (liveries per theater, contrails, titles); see game.html.
-export const LIVERIES = 145, TRAILS = 25, TITLES = 22, BULLETS = 20, EMOTES = 8, KILLFX = 10;
+export const LIVERIES = 146, TRAILS = 30, TITLES = 22, BULLETS = 25, EMOTES = 8, KILLFX = 15;
 export const WARMUP_MS = 3500; // 3-2-1 at the start of each round: everyone flies, nobody takes damage
 // Each theater has its own boss event: it crosses the arena, shoots back, takes a lot of
 // punishment, and drops Overdrive (the strongest power-up, never found anywhere else).
@@ -173,7 +173,7 @@ export class ArenaRoom {
   // What a pilot's connection remembers, so a restarted arena can put them back as they were.
   saveSeat(p) {
     if (!p.ws) return;
-    try { p.ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, trail: p.trail, title: p.title, device: p.device || '', account: p.account, token: p.token, st: [p.kills, p.deaths, p.score, p.streak, p.best, this.s.round.n] }); } catch (e) { /* closing */ }
+    try { p.ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, trail: p.trail, title: p.title, device: p.device || '', account: p.account, token: p.token, tz: p.tz, st: [p.kills, p.deaths, p.score, p.streak, p.best, this.s.round.n] }); } catch (e) { /* closing */ }
   }
   // Remove a pilot for good. Their round so far still counts on the leaderboard.
   dropPilot(p, now) {
@@ -189,6 +189,7 @@ export class ArenaRoom {
     const p = {
       id, name: cleanName(info.name), plane: small(info.plane, PLANES_PER_THEATER - 1), livery: small(info.livery, LIVERIES - 1), trail: small(info.trail, TRAILS - 1), title: small(info.title, TITLES - 1), bot: !!info.bot, ws: ws || null,
       device: /^[A-Za-z0-9-]{8,64}$/.test(info.device || '') ? info.device : null, account: Number(info.account) || null, lastKiller: 0,
+      tz: Number.isFinite(Number(info.tz)) && info.tz !== '' && info.tz != null && Math.abs(Number(info.tz)) <= 840 ? Number(info.tz) : null,
       token: info.token || null, away: false, awayAt: 0, bye: false,
       x: 0, y: 0, a: 0, r: 0, rl: false, hp: MAX_HP, alive: false, respawnAt: Date.now() + 300, protUntil: 0,
       kills: 0, deaths: 0, score: 0, streak: 0, best: 0,
@@ -257,7 +258,7 @@ export class ArenaRoom {
     const [client, server] = Object.values(pair);
     const id = s.nextId++;
     this.ctx.acceptWebSocket(server);
-    const info = { id, name: url.searchParams.get('callsign') || 'Pilot', plane: 0, livery: 0, device, account: Number(url.searchParams.get('acct')) || null, token: crypto.randomUUID() };
+    const info = { id, name: url.searchParams.get('callsign') || 'Pilot', plane: 0, livery: 0, device, account: Number(url.searchParams.get('acct')) || null, token: crypto.randomUUID(), tz: url.searchParams.get('tz') };
     server.serializeAttachment(info);
     const p = this.addPilot(id, info, server);
     await this.ctx.storage.deleteAlarm();
@@ -462,7 +463,7 @@ export class ArenaRoom {
   // the last few seconds and did nothing aren't counted.
   recordRound(top, now, list) {
     if (!this.env.DB) return;
-    const day = serverDay(now), theme = this.theme, s = this.s;
+    const theme = this.theme, s = this.s;
     const stmts = [];
     for (const p of list || s.pilots.values()) {
       if (p.bot || !p.device || p.recorded === s.round.n) continue;
@@ -476,7 +477,7 @@ export class ArenaRoom {
          ON CONFLICT(day, device_id) DO UPDATE SET name = excluded.name, plane = excluded.plane, livery = excluded.livery,
            kills = kills + excluded.kills, deaths = deaths + excluded.deaths, rounds = rounds + 1, wins = wins + excluded.wins,
            best_round = MAX(best_round, excluded.best_round), best_streak = MAX(best_streak, excluded.best_streak), updated_at = excluded.updated_at, account_id = COALESCE(excluded.account_id, account_id)`
-      ).bind(day, p.device, p.name, (PLANE_IDS[theme] || [])[p.plane] || null, p.livery, p.kills, p.deaths, win, p.score, p.best, now, p.account));
+      ).bind(localDay(now, p.tz), p.device, p.name, (PLANE_IDS[theme] || [])[p.plane] || null, p.livery, p.kills, p.deaths, win, p.score, p.best, now, p.account));
     }
     if (stmts.length) this.ctx.waitUntil(this.env.DB.batch(stmts).catch(() => {}));
   }

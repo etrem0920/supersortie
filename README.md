@@ -110,20 +110,23 @@ Each day's ace flies its own paint scheme (12 palettes × 6 patterns, chosen fro
 
 ## Shop and crates (cosmetic only)
 
-- **Credits** come from playing: a daily (150 + score/60), arena rounds (40 + 12 per kill, +100 for a win), co-op missions, practice and zen, challenges, level-ups, medals and league results. New pilots start with 1,500. There is no way to buy credits with money.
-- **Crates** per theater in three tiers: Standard (200), Premium (600) and Ace (1,500). The odds are shown in the shop. A CS-style reel spins and lands on your prize, which you keep (and can equip right away) or sell back for its rarity value (25 to 2,500; on average always less than the crate cost, so selling can't farm credits). Duplicates are sold automatically if you close the reveal; new items are twice as likely as ones you own.
+- **Credits** come from playing: a daily (300 + score/30), arena rounds (60 + 20 per kill, +150 for a win), co-op missions (150, +150 for a win, +6 per kill), practice and zen, challenges (200 each, +400 for all three), level-ups (300), medals (250), the season pass, daily rewards and league results. A typical day of play earns about one Ace crate. New pilots start with 1,500. There is no way to buy credits with money.
+- **Crates** per theater in three tiers: Standard (200), Premium (600) and Ace (1,500). The odds are shown in the shop. A CS-style reel spins and lands on your prize, which you keep (and can equip right away) or sell back for its rarity value (25 to 10,000; on average always less than the crate cost, so selling can't farm credits). Odds, Common to Apex (%): Standard 53 / 26 / 14 / 5.3 / 1.53 / 0.15 / 0.02, Premium 0 / 43 / 33 / 16 / 7.12 / 0.8 / 0.08, Ace 0 / 0 / 44 / 34 / 18.1 / 3.5 / 0.4. Average sell-back: 92, 239 and 511. Duplicates are sold automatically if you close the reveal; new items are twice as likely as ones you own.
 - **Prizes:** 126 plane skins per theater (eleven for each standard plane and nine for each crate plane; the rarer, the fancier: common bands and tips, rare camo, epic tiger stripes and sharkmouths, legendary gold and chrome with sparkles), 9 kill effects that play when you shoot someone down and that other pilots see (Confetti Pop and Smoke Ring, Fireworks and Pixel Burst, Shockwave, Lightning Strike and Black Hole, Supernova, and the Mythic Orbital Strike), and originally 18 plane skins per theater (two for each standard plane, with patterns like hex, carbon, chrome, stars and lightning bolts; legendaries shed sparkles), three crate-only planes per theater (Mythic: Fokker E.III, Sopwith Dolphin, SSW D.IV; Me 262, Ho 229, P-82; SR-71, Su-47, F-117; plus fictional Space and Neon ships), 8 contrails (helix, pixel, lightning, galaxy, inferno and more) and 14 bullet skins (including the twin-beam Neon Twin and the glittering Stardust). Crate planes use the same four handling types as every other plane.
+- **More prizes:** a Legendary and a Mythic skin for every crate plane (new animated holo and galaxy finishes), the Bubble Stream, Neon Hearts, Aurora and Black Hole contrails, and the Bubblegum, Venom Twin, Chain Lightning, Phoenix Fire (Mythic) and Singularity (Mythic) bullets.
+- **Apex**, the rarity above Mythic: one plane per theater (Junkers D.I, Do 335 Pfeil, SR-72 Darkstar, Celestial Dreadwing, Neon Phoenix). Each comes with its own animated skin, bullets, contrail and kill effect, which unlock with the plane (`APEX` and `APEX_GRANT` in `game.html`) and go if you sell it. They fly like one of the usual four handling types.
+- **Previews:** the hangar showcase is live: your plane in its current skin, contrail and bullets, with your kill effect every few seconds (click it to replay). In the shop you can preview items you don't own yet. Equipped items have a green check.
 - Collector medals: Collector (keep 25 crate items), Hoarder (100), Mythic pull, Loyal (a 7-day reward streak), Ghostbuster and Season ace.
 - The inventory and credits sync with your account. Like the rest of progression they live in the browser, so a determined cheater could edit them; everything they could unlock is cosmetic.
 
 ## Daily rewards and the season pass
 
-- **Daily reward:** after you fly the daily and return to the hangar, a 7-day reward track pops up: 100, 150, 200 plus a free Standard crate, 250, 300, 400, then 500 plus a free Premium crate on day 7. Missing a day starts it again at day 1. Free crates are kept as tokens (`store.tokens`), and opening a crate uses a token before it spends credits. The Shop tab gets a red dot when a token is waiting or you can afford a crate you haven't looked at today.
-- **Season pass:** free, 30 tiers, resets on the 1st of every month. All XP from every mode also fills it, at 500 XP per tier. Tiers pay credits, with free crates at 5, 10, 15 and 25. Tier 20 gives the Season Ace title and tier 30 the Victory Ribbon contrail plus an Ace crate. Both are exclusive and stay with you; in later seasons those tiers pay 1,000 extra credits instead. Progress is shown under Pilot and on the home strip.
+- **Daily reward:** after you fly the daily and return to the hangar, a 7-day reward track pops up: 150, 200, 300 plus a free Standard crate, 350, 400, 500, then 750 plus a free Premium crate on day 7. Missing a day starts it again at day 1. Free crates are kept as tokens (`store.tokens`), and opening a crate uses a token before it spends credits. The Shop tab gets a red dot when a token is waiting or you can afford a crate you haven't looked at today.
+- **Season pass:** free, 30 tiers, resets on the 1st of every month. All XP from every mode also fills it, at 500 XP per tier. Tiers pay 160 to 450 credits, with free crates at 5, 10, 15 and 25. Tier 20 gives the Season Ace title and tier 30 the Victory Ribbon contrail plus an Ace crate. Both are exclusive and stay with you; in later seasons those tiers pay 1,000 extra credits instead. Progress is shown under Pilot and on the home strip.
 
 ## Ghost race
 
-After you fly the daily, you can race a ghost of a top run on today's map ("Race today's ghosts" on the home card, or on the results screen). A ghost race is a practice run, so it never touches the leaderboard. Beating any ghost pays 150 credits once a day.
+After you fly the daily, you can race a ghost of a top run on today's map ("Race today's ghosts" on the home card, or on the results screen). A ghost race is a practice run, so it never touches the leaderboard. Beating any ghost pays 250 credits once a day.
 - The client samples the daily's flight path every 200 ms: 8 bytes per sample (x, y, heading, roll/dead flags, score). It uploads the recording right after your score posts.
 - The server (`server/ghosts.js`, table `ghosts` in `server/migrations/0005_ghosts.sql`) only accepts a ghost for a device that has a score that day. The recording's length must match the scored flight time, and its score track can't go down or end above the posted score. Only the top 20 per day are kept.
 - Endpoints: `POST /api/v1/ghost`, `GET /api/v1/ghosts?day=` (list) and `GET /api/v1/ghost?day=&id=` (one recording).
@@ -133,9 +136,25 @@ After you fly the daily, you can race a ghost of a top run on today's map ("Race
 
 Each era has its own procedural soundtrack, made in WebAudio by a small step sequencer (`Music` in `game.html`): a march for WWI, swing for WWII, rock for the modern theater, ambient arpeggios for space and synthwave for neon. The hook plays louder and on every phrase during the ace wave. The music is muffled while paused or shot down and stays silent on the menu. Toggle it with "Music on/off" in the header (desktop) or the pause menu. "Sound off" mutes everything.
 
+## Zen settings
+
+Zen opens a settings sheet first, with three presets: Calm (the default: a few planes that don't shoot back, power-ups, soft music, a sunset, a minimal HUD and a slower cruise), Classic (the original zen) and Sandbox. Each option can also be set on its own: enemy planes (none, few, normal, swarm), enemy fire, aces, power-ups (rapid fire, spread shot, shield, star shower, magnet), an invincible hull, HUD, music (calm, theater, off), ambience (clear, sunset, night, rain), speed and clouds. Saved in `store.zenCfg`.
+
+## Military mode
+
+The "Military mode" toggle in the header (and the pause menu) swaps in real military terms: OPFOR, bandits, HVT, phases, TOT, AOR names like INDO-PACIFIC, OPORD numbers and date-time groups. It adds a flight-data line to the HUD (heading, speed, angels, G, grid and Zulu time), target brackets and SPLASH callouts. Looks only (`MIL` in `game.html`).
+
+## Accounts across devices
+
+Each save to `PUT /api/v1/me/profile` carries the revision the device last saw. If another device saved since, the server answers 409 with its copy, and the client merges three ways against what it last synced: credits, crate tokens and the inventory replay this device's changes on top of the account, so credits never duplicate and sold items stay sold. Loadout picks that changed here win; the rest follow the account. Tabs pick up changes when you come back to them, and each plane remembers its own skin (`store.planeLiv`).
+
+## Feedback
+
+The home screen has a feedback form (idea, bug or other, plus an optional email). Messages go to `POST /api/v1/feedback`, which stores them in the `feedback` table (`server/migrations/0006_feedback.sql`). Read them with `GET /api/v1/admin/feedback` and the `ADMIN_TOKEN` bearer. To have each one emailed as well, turn on Cloudflare Email Routing for supersortie.io, verify your inbox as a destination, then add a `send_email` binding named `FEEDBACK_MAIL` and a `FEEDBACK_TO` var to `server/wrangler.toml`; `server/feedback.js` sends through it when it's there.
+
 ## Weekly leagues
 
-Weeks run Monday to Sunday (UTC). Your first daily of the week puts you in a group of up to 30 pilots in your division (Bronze, Silver, Gold, Platinum, Diamond, Ace). Your league score is the sum of your dailies that week. The top 5 of each group move up and the bottom 5 move down; the result pays credits (600 up, 200 stay, 80 down) the next time you open the game. Code: `server/league.js`, table `league_members` (`server/migrations/0004_leagues.sql`).
+Weeks run Monday to Sunday (UTC). Your first daily of the week puts you in a group of up to 30 pilots in your division (Bronze, Silver, Gold, Platinum, Diamond, Ace). Your league score is the sum of your dailies that week. The top 5 of each group move up and the bottom 5 move down; the result pays credits (1,000 up, 400 stay, 150 down) the next time you open the game. The League tab shows the whole ladder, what each finish pays and where you stand. Code: `server/league.js`, table `league_members` (`server/migrations/0004_leagues.sql`).
 
 ## Account settings
 
@@ -162,7 +181,7 @@ Signed-in pilots fly under their username (the callsign field is locked). The Fr
 - **Quick play** drops you into the busiest public arena with a free seat, up to 12 pilots, so you land with whoever is already flying. The **Live arenas** list (the server browser) shows every public arena with people in it, its theater, round clock and top pilots; pick one to join it. **Private arenas** use a four-letter code and an invite link (`supersortie.io/?arena=CODE`). The creator picks the theater and whether AI pilots join.
 - It's a free-for-all with 4-minute rounds. Each round moves to the next theater and ends on a podium, with a 10-second break before the next one.
 - Getting shot down puts you back in the air **2.5 seconds** later, somewhere quiet, with a 2-second spawn shield. A kill is worth 100 points, plus 25 for every kill already in your streak. Ending a streak of 3 or more earns a shutdown bonus, and shooting down whoever last got you earns +75 revenge.
-- **Arena today** in the Leaderboard tab ranks people (not AI pilots) by kills since midnight UTC. Rounds are saved from the arena to the `arena_scores` table.
+- **Arena today** in the Leaderboard tab ranks people (not AI pilots) by kills since your local midnight, the same day boundary as the daily: the client sends its timezone offset when it joins, and each round is saved to `arena_scores` under that pilot's local day (`localDay` in `server/day.js`). The board shows one line per pilot: an account's devices are added together, and guests are grouped by callsign.
 - **Power-ups** appear around the map:
   - **Weapons:** missiles, rail gun and mines. Each one fires by itself, so they work the same on phones.
   - **Boosts:** spread guns, rapid fire, shield, repair, afterburner, cloak (nearly invisible, can't be locked), double damage, vampire (each kill restores 5 hull) and shockwave (an instant blast that hurts every pilot nearby).
