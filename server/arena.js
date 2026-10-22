@@ -49,6 +49,8 @@ export const PICKUPS = {
   h: { name: 'Shield', pts: 6, ms: 15000, weight: 12 },
   w: { name: 'Repair', weight: 12 },
   b: { name: 'Afterburner', ms: 6000, weight: 11 },
+  c: { name: 'Cloak', ms: 6000, weight: 8 },
+  d: { name: 'Double damage', ms: 8000, weight: 9 },
 };
 export const DAMAGE = { g: 1, r: 7, m: 5, n: 6 };
 const GUN_RANGE = 820;          // bullets travel ~620; the rest is latency slack
@@ -115,7 +117,7 @@ export class ArenaRoom {
       device: /^[A-Za-z0-9-]{8,64}$/.test(info.device || '') ? info.device : null, lastKiller: 0,
       x: 0, y: 0, a: 0, r: 0, rl: false, hp: MAX_HP, alive: false, respawnAt: Date.now() + 300, protUntil: 0,
       kills: 0, deaths: 0, score: 0, streak: 0, best: 0,
-      weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, shieldUntil: 0,
+      weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, shieldUntil: 0, cloakUntil: 0, ddUntil: 0,
       budget: 8, budgetT: Date.now(), lastP: Date.now(), joined: Date.now(),
       ai: info.bot ? { tg: null, tgT: 0, wander: Math.random() * Math.PI * 2, skill: 0.75 + Math.random() * 0.35, gunT: 0 } : null,
     };
@@ -314,7 +316,7 @@ export class ArenaRoom {
   world(now) {
     const out = [];
     for (const p of this.s.pilots.values()) {
-      const fl = (p.alive ? 1 : 0) | (p.shield > 0 ? 2 : 0) | (now < p.boostUntil ? 4 : 0) | (now < p.rapidUntil ? 8 : 0) | (now < p.spreadUntil ? 16 : 0) | (now < p.protUntil ? 32 : 0) | (p.rl ? 64 : 0);
+      const fl = (p.alive ? 1 : 0) | (p.shield > 0 ? 2 : 0) | (now < p.boostUntil ? 4 : 0) | (now < p.rapidUntil ? 8 : 0) | (now < p.spreadUntil ? 16 : 0) | (now < p.protUntil ? 32 : 0) | (p.rl ? 64 : 0) | (now < p.cloakUntil ? 128 : 0) | (now < p.ddUntil ? 256 : 0);
       out.push([p.id, Math.round(p.x), Math.round(p.y), Math.round(p.a * 100), Math.round(p.r * 100), p.hp, fl, p.weapon ? p.weapon + p.ammo : '']);
     }
     const b = this.s.blimp;
@@ -364,7 +366,7 @@ export class ArenaRoom {
     // Announce the round first so clients have the new theater loaded before the respawns land.
     this.broadcast({ t: 'round', ...this.roundInfo(now) });
     for (const p of s.pilots.values()) {
-      Object.assign(p, { kills: 0, deaths: 0, score: 0, streak: 0, best: 0, lastKiller: 0, weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0 });
+      Object.assign(p, { kills: 0, deaths: 0, score: 0, streak: 0, best: 0, lastKiller: 0, weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, cloakUntil: 0, ddUntil: 0 });
       this.spawn(p, now);
     }
     this.broadcast({ t: 's', b: this.board() });
@@ -397,7 +399,7 @@ export class ArenaRoom {
     v.hp -= dmg;
     if (v.hp > 0) return;
     v.hp = 0; v.alive = false; v.deaths++; v.respawnAt = now + RESPAWN_MS;
-    v.spreadUntil = 0; v.rapidUntil = 0; v.boostUntil = 0; v.shield = 0;
+    v.spreadUntil = 0; v.rapidUntil = 0; v.boostUntil = 0; v.shield = 0; v.cloakUntil = 0; v.ddUntil = 0;
     const victimStreak = v.streak; v.streak = 0;
     const k = by && by !== v ? by : null;
     let pts = 0, rv = 0;
@@ -438,7 +440,7 @@ export class ArenaRoom {
         const n = Math.min(clamp(Math.floor(Number(h[1]) || 0), 0, 12), Math.floor(p.budget));
         if (n <= 0) continue;
         p.budget -= n;
-        this.damage(v, p, 'g', n * DAMAGE.g, now);
+        this.damage(v, p, 'g', n * DAMAGE.g * (now < p.ddUntil ? 2 : 1), now);
       }
     }
   }
@@ -511,6 +513,7 @@ export class ArenaRoom {
       n = Math.min(clamp(Math.floor(Number(h[1]) || 0), 0, 12), Math.floor(p.budget));
       if (n <= 0) return;
       p.budget -= n;
+      if (now < p.ddUntil) n *= 2;
     }
     this.damageBlimp(p, n, now);
   }
@@ -555,6 +558,8 @@ export class ArenaRoom {
     else if (k.k === 'b') p.boostUntil = now + def.ms;
     else if (k.k === 'h') { p.shield = def.pts; p.shieldUntil = now + def.ms; }
     else if (k.k === 'w') p.hp = MAX_HP;
+    else if (k.k === 'c') p.cloakUntil = now + def.ms;
+    else if (k.k === 'd') p.ddUntil = now + def.ms;
     this.broadcast({ t: 'pg', id: k.id, by: p.id, k: k.k });
   }
 
@@ -574,6 +579,7 @@ export class ArenaRoom {
         for (const o of pilots) {
           if (o === b || !o.alive || now < o.protUntil) continue;
           const d = Math.hypot(o.x - b.x, o.y - b.y);
+          if (now < o.cloakUntil && d > 220) continue;
           if (d < bd) { bd = d; tg = o; }
         }
         ai.tg = tg ? tg.id : null; ai.tgT = 3 + Math.random() * 2;
@@ -616,7 +622,7 @@ export class ArenaRoom {
       const d = Math.hypot(tg.x - b.x, tg.y - b.y), err = Math.abs(wrap(Math.atan2(tg.y - b.y, tg.x - b.x) - b.a));
       if (d < 600 && err < 0.16 && !tg.rl) {
         const hits = Math.random() < 0.5 * ai.skill * (now < b.rapidUntil ? 1.8 : 1) ? 1 : 0;
-        if (hits) this.damage(tg, b, 'g', hits, now);
+        if (hits) this.damage(tg, b, 'g', hits * (now < b.ddUntil ? 2 : 1), now);
       }
     }
   }

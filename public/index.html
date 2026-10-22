@@ -743,7 +743,7 @@
         <div><b>12</b><small>pilots per arena</small></div>
         <div><b>4:00</b><small>rounds, a new theater each</small></div>
         <div><b>2.5s</b><small>to respawn</small></div>
-        <div><b>8</b><small>power-ups</small></div>
+        <div><b>10</b><small>power-ups</small></div>
       </div>
       <div class="field"><label for="arenaName">Your callsign</label><input id="arenaName" maxlength="16" autocomplete="off" spellcheck="false"></div>
       <button id="arenaQuick" class="btn btn-primary btn-block btn-xl">Quick play</button>
@@ -2683,6 +2683,7 @@ function draw() {
     const blink = player.inv > 0 && Math.floor(time * 18) % 2 === 0;
     ctx.save(); ctx.translate(player.x, player.y); ctx.rotate(player.a);
     if (blink) ctx.globalAlpha = 0.35;
+    if (Arena.on && Arena.flags & 128) ctx.globalAlpha = 0.4;
     drawCraft(ctx, pCraft, pCol, 1, { roll: pRoll + player.bank, spin: player.spin, t: time });
     ctx.restore();
   }
@@ -4053,6 +4054,8 @@ const ARENA_PICKUPS = {
   h: { name: 'Shield', color: '#8fd6ea', glyph: 'H', hint: 'Shield: soaks up the next 6 hits for 15 seconds', ms: 15000 },
   w: { name: 'Repair', color: '#38d98a', glyph: '+', hint: 'Hull fully repaired' },
   b: { name: 'Afterburner', color: '#ffd34f', glyph: 'B', hint: 'Afterburner: 45% faster for 6 seconds', ms: 6000 },
+  c: { name: 'Cloak', color: '#c9b8ff', glyph: 'C', hint: 'Cloak: nearly invisible and missiles can’t lock on, for 6 seconds', ms: 6000 },
+  d: { name: 'Double damage', color: '#ff2d55', glyph: '×2', hint: 'Double damage: your guns hit twice as hard for 8 seconds', ms: 8000 },
 };
 const ARENA_AMMO = { m: 3, r: 3, n: 4 };
 const ARENA_ERRORS = {
@@ -4336,6 +4339,7 @@ const Arena = {
     return u * u + v * v < 1;
   },
   hittable(o) { return o && o.alive && o.seen && !(o.fl & 32) && this.phase === 'play'; },
+  cloaked(o) { return !!(o.fl & 128) && Math.hypot(o.x - player.x, o.y - player.y) > 200; },
   checkMyBullets() {
     for (let i = pBullets.length - 1; i >= 0; i--) {
       const b = pBullets[i];
@@ -4407,7 +4411,7 @@ const Arena = {
     if (k === 'm') {
       let best = null, bd = 0.5;
       for (const o of this.others.values()) {
-        if (!this.hittable(o)) continue;
+        if (!this.hittable(o) || o.fl & 128) continue;
         const d = Math.hypot(o.x - p.x, o.y - p.y), off = Math.abs(angDiff(Math.atan2(o.y - p.y, o.x - p.x), p.a));
         if (d < 850 && off < bd) { bd = off; best = o; }
       }
@@ -4480,7 +4484,7 @@ const Arena = {
       c.fillStyle = def.color; c.strokeStyle = '#0b0d14'; c.lineWidth = 2.5; c.lineJoin = 'round';
       c.beginPath(); c.rect(-11, -11, 22, 22); c.fill(); c.stroke();
       c.rotate(-Math.PI / 4 - Math.sin(time * 2 + k.id) * 0.15);
-      c.fillStyle = '#0b0d14'; c.font = '900 15px "Big Shoulders Display", "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillStyle = '#0b0d14'; c.font = `900 ${def.glyph.length > 1 ? 12 : 15}px "Big Shoulders Display", "Arial Narrow", sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
       c.fillText(def.glyph, 0, 1);
       c.restore();
     }
@@ -4521,12 +4525,16 @@ const Arena = {
     for (const o of this.others.values()) {
       if (!o.alive || !o.seen || !inView(o.x, o.y, 90)) continue;
       const pl = th.planes[o.plane] || th.planes[0], craft = CRAFT_PLAYER[pl.shape], col = colorsFor(th, 'player', o.livery);
-      drawContrail(c, o.trail, o.trailId || 0, 20, 0.8);
+      const ghost = this.cloaked(o);
+      if (ghost) c.globalAlpha = 0.1;
+      if (!ghost) drawContrail(c, o.trail, o.trailId || 0, 20, 0.8);
       const blink = o.fl & 32 && Math.floor(time * 12) % 2 === 0;
       if (th.shadows) { c.save(); c.translate(o.x + 16, o.y + 26); c.rotate(o.a); drawCraft(c, craft, null, 1, { roll: o.roll, shadow: th.pal.shadow }); c.restore(); }
-      c.save(); c.translate(o.x, o.y); c.rotate(o.a); if (blink) c.globalAlpha = 0.4;
+      c.save(); c.translate(o.x, o.y); c.rotate(o.a); if (blink) c.globalAlpha = 0.4; if (ghost) c.globalAlpha = 0.12 + Math.sin(time * 9) * 0.04;
       drawCraft(c, craft, col, 1, { roll: o.roll, spin: time * 45, t: time, flash: o.flash > 0 });
       c.restore();
+      if (ghost) { c.globalAlpha = 1; continue; }
+      if (o.fl & 256) { c.strokeStyle = 'rgba(255,45,85,.7)'; c.lineWidth = 2; c.beginPath(); c.arc(o.x, o.y, 26 + Math.sin(time * 14) * 2, 0, TAU); c.stroke(); }
       if (o.fl & 2) { c.strokeStyle = 'rgba(143,214,234,.75)'; c.lineWidth = 2.5; c.beginPath(); c.arc(o.x, o.y, 30 + Math.sin(time * 8) * 1.5, 0, TAU); c.stroke(); c.fillStyle = 'rgba(143,214,234,.12)'; c.fill(); }
       if (this.lock && this.lock.id === o.id) {
         const k = Math.min(1, this.lock.t / 0.55), r0 = 46 - 18 * k;
@@ -4583,7 +4591,7 @@ const Arena = {
   edgeArrows(edgeArrow) {
     if (this.blimp) edgeArrow(this.blimp.x, this.blimp.y, '#8fd6ea', 1.4);
     const leader = this.board.length && this.board[0][3] > 0 ? this.board[0][0] : 0;
-    for (const o of this.others.values()) if (o.alive && o.seen) edgeArrow(o.x, o.y, o.id === leader ? '#ffd34f' : '#ff4d5e', o.id === leader ? 1.2 : 0.85);
+    for (const o of this.others.values()) if (o.alive && o.seen && !(o.fl & 128)) edgeArrow(o.x, o.y, o.id === leader ? '#ffd34f' : '#ff4d5e', o.id === leader ? 1.2 : 0.85);
     for (const m of this.missiles) if (m.lock && m.tg === this.you) edgeArrow(m.x, m.y, '#ffffff', 0.8);
   },
 
@@ -4614,7 +4622,7 @@ const Arena = {
       if (wk) chips.push(`<span class="wchip" style="--c:${ARENA_PICKUPS[wk].color}"><b>${ARENA_PICKUPS[wk].glyph}</b>${ARENA_PICKUPS[wk].name}<i>${'●'.repeat(wn)}</i></span>`);
       for (const [k, until] of Object.entries(this.buffs)) {
         const s = Math.ceil((until - now) / 1000);
-        if (s <= 0 || (k === 'h' && !(this.flags & 2))) { delete this.buffs[k]; continue; }
+        if (s <= 0 || (k === 'h' && !(this.flags & 2)) || (k === 'c' && !(this.flags & 128) && s < 5)) { delete this.buffs[k]; continue; }
         chips.push(`<span class="wchip" style="--c:${ARENA_PICKUPS[k].color}"><b>${ARENA_PICKUPS[k].glyph}</b>${ARENA_PICKUPS[k].name}<i>${s}s</i></span>`);
       }
       $('weaponChip').innerHTML = chips.join('');

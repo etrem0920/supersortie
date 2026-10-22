@@ -109,7 +109,7 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 - **Arena today** in the Leaderboard tab ranks people (not AI pilots) by kills since midnight UTC. Rounds are saved from the arena to the `arena_scores` table.
 - **Power-ups** appear around the map:
   - **Weapons:** missiles, rail gun and mines. Each one fires by itself, so they work the same on phones.
-  - **Boosts:** spread guns, rapid fire, shield, repair and afterburner.
+  - **Boosts:** spread guns, rapid fire, shield, repair, afterburner, cloak (nearly invisible, can't be locked) and double damage.
 - **Rolling** makes you immune to bullets and breaks missile locks.
 - A **supply blimp** crosses the arena about once a minute. Whoever shoots it down gets +50 points, and it drops three power-ups: one weapon, one boost and one random. That pulls everyone into the same fight.
 - **AI pilots** (marked "AI" on the scoreboard) top a public arena up to 8 pilots. They leave as real people arrive.
