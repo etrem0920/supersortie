@@ -31,6 +31,8 @@
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; overflow: hidden; }
+  /* Big Shoulders kerns "IL" so tightly that DAILY reads as DALLY: space every letter evenly instead. */
+  html, button, input, select, textarea { font-kerning: none; font-feature-settings: "kern" 0; }
   body {
     background: var(--bg); color: var(--text);
     font-family: var(--font-body); font-weight: 500; font-size: 15px;
@@ -2969,6 +2971,7 @@ function resize() {
   // dprScale drops a notch if a device can't hold the frame rate (see frame()).
   DPR = Math.max(1, Math.min(3, window.devicePixelRatio || 1, Math.sqrt(3.4e6 / Math.max(1, W * H))) * dprScale);
   canvas.width = Math.floor(W * DPR); canvas.height = Math.floor(H * DPR);
+  if ('fontKerning' in ctx) ctx.fontKerning = 'none'; // resizing resets the context, so set it here
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   zoom = clamp(Math.min(W, H) / 760, 0.6, 1.05);
 }
