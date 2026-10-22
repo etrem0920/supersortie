@@ -74,7 +74,7 @@ export function slotFor(now = Date.now()) {
 
 export async function composePost(env, slot, now = Date.now()) {
   const day = serverDay(now), info = dailyInfo(day), seq = day * 3 + ['recap', 'live', 'board'].indexOf(slot);
-  const tag = pick(TAGS, seq), spot = pick(SPOTLIGHT, seq);
+  const tag = pick(TAGS, day + seq), spot = pick(SPOTLIGHT, seq);
   let text;
   if (slot === 'recap') {
     const y = await dayStats(env, day - 1);
