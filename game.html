@@ -1936,6 +1936,12 @@ const MEDALS = [
   { id: 'hangar', name: 'Hangar rat', desc: 'Fly 9 different planes' },
   { id: 'legend50', name: 'Absolute legend', desc: 'Get a 50-kill streak in the arena' },
   { id: 'squad', name: 'Band of brothers', desc: 'Win a co-op mission on Hard or Brutal' },
+  { id: 'collector', name: 'Collector', desc: 'Keep 25 items from crates' },
+  { id: 'hoarder', name: 'Hoarder', desc: 'Keep 100 items from crates' },
+  { id: 'mythic', name: 'Mythic pull', desc: 'Unbox a Mythic item' },
+  { id: 'loyal', name: 'Loyal', desc: 'Claim 7 daily rewards in a row' },
+  { id: 'ghost', name: 'Ghostbuster', desc: 'Beat a ghost in a ghost race' },
+  { id: 'season', name: 'Season ace', desc: 'Reach tier 30 of a season pass' },
 ];
 const medalName = id => (MEDALS.find(m => m.id === id) || {}).name || id;
 
@@ -5594,6 +5600,7 @@ const Shop = {
   },
   reveal(win, tier) {
     const dupe = owned(win.id), R = RARITY[win.rarity], wrap = $('reelWin');
+    if (win.rarity === 5) setTimeout(() => earnMedal('mythic'), 1500);
     wrap.style.setProperty('--win', R.color); wrap.classList.add('landed');
     const w = $('reel').querySelector('.item.w'); if (w) w.classList.add('win');
     $('crTitle').textContent = win.rarity >= 4 ? (win.rarity === 5 ? 'MYTHIC!' : 'LEGENDARY!') : win.rarity === 3 ? 'Epic!' : 'You got';
@@ -5633,7 +5640,12 @@ const Shop = {
       else this.close();
     });
   },
-  add(it) { store.inv = store.inv || []; if (!store.inv.includes(it.id)) store.inv.push(it.id); this.pending = null; saveStore(); },
+  add(it) {
+    store.inv = store.inv || []; if (!store.inv.includes(it.id)) store.inv.push(it.id); this.pending = null; saveStore();
+    const n = store.inv.filter(x => !x.startsWith('x:') && x !== 't:20').length;
+    if (n >= 25) earnMedal('collector');
+    if (n >= 100) earnMedal('hoarder');
+  },
   remove(it) {
     store.inv = (store.inv || []).filter(x => x !== it.id);
     if (it.kind === 'trail' && store.trail === it.idx) store.trail = 0;
@@ -5722,6 +5734,7 @@ const Daily = {
     $('rwClaim').textContent = r.t != null ? 'Open it in the Shop' : 'Claimed!'; $('rwClaim').classList.add('claimed');
     $('rwTrack').querySelector('.today').classList.add('done');
     track('daily_reward', { n });
+    if (n >= 7) setTimeout(() => earnMedal('loyal'), 1200);
     renderShopDot();
     setTimeout(() => { hide('reward'); if (r.t != null) selectTab('shop'); }, r.t != null ? 900 : 1100);
   },
@@ -5758,6 +5771,7 @@ var Season = {
     if (typeof Shop !== 'undefined') Shop.earn(c, `Season tier ${t}`);
     toast(`Season tier ${t}`, bits.length ? `Unlocked: ${bits.join(', ')}` : `+${fmtNum(c)} credits`);
     if (r.x || t === SEASON_TIERS) confetti(120);
+    if (t === SEASON_TIERS) earnMedal('season');
     track('season_tier', { t });
   },
   center() {
@@ -5903,6 +5917,7 @@ var Ghost = {
     A.won = run.score > A.final;
     if (A.won) {
       toast('Ghost beaten', `${fmtNum(run.score)} vs ${fmtNum(A.final)}`);
+      earnMedal('ghost');
       store.ghostWins = store.ghostWins || {};
       if (!store.ghostWins[todayNum]) { store.ghostWins = { [todayNum]: 1 }; saveStore(); Shop.earn(150, 'Ghost beaten'); }
     }

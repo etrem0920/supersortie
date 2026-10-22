@@ -113,7 +113,25 @@ Each day's ace flies its own paint scheme (12 palettes × 6 patterns, chosen fro
 - **Credits** come from playing: a daily (150 + score/60), arena rounds (40 + 12 per kill, +100 for a win), co-op missions, practice and zen, challenges, level-ups, medals and league results. New pilots start with 1,500. There is no way to buy credits with money.
 - **Crates** per theater in three tiers: Standard (200), Premium (600) and Ace (1,500). The odds are shown in the shop. A CS-style reel spins and lands on your prize, which you keep (and can equip right away) or sell back for its rarity value (25 to 2,500; on average always less than the crate cost, so selling can't farm credits). Duplicates are sold automatically if you close the reveal; new items are twice as likely as ones you own.
 - **Prizes:** 126 plane skins per theater (eleven for each standard plane and nine for each crate plane; the rarer, the fancier: common bands and tips, rare camo, epic tiger stripes and sharkmouths, legendary gold and chrome with sparkles), 9 kill effects that play when you shoot someone down and that other pilots see (Confetti Pop and Smoke Ring, Fireworks and Pixel Burst, Shockwave, Lightning Strike and Black Hole, Supernova, and the Mythic Orbital Strike), and originally 18 plane skins per theater (two for each standard plane, with patterns like hex, carbon, chrome, stars and lightning bolts; legendaries shed sparkles), three crate-only planes per theater (Mythic: Fokker E.III, Sopwith Dolphin, SSW D.IV; Me 262, Ho 229, P-82; SR-71, Su-47, F-117; plus fictional Space and Neon ships), 8 contrails (helix, pixel, lightning, galaxy, inferno and more) and 14 bullet skins (including the twin-beam Neon Twin and the glittering Stardust). Crate planes use the same four handling types as every other plane.
+- Collector medals: Collector (keep 25 crate items), Hoarder (100), Mythic pull, Loyal (a 7-day reward streak), Ghostbuster and Season ace.
 - The inventory and credits sync with your account. Like the rest of progression they live in the browser, so a determined cheater could edit them; everything they could unlock is cosmetic.
+
+## Daily rewards and the season pass
+
+- **Daily reward:** the first visit each day pops up a 7-day reward track: 100, 150, 200 plus a free Standard crate, 250, 300, 400, then 500 plus a free Premium crate on day 7. Missing a day starts it again at day 1. Free crates are kept as tokens (`store.tokens`), and opening a crate uses a token before it spends credits. The Shop tab gets a red dot when a token is waiting or you can afford a crate you haven't looked at today.
+- **Season pass:** free, 30 tiers, resets on the 1st of every month. All XP from every mode also fills it, at 500 XP per tier. Tiers pay credits, with free crates at 5, 10, 15 and 25. Tier 20 gives the Season Ace title and tier 30 the Victory Ribbon contrail plus an Ace crate. Both are exclusive and stay with you; in later seasons those tiers pay 1,000 extra credits instead. Progress is shown under Pilot and on the home strip.
+
+## Ghost race
+
+After you fly the daily, you can race a ghost of a top run on today's map ("Race today's ghosts" on the home card, or on the results screen). A ghost race is a practice run, so it never touches the leaderboard. Beating any ghost pays 150 credits once a day.
+- The client samples the daily's flight path every 200 ms: 8 bytes per sample (x, y, heading, roll/dead flags, score). It uploads the recording right after your score posts.
+- The server (`server/ghosts.js`, table `ghosts` in `server/migrations/0005_ghosts.sql`) only accepts a ghost for a device that has a score that day. The recording's length must match the scored flight time, and its score track can't go down or end above the posted score. Only the top 20 per day are kept.
+- Endpoints: `POST /api/v1/ghost`, `GET /api/v1/ghosts?day=` (list) and `GET /api/v1/ghost?day=&id=` (one recording).
+- Your own ghost is kept on your device, so you can always race yourself.
+
+## Music
+
+Each era has its own procedural soundtrack, made in WebAudio by a small step sequencer (`Music` in `game.html`): a march for WWI, swing for WWII, rock for the modern theater, ambient arpeggios for space and synthwave for neon. The hook plays louder and on every phrase during the ace wave. The music is muffled while paused or shot down and stays silent on the menu. Toggle it with "Music on/off" in the header (desktop) or the pause menu. "Sound off" mutes everything.
 
 ## Weekly leagues
 
