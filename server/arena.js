@@ -43,7 +43,7 @@ const PLANE_IDS = {
 export const PLANES_PER_THEATER = 12; // 9 open to everyone + 3 from crates (same handling types)
 const REVENGE_BONUS = 75;
 // Cosmetic choices the game offers (liveries per theater, contrails, titles); see game.html.
-export const LIVERIES = 139, TRAILS = 20, TITLES = 21, BULLETS = 15, EMOTES = 8, KILLFX = 10;
+export const LIVERIES = 139, TRAILS = 21, TITLES = 22, BULLETS = 15, EMOTES = 8, KILLFX = 10;
 export const WARMUP_MS = 3500; // 3-2-1 at the start of each round: everyone flies, nobody takes damage
 // Each theater has its own boss event: it crosses the arena, shoots back, takes a lot of
 // punishment, and drops Overdrive (the strongest power-up, never found anywhere else).

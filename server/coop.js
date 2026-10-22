@@ -147,7 +147,7 @@ export class CoopRoom {
           const okd = await eliteOk(this.env, me.device, null).catch(() => false);
           if (okd) { me.eliteOk = true; me.livery = ELITE_LIVERY; }
         }
-        if ('trail' in msg) me.trail = small(msg.trail, 19);
+        if ('trail' in msg) me.trail = small(msg.trail, 20);
         if ('bullet' in msg) me.bullet = small(msg.bullet, 14);
         if ('kfx' in msg) me.kfx = small(msg.kfx, 9);
         if ('ready' in msg) me.ready = !!msg.ready;

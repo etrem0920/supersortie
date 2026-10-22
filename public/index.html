@@ -223,6 +223,25 @@
   .pl-row b { font-family: var(--font-display); font-weight: 900; font-size: 24px; text-transform: uppercase; color: var(--accent); }
   .pl-row span { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
   .pl-next { font-size: 13px; color: var(--text); }
+  .season { background: linear-gradient(135deg, rgba(255, 211, 79, .10), rgba(177, 75, 255, .10)), var(--panel); padding: 14px 16px; display: grid; gap: 10px; box-shadow: inset 0 0 0 1px var(--line); }
+  .ss-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .ss-head b { font-family: var(--font-display); font-weight: 900; font-size: 20px; text-transform: uppercase; color: #ffd34f; }
+  .ss-head span { color: var(--muted); font-size: 12px; font-family: var(--font-cond); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .ss-bar { height: 8px; background: rgba(255, 255, 255, .08); position: relative; overflow: hidden; }
+  .ss-bar i { position: absolute; inset: 0; transform-origin: left; background: linear-gradient(90deg, #ffd34f, #ff8a3d); }
+  .ss-track { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 8px; scroll-snap-type: x proximity; scrollbar-width: thin; }
+  .ss-tier { flex: 0 0 64px; scroll-snap-align: center; position: relative; background: var(--raise); box-shadow: inset 0 0 0 1px var(--line); --cut: 7px; padding: 6px 2px 6px; display: grid; justify-items: center; gap: 3px; text-align: center; }
+  .ss-tier small { font-family: var(--font-cond); font-weight: 700; font-size: 10px; letter-spacing: .1em; color: var(--muted); }
+  .ss-tier b { font-family: var(--font-display); font-weight: 800; font-size: 12px; color: #ffd34f; line-height: 1.05; }
+  .ss-tier em { font-style: normal; font-size: 9px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; color: var(--text); line-height: 1.1; }
+  .ss-tier svg { width: 22px; height: 22px; }
+  .ss-tier canvas { width: 54px; height: 18px; }
+  .ss-tier.got > * { opacity: .45; }
+  .ss-tier.got::after { content: '✓'; position: absolute; top: 3px; right: 6px; color: var(--good); font-weight: 900; font-size: 12px; }
+  .ss-tier.next { box-shadow: inset 0 0 0 2px #ffd34f; }
+  .ss-tier.big { background: linear-gradient(180deg, rgba(177, 75, 255, .28), var(--raise)); }
+  .ss-tier.ex { background: linear-gradient(180deg, rgba(255, 211, 79, .3), var(--raise)); }
+  .ss-note { font-size: 12px; color: var(--muted); }
   .pl-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 12px; color: var(--muted); }
   .pl-title select { min-height: 38px; background: var(--raise-2); color: var(--text); border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); padding: 0 10px; font: 600 14px var(--font-body); letter-spacing: 0; text-transform: none; }
   .pl-how { color: var(--dim); font-size: 12px; }
@@ -971,7 +990,7 @@
         <div class="today-foot"><span id="pilotCount"></span><span id="leader"></span></div>
       </div>
 
-      <div class="you-strip"><span id="ysStreak"></span><span id="ysLevel"></span><button id="ysLeague" class="link-btn meta-link"></button><button id="chMeta" class="link-btn meta-link"></button></div>
+      <div class="you-strip"><span id="ysStreak"></span><button id="ysLevel" class="link-btn meta-link"></button><button id="ysLeague" class="link-btn meta-link"></button><button id="chMeta" class="link-btn meta-link"></button></div>
 
       <div class="modes">
         <div class="section-label"><span>More ways to fly</span></div>
@@ -1023,6 +1042,7 @@
       <div id="tab-record" class="tab-body hidden">
         <div id="profileCard" class="profile chamfer"></div>
         <div id="pilotLevel" class="pilot-level chamfer"></div>
+        <div id="seasonBox" class="season chamfer"></div>
         <div class="section-label"><span>Today's challenges</span><span>Every mode counts</span></div>
         <div id="chList" class="ch-list"></div>
         <div id="statChips" class="chips"></div>
@@ -1956,8 +1976,10 @@ const TRAILS = [
   { name: 'Lightning', crate: 't:17', rarity: 3, kind: 'zap', color: '#9ff7ff' },
   { name: 'Galaxy', crate: 't:18', rarity: 3, kind: 'galaxy', color: '#9d5cff' },
   { name: 'Inferno', crate: 't:19', rarity: 4, kind: 'fire', color: '#ff7a1a' },
+  // season pass exclusive
+  { name: 'Victory Ribbon', season: 't:20', rarity: 5, kind: 'ribbon', color: '#ffd34f', color2: '#ffffff' },
 ];
-const trailOpen = i => { const T = TRAILS[i]; return !!T && (T.crate ? owned(T.crate) : pilotLevel() >= T.lvl); };
+const trailOpen = i => { const T = TRAILS[i]; return !!T && (T.crate || T.season ? owned(T.crate || T.season) : pilotLevel() >= T.lvl); };
 const myTrail = () => (trailOpen(store.trail || 0) ? store.trail || 0 : 0);
 const myBullet = () => { const i = store.bullet || 0; return i && BULLET_SKINS[i] && owned(BULLET_SKINS[i].crate) ? i : 0; };
 const TITLES = [
@@ -1966,12 +1988,13 @@ const TITLES = [
   { name: 'Ace Hunter', medal: 'acekill' }, { name: 'Untouchable', medal: 'untouched' }, { name: 'Time Traveler', medal: 'allthemes' }, { name: 'Arena Champion', arena: true },
   { name: 'Top Gun', lvl: 25 }, { name: 'Sky Marshal', lvl: 35 }, { name: 'Living Legend', lvl: 45 }, { name: 'Ace of Aces', lvl: 50 },
   { name: 'Boss Slayer', medal: 'blimp' }, { name: 'Rampager', medal: 'rampage' }, { name: 'Elite', medal: 'elite' }, { name: 'Godlike', medal: 'godlike' }, { name: 'Absolute Legend', medal: 'legend50' },
+  { name: 'Season Ace', item: 'x:21' },
 ];
 const pilotLevel = () => levelOf(store.xp || 0);
-const titleOpen = t => (t.lvl ? pilotLevel() >= t.lvl : t.medal ? !!store.medals[t.medal] : !!(store.arena && store.arena.wins));
+const titleOpen = t => (t.lvl ? pilotLevel() >= t.lvl : t.item ? owned(t.item) : t.medal ? !!store.medals[t.medal] : !!(store.arena && store.arena.wins));
 const titleName = i => (TITLES[i] || TITLES[0]).name;
 function unlocksAt(lv) {
-  const out = TRAILS.filter(t => !t.crate && t.lvl === lv && lv > 1).map(t => `${t.name} contrail`);
+  const out = TRAILS.filter(t => !t.crate && !t.season && t.lvl === lv && lv > 1).map(t => `${t.name} contrail`);
   for (const id of THEME_ORDER) THEMES[id].liveries.forEach(L => { if (L.lvl === lv) out.push(`${L.name} livery`); });
   TITLES.forEach(t => { if (t.lvl === lv && lv > 1) out.push(`${t.name} title`); });
   return out;
@@ -1984,6 +2007,7 @@ function gainXp(n) {
   n = Math.max(0, Math.round(n));
   const before = pilotLevel();
   store.xp = (store.xp || 0) + n;
+  if (Season) Season.add(n);
   const after = pilotLevel();
   saveStore();
   if (after > before) {
@@ -2074,7 +2098,7 @@ function drawContrail(c, pts, ti, span, k) {
     }
     return;
   }
-  if (T.kind === 'helix' || T.kind === 'pixel' || T.kind === 'galaxy' || T.kind === 'fire' || T.kind === 'zap') { drawFancyTrail(c, pts, T, span, k, side); return; }
+  if (T.kind === 'helix' || T.kind === 'pixel' || T.kind === 'galaxy' || T.kind === 'fire' || T.kind === 'zap' || T.kind === 'ribbon') { drawFancyTrail(c, pts, T, span, k, side); return; }
   const passes = T.glow ? [[7, 0.22], [2, 1]] : [[2, 1]];
   if (T.kind === 'dash') c.setLineDash([5, 9]);
   for (const [lw, al] of passes) for (const sd of [-1, 1]) for (let i = 1; i < n; i++) {
@@ -2110,6 +2134,19 @@ function drawFancyTrail(c, pts, T, span, k, side) {
     for (let i = 0; i < n; i += 3) { const p = pts[i], f = i / n, tw = 0.5 + 0.5 * Math.sin(time * 10 + i); for (const sd of [-1, 1]) { const [x, y] = side(p, sd * (0.6 + Math.sin(i * 7.3) * 0.5)); c.fillStyle = `rgba(255,255,255,${f * k * tw})`; c.fillRect(x - 1, y - 1, 2, 2); } }
   } else if (T.kind === 'fire') {
     for (let i = 0; i < n; i += 1) { const p = pts[i], f = i / n; for (const sd of [-0.9, 0.9]) { const [x, y] = side(p, sd); const r = 2 + (1 - f) * 7; c.fillStyle = `rgba(255,${Math.round(120 + f * 110)},${Math.round(f * 60)},${0.35 * f * k})`; c.beginPath(); c.arc(x + Math.sin(i * 3.1 + time * 14) * (1 - f) * 3, y, r, 0, TAU); c.fill(); } }
+  } else if (T.kind === 'ribbon') {
+    // Two gold banners off the wingtips that wave and twist, flashing white where they turn.
+    const nx = q => -Math.sin(q.a), ny = q => Math.cos(q.a);
+    for (const sd of [-1, 1]) for (let i = 1; i < n; i++) {
+      const a = pts[i - 1], b = pts[i], f = i / n;
+      const w = q => Math.sin(q * 0.38 - time * 6 + (sd > 0 ? 1.6 : 0)) * span * 0.45 * (1 - f * 0.5);
+      const tw = Math.abs(Math.cos(i * 0.19 - time * 3.2 + sd)), hw = (1.6 + tw * 3.6) * (0.55 + f * 0.6);
+      const [ax0, ay0] = side(a, sd), [bx0, by0] = side(b, sd);
+      const ax = ax0 + nx(a) * w(i - 1), ay = ay0 + ny(a) * w(i - 1), bx = bx0 + nx(b) * w(i), by = by0 + ny(b) * w(i);
+      c.fillStyle = tw > 0.85 ? `rgba(${rgb2},${0.85 * f * k})` : `rgba(${rgb},${(0.55 + tw * 0.4) * f * k})`;
+      c.beginPath(); c.moveTo(ax + nx(a) * hw, ay + ny(a) * hw); c.lineTo(bx + nx(b) * hw, by + ny(b) * hw); c.lineTo(bx - nx(b) * hw, by - ny(b) * hw); c.lineTo(ax - nx(a) * hw, ay - ny(a) * hw); c.closePath(); c.fill();
+      if (i % 4 === 0) { const tws = 0.5 + 0.5 * Math.sin(time * 12 + i * 2.3); c.fillStyle = `rgba(255,248,210,${f * k * tws})`; c.fillRect(bx + Math.sin(i * 5.1) * 6 - 1, by + Math.cos(i * 4.3) * 6 - 1, 2.2, 2.2); }
+    }
   } else if (T.kind === 'zap') {
     c.lineJoin = 'miter';
     for (const [lw, al] of [[6, 0.25], [1.8, 1]]) for (const sd of [-1, 1]) {
@@ -4776,7 +4813,7 @@ function renderMenu() {
 function renderYouStrip() {
   const st = liveStreak();
   $('ysStreak').innerHTML = st ? `<b class="flame">${st}</b>-day streak` : 'Start a streak today';
-  $('ysLevel').innerHTML = `Level <b>${pilotLevel()}</b> · ${esc(titleName(store.title))}`;
+  $('ysLevel').innerHTML = `Level <b>${pilotLevel()}</b> · Season tier <b>${Season ? Season.tier() : 0}</b>`;
   const L = League.data, me = L && L.joined && L.entries.find(e => e.me);
   $('ysLeague').innerHTML = me ? `<span class="lg-dot" style="--c:${LEAGUE_COLORS[L.division]}"></span>${esc(L.divisions[L.division])} league · <b>#${me.rank}</b>` : '';
   renderChallengeMeta();
@@ -4834,8 +4871,8 @@ function renderHangar() {
   // contrails
   const curTrail = myTrail();
   $('trailList').innerHTML = TRAILS.map((T, i) => {
-    const open = trailOpen(i), why = T.crate ? `${T.name} · ${RARITY[T.rarity].name} contrail from crates in the Shop` : `${T.name} · reach level ${T.lvl}`;
-    return `<button class="tchip chamfer ${open ? '' : 'locked'} ${T.crate ? 'crate' : ''}" ${T.crate ? `style="--rc:${RARITY[T.rarity].color}"` : ''} role="radio" data-trail="${i}" aria-checked="${i === curTrail}" title="${esc(open ? T.name : why)}" data-why="${esc(why)}"><canvas width="96" height="30" aria-hidden="true"></canvas><small>${open ? esc(T.name) : T.crate ? 'Crate' : `Lv ${T.lvl}`}</small></button>`;
+    const open = trailOpen(i), rare = T.crate || T.season, why = T.season ? `${T.name} · reach tier 30 of the season pass` : T.crate ? `${T.name} · ${RARITY[T.rarity].name} contrail from crates in the Shop` : `${T.name} · reach level ${T.lvl}`;
+    return `<button class="tchip chamfer ${open ? '' : 'locked'} ${rare ? 'crate' : ''}" ${rare ? `style="--rc:${RARITY[T.rarity].color}"` : ''} role="radio" data-trail="${i}" aria-checked="${i === curTrail}" title="${esc(open ? T.name : why)}" data-why="${esc(why)}"><canvas width="96" height="30" aria-hidden="true"></canvas><small>${open ? esc(T.name) : T.season ? 'Season' : T.crate ? 'Crate' : `Lv ${T.lvl}`}</small></button>`;
   }).join('');
   $('trailName').textContent = TRAILS[curTrail].name;
   $('trailCount').textContent = `${TRAILS.filter((T, i) => trailOpen(i)).length}/${TRAILS.length}`;
@@ -4938,6 +4975,7 @@ function renderProfile() {
     <small class="pl-how">Earn XP in every mode: daily sorties, arena rounds, co-op and zen.</small>`;
   $('titleSel').addEventListener('change', e => { store.title = Number(e.target.value); saveStore(); renderProfile(); });
   $('chList').innerHTML = challengesHTML();
+  if (Season) Season.render();
 }
 const fmtClock = sec => { sec = Math.max(0, Math.floor(sec)); const h = Math.floor(sec / 3600), m = Math.floor(sec / 60) % 60, s2 = String(sec % 60).padStart(2, '0'); return h ? `${h}:${String(m).padStart(2, '0')}:${s2}` : `${m}:${s2}`; };
 
@@ -5061,7 +5099,7 @@ const Social = {
       streak: liveStreak(), maxStreak: store.maxStreak || 0, lastDay: store.lastDay || 0, played: store.played || 0, best: store.best || 0,
       medals: Object.keys(store.medals || {}), aces: store.aces || {}, arena: store.arena || {}, zenBest: store.zenBest || null,
       planeUse: store.planeUse || {}, liveries: store.livery || {}, planes: store.plane || {},
-      credits: store.credits || 0, inv: store.inv || [], bullet: store.bullet || 0, killfx: store.killfx || 0, egg: store.egg ? 1 : 0, tokens: store.tokens || [0, 0, 0],
+      credits: store.credits || 0, inv: store.inv || [], bullet: store.bullet || 0, killfx: store.killfx || 0, egg: store.egg ? 1 : 0, tokens: store.tokens || [0, 0, 0], season: store.season || null,
     };
   },
   // Combine an account's saved progress with this device's: keep the best of each.
@@ -5084,6 +5122,7 @@ const Social = {
     if (!store.bullet && p.bullet) store.bullet = p.bullet;
     if (p.egg) store.egg = 1;
     if (!store.killfx && p.killfx) store.killfx = p.killfx;
+    if (p.season && p.season.id && (!store.season || p.season.id > store.season.id || (p.season.id === store.season.id && p.season.xp > store.season.xp))) store.season = { id: p.season.id, xp: p.season.xp };
     if (Array.isArray(p.tokens)) { store.tokens = store.tokens || [0, 0, 0]; p.tokens.forEach((n, i) => { store.tokens[i] = Math.max(store.tokens[i] || 0, Number(n) || 0); }); }
     if (!store.trail && p.trail) store.trail = p.trail;
   },
@@ -5578,6 +5617,62 @@ const Daily = {
   },
 };
 $('rwClaim').addEventListener('click', () => Daily.claim());
+// Season pass: free, resets on the 1st of every month. Every bit of XP you earn also fills it.
+var SEASON_TIERS = 30, SEASON_TIER_XP = 500; // var: the hangar and home strip render before this runs
+var SEASON_REWARDS = Array.from({ length: SEASON_TIERS }, (_, i) => {
+  const t = i + 1, r = { c: 100 + Math.round(t * 6 / 10) * 10 };
+  if ({ 5: 1, 10: 1, 15: 1, 25: 1 }[t]) { r.c = 150; r.t = t >= 15 ? 1 : 0; }
+  if (t === 20) { r.c = 300; r.x = 'x:21'; r.xn = 'Season Ace title'; }
+  if (t === 30) { r.c = 500; r.t = 2; r.x = 't:20'; r.xn = 'Victory Ribbon contrail'; }
+  return r;
+});
+var Season = {
+  id() { const d = new Date(); return d.getFullYear() * 12 + d.getMonth(); },
+  name() { return new Date().toLocaleDateString(undefined, { month: 'long' }); },
+  daysLeft() { const d = new Date(), end = new Date(d.getFullYear(), d.getMonth() + 1, 1); return Math.max(1, Math.ceil((end - d) / 864e5)); },
+  st() { const id = this.id(); if (!store.season || store.season.id !== id) store.season = { id, xp: 0 }; return store.season; },
+  tier() { return Math.min(SEASON_TIERS, Math.floor(this.st().xp / SEASON_TIER_XP)); },
+  add(n) {
+    const S = this.st(), before = this.tier();
+    S.xp = Math.min(SEASON_TIERS * SEASON_TIER_XP, S.xp + n);
+    const after = this.tier();
+    for (let t = before + 1; t <= after; t++) this.grant(t);
+    saveStore();
+    const ys = $('ysLevel'); if (ys && after > before) ys.innerHTML = `Level <b>${pilotLevel()}</b> · Season tier <b>${after}</b>`;
+  },
+  grant(t) {
+    const r = SEASON_REWARDS[t - 1], bits = [];
+    let c = r.c;
+    if (r.x) { if (owned(r.x)) c += 1000; else { store.inv = store.inv || []; store.inv.push(r.x); bits.push(r.xn); } }
+    if (r.t != null) { store.tokens = store.tokens || [0, 0, 0]; store.tokens[r.t]++; bits.push(`free ${CRATES[r.t].name}`); }
+    if (typeof Shop !== 'undefined') Shop.earn(c, `Season tier ${t}`);
+    toast(`Season tier ${t}`, bits.length ? `Unlocked: ${bits.join(', ')}` : `+${fmtNum(c)} credits`);
+    if (r.x || t === SEASON_TIERS) confetti(120);
+    track('season_tier', { t });
+  },
+  center() {
+    requestAnimationFrame(() => {
+      const box = $('seasonBox'), tr = box && box.querySelector('.ss-track'), cur = box && (box.querySelector('.ss-tier.next') || box.querySelector('.ss-tier:last-child'));
+      if (cur && tr && tr.clientWidth) tr.scrollLeft = Math.max(0, cur.offsetLeft - tr.offsetLeft - tr.clientWidth / 2 + 32);
+    });
+  },
+  render() {
+    const box = $('seasonBox'); if (!box) return;
+    const S = this.st(), tier = this.tier(), into = S.xp - tier * SEASON_TIER_XP, done = tier >= SEASON_TIERS;
+    const coin = COIN_SVG.replace('<svg', '<svg style="width:20px;height:20px"');
+    box.innerHTML = `<div class="ss-head"><b>${esc(this.name())} season</b><span>Tier ${tier}/${SEASON_TIERS} · ${this.daysLeft()} day${this.daysLeft() === 1 ? '' : 's'} left</span></div>
+      <span class="ss-bar"><i style="transform:scaleX(${done ? 1 : (into / SEASON_TIER_XP).toFixed(3)})"></i></span>
+      <div class="ss-track">${SEASON_REWARDS.map((r, i) => {
+        const t = i + 1, art = r.x === 't:20' ? '<canvas width="108" height="36" data-strail="1"></canvas>' : r.t != null ? `<svg viewBox="0 0 74 64">${crateArt(CRATES[r.t].color, theme.id).replace(/^<svg[^>]*>|<\/svg>$/g, '')}</svg>` : r.x ? '<svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .8-5.2 4.8 1.5 7-6.3-3.7-6.3 3.7 1.5-7L2 9.3l7-.8z" fill="#ffd34f"/></svg>' : coin;
+        const label = r.x ? (r.x === 't:20' ? 'Ribbon trail' : 'Title') : r.t != null ? `${CRATES[r.t].name.split(' ')[0]} crate` : '';
+        return `<div class="ss-tier chamfer ${t <= tier ? 'got' : ''} ${t === tier + 1 ? 'next' : ''} ${r.x ? 'ex' : r.t != null ? 'big' : ''}" title="Tier ${t}: ${fmtNum(r.c)} credits${r.xn ? ' + ' + esc(r.xn) : r.t != null ? ' + ' + esc(CRATES[r.t].name) : ''}"><small>${t}</small>${art}<b>${fmtNum(r.c)}</b>${label ? `<em>${label}</em>` : ''}</div>`;
+      }).join('')}</div>
+      <small class="ss-note">${done ? 'Season complete. A new one starts on the 1st.' : `${fmtNum(SEASON_TIER_XP - into)} XP to tier ${tier + 1}. All XP counts, in every mode.`} Exclusive rewards are yours to keep.</small>`;
+    const cv = box.querySelector('[data-strail]'); if (cv) drawTrailPreview(cv, TRAILS.findIndex(T => T.season));
+    this.center();
+  },
+};
+$('ysLevel').addEventListener('click', () => { selectTab('record'); setTimeout(() => $('seasonBox').scrollIntoView({ block: 'center', behavior: 'smooth' }), 60); });
 // A red dot on the Shop tab when there's something to open.
 function renderShopDot() {
   const tok = (store.tokens || []).some(n => n > 0), can = (store.credits || 0) >= CRATES[0].cost && store.shopSeen !== todayNum;
@@ -5672,6 +5767,7 @@ function selectTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
   ['hangar', 'board', 'record', 'shop', 'friends'].forEach(n => $('tab-' + n).classList.toggle('hidden', n !== name));
   if (name === 'shop') Shop.render();
+  if (name === 'record' && Season) Season.center();
   if (name === 'board') loadBoard();
   if (name === 'record') renderRecord();
   if (name === 'friends') renderFriends();

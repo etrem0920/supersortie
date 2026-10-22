@@ -53,7 +53,8 @@ export function cleanProfile(p) {
     medals: Array.isArray(p.medals) ? p.medals.slice(0, 40).map(m => str(m, 16)).filter(Boolean) : [],
     aces: {}, arena: {}, zenBest: null, planeUse: {}, liveries: {}, planes: {},
     credits: int(p.credits, 1e9), bullet: int(p.bullet, 20), killfx: int(p.killfx, 20), egg: int(p.egg, 1), tokens: Array.isArray(p.tokens) ? p.tokens.slice(0, 3).map(n => int(n, 99)) : [0, 0, 0],
-    inv: Array.isArray(p.inv) ? [...new Set(p.inv.slice(0, 600).map(x => String(x)).filter(x => /^[spbtk]:[a-z0-9:]{1,24}$/.test(x)))] : [],
+    season: p.season && typeof p.season === 'object' ? { id: int(p.season.id, 1e6), xp: int(p.season.xp, 15000) } : null,
+    inv: Array.isArray(p.inv) ? [...new Set(p.inv.slice(0, 600).map(x => String(x)).filter(x => /^[spbtkx]:[a-z0-9:]{1,24}$/.test(x)))] : [],
   };
   if (p.aces && typeof p.aces === 'object') for (const [d, n] of Object.entries(p.aces).slice(-400)) if (/^\d{1,5}$/.test(d)) out.aces[d] = str(n, 24);
   if (p.arena && typeof p.arena === 'object') for (const k of ['rounds', 'wins', 'kills', 'deaths', 'best', 'top']) out.arena[k] = int(p.arena[k], 1e7);
