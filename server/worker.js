@@ -17,7 +17,7 @@ export { CoopRoom, ArenaRoom, ArenaDirectory };
 
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
 const MODS = new Set(['standard', 'glass', 'swarm', 'ironace', 'overcast', 'crosswind', 'hotguns']);
-const PLANES = new Set(['camel', 'dr1', 'spad', 'hellcat', 'corsair', 'p38', 'f16', 'f18', 'f15', 'lancer', 'wraith', 'bulwark', 'vector', 'overdrive', 'pulse']);
+const PLANES = new Set(['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol', 'hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190', 'f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar', 'lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger', 'vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor']);
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
 const MAX_PER_IP_PER_DAY = 30;
 const TOP_CACHE_SECONDS = 20;
@@ -178,7 +178,10 @@ async function arenaSocket(req, env, url) {
   if (req.headers.get('Upgrade') !== 'websocket') return new Response('Expected a WebSocket', { status: 426 });
   if (!originAllowed(req, env)) return new Response('Forbidden', { status: 403 });
   let name;
-  if (url.searchParams.get('quick') === '1') {
+  const pub = String(url.searchParams.get('arena') || '');
+  if (/^pub-\d{1,3}$/.test(pub)) {
+    name = pub; // reconnecting to a specific public arena
+  } else if (url.searchParams.get('quick') === '1') {
     const dir = env.ARENA_DIR.get(env.ARENA_DIR.idFromName('global'));
     name = (await (await dir.fetch('https://dir/assign', { method: 'POST' })).json()).name;
   } else {

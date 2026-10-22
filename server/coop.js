@@ -135,7 +135,7 @@ export class CoopRoom {
       case 'hello':
       case 'me':
         if ('name' in msg) me.name = cleanName(msg.name);
-        if ('plane' in msg) me.plane = small(msg.plane, 2);
+        if ('plane' in msg) me.plane = small(msg.plane, 5);
         if ('livery' in msg) me.livery = small(msg.livery, 4);
         if ('trail' in msg) me.trail = small(msg.trail, 8);
         if ('ready' in msg) me.ready = !!msg.ready;

@@ -95,7 +95,7 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
   - **Zen:** XP for kills and minutes flown.
   - **Co-op:** XP for waves cleared and kills.
   - **Arena:** XP for each round, kills, placing and wins.
-- Levels go up to 50. They unlock nine contrails, two extra liveries per theater (at levels 8 and 16) and titles. A few titles come from medals and arena wins instead of levels.
+- Levels go up to 50. They unlock three more aircraft per theater (at levels 3, 7 and 11, for six per theater), nine contrails, two extra liveries per theater (at levels 8 and 16) and titles. A few titles come from medals and arena wins instead of levels.
 - Contrails are drawn from the plane's recent path, so other pilots see yours in co-op and the arena with no extra network traffic. The arena shows your title on the round podium.
 - Players who started before levels existed got starting XP for the dailies they had flown and the medals they had earned.
 - **Daily challenges:** three a day, the same for everyone and chosen from the date. They span every mode, for example 40 kills, a supply blimp or a 4-kill arena streak. Each is worth 250 XP, plus 300 for finishing all three. They live on the Pilot tab, with one line on the home screen.
@@ -111,6 +111,7 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
   - **Weapons:** missiles, rail gun and mines. Each one fires by itself, so they work the same on phones.
   - **Boosts:** spread guns, rapid fire, shield, repair, afterburner, cloak (nearly invisible, can't be locked) and double damage.
 - **Rolling** makes you immune to bullets and breaks missile locks.
+- **Dropped connections reconnect.** If a pilot's connection drops, the arena holds their seat, score and streak for 30 seconds while the game reconnects them. Leaving on purpose frees the seat right away. A hidden tab sends a heartbeat so it isn't dropped as idle; pilots who go quiet for 45 seconds are removed. If the server restarts (every deploy restarts it), players are reconnected to a fresh round.
 - A **supply blimp** crosses the arena about once a minute. Whoever shoots it down gets +50 points, and it drops three power-ups: one weapon, one boost and one random. That pulls everyone into the same fight.
 - **AI pilots** (marked "AI" on the scoreboard) top a public arena up to 8 pilots. They leave as real people arrive.
 - **What the arena decides:** each arena is a Cloudflare Durable Object. It runs hull, kills, respawns, power-ups, rounds and the AI pilots, and sends a world update 10 times a second.

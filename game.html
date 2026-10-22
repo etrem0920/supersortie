@@ -222,6 +222,43 @@
   canvas.av { width: 36px; height: 36px; display: block; --cut: 6px; clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut)); }
   canvas.av.big { width: 100%; height: auto; aspect-ratio: 1; --cut: 8px; }
   canvas.av.xl { width: 88px; height: 88px; flex: none; --cut: 10px; }
+  .th-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .th-tab { background: var(--raise); border: 0; box-shadow: inset 0 0 0 1px var(--line); padding: 7px 4px; cursor: pointer; color: var(--text); --cut: 7px; display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; }
+  .th-tab small { font-family: var(--font-cond); font-weight: 700; font-size: 11px; letter-spacing: .1em; color: var(--muted); }
+  .th-tab b { font-family: var(--font-display); font-weight: 800; font-size: 17px; text-transform: uppercase; letter-spacing: .03em; }
+  .th-tab[aria-checked="true"] { background: var(--raise-2); box-shadow: inset 0 0 0 2px var(--accent); }
+  .th-tab[aria-checked="true"] small { color: var(--accent); }
+  .showcase { position: relative; overflow: hidden; --cut: 12px; background: var(--raise); }
+  .showcase canvas { display: block; width: 100%; height: auto; aspect-ratio: 880 / 360; }
+  .sc-info { position: absolute; right: 14px; top: 12px; bottom: 12px; width: 40%; display: flex; flex-direction: column; justify-content: center; gap: 4px; text-align: right; align-items: flex-end; }
+  .sc-info small { font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 11px; color: var(--muted); }
+  .sc-info b { font-family: var(--font-display); font-weight: 900; font-size: 26px; text-transform: uppercase; line-height: .95; text-shadow: 0 2px 10px rgba(0,0,0,.6); }
+  .sc-info > span:not(.bars) { font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; font-size: 12px; color: var(--accent); }
+  .sc-info .bars { width: 100%; max-width: 160px; margin-top: 4px; }
+  .plane-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .pcard { display: flex; align-items: center; gap: 8px; background: var(--raise); border: 0; box-shadow: inset 0 0 0 1px var(--line); padding: 6px; cursor: pointer; text-align: left; color: var(--text); --cut: 7px; min-width: 0; }
+  .pcard canvas.av { width: 40px; height: 40px; flex: none; }
+  .pcard span { display: flex; flex-direction: column; min-width: 0; }
+  .pcard b { font-family: var(--font-cond); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .02em; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pcard small { font-family: var(--font-cond); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .pcard[aria-checked="true"] { background: var(--raise-2); box-shadow: inset 0 0 0 2px var(--accent); }
+  .pcard[aria-checked="true"] small { color: var(--accent); }
+  .pcard.locked { opacity: .45; }
+  .sel-name { color: var(--text); letter-spacing: .08em; }
+  .swatch-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .swatch { position: relative; width: 44px; height: 30px; border: 0; padding: 0; cursor: pointer; display: grid; grid-template-columns: 1fr 1fr 1fr; --cut: 6px; box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+  .swatch i { display: block; }
+  .swatch[aria-checked="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .swatch.locked { opacity: .4; }
+  .swatch .lock { position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; }
+  .trail-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .tchip { background: var(--raise); border: 0; box-shadow: inset 0 0 0 1px var(--line); padding: 4px; cursor: pointer; color: var(--text); --cut: 6px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .tchip canvas { width: 100%; height: auto; display: block; }
+  .tchip small { font-family: var(--font-cond); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tchip[aria-checked="true"] { box-shadow: inset 0 0 0 2px var(--accent); }
+  .tchip[aria-checked="true"] small { color: var(--text); }
+  .tchip.locked { opacity: .45; }
+  @media (max-width: 600px) { .plane-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sc-info b { font-size: 20px; } .th-tab b { font-size: 14px; } }
   .plane-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .plane {
     background: var(--raise); border: 0; box-shadow: inset 0 0 0 1px var(--line); padding: 8px; cursor: pointer; text-align: left; --cut: 8px;
@@ -385,6 +422,17 @@
   .killfeed i { font-style: normal; font-size: 10px; letter-spacing: .1em; color: var(--accent); }
   .killfeed em { font-style: normal; color: #ffd34f; }
   @keyframes feedin { from { opacity: 0; transform: translateX(12px); } }
+  .kill-pop { position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 74px); transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(9, 12, 20, .8); box-shadow: inset 0 0 0 1px rgba(255, 77, 94, .7); font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; opacity: 0; pointer-events: none; }
+  .kill-pop.show { animation: kpop 1.5s cubic-bezier(.2, 1.5, .4, 1) both; }
+  .kill-pop .kp-k { font-size: 11px; color: #ff4d5e; letter-spacing: .16em; }
+  .kill-pop b { font-size: 18px; color: #fff; }
+  .kill-pop .kp-pts { font-size: 15px; color: var(--accent); }
+  .kill-pop em { font-style: normal; font-size: 13px; padding: 2px 7px; background: #ffd34f; color: #0b0d14; }
+  .kill-pop em.hot { background: #ff4d5e; color: #fff; animation: blink .3s steps(2) 3; }
+  @keyframes kpop { 0% { opacity: 0; transform: translateX(-50%) scale(1.35); } 12% { opacity: 1; transform: translateX(-50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-6px); } }
+  .score-panel.bump { animation: sbump .35s ease; }
+  @keyframes sbump { 40% { transform: scale(1.18); color: var(--accent); } }
+  @media (max-width: 600px) { .kill-pop { top: calc(env(safe-area-inset-top, 0px) + 118px); } .kill-pop b { font-size: 15px; } }
   .weapon-chip { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(76px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 140px); }
   .wchip { display: flex; align-items: center; gap: 8px; background: rgba(9, 12, 20, .82); box-shadow: inset 0 0 0 1px var(--c); padding: 5px 10px 5px 6px; font-family: var(--font-cond); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
   .wchip b { width: 20px; height: 20px; display: grid; place-items: center; background: var(--c); color: #0b0d14; font-family: var(--font-display); font-weight: 900; }
@@ -563,6 +611,7 @@
   </div>
   <div id="hint" class="hint chamfer"></div>
   <div id="weaponChip" class="weapon-chip hidden"></div>
+  <div id="killPop" class="kill-pop" aria-live="polite"></div>
   <div id="respawnBox" class="respawn hidden"><b id="rbBy">Shot down</b><span id="rbTime"></span><small id="rbSub"></small></div>
   <div id="arenaEnd" class="arena-end chamfer hidden">
     <span id="aeKicker" class="eyebrow-s"></span>
@@ -651,14 +700,18 @@
           <span class="hint-s">Shown on the leaderboard. Letters, numbers and spaces.</span>
         </div>
         <div class="section-label"><span>Theater</span><span>Looks only · same fight for all</span></div>
-        <div id="themeList" class="theme-list" role="radiogroup" aria-label="Theater"></div>
-        <div class="section-label"><span>Aircraft</span><span id="planeArch"></span></div>
-        <div id="planeList" class="plane-list" role="radiogroup" aria-label="Aircraft"></div>
+        <div id="themeList" class="th-tabs" role="radiogroup" aria-label="Theater"></div>
+        <div class="showcase chamfer">
+          <canvas id="showCv" width="880" height="360" aria-hidden="true"></canvas>
+          <div class="sc-info"><small id="scTheme"></small><b id="scName"></b><span id="scArch"></span><span id="scBars" class="bars"></span></div>
+        </div>
         <div id="planeNote" class="plane-note"></div>
-        <div class="section-label"><span>Livery</span><span id="liveryCount"></span></div>
-        <div id="liveryList" class="livery-list" role="radiogroup" aria-label="Livery"></div>
-        <div class="section-label"><span>Contrail</span><span id="trailCount"></span></div>
-        <div id="trailList" class="trail-list" role="radiogroup" aria-label="Contrail"></div>
+        <div class="section-label"><span>Aircraft</span><span id="planeArch"></span></div>
+        <div id="planeList" class="plane-grid" role="radiogroup" aria-label="Aircraft"></div>
+        <div class="section-label"><span>Livery · <b id="liveryName" class="sel-name"></b></span><span id="liveryCount"></span></div>
+        <div id="liveryList" class="swatch-row" role="radiogroup" aria-label="Livery"></div>
+        <div class="section-label"><span>Contrail · <b id="trailName" class="sel-name"></b></span><span id="trailCount"></span></div>
+        <div id="trailList" class="trail-row" role="radiogroup" aria-label="Contrail"></div>
       </div>
       <div id="tab-board" class="tab-body hidden">
         <div class="seg" role="tablist" aria-label="Leaderboard"><button data-board="daily" aria-selected="true">Daily sortie</button><button data-board="arena" aria-selected="false">Arena today</button></div>
@@ -1128,34 +1181,52 @@ const ARCH = {
   fast: { label: 'Fast', speed: 1.1, turn: 0.9, fire: 1 },
   gunner: { label: 'Heavy guns', speed: 0.95, turn: 0.94, fire: 1.18 },
 };
+const PLANE_LEVELS = [0, 0, 0, 3, 7, 11]; // planes 4 to 6 in each theater unlock at these pilot levels
+const planeOpen = i => pilotLevel() >= (PLANE_LEVELS[i] || 0);
 THEMES.ww1.planes = [
   { id: 'camel', name: 'Sopwith Camel', arch: 'balanced', shape: 'biplane', note: 'The great all-rounder of the Western Front.' },
   { id: 'dr1', name: 'Fokker Dr.I', arch: 'agile', shape: 'triplane', note: 'Three wings, razor turns, modest top speed.' },
   { id: 'spad', name: 'SPAD S.XIII', arch: 'fast', shape: 'spad', note: 'Rugged and quick. Takes wider turns.' },
+  { id: 'albatros', name: 'Albatros D.III', arch: 'fast', shape: 'albatros', note: 'Shark-nosed sesquiplane built for diving attacks.' },
+  { id: 'nieuport', name: 'Nieuport 17', arch: 'agile', shape: 'nieuport', note: 'Featherweight and nimble. Wins the turning fight.' },
+  { id: 'bristol', name: 'Bristol F.2b', arch: 'gunner', shape: 'bristol', note: 'Two-seat brawler with a rear gunner’s firepower.' },
 ];
 THEMES.ww2.planes = [
   { id: 'hellcat', name: 'F6F Hellcat', arch: 'balanced', shape: 'prop', note: 'Tough, forgiving carrier fighter.' },
   { id: 'corsair', name: 'F4U Corsair', arch: 'fast', shape: 'corsair', note: 'Gull wings and a big engine. Fast, wide turns.' },
   { id: 'p38', name: 'P-38 Lightning', arch: 'gunner', shape: 'p38', note: 'Twin booms and concentrated nose guns.' },
+  { id: 'spitfire', name: 'Spitfire Mk IX', arch: 'agile', shape: 'spitfire', note: 'Elliptical wings and a famously tight turn.' },
+  { id: 'mustang', name: 'P-51D Mustang', arch: 'fast', shape: 'mustang', note: 'Long-range escort with a bubble canopy and speed to spare.' },
+  { id: 'fw190', name: 'Fw 190 A', arch: 'gunner', shape: 'fw190', note: 'Compact radial fighter packing heavy cannon.' },
 ];
 THEMES.modern.planes = [
   { id: 'f16', name: 'F-16', arch: 'balanced', shape: 'jet', note: 'Light, responsive multirole fighter.' },
   { id: 'f18', name: 'F/A-18', arch: 'agile', shape: 'hornet', note: 'Twin tails and a tight turning circle.' },
   { id: 'f15', name: 'F-15', arch: 'fast', shape: 'eagle', note: 'Twin engines built for raw speed.' },
+  { id: 'halberd', name: 'Halberd', arch: 'agile', shape: 'halberd', note: 'Canard delta. Snaps into turns.' },
+  { id: 'specter', name: 'Specter', arch: 'fast', shape: 'specter', note: 'Faceted stealth fighter with twin canted tails.' },
+  { id: 'nightjar', name: 'Nightjar', arch: 'gunner', shape: 'nightjar', note: 'Flying wing with an internal gun bay.' },
 ];
 THEMES.space.planes = [
   { id: 'lancer', name: 'Lancer', arch: 'balanced', shape: 'ship', note: 'Standard-issue fleet starfighter.' },
   { id: 'wraith', name: 'Wraith', arch: 'agile', shape: 'wraith', note: 'Stealth delta that turns on a dime.' },
   { id: 'bulwark', name: 'Bulwark', arch: 'gunner', shape: 'bulwark', note: 'Heavy gunship with pod-mounted cannons.' },
+  { id: 'striker', name: 'Striker', arch: 'agile', shape: 'striker', note: 'Split-wing interceptor with wingtip cannons.' },
+  { id: 'nomad', name: 'Nomad', arch: 'gunner', shape: 'nomad', note: 'Armored corvette with four engines.' },
+  { id: 'harbinger', name: 'Harbinger', arch: 'fast', shape: 'harbinger', note: 'Needle-thin dart with a warp ring.' },
 ];
 THEMES.neon.planes = [
   { id: 'vector', name: 'Vector', arch: 'balanced', shape: 'jet', note: 'Clean lines, even handling.' },
   { id: 'overdrive', name: 'Overdrive', arch: 'agile', shape: 'fwdswept', note: 'Forward-swept wings for wild turns.' },
   { id: 'pulse', name: 'Pulse', arch: 'fast', shape: 'wraith', note: 'All speed, wide arcs.' },
+  { id: 'glide', name: 'Glide', arch: 'agile', shape: 'glide', note: 'Wide swept glider that carves the grid.' },
+  { id: 'prism', name: 'Prism', arch: 'gunner', shape: 'prism', note: 'A solid triangle of firepower.' },
+  { id: 'razor', name: 'Razor', arch: 'balanced', shape: 'razor', note: 'Twin-hull racer, steady in every turn.' },
 ];
 const PLANE_INDEX = {};
 for (const tid of THEME_ORDER) THEMES[tid].planes.forEach((pl, i) => { PLANE_INDEX[pl.id] = { plane: pl, theme: tid, index: i }; });
-function currentPlane(th) { return th.planes[store.plane[th.id] || 0] || th.planes[0]; }
+function currentPlane(th) { const i = store.plane[th.id] || 0; return (planeOpen(i) && th.planes[i]) || th.planes[0]; }
+const planeIdx = th => Math.max(0, th.planes.indexOf(currentPlane(th)));
 const resolvePlane = (id, themeId) => (PLANE_INDEX[id] ? id : (THEMES[themeId] || THEMES.ww2).planes[0].id);
 const planeName = id => (PLANE_INDEX[id] ? PLANE_INDEX[id].plane.name : '');
 function favoritePlane() {
@@ -1209,6 +1280,8 @@ function unlocksAt(lv) {
   const out = TRAILS.filter(t => t.lvl === lv && lv > 1).map(t => `${t.name} contrail`);
   for (const id of THEME_ORDER) THEMES[id].liveries.forEach(L => { if (L.lvl === lv) out.push(`${L.name} livery`); });
   TITLES.forEach(t => { if (t.lvl === lv && lv > 1) out.push(`${t.name} title`); });
+  const pi = PLANE_LEVELS.indexOf(lv);
+  if (pi > 0 && lv > 0) out.unshift(`a new plane in every theater (${THEMES[theme.id].planes[pi].name}…)`);
   return out;
 }
 function nextUnlock() {
@@ -1546,6 +1619,166 @@ const CRAFT_PLAYER = {
     props: [], flames: [{ x: -22, y: 0, w: 3, len: 13 }],
   },
 };
+// Three more per theater, unlocked by pilot level.
+Object.assign(CRAFT_PLAYER, {
+  albatros: {
+    parts: [
+      part(poly([[-13, -2], [-18, -9], [-23, -7], [-23, 7], [-18, 9], [-13, 2]]), 'wing'),
+      part(poly([[1, -17], [-5, -17], [-5, 17], [1, 17]]), 'wingDk'),
+      part(ell(0, 0, 19, 4.6), 'body'),
+      part(poly([[8, -27], [0, -27], [-2, -24], [-2, 24], [0, 27], [8, 27], [9, 24], [9, -24]]), 'wing'),
+      ...pair([[5, -12], [3, -12], [-2, -16], [-1, -17]], 'accent'),
+      ...pairE(4, 21, 3, 3, 'accent'),
+      part(ell(-6, 0, 3, 2.4), 'hole'),
+      part(ell(18.5, 0, 3.4, 3.4), 'accent'),
+    ],
+    props: [{ x: 21, y: 0, len: 12 }], flames: [], tips: [4, 27],
+  },
+  nieuport: {
+    parts: [
+      part(poly([[-12, -2], [-16, -8], [-21, -7], [-21, 7], [-16, 8], [-12, 2]]), 'wing'),
+      part(poly([[-1, -15], [-6, -15], [-6, 15], [-1, 15]]), 'wingDk'),
+      part(poly([[15, -4.6], [-5, -4.8], [-19, -1.4], [-19, 1.4], [-5, 4.8], [15, 4.6]]), 'body'),
+      part(poly([[7, -22], [6, -24.5], [3, -25], [-3, -25], [-4, -23], [-4, 23], [-3, 25], [3, 25], [6, 24.5], [7, 22]]), 'wing'),
+      ...pairE(1.5, 18, 3.2, 3.2, 'accent'),
+      part(ell(-7, 0, 3, 2.4), 'hole'),
+      part(ell(15, 0, 4.8, 5), 'accent'),
+    ],
+    props: [{ x: 19.5, y: 0, len: 11 }], flames: [], tips: [1.5, 25],
+  },
+  bristol: {
+    parts: [
+      part(poly([[-17, -2.5], [-22, -11], [-28, -10], [-28, 10], [-22, 11], [-17, 2.5]]), 'wing'),
+      part(poly([[2, -27], [-8, -27], [-8, 27], [2, 27]]), 'wingDk'),
+      part(poly([[20, -5], [-6, -5.6], [-26, -1.6], [-26, 1.6], [-6, 5.6], [20, 5]]), 'body'),
+      part(poly([[9, -30], [-2, -30], [-3, -28], [-3, 28], [-2, 30], [9, 30], [10, 28], [10, -28]]), 'wing'),
+      ...pairE(3.5, 23, 3.5, 3.5, 'accent'),
+      part(ell(-3, 0, 3, 2.4), 'hole'), part(ell(-12, 0, 3, 2.4), 'hole'),
+      part(poly([[22, -4.5], [18, -5], [18, 5], [22, 4.5]]), 'accent'),
+    ],
+    props: [{ x: 23, y: 0, len: 13 }], flames: [], tips: [3.5, 30],
+  },
+  spitfire: {
+    parts: [
+      part(ell(-18, 0, 3.6, 9), 'wing'),
+      part(ell(-1, 0, 7, 27), 'wing'),
+      ...pairE(-1, 17, 3, 3, 'accent'),
+      part(ell(1, 0, 22, 4.4), 'body'),
+      part(ell(-3, 0, 4.4, 2.6), 'glass'),
+      part(ell(22, 0, 2.6, 2.6), 'accent'),
+    ],
+    props: [{ x: 24.5, y: 0, len: 12 }], flames: [], tips: [-1, 26],
+  },
+  mustang: {
+    parts: [
+      part(poly([[-13, -2.5], [-18, -9], [-23, -9], [-22, 0], [-23, 9], [-18, 9], [-13, 2.5]]), 'wing'),
+      part(poly(mirror([[8, -3], [3, -25], [-2, -26], [-5, -24], [-6, -3]])), 'wing'),
+      ...pair([[1, -9], [-4, -9], [-5, -14], [0, -14]], 'accent'),
+      part(ell(1, 0, 22, 4.8), 'body'),
+      part(ell(4, 0, 4, 2.8), 'glass'),
+      part(ell(22, 0, 3, 3), 'accent'),
+    ],
+    props: [{ x: 25, y: 0, len: 12 }], flames: [], tips: [-2, 26],
+  },
+  fw190: {
+    parts: [
+      part(poly([[-12, -2.5], [-16, -8], [-21, -8], [-20, 0], [-21, 8], [-16, 8], [-12, 2.5]]), 'wing'),
+      part(poly(mirror([[7, -3], [3, -22], [-2, -23], [-5, -21], [-6, -3]])), 'wing'),
+      ...pairE(-1, 15, 2.8, 2.8, 'accent'),
+      part(ell(0, 0, 19, 5.6), 'body'),
+      part(ell(1, 0, 4.4, 2.8), 'glass'),
+      part(ell(16, 0, 5.2, 5.6), 'accent'),
+    ],
+    props: [{ x: 21.5, y: 0, len: 12 }], flames: [], tips: [-2, 23],
+  },
+  halberd: {
+    parts: [
+      part(poly(mirror([[4, -4], [-14, -20], [-20, -20], [-18, -4]])), 'wing'),
+      ...pair([[16, -3], [11, -9], [8, -9], [10, -3]], 'wing'),
+      ...pair([[-14, -20], [-20, -20], [-19.5, -18], [-14.6, -18]], 'accent'),
+      part(poly(mirror([[28, 0], [16, -3], [0, -4.5], [-18, -4], [-21, -1.5]])), 'body'),
+      part(ell(13, 0, 4.8, 2), 'glass'),
+    ],
+    props: [], flames: [{ x: -21, y: 0, w: 3, len: 13 }], tips: [-17, 20],
+  },
+  specter: {
+    parts: [
+      part(poly(mirror([[26, 0], [10, -5], [-6, -22], [-13, -21], [-15, -9], [-20, -6], [-19, 0]])), 'body'),
+      ...pair([[-10, -6], [-18, -11], [-20, -9], [-14, -5]], 'wing'),
+      ...pair([[8, -5], [2, -7], [1, -5.5], [7, -4]], 'accent'),
+      part(ell(12, 0, 4.6, 2), 'glass'),
+    ],
+    props: [], flames: [{ x: -19, y: 2.5, w: 1.8, len: 9 }, { x: -19, y: -2.5, w: 1.8, len: 9 }], tips: [-10, 21],
+  },
+  nightjar: {
+    parts: [
+      part(poly(mirror([[17, 0], [-2, -29], [-8, -29], [-6, -21], [-12, -15], [-8, -9], [-12, -3.5], [-10, 0]])), 'wing'),
+      part(ell(3, 0, 10, 4.2), 'body'),
+      ...pair([[-2, -26], [-7, -26], [-7.4, -24], [-3, -24]], 'accent'),
+      part(ell(7, 0, 3.4, 1.8), 'glass'),
+    ],
+    props: [], flames: [{ x: -11, y: 3, w: 1.4, len: 6 }, { x: -11, y: -3, w: 1.4, len: 6 }], tips: [-5, 28],
+  },
+  striker: {
+    parts: [
+      part(poly(mirror([[2, -4], [-6, -24], [-12, -24], [-10, -4]])), 'wing'),
+      ...pair([[16, -23.5], [-9, -23.5], [-9, -21.5], [16, -21.5]], 'accent'),
+      ...pairE(-4, 6, 9, 2.6, 'wing'),
+      part(poly(mirror([[30, 0], [12, -3], [-12, -5], [-14, -2]])), 'body'),
+      part(ell(4, 0, 4, 2.2), 'glass'),
+    ],
+    props: [], flames: [{ x: -13, y: 6, w: 2, len: 9 }, { x: -13, y: -6, w: 2, len: 9 }], tips: [16, 22.5],
+  },
+  nomad: {
+    parts: [
+      ...pairE(-4, 14, 12, 4, 'wing'),
+      ...pair([[-10, -17], [-18, -22], [-20, -20], [-14, -16]], 'accent'),
+      part(poly(mirror([[22, 0], [14, -8], [-12, -10], [-20, -6], [-20, 0]])), 'body'),
+      part(ell(-2, 0, 5, 4), 'accent'),
+      part(ell(10, 0, 4, 3), 'glass'),
+    ],
+    props: [], flames: [{ x: -20, y: 3, w: 2.4, len: 10 }, { x: -20, y: -3, w: 2.4, len: 10 }, { x: -16, y: 14, w: 2, len: 7 }, { x: -16, y: -14, w: 2, len: 7 }], tips: [-4, 18],
+  },
+  harbinger: {
+    parts: [
+      part(ell(-6, 0, 4.5, 17), 'wing'),
+      part(ell(-6, 0, 2.6, 14), 'hole'),
+      ...pair([[-12, -2], [-20, -8], [-22, -6], [-16, -1.5]], 'wing'),
+      part(poly(mirror([[34, 0], [10, -2.6], [-18, -3.2], [-20, 0]])), 'body'),
+      part(ell(14, 0, 4, 1.6), 'glass'),
+    ],
+    props: [], flames: [{ x: -20, y: 0, w: 2.4, len: 12 }], tips: [-6, 17],
+  },
+  glide: {
+    parts: [
+      part(poly(mirror([[6, -3], [-4, -30], [-9, -30], [-6, -3]])), 'wing'),
+      ...pair([[-14, -2], [-19, -8], [-22, -8], [-19, -2]], 'wing'),
+      part(poly(mirror([[22, 0], [8, -2.4], [-16, -2.2], [-18, 0]])), 'body'),
+      part(ell(9, 0, 3.6, 1.6), 'glass'),
+    ],
+    props: [], flames: [{ x: -18, y: 0, w: 2, len: 10 }], tips: [-6, 30],
+  },
+  prism: {
+    parts: [
+      part(poly([[24, 0], [-16, -19], [-10, 0], [-16, 19]]), 'body'),
+      part(poly([[12, 0], [-8, -9], [-5, 0], [-8, 9]]), 'accent'),
+      part(ell(8, 0, 3.6, 2), 'glass'),
+    ],
+    props: [], flames: [{ x: -12, y: 8, w: 1.8, len: 9 }, { x: -12, y: -8, w: 1.8, len: 9 }], tips: [-15, 18],
+  },
+  razor: {
+    parts: [
+      part(poly(mirror([[8, -8], [-4, -21], [-10, -21], [-6, -8]])), 'wing'),
+      ...pairE(0, 8, 22, 3, 'body'),
+      part(poly([[6, -8], [-6, -8], [-6, 8], [6, 8]]), 'body'),
+      part(ell(4, 0, 3.4, 2), 'glass'),
+    ],
+    props: [], flames: [{ x: -22, y: 8, w: 2, len: 11 }, { x: -22, y: -8, w: 2, len: 11 }], tips: [-7, 21],
+  },
+});
+// Wingtip nav lights for the originals.
+Object.assign(CRAFT_PLAYER.biplane, { tips: CRAFT_PLAYER.biplane.tips || [3, 26] });
+for (const [k, t] of Object.entries({ triplane: [5.5, 23], spad: [2, 28], prop: [-1, 26], corsair: [-1, 26], p38: [1, 29], jet: [-11, 22], hornet: [-8, 21], eagle: [-11, 24], ship: [-6, 23], wraith: [-14, 21], bulwark: [4, 21], fwdswept: [3, 23] })) if (CRAFT_PLAYER[k] && !CRAFT_PLAYER[k].tips) CRAFT_PLAYER[k].tips = t;
 const craftFor = (th, type) => (type === 'player' ? CRAFT_PLAYER[currentPlane(th).shape] : CRAFT[th.shape][type === 'bomber' ? 'heavy' : 'light']);
 
 const colCache = new Map();
@@ -1592,8 +1825,35 @@ function drawCraft(c, craft, col, scale, o) {
     c.strokeStyle = col.glow; c.lineWidth = 5; for (const pt of craft.parts) c.stroke(pt.p);
     c.strokeStyle = col.stroke; c.lineWidth = 1.6; for (const pt of craft.parts) c.stroke(pt.p);
   } else {
+    // Each part: base colour, a soft top-lit shade, panel lines, canopy glint, then the outline.
+    const shadeG = c.createLinearGradient(0, -34, 0, 34);
+    shadeG.addColorStop(0, 'rgba(255,255,255,.2)'); shadeG.addColorStop(0.45, 'rgba(255,255,255,0)'); shadeG.addColorStop(1, 'rgba(0,0,0,.24)');
     c.lineWidth = 1.3; c.strokeStyle = col.ink;
-    for (const pt of craft.parts) { c.fillStyle = o.flash ? '#ffffff' : col[pt.f]; c.fill(pt.p); if (!pt.ns) c.stroke(pt.p); }
+    for (const pt of craft.parts) {
+      c.fillStyle = o.flash ? '#ffffff' : col[pt.f]; c.fill(pt.p);
+      if (!o.flash && !o.plain && (pt.f === 'body' || pt.f === 'wing' || pt.f === 'wingDk' || pt.f === 'glass')) {
+        c.save(); c.clip(pt.p);
+        if (pt.f === 'glass') {
+          c.fillStyle = 'rgba(255,255,255,.55)'; c.beginPath(); c.ellipse(1, -1.2, 9, 1.1, -0.15, 0, TAU); c.fill();
+        } else {
+          c.fillStyle = shadeG; c.fillRect(-40, -40, 80, 80);
+          c.strokeStyle = 'rgba(0,0,0,.16)'; c.lineWidth = 0.7; c.beginPath();
+          if (pt.f === 'body') { c.moveTo(-40, 0); c.lineTo(40, 0); c.moveTo(-6, -8); c.lineTo(-6, 8); }
+          else { for (const x of [-4, 2]) { c.moveTo(x, -40); c.lineTo(x, 40); } }
+          c.stroke();
+        }
+        c.restore();
+        c.lineWidth = 1.3; c.strokeStyle = col.ink;
+      }
+      if (!pt.ns) c.stroke(pt.p);
+    }
+  }
+  if (craft.tips && !o.flash) {
+    const [tx, ty] = craft.tips, on = !o.t || Math.sin((o.t || 0) * 6) > -0.2;
+    c.globalAlpha *= on ? 1 : 0.35;
+    c.fillStyle = '#ff3b4a'; c.beginPath(); c.arc(tx, -ty + 1.2, 1.3, 0, TAU); c.fill();
+    c.fillStyle = '#3bff8a'; c.beginPath(); c.arc(tx, ty - 1.2, 1.3, 0, TAU); c.fill();
+    c.globalAlpha /= on ? 1 : 0.35;
   }
   for (const p of craft.props) drawProp(c, p, o.spin || 0, col.ink);
   c.restore();
@@ -1637,6 +1897,7 @@ const sfx = {
   lose: () => { [392, 330, 262, 196].forEach((f, i) => tone(f, 0.24, 'triangle', 0.06, null, i * 0.15)); },
   launch: () => { noise(0.5, 0.1, 1800); tone(500, 0.4, 'sawtooth', 0.025, 1400); },
   lock: () => tone(1180, 0.07, 'square', 0.03),
+  kill: st => { const k = Math.pow(1.06, Math.min(12, st)); tone(660 * k, 0.09, 'square', 0.035); tone(990 * k, 0.16, 'square', 0.035, null, 0.07); if (st >= 3) tone(1320 * k, 0.2, 'triangle', 0.03, null, 0.15); },
   hit: () => { const t = performance.now(); if (t - (sfx._hitT || 0) < 70) return; sfx._hitT = t; tone(2200, 0.03, 'square', 0.012, 1600); },
   medal: () => { [660, 880, 1320].forEach((f, i) => tone(f, 0.2, 'triangle', 0.05, null, i * 0.1)); },
 };
@@ -3090,59 +3351,79 @@ function renderAd(id) {
 function renderHangar() {
   const list = $('themeList');
   if (!list.childElementCount) {
-    list.innerHTML = THEME_ORDER.map(id => { const th = THEMES[id]; return `
-      <button class="theme-row chamfer" role="radio" data-theme="${id}" aria-checked="false">
-        <canvas width="192" height="120"></canvas>
-        <div><b>${esc(th.name)}</b><span>${esc(th.blurb)}</span></div>
-        <div class="era">${th.era}</div>
-      </button>`; }).join('');
-    list.querySelectorAll('.theme-row').forEach(btn => btn.addEventListener('click', () => { applyTheme(btn.dataset.theme); renderHangar(); track('theme', { theme: btn.dataset.theme }); }));
+    list.innerHTML = THEME_ORDER.map(id => { const th = THEMES[id]; return `<button class="th-tab chamfer" role="radio" data-theme="${id}" aria-checked="false" title="${esc(th.name)}"><small>${th.era}</small><b>${esc(th.short)}</b></button>`; }).join('');
+    list.querySelectorAll('.th-tab').forEach(btn => btn.addEventListener('click', () => { applyTheme(btn.dataset.theme); renderHangar(); track('theme', { theme: btn.dataset.theme }); }));
   }
-  list.querySelectorAll('.theme-row').forEach(btn => {
-    btn.setAttribute('aria-checked', String(btn.dataset.theme === theme.id));
-    const id = btn.dataset.theme;
-    drawPreview(btn.querySelector('canvas'), THEMES[id], store.livery[id] || 0);
-  });
-  const cur = store.livery[theme.id] || 0;
-  let unlocked = 0;
-  $('liveryList').innerHTML = theme.liveries.map((L, i) => {
-    const open = (!L.req || store.medals[L.req]) && (!L.lvl || pilotLevel() >= L.lvl);
-    if (open) unlocked++;
-    return `<button class="livery chamfer" role="radio" data-liv="${i}" aria-checked="${i === cur}" ${open ? '' : 'disabled'}>
-      <span class="sw"><i style="background:${L.body}"></i><i style="background:${L.wing}"></i><i style="background:${L.accent}"></i></span>
-      <b>${esc(L.name)}</b><small>${open ? (i === cur ? 'Equipped' : 'Unlocked') : L.lvl ? `Reach level ${L.lvl}` : 'Earn: ' + esc(medalName(L.req))}</small>
-    </button>`;
-  }).join('');
-  $('liveryCount').textContent = `${unlocked}/${theme.liveries.length} unlocked`;
-  const curPlane = store.plane[theme.id] || 0;
-  $('planeList').innerHTML = theme.planes.map((pl, i) => {
-    const a = ARCH[pl.arch];
-    return `<button class="plane chamfer" role="radio" data-plane="${i}" aria-checked="${i === curPlane}">
-      ${avatarHTML(pl.id, cur, 'big')}
-      <b>${esc(pl.name)}</b><small>${a.label}</small>
-      <span class="bars">${statBar('Speed', a.speed)}${statBar('Turn', a.turn)}${statBar('Guns', a.fire)}</span>
-    </button>`;
+  list.querySelectorAll('.th-tab').forEach(btn => btn.setAttribute('aria-checked', String(btn.dataset.theme === theme.id)));
+  const lv = pilotLevel(), cur = store.livery[theme.id] || 0, curPlane = theme.planes.indexOf(currentPlane(theme)), pl = theme.planes[curPlane], a = ARCH[pl.arch];
+  // showcase
+  drawShowcase($('showCv'), theme, cur);
+  $('scTheme').textContent = `${theme.name} · ${theme.era}`;
+  $('scName').textContent = pl.name;
+  $('scArch').textContent = a.label;
+  $('scBars').innerHTML = `${statBar('Speed', a.speed)}${statBar('Turn', a.turn)}${statBar('Guns', a.fire)}`;
+  $('planeNote').textContent = pl.note;
+  // aircraft
+  $('planeList').innerHTML = theme.planes.map((p2, i) => {
+    const open = planeOpen(i);
+    return `<button class="pcard chamfer ${open ? '' : 'locked'}" role="radio" data-plane="${i}" aria-checked="${i === curPlane}" data-why="${esc(open ? '' : `${p2.name} unlocks at level ${PLANE_LEVELS[i]}`)}">${avatarHTML(p2.id, cur)}<span><b>${esc(p2.name)}</b><small>${open ? ARCH[p2.arch].label : `Level ${PLANE_LEVELS[i]}`}</small></span></button>`;
   }).join('');
   paintAvatars($('planeList'));
-  $('planeArch').textContent = `${theme.planes.length} to choose from`;
-  $('planeNote').textContent = theme.planes[curPlane].note;
-  $('planeList').querySelectorAll('.plane').forEach(btn => btn.addEventListener('click', () => {
+  $('planeArch').textContent = `${theme.planes.filter((_, i) => planeOpen(i)).length}/${theme.planes.length} unlocked`;
+  $('planeList').querySelectorAll('.pcard').forEach(btn => btn.addEventListener('click', () => {
+    if (btn.classList.contains('locked')) { $('planeNote').textContent = `🔒 ${btn.dataset.why}. Earn XP in any mode.`; return; }
     store.plane[theme.id] = Number(btn.dataset.plane); saveStore(); renderHangar();
     track('plane', { plane: currentPlane(theme).id });
   }));
-  $('liveryList').querySelectorAll('.livery:not(:disabled)').forEach(btn => btn.addEventListener('click', () => {
+  // liveries
+  let unlocked = 0;
+  $('liveryList').innerHTML = theme.liveries.map((L, i) => {
+    const open = (!L.req || store.medals[L.req]) && (!L.lvl || lv >= L.lvl);
+    if (open) unlocked++;
+    const why = open ? L.name : `${L.name} · ${L.lvl ? `reach level ${L.lvl}` : 'earn ' + medalName(L.req)}`;
+    return `<button class="swatch chamfer ${open ? '' : 'locked'}" role="radio" data-liv="${i}" aria-checked="${i === cur}" title="${esc(why)}" aria-label="${esc(why)}" data-why="${esc(why)}"><i style="background:${L.body}"></i><i style="background:${L.wing}"></i><i style="background:${L.accent}"></i>${open ? '' : '<span class="lock">🔒</span>'}</button>`;
+  }).join('');
+  $('liveryName').textContent = theme.liveries[cur].name;
+  $('liveryCount').textContent = `${unlocked}/${theme.liveries.length}`;
+  $('liveryList').querySelectorAll('.swatch').forEach(btn => btn.addEventListener('click', () => {
+    if (btn.classList.contains('locked')) { $('liveryName').textContent = `🔒 ${btn.dataset.why}`; return; }
     store.livery[theme.id] = Number(btn.dataset.liv); saveStore(); renderHangar();
   }));
-  const lv = pilotLevel(), curTrail = store.trail || 0;
+  // contrails
+  const curTrail = store.trail || 0;
   $('trailList').innerHTML = TRAILS.map((T, i) => {
     const open = lv >= T.lvl;
-    return `<button class="trail chamfer" role="radio" data-trail="${i}" aria-checked="${i === curTrail}" ${open ? '' : 'disabled'}><canvas width="120" height="40" aria-hidden="true"></canvas><b>${esc(T.name)}</b><small>${open ? (i === curTrail ? 'Equipped' : 'Unlocked') : `Level ${T.lvl}`}</small></button>`;
+    return `<button class="tchip chamfer ${open ? '' : 'locked'}" role="radio" data-trail="${i}" aria-checked="${i === curTrail}" title="${esc(open ? T.name : `${T.name} · level ${T.lvl}`)}" data-why="${esc(`${T.name} · reach level ${T.lvl}`)}"><canvas width="96" height="30" aria-hidden="true"></canvas><small>${open ? esc(T.name) : `Lv ${T.lvl}`}</small></button>`;
   }).join('');
-  $('trailCount').textContent = `${TRAILS.filter(T => lv >= T.lvl).length}/${TRAILS.length} unlocked`;
-  $('trailList').querySelectorAll('.trail').forEach(btn => {
+  $('trailName').textContent = TRAILS[curTrail].name;
+  $('trailCount').textContent = `${TRAILS.filter(T => lv >= T.lvl).length}/${TRAILS.length}`;
+  $('trailList').querySelectorAll('.tchip').forEach(btn => {
     drawTrailPreview(btn.querySelector('canvas'), Number(btn.dataset.trail));
-    if (!btn.disabled) btn.addEventListener('click', () => { store.trail = Number(btn.dataset.trail); saveStore(); renderHangar(); track('trail', { trail: TRAILS[store.trail].name }); });
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('locked')) { $('trailName').textContent = `🔒 ${btn.dataset.why}`; return; }
+      store.trail = Number(btn.dataset.trail); saveStore(); renderHangar(); track('trail', { trail: TRAILS[store.trail].name });
+    });
   });
+}
+// The hangar's big picture: your plane in your livery, over the theater's ground.
+function drawShowcase(cv, th, liv) {
+  const c = cv.getContext('2d'), w = cv.width, h = cv.height;
+  const f = world.features[1] || world.features[0];
+  const z = w / 360;
+  const px = f.x + f.rad * 0.8, py = f.y;
+  c.setTransform(z, 0, 0, z, w / 2 - px * z, h / 2 - py * z);
+  const v = { x0: px - w / 2 / z, x1: px + w / 2 / z, y0: py - h / 2 / z, y1: py + h / 2 / z };
+  drawGround(c, th, v, 0, world, { x: px, y: py });
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  const g = c.createLinearGradient(0, 0, w, 0); g.addColorStop(0, 'rgba(9,12,20,0)'); g.addColorStop(0.55, 'rgba(9,12,20,.1)'); g.addColorStop(1, 'rgba(9,12,20,.75)');
+  c.fillStyle = g; c.fillRect(0, 0, w, h);
+  const craft = CRAFT_PLAYER[currentPlane(th).shape], col = colorsFor(th, 'player', liv), sc = h / 92, ang = -0.62;
+  const cx = w * 0.3, cy = h * 0.52;
+  // a short contrail behind the plane
+  const pts = []; for (let i = 0; i < 22; i++) { const t = 1 - i / 21; pts.push({ x: cx - Math.cos(ang) * (sc * 22 + t * w * 0.22), y: cy - Math.sin(ang) * (sc * 22 + t * w * 0.22), a: ang, roll: false }); }
+  c.save(); drawContrail(c, pts, store.trail || 0, sc * 16, 1.5); c.restore();
+  if (th.shadows) { c.save(); c.translate(cx + sc * 5, cy + sc * 9); c.rotate(ang); drawCraft(c, craft, null, sc, { shadow: th.pal.shadow }); c.restore(); }
+  c.save(); c.translate(cx, cy); c.rotate(ang); drawCraft(c, craft, col, sc, { roll: 0.18, spin: 0.7, t: 1 }); c.restore();
 }
 function drawTrailPreview(cv, ti) {
   const c = cv.getContext('2d'), w = cv.width, h = cv.height;
@@ -3603,7 +3884,7 @@ const Coop = {
     Net.room = m;
     const mine = m.players.find(p => p.id === Net.you);
     if (mine) {
-      const want = store.plane[m.settings.theme] || 0, liv = store.livery[m.settings.theme] || 0;
+      const want = planeIdx(THEMES[m.settings.theme] || theme), liv = store.livery[m.settings.theme] || 0;
       if (mine.plane !== want || mine.livery !== liv) Net.send({ t: 'me', plane: want, livery: liv });
     }
     if (this.on) for (const id of Object.keys(this.peers)) if (!m.players.some(p => p.id === id)) delete this.peers[id];
@@ -4108,9 +4389,9 @@ function renderCoopLobby() {
   }).join('') + Array.from({ length: 4 - room.players.length }, () => '<li class="gap">Open seat · share the code</li>').join('');
   paintAvatars($('coopPlayers'));
 
-  const cur = store.plane[th.id] || 0, liv = store.livery[th.id] || 0;
+  const cur = planeIdx(th), liv = store.livery[th.id] || 0;
   $('coopTheater').textContent = th.name;
-  $('coopPlanes').innerHTML = th.planes.map((pl, i) => `<button class="plane chamfer" role="radio" data-plane="${i}" aria-checked="${i === cur}">${avatarHTML(pl.id, liv, 'big')}<b>${esc(pl.name)}</b><small>${ARCH[pl.arch].label}</small></button>`).join('');
+  $('coopPlanes').innerHTML = th.planes.map((pl, i) => planeOpen(i) ? `<button class="plane chamfer" role="radio" data-plane="${i}" aria-checked="${i === cur}">${avatarHTML(pl.id, liv, 'big')}<b>${esc(pl.name)}</b><small>${ARCH[pl.arch].label}</small></button>` : '').join('');
   paintAvatars($('coopPlanes'));
   $('coopPlanes').querySelectorAll('.plane').forEach(btn => btn.addEventListener('click', () => {
     store.plane[th.id] = Number(btn.dataset.plane); saveStore();
@@ -4210,21 +4491,24 @@ const ANet = {
   },
   send(o) { if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(o)); },
   close() {
-    if (this.ws) { this.quitting = true; try { this.ws.close(); } catch (e) { /* already closed */ } }
+    if (this.ws) {
+      this.quitting = true;
+      try { if (this.ws.readyState === 1) this.ws.send('{"t":"bye"}'); this.ws.close(); } catch (e) { /* already closed */ }
+    }
     this.ws = null;
   },
 };
 
 const Arena = {
   on: false, you: 0, info: null, roster: new Map(), others: new Map(), board: [], pickups: new Map(), missiles: [], mines: new Map(), beams: [], rBullets: [],
-  hits: {}, hv: [], feed: [], weapon: '', wpHold: 0, flags: 0, buffs: {}, killer: 0, respawnAt: 0, round: null, roundEnds: 0, phase: 'play',
+  hits: {}, hv: [], feed: [], weapon: '', wpHold: 0, flags: 0, buffs: {}, killer: 0, respawnAt: 0, round: null, roundEnds: 0, phase: 'play', marks: [],
   lock: null, cd: 0, sendT: 0, beepT: 0, refN: 0, kills: 0, deaths: 0, streak: 0, best: 0, score: 0, boardT: 0, lastEnd: null,
 
   reset(m) {
     Object.assign(this, {
       on: true, you: m.you, info: m, roster: new Map(), others: new Map(), board: [], pickups: new Map(), missiles: [], mines: new Map(), beams: [], rBullets: [],
       hits: {}, hv: [], feed: [], weapon: '', wpHold: 0, flags: 0, buffs: {}, killer: 0, respawnAt: 0, round: m.round, blimp: null, roundEnds: performance.now() + m.round.left,
-      phase: m.round.phase, lock: null, cd: 0, sendT: 0, beepT: 0, refN: 0, kills: 0, deaths: 0, streak: 0, best: 0, score: 0, boardT: 0, lastEnd: null,
+      phase: m.round.phase, reconnecting: false, marks: [], lock: null, cd: 0, sendT: 0, beepT: 0, refN: 0, kills: 0, deaths: 0, streak: 0, best: 0, score: 0, boardT: 0, lastEnd: null,
     });
   },
   nameOf(id) { const r = this.roster.get(id); return r ? r.name : 'Pilot'; },
@@ -4233,7 +4517,7 @@ const Arena = {
   // ---------- messages ----------
   onMessage(m) {
     switch (m.t) {
-      case 'welcome': startArena(m); break;
+      case 'welcome': if (m.resumed && this.on && m.you === this.you) this.resync(m); else startArena(m); break;
       case 'roster': this.setRoster(m.r); break;
       case 'w': this.onWorld(m); break;
       case 'spawn': this.onSpawn(m); break;
@@ -4250,12 +4534,40 @@ const Arena = {
       default: break;
     }
   },
-  onDisconnect() {
+  // A dropped connection reconnects to the same seat (the arena holds it for 30 seconds).
+  async onDisconnect() {
+    if (!this.on || this.reconnecting) return;
+    this.reconnecting = true;
+    const q = this.info.private ? `code=${this.info.code}` : `arena=${this.info.name}`;
+    for (let i = 0; i < 6 && this.on; i++) {
+      showHint('Connection dropped. Reconnecting…', 2500);
+      await new Promise(r => setTimeout(r, 400 + i * 900));
+      if (!this.on) break;
+      try {
+        await ANet.connect(`${q}&resume=${encodeURIComponent(this.info.token || '')}&callsign=${encodeURIComponent(store.callsign)}&device=${encodeURIComponent(deviceId())}`);
+        this.reconnecting = false;
+        showHint('Reconnected', 1500);
+        track('arena_reconnect', { tries: i + 1 });
+        return;
+      } catch (e) { /* try again */ }
+    }
+    this.reconnecting = false;
     if (!this.on) return;
     this.on = false;
     R = BASE_R;
     openMenu();
-    openArena('Lost the connection to the arena.');
+    openArena('Lost the connection to the arena. Check your connection and jump back in.');
+  },
+  // After a reconnect the arena sends a fresh welcome; keep the flight going instead of restarting it.
+  resync(m) {
+    this.info = Object.assign({}, this.info, m);
+    this.setRoster(m.roster);
+    this.pickups.clear(); for (const [id, x, y, k] of m.pk) this.pickups.set(id, { id, x, y, k, t: 0 });
+    this.mines.clear(); for (const [id, x, y, o] of m.mines) this.mines.set(id, { id, x, y, o, t: 0 });
+    this.missiles = []; this.hits = {}; this.hv = [];
+    if (m.round.n !== this.round.n) this.onRound({ ...m.round });
+    this.round = m.round; this.phase = m.round.phase; this.roundEnds = performance.now() + m.round.left;
+    player.dead = true;
   },
   setRoster(r) {
     const ids = new Set();
@@ -4339,11 +4651,11 @@ const Arena = {
       this.kills++; this.streak = m.st; this.best = Math.max(this.best, m.st); this.score += m.pts;
       progress('kills', 1); progress('arenaKills', 1); progress('streak', m.st, true);
       if (m.st >= 5) earnMedal('rampage');
-      if (vp) floater(vp.x, vp.y - 24, `+${fmtNum(m.pts)}`, theme.accent, 1.4);
-      if (m.vs >= 3 && vp) floater(vp.x, vp.y - 54, 'SHUT DOWN', '#ffd34f', 1.2);
-      else if (m.rv && vp) floater(vp.x, vp.y - 54, 'REVENGE', '#ff4d5e', 1.2);
-      if (STREAK_NAMES[m.st] && m.st >= 3) showBanner(`${m.st} in a row`, STREAK_NAMES[m.st], m.st >= 5 ? 'Everyone can see your streak' : '');
-      else if (STREAK_NAMES[m.st] && vp) floater(vp.x, vp.y - 54, STREAK_NAMES[m.st].toUpperCase(), '#ffffff', 1.1);
+      if (vp) { floater(vp.x, vp.y - 24, `+${fmtNum(m.pts)}`, theme.accent, 1); this.marks.push({ x: vp.x, y: vp.y, t: 0, kill: true }); }
+      const tag = m.vs >= 3 ? 'SHUT DOWN' : m.rv ? 'REVENGE' : STREAK_NAMES[m.st] ? STREAK_NAMES[m.st].toUpperCase() : '';
+      killPop(victim, m.st, tag, m.pts);
+      sfx.kill(m.st);
+      const sp = $('scorePanel'); sp.classList.remove('bump'); void sp.offsetWidth; sp.classList.add('bump');
       vibrate(30);
     }
   },
@@ -4405,7 +4717,7 @@ const Arena = {
     player = makePlayer(hp); player.baseSp = player.sp; player.baseFi = player.fi; player.dead = true;
     this.missiles = []; this.mines.clear(); this.pickups.clear(); this.beams = []; this.rBullets = []; this.feed = [];
     this.kills = 0; this.deaths = 0; this.streak = 0; this.best = 0; this.score = 0; run.score = 0; run.shownScore = 0; run.theme = theme.id; run.plane = currentPlane(theme).id;
-    ANet.send({ t: 'me', plane: store.plane[theme.id] || 0, livery: store.livery[theme.id] || 0 });
+    ANet.send({ t: 'me', plane: planeIdx(theme), livery: store.livery[theme.id] || 0 });
     showBanner(`Round ${m.n}`, theme.name, 'New theater · scores reset');
     sfx.wave();
   },
@@ -4473,6 +4785,7 @@ const Arena = {
           if (o.fl & 64) break; // rolling: the bullet passes through
           this.hits[o.id] = (this.hits[o.id] || 0) + 1;
           o.flash = 0.07; sfx.hit();
+          if (this.marks.length < 30) this.marks.push({ x: b.x, y: b.y, t: 0 });
           for (let k = 0; k < 3; k++) puff(b.x, b.y, rand(-90, 90), rand(-90, 90), rand(2, 3.5), 4, 0.18, theme.fx[0], 'fire');
           pBullets.splice(i, 1);
           break;
@@ -4668,6 +4981,19 @@ const Arena = {
       c.fillStyle = f > 0.5 ? '#38d98a' : f > 0.25 ? '#ffc53d' : '#ff4d5e'; c.fillRect(-w / 2, 10, w * f, 4);
       c.restore();
     }
+    // hit markers and kill confirms
+    for (let i = this.marks.length - 1; i >= 0; i--) {
+      const mk = this.marks[i];
+      mk.t += 1 / 60;
+      const dur = mk.kill ? 0.45 : 0.14;
+      if (mk.t > dur) { this.marks.splice(i, 1); continue; }
+      const f = mk.t / dur, sz = (mk.kill ? 16 + 14 * f : 6) / zoom;
+      c.strokeStyle = mk.kill ? `rgba(255,77,94,${1 - f})` : `rgba(255,255,255,${0.9 * (1 - f)})`;
+      c.lineWidth = (mk.kill ? 4 : 2) / zoom; c.lineCap = 'round';
+      c.beginPath(); c.moveTo(mk.x - sz, mk.y - sz); c.lineTo(mk.x - sz * 0.4, mk.y - sz * 0.4); c.moveTo(mk.x + sz, mk.y - sz); c.lineTo(mk.x + sz * 0.4, mk.y - sz * 0.4);
+      c.moveTo(mk.x - sz, mk.y + sz); c.lineTo(mk.x - sz * 0.4, mk.y + sz * 0.4); c.moveTo(mk.x + sz, mk.y + sz); c.lineTo(mk.x + sz * 0.4, mk.y + sz * 0.4); c.stroke();
+      if (mk.kill) { c.beginPath(); c.arc(mk.x, mk.y, (20 + 60 * f) / zoom, 0, TAU); c.lineWidth = 2 / zoom; c.stroke(); }
+    }
     // my shield and afterburner
     if (!player.dead) {
       if (this.flags & 2) { c.strokeStyle = 'rgba(143,214,234,.8)'; c.lineWidth = 2.5; c.beginPath(); c.arc(player.x, player.y, 30 + Math.sin(time * 8) * 1.5, 0, TAU); c.stroke(); c.fillStyle = 'rgba(143,214,234,.12)'; c.fill(); }
@@ -4752,6 +5078,14 @@ const Arena = {
   },
 };
 
+// The compact kill ribbon: who you got, your streak, the points.
+let killPopT = null;
+function killPop(victim, st, tag, pts) {
+  const el = $('killPop');
+  el.innerHTML = `<span class="kp-k">Eliminated</span><b>${esc(victim)}</b><span class="kp-pts">+${fmtNum(pts)}</span>${st >= 2 || tag ? `<em class="${st >= 5 ? 'hot' : ''}">${st >= 2 ? `×${st} ` : ''}${esc(tag)}</em>` : ''}`;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  clearTimeout(killPopT); killPopT = setTimeout(() => el.classList.remove('show'), 1500);
+}
 function arenaFire(dt, spread) {
   const p = player;
   p.fireT -= dt;
@@ -4807,7 +5141,7 @@ function startArena(m) {
   Arena.setRoster(m.roster);
   for (const [id, x, y, k] of m.pk) Arena.pickups.set(id, { id, x, y, k, t: 0 });
   for (const [id, x, y, o] of m.mines) Arena.mines.set(id, { id, x, y, o, t: 0 });
-  ANet.send({ t: 'hello', name: store.callsign, plane: store.plane[theme.id] || 0, livery: store.livery[theme.id] || 0, trail: store.trail || 0, title: store.title || 0 });
+  ANet.send({ t: 'hello', name: store.callsign, plane: planeIdx(theme), livery: store.livery[theme.id] || 0, trail: store.trail || 0, title: store.title || 0 });
   hide('arena'); hideAllOverlays(); show('hud');
   $('waveLabel').classList.add('hidden'); $('pips').classList.add('hidden'); $('zenLabel').classList.add('hidden');
   setArenaHud(true);
@@ -4924,6 +5258,8 @@ function initArenaUi() {
   $('arenaInvite').addEventListener('click', e => doShare(`Fly against me in Super Sortie! Arena ${Arena.info.code}\n${arenaInvite()}`, e.currentTarget));
   refreshArenaOnline();
   setInterval(() => { if (state === 'menu') refreshArenaOnline(); }, 30000);
+  // A hidden tab stops drawing frames, so keep the seat with a heartbeat.
+  setInterval(() => { if (Arena.on && document.hidden) ANet.send({ t: 'ka' }); }, 5000);
 }
 
 /* =====================================================================

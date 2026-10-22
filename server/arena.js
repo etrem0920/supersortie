@@ -27,10 +27,17 @@ export const RESPAWN_MS = 2500;
 export const SPAWN_SHIELD_MS = 2000;
 export const MAX_HP = 10;
 const TICK_MS = 100;
+const AWAY_MS = 30000;   // a dropped connection keeps its seat this long, so the pilot can reconnect
+const IDLE_MS = 45000;   // no word from a connected pilot for this long and they're removed
 const BOT_FLOOR = 8; // public arenas top up to this many pilots with AI pilots
 const THEMES = ['ww2', 'ww1', 'modern', 'space', 'neon'];
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
-const PLANE_IDS = { ww1: ['camel', 'dr1', 'spad'], ww2: ['hellcat', 'corsair', 'p38'], modern: ['f16', 'f18', 'f15'], space: ['lancer', 'wraith', 'bulwark'], neon: ['vector', 'overdrive', 'pulse'] };
+const PLANE_IDS = {
+  ww1: ['camel', 'dr1', 'spad', 'albatros', 'nieuport', 'bristol'], ww2: ['hellcat', 'corsair', 'p38', 'spitfire', 'mustang', 'fw190'],
+  modern: ['f16', 'f18', 'f15', 'halberd', 'specter', 'nightjar'], space: ['lancer', 'wraith', 'bulwark', 'striker', 'nomad', 'harbinger'],
+  neon: ['vector', 'overdrive', 'pulse', 'glide', 'prism', 'razor'],
+};
+export const PLANES_PER_THEATER = 6;
 const REVENGE_BONUS = 75;
 // Cosmetic choices the game offers (liveries per theater, contrails, titles); see game.html.
 export const LIVERIES = 5, TRAILS = 9, TITLES = 12;
@@ -111,10 +118,12 @@ export class ArenaRoom {
   }
   get theme() { return THEMES[this.s.round.themeIdx]; }
   humans() { return [...this.s.pilots.values()].filter(p => !p.bot); }
+  connected() { return this.humans().filter(p => !p.away); }
   addPilot(id, info, ws) {
     const p = {
-      id, name: cleanName(info.name), plane: small(info.plane, 2), livery: small(info.livery, LIVERIES - 1), trail: small(info.trail, TRAILS - 1), title: small(info.title, TITLES - 1), bot: !!info.bot, ws: ws || null,
+      id, name: cleanName(info.name), plane: small(info.plane, PLANES_PER_THEATER - 1), livery: small(info.livery, LIVERIES - 1), trail: small(info.trail, TRAILS - 1), title: small(info.title, TITLES - 1), bot: !!info.bot, ws: ws || null,
       device: /^[A-Za-z0-9-]{8,64}$/.test(info.device || '') ? info.device : null, lastKiller: 0,
+      token: info.token || null, away: false, awayAt: 0, bye: false,
       x: 0, y: 0, a: 0, r: 0, rl: false, hp: MAX_HP, alive: false, respawnAt: Date.now() + 300, protUntil: 0,
       kills: 0, deaths: 0, score: 0, streak: 0, best: 0,
       weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, shieldUntil: 0, cloakUntil: 0, ddUntil: 0,
@@ -155,13 +164,28 @@ export class ArenaRoom {
         s = await this.load(name, { private: true, theme, bots: url.searchParams.get('bots') !== '0' });
       } else if (!s || !this.humans().length) return this.reject('no_room');
     } else if (!s) s = await this.load(name, { private: false });
+
+    // Reconnecting after a dropped connection: same seat, same score.
+    const resume = url.searchParams.get('resume');
+    const back = resume && [...s.pilots.values()].find(p => p.away && p.token === resume);
+    if (back) {
+      const pair = new WebSocketPair();
+      const [client, server] = Object.values(pair);
+      this.ctx.acceptWebSocket(server);
+      server.serializeAttachment({ id: back.id, name: back.name, plane: back.plane, livery: back.livery, trail: back.trail, title: back.title, device: back.device || '', token: back.token });
+      back.ws = server; back.away = false; back.lastP = Date.now(); back.respawnAt = Date.now() + 600;
+      server.send(JSON.stringify({ ...this.welcome(back), resumed: true }));
+      this.sendRoster();
+      this.startTicking();
+      return new Response(null, { status: 101, webSocket: client });
+    }
     if (this.humans().length >= ARENA_MAX) return this.reject('full');
 
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair);
     const id = s.nextId++;
     this.ctx.acceptWebSocket(server);
-    const info = { id, name: url.searchParams.get('callsign') || 'Pilot', plane: 0, livery: 0, device: url.searchParams.get('device') || '' };
+    const info = { id, name: url.searchParams.get('callsign') || 'Pilot', plane: 0, livery: 0, device: url.searchParams.get('device') || '', token: crypto.randomUUID() };
     server.serializeAttachment(info);
     const p = this.addPilot(id, info, server);
     await this.ctx.storage.deleteAlarm();
@@ -176,7 +200,7 @@ export class ArenaRoom {
   welcome(p) {
     const s = this.s, now = Date.now();
     return {
-      t: 'welcome', you: p.id, R: ARENA_R, max: ARENA_MAX, hp: MAX_HP, name: s.cfg.name, private: s.cfg.private,
+      t: 'welcome', you: p.id, token: p.token, R: ARENA_R, max: ARENA_MAX, hp: MAX_HP, name: s.cfg.name, private: s.cfg.private,
       code: s.cfg.private ? s.cfg.name.slice(4) : null,
       round: this.roundInfo(now), roster: this.roster(),
       pk: [...s.pickups.values()].map(k => [k.id, Math.round(k.x), Math.round(k.y), k.k]),
@@ -210,15 +234,18 @@ export class ArenaRoom {
     const p = this.pilotFor(ws);
     if (!p) return;
     const now = Date.now();
+    if (!this.timer) this.startTicking(); // the object may have restarted under us
     switch (m.t) {
+      case 'ka': p.lastP = now; break;
+      case 'bye': p.bye = true; break;
       case 'hello':
       case 'me': {
         if ('name' in m) p.name = cleanName(m.name);
-        if ('plane' in m) p.plane = small(m.plane, 2);
+        if ('plane' in m) p.plane = small(m.plane, PLANES_PER_THEATER - 1);
         if ('livery' in m) p.livery = small(m.livery, LIVERIES - 1);
         if ('trail' in m) p.trail = small(m.trail, TRAILS - 1);
         if ('title' in m) p.title = small(m.title, TITLES - 1);
-        ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, trail: p.trail, title: p.title, device: p.device || '' });
+        ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, trail: p.trail, title: p.title, device: p.device || '', token: p.token });
         this.sendRoster();
         break;
       }
@@ -245,11 +272,14 @@ export class ArenaRoom {
     try { ws.close(1000, 'bye'); } catch (e) { /* already closed */ }
     if (!this.s) return;
     const p = this.pilotFor(ws);
-    if (p && p.ws === ws) this.s.pilots.delete(p.id);
+    if (p && p.ws === ws) {
+      if (p.bye || !p.token) this.s.pilots.delete(p.id);
+      else { p.ws = null; p.away = true; p.awayAt = Date.now(); p.alive = false; p.respawnAt = Infinity; }
+    }
     this.balanceBots();
     this.sendRoster();
     this.report();
-    if (!this.humans().length) {
+    if (!this.connected().length) {
       this.stopTicking();
       if (this.s.cfg.private) await this.ctx.storage.setAlarm(Date.now() + 10 * 60 * 1000);
     }
@@ -275,7 +305,7 @@ export class ArenaRoom {
     for (let i = bots.length; i < want; i++) {
       const used = new Set([...s.pilots.values()].map(p => p.name));
       const name = BOT_NAMES.find(n => !used.has(n)) || `Bot ${s.nextId}`;
-      this.addPilot(s.nextId++, { name, plane: Math.floor(Math.random() * 3), livery: Math.floor(Math.random() * 3), trail: Math.floor(Math.random() * 4), bot: true });
+      this.addPilot(s.nextId++, { name, plane: Math.floor(Math.random() * PLANES_PER_THEATER), livery: Math.floor(Math.random() * 3), trail: Math.floor(Math.random() * 4), bot: true });
     }
     // Retire the weakest bots first so a newcomer doesn't shuffle the leaderboard.
     bots.sort((a, b) => a.score - b.score);
@@ -300,7 +330,8 @@ export class ArenaRoom {
     for (const p of s.pilots.values()) {
       if (!p.alive && now >= p.respawnAt) this.spawn(p, now);
       if (p.shield > 0 && now > p.shieldUntil) p.shield = 0;
-      if (!p.bot && now - p.lastP > 25000 && p.ws) { try { p.ws.close(4001, 'idle'); } catch (e) { /* gone */ } }
+      if (!p.bot && !p.away && now - p.lastP > IDLE_MS && p.ws) { p.bye = true; try { p.ws.close(4001, 'idle'); } catch (e) { /* gone */ } }
+      if (p.away && now - p.awayAt > AWAY_MS) { s.pilots.delete(p.id); this.balanceBots(); this.sendRoster(); this.report(); }
     }
     this.botTick(0.1, now);
     this.blimpTick(0.1, now);
