@@ -87,6 +87,7 @@
   .eyebrow .sep { width: 28px; height: 2px; background: currentColor; opacity: .6; }
   .title { margin: 0; font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: clamp(64px, 8vw, 116px); line-height: .82; letter-spacing: -.005em; }
   .title em { font-style: normal; color: transparent; -webkit-text-stroke: 2px var(--text); }
+  .title span, .title em { display: block; }
   .lede { margin: 0; max-width: 34em; color: #c3c9d6; font-size: 18px; line-height: 1.5; }
   .brief { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); max-width: 680px; --cut: 14px; }
   .brief-item { background: rgba(14, 18, 30, .92); padding: 14px 16px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
@@ -118,6 +119,9 @@
   .mode b { font-family: var(--font-display); font-weight: 800; font-size: 22px; text-transform: uppercase; letter-spacing: .03em; line-height: 1; }
   .mode small { color: var(--muted); font-size: 12px; line-height: 1.3; }
   .mode .live { color: var(--good); }
+  .mode { position: relative; }
+  .mode svg { position: absolute; right: 10px; top: 10px; width: 22px; height: 22px; color: var(--accent); opacity: .85; }
+  .mode:hover svg { opacity: 1; }
   .mode:hover { background: var(--raise-2); box-shadow: inset 0 0 0 1px var(--accent); }
   .done { display: flex; flex-direction: column; gap: 14px; max-width: 680px; background: rgba(14, 18, 30, .92); box-shadow: inset 0 0 0 1px var(--line-strong); padding: 18px; --cut: 16px; }
   .done-score { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
@@ -130,12 +134,26 @@
     #menu > header, #menu > main, #menu > footer { width: 100%; }
     #menu .tab-body > * { flex-shrink: 0; }
     #menu .hero > * { flex-shrink: 0; }
-    #menu .title { font-size: min(8vw, 13vh); }
+    /* The title spans the whole column: one line on shorter screens, stacked when there's room. */
+    #menu .hero { container-type: inline-size; gap: 16px; }
+    #menu .title { font-size: calc(100cqw / 5.02); white-space: nowrap; line-height: .86; }
+    #menu .title span, #menu .title em { display: inline; }
+    #menu .title em { -webkit-text-stroke-width: max(2px, .018em); }
+    #menu .lede { font-size: 17px; }
+    #menu .today, #menu .modes, #menu .you-strip { max-width: none; }
+    #menu .today { box-shadow: inset 0 0 0 1px var(--line-strong), 0 0 0 1px rgba(255, 140, 60, .25), 0 18px 50px rgba(0, 0, 0, .35); }
     #menu .landing { flex: 1; min-height: 0; padding-block: 12px 12px; align-items: stretch; }
     #menu .hero { overflow-y: auto; padding-right: 6px; scrollbar-width: thin; }
     #menu .panel { min-height: 0; max-height: 100%; }
     #menu .tab-body { overflow-y: auto; flex: 1; min-height: 0; scrollbar-width: thin; }
     #menu .foot { padding-block: 0 10px; }
+  }
+  @media (min-width: 961px) and (min-height: 640px) and (max-height: 780px) {
+    #menu .lede { display: none; }
+  }
+  @media (min-width: 961px) and (min-height: 960px) {
+    #menu .title { font-size: min(calc(100cqw / 2.5), calc((100vh - 650px) / 1.64)); white-space: normal; line-height: .82; }
+    #menu .title span, #menu .title em { display: block; }
   }
   .bottom-nav { display: none; }
   @media (max-width: 960px) {
@@ -223,7 +241,8 @@
   .chip b { display: block; font-family: var(--font-display); font-weight: 800; font-size: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
   .chip small { display: block; margin-top: 4px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; font-size: 11px; color: var(--muted); }
   .ace-log { display: flex; flex-wrap: wrap; gap: 6px; }
-  .ace-tag { display: inline-flex; align-items: baseline; gap: 6px; background: var(--raise); padding: 6px 10px; --cut: 6px; }
+  .ace-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--raise); padding: 4px 10px 4px 4px; --cut: 6px; }
+  .ace-tag canvas { width: 28px; height: 28px; flex: none; }
   .ace-tag b { font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: 14px; color: #ffd34f; }
   .ace-tag small { color: var(--dim); font-size: 12px; }
   .ace-more { color: var(--muted); font-size: 13px; align-self: center; }
@@ -441,12 +460,21 @@
   .btn .new { font-family: var(--font-cond); font-weight: 700; font-size: 11px; letter-spacing: .12em; background: var(--accent); color: var(--accent-ink); padding: 2px 6px; margin-left: 8px; vertical-align: 2px; }
   .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); margin-bottom: 12px; }
   .seg button { border: 0; background: var(--raise); color: var(--muted); font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; font-size: 13px; padding: 10px 6px; cursor: pointer; }
+  .seg-sm { margin-bottom: 8px; }
+  .seg-sm button { padding: 7px 6px; font-size: 12px; }
   .seg button[aria-selected="true"] { background: var(--raise-2); color: var(--text); box-shadow: inset 0 -2px 0 var(--accent); }
   .arena-pitch { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); margin-bottom: 4px; }
   .arena-pitch div { background: var(--raise); padding: 10px 8px; text-align: center; }
   .arena-pitch b { display: block; font-family: var(--font-display); font-weight: 900; font-size: 28px; line-height: 1; color: var(--accent); }
   .arena-pitch small { color: var(--muted); font-size: 12px; line-height: 1.25; display: block; margin-top: 4px; }
   .arena-online { text-align: center; color: var(--good); font-family: var(--font-cond); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 13px; min-height: 18px; }
+  .arena-list { display: flex; flex-direction: column; gap: 1px; background: var(--line); max-height: 230px; overflow-y: auto; }
+  .arena-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; background: var(--raise); padding: 9px 12px; }
+  .arena-row b { font-family: var(--font-display); font-weight: 800; font-size: 18px; text-transform: uppercase; letter-spacing: .02em; }
+  .arena-row b i { font-style: normal; color: var(--accent); font-size: 13px; margin-left: 6px; font-family: var(--font-cond); letter-spacing: .08em; }
+  .arena-row small { display: block; color: var(--muted); font-size: 12px; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .arena-row .live { color: var(--good); }
+  .arena-empty { background: var(--raise); padding: 12px; color: var(--muted); font-size: 13px; line-height: 1.45; }
   .pu-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
   .pu { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); min-width: 0; }
   .pu b { flex: none; width: 24px; height: 24px; display: grid; place-items: center; background: var(--c); color: #0b0d14; border-radius: 50%; }
@@ -468,6 +496,7 @@
   .killfeed div.me { box-shadow: inset 0 0 0 1px var(--accent); }
   .killfeed i { font-style: normal; font-size: 10px; letter-spacing: .1em; color: var(--accent); }
   .killfeed em { font-style: normal; color: #ffd34f; }
+  .killfeed div.tier em { color: #ffb02e; letter-spacing: .1em; }
   @keyframes feedin { from { opacity: 0; transform: translateX(12px); } }
   .kill-pop { position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 74px); transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(9, 12, 20, .8); box-shadow: inset 0 0 0 1px rgba(255, 77, 94, .7); font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; opacity: 0; pointer-events: none; }
   .kill-pop.show { animation: kpop 1.5s cubic-bezier(.2, 1.5, .4, 1) both; }
@@ -480,6 +509,20 @@
   .score-panel.bump { animation: sbump .35s ease; }
   @keyframes sbump { 40% { transform: scale(1.18); color: var(--accent); } }
   @media (max-width: 600px) { .kill-pop { top: calc(env(safe-area-inset-top, 0px) + 118px); } .kill-pop b { font-size: 15px; } }
+  .streak-box { position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 114px); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 3px; pointer-events: none; --tc: #7cf2ff; }
+  .streak-meter { display: flex; align-items: center; gap: 4px; font-family: var(--font-cond); font-weight: 700; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255, 255, 255, .72); text-shadow: 0 1px 2px rgba(0, 0, 0, .6); transition: opacity .3s; }
+  .streak-meter:empty { opacity: 0; }
+  .streak-meter i { width: 9px; height: 4px; background: rgba(255, 255, 255, .22); transform: skewX(-20deg); }
+  .streak-meter i.on { background: var(--tc); box-shadow: 0 0 6px var(--tc); }
+  .streak-meter b { color: var(--tc); margin-right: 3px; }
+  .streak-tier { opacity: 0; font-family: var(--font-display); font-weight: 900; font-size: 28px; line-height: 1; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap;
+    background: linear-gradient(100deg, var(--tc) 0%, var(--tc) 40%, #fff 50%, var(--tc) 60%, var(--tc) 100%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--tc) 60%, transparent)) drop-shadow(0 2px 0 rgba(0, 0, 0, .5)); }
+  .streak-tier small { display: block; text-align: center; font-family: var(--font-cond); font-size: 11px; letter-spacing: .2em; margin-top: 2px; }
+  .streak-tier.show { animation: tierIn 2s cubic-bezier(.2, 1.4, .4, 1) both, tierShine 1.1s .15s ease-out both; }
+  @keyframes tierIn { 0% { opacity: 0; transform: scale(1.9) skewX(-10deg); } 12% { opacity: 1; transform: scale(1) skewX(-10deg); } 82% { opacity: 1; transform: skewX(-10deg); } 100% { opacity: 0; transform: translateY(-8px) skewX(-10deg); } }
+  @keyframes tierShine { from { background-position: 100% 0; } to { background-position: 0 0; } }
+  @media (max-width: 600px) { .streak-box { top: calc(env(safe-area-inset-top, 0px) + 156px); } .streak-tier { font-size: 22px; } }
   .weapon-chip { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(76px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 140px); }
   .wchip { display: flex; align-items: center; gap: 8px; background: rgba(9, 12, 20, .82); box-shadow: inset 0 0 0 1px var(--c); padding: 5px 10px 5px 6px; font-family: var(--font-cond); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
   .wchip b { width: 20px; height: 20px; display: grid; place-items: center; background: var(--c); color: #0b0d14; border-radius: 50%; }
@@ -608,6 +651,7 @@
     .hero { gap: 18px; }
     .lede { font-size: 16px; }
     .topnav .nav-hide { display: none; }
+    #fsBtn { display: none; }
     .res-grid { grid-template-columns: minmax(0, 1fr); }
     .res-score b { font-size: 68px; }
     .tiles.big .tile { width: 50px; height: 58px; }
@@ -685,6 +729,7 @@
   <div id="hint" class="hint chamfer"></div>
   <div id="weaponChip" class="weapon-chip hidden"></div>
   <div id="killPop" class="kill-pop" aria-live="polite"></div>
+  <div id="streakBox" class="streak-box hidden"><div id="streakTier" class="streak-tier"></div><div id="streakMeter" class="streak-meter"></div></div>
   <div id="respawnBox" class="respawn hidden"><b id="rbBy">Shot down</b><span id="rbTime"></span><small id="rbSub"></small></div>
   <div id="arenaEnd" class="arena-end chamfer hidden">
     <span id="aeKicker" class="eyebrow-s"></span>
@@ -717,13 +762,14 @@
       <button id="howBtn" class="link-btn">How to play</button>
       <button id="boardNav" class="link-btn nav-hide">Leaderboard</button>
       <button id="soundBtn" class="link-btn">Sound on</button>
+      <button id="fsBtn" class="link-btn hidden">Fullscreen</button>
     </nav>
   </header>
 
   <main class="wrap landing">
     <section class="hero">
       <div class="eyebrow"><span id="sortieNo">Sortie #1</span><span class="sep"></span><span id="sortieDate">Today</span></div>
-      <h1 class="title">Super<br><em>Sortie</em></h1>
+      <h1 class="title"><span>Super</span> <em>Sortie</em></h1>
       <p class="lede">One new dogfight every day, the same for every pilot on Earth. Five waves, one ace, one shot at the top of the board.</p>
 
       <div class="today chamfer">
@@ -752,10 +798,10 @@
       <div class="modes">
         <div class="section-label"><span>More ways to fly</span></div>
         <div class="mode-grid">
-          <button id="arenaBtn" class="mode chamfer"><b>Arena</b><small id="arenaOnline">12-pilot free-for-all</small></button>
-          <button id="coopBtn" class="mode chamfer"><b>Co-op</b><small>Team up with 3 friends</small></button>
-          <button id="zenBtn" class="mode chamfer"><b>Zen</b><small>Endless, no pressure</small></button>
-          <button id="practiceBtn" class="mode chamfer"><b>Practice</b><small>Warm up, unlimited</small></button>
+          <button id="arenaBtn" class="mode chamfer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></svg><b>Arena</b><small id="arenaOnline">12-pilot free-for-all</small></button>
+          <button id="coopBtn" class="mode chamfer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 3l1.2 3.5v2l4.8 2.7v1.3l-4.8-1.3-.3 2.8 1.7 1.3v1l-2.6-.7-2.6.7v-1l1.7-1.3-.3-2.8L1 12.5v-1.3l4.8-2.7v-2zM17 8l1.2 3.5v2l4.8 2.7v1.3l-4.8-1.3-.3 2.8 1.7 1.3v1l-2.6-.7-2.6.7v-1l1.7-1.3-.3-2.8-4.8 1.3v-1.3l4.8-2.7v-2z"/></svg><b>Co-op</b><small>Team up with 3 friends</small></button>
+          <button id="zenBtn" class="mode chamfer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 12c-2-3-4-4.5-6-4.5a4.5 4.5 0 0 0 0 9c2 0 4-1.5 6-4.5zm0 0c2 3 4 4.5 6 4.5a4.5 4.5 0 0 0 0-9c-2 0-4 1.5-6 4.5z"/></svg><b>Zen</b><small>Endless, no pressure</small></button>
+          <button id="practiceBtn" class="mode chamfer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".8" fill="currentColor"/></svg><b>Practice</b><small>Warm up, unlimited</small></button>
         </div>
       </div>
     </section>
@@ -913,6 +959,8 @@
       <div class="field"><label for="arenaName">Your callsign</label><input id="arenaName" maxlength="16" autocomplete="off" spellcheck="false"></div>
       <button id="arenaQuick" class="btn btn-primary btn-block btn-xl">Quick play</button>
       <div id="arenaOnlineLine" class="arena-online"></div>
+      <div class="section-label"><span>Live arenas</span><span id="arenaListNote">Pick one to join</span></div>
+      <div id="arenaList" class="arena-list"></div>
       <div class="section-label"><span>Power-ups</span><span>Fly through them · weapons fire themselves</span></div>
       <div id="puList" class="pu-list"></div>
       <div class="section-label"><span>Private arena</span><span>Just you and your friends</span></div>
@@ -936,6 +984,7 @@
     <div class="cta">
       <button id="pauseHow" class="btn btn-ghost btn-small">How to fly</button>
       <button id="pauseSound" class="btn btn-ghost btn-small">Sound on</button>
+      <button id="pauseFs" class="btn btn-ghost btn-small hidden">Fullscreen</button>
       <button id="arenaInvite" class="btn btn-ghost btn-small hidden">Copy invite</button>
     </div>
     <button id="quitBtn" class="link-btn">Abandon sortie</button>
@@ -1162,7 +1211,7 @@ function buildWorld(seedStr) {
   });
 
   return {
-    seed: seedStr, mod, ace, features, clouds, lines, waves,
+    seed: seedStr, mod, ace, features, clouds, lines, waves, aceKey: seedStr === dailySeed() ? todayNum : seedStr,
     wind: { x: Math.cos(windA) * (mod.wind || 0), y: Math.sin(windA) * (mod.wind || 0) },
   };
 }
@@ -1893,6 +1942,50 @@ function colorsFor(th, type, liv) {
   return c;
 }
 
+// Every day's ace flies its own paint scheme, picked from the day, so the logbook is a
+// collection: no two neighbouring days look the same.
+const ACE_PALETTES = [
+  ['#b3122e', '#d81b3c', '#ffd34f'], ['#1c1c22', '#2e2e38', '#e8b931'], ['#e9eef5', '#c9d6e6', '#1f5fbf'], ['#3f5a2a', '#58783a', '#f2e14c'],
+  ['#3b1f78', '#5a2fb3', '#ffcf4a'], ['#223010', '#8fd61c', '#111111'], ['#d4541a', '#f08a24', '#2a1208'], ['#4f5b66', '#8796a3', '#d81b3c'],
+  ['#0f6b6b', '#13a3a3', '#ffe7a3'], ['#c2185b', '#f06292', '#fff1f6'], ['#b89a5e', '#d6bd84', '#5b3a1a'], ['#101a3a', '#1f3370', '#7cf2ff'],
+];
+const ACE_PATTERNS = ['stripes', 'checker', 'band', 'tips', 'nose', 'chevron'];
+function aceLook(key) {
+  let h = 2166136261; const str = String(key);
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  h = Math.imul(h ^ (h >>> 13), 0x5bd1e995) >>> 0;
+  return { pal: ACE_PALETTES[h % ACE_PALETTES.length], pat: ACE_PATTERNS[(h >>> 8) % ACE_PATTERNS.length] };
+}
+function aceColors(th, key) {
+  const ck = `${th.id}|ace|${key}`;
+  let c = colCache.get(ck);
+  if (c) return c;
+  const base = colorsFor(th, 'ace'), { pal, pat } = aceLook(key);
+  const [body, wing, accent] = pal;
+  c = Object.assign({}, base, th.neon ? { glow: rgba(accent === '#111111' ? wing : accent, 0.35), stroke: accent === '#111111' ? wing : accent } : { body, wing, wingDk: shade(wing, -0.3), accent, glow: rgba(wing, 0.28), stroke: wing, pat, pat2: accent });
+  colCache.set(ck, c);
+  return c;
+}
+function drawAcePattern(c, pt, col) {
+  c.fillStyle = col.pat2;
+  const wing = pt.f === 'wing' || pt.f === 'wingDk';
+  switch (col.pat) {
+    case 'stripes': if (wing) for (let x = -44; x < 44; x += 9) { c.beginPath(); c.moveTo(x, -44); c.lineTo(x + 3.5, -44); c.lineTo(x + 3.5 + 20, 44); c.lineTo(x + 20, 44); c.fill(); } break;
+    case 'checker': if (pt.f === 'body') for (let x = -40; x < 40; x += 4) for (let y = -40; y < 40; y += 4) if (((x + y) / 4 & 1) === 0) c.fillRect(x, y, 4, 4); break;
+    case 'band': c.fillRect(-9, -44, 5, 88); break;
+    case 'tips': if (wing) { c.fillRect(-44, -44, 88, 26); c.fillRect(-44, 18, 88, 26); } break;
+    case 'nose': if (pt.f === 'body') c.fillRect(9, -44, 40, 88); break;
+    case 'chevron': if (wing) { c.beginPath(); c.moveTo(6, 0); c.lineTo(-10, -44); c.lineTo(-16, -44); c.lineTo(0, 0); c.lineTo(-16, 44); c.lineTo(-10, 44); c.fill(); } break;
+  }
+}
+function drawAceBadge(cv, key) {
+  const th = THEMES.ww2, c = cv.getContext('2d'), w = cv.width, h = cv.height;
+  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, w, h);
+  const s = w / 64;
+  c.save(); c.translate(w / 2, h / 2 + 2 * s); c.rotate(-Math.PI / 2); drawCraft(c, craftFor(th, 'ace'), aceColors(th, key), s * 0.95, { spin: 0.6, t: 1 }); c.restore();
+}
+const aceTagHTML = (d, n) => `<span class="ace-tag chamfer"><canvas data-ace="${d}" width="56" height="56" aria-hidden="true"></canvas><b>${esc(n)}</b><small>#${d}</small></span>`;
+
 function drawFlame(c, f, t, colors) {
   if (!colors) return;
   const flick = 0.75 + 0.25 * Math.sin(t * 43 + f.y * 3);
@@ -1934,6 +2027,7 @@ function drawCraftBody(c, craft, col, o) {
         if (pt.f === 'glass') {
           c.fillStyle = 'rgba(255,255,255,.55)'; c.beginPath(); c.ellipse(1, -1.2, 9, 1.1, -0.15, 0, TAU); c.fill();
         } else {
+          if (col.pat) drawAcePattern(c, pt, col);
           c.fillStyle = shadeG; c.fillRect(-40, -40, 80, 80);
           c.strokeStyle = 'rgba(0,0,0,.16)'; c.lineWidth = 0.7; c.beginPath();
           if (pt.f === 'body') { c.moveTo(-40, 0); c.lineTo(40, 0); c.moveTo(-6, -8); c.lineTo(-6, 8); }
@@ -2031,6 +2125,19 @@ const sfx = {
   kill: st => { const k = Math.pow(1.06, Math.min(12, st)); tone(660 * k, 0.09, 'square', 0.035); tone(990 * k, 0.16, 'square', 0.035, null, 0.07); if (st >= 3) tone(1320 * k, 0.2, 'triangle', 0.03, null, 0.15); },
   hit: () => { const t = performance.now(); if (t - (sfx._hitT || 0) < 70) return; sfx._hitT = t; tone(2200, 0.03, 'square', 0.012, 1600); },
   medal: () => { [660, 880, 1320].forEach((f, i) => tone(f, 0.2, 'triangle', 0.05, null, i * 0.1)); },
+  // Streak tiers climb: each tier adds a note and a brighter top.
+  streak: tier => {
+    tone(70, 0.35, 'sine', 0.16, 40); noise(0.18, 0.08, 5000);
+    const base = 392 * Math.pow(2, Math.min(tier, 6) / 12);
+    const notes = [1, 1.25, 1.5, 2, 2.5, 3].slice(0, 3 + Math.min(3, tier));
+    notes.forEach((m, i) => tone(base * m, 0.18, i % 2 ? 'square' : 'sawtooth', 0.03, null, 0.05 + i * 0.055));
+    if (tier >= 3) tone(base * 4, 0.5, 'triangle', 0.025, base * 4.5, 0.05 + notes.length * 0.055);
+  },
+  bossHit: () => { const t = performance.now(); if (t - (sfx._bhT || 0) < 60) return; sfx._bhT = t; tone(380 + Math.random() * 60, 0.05, 'square', 0.02, 190); noise(0.04, 0.05, 4200); },
+  bossHorn: () => { tone(98, 1.1, 'sawtooth', 0.05, 82); tone(147, 1.1, 'sawtooth', 0.035, 123); tone(196, 0.6, 'square', 0.02, null, 0.5); noise(0.9, 0.05, 300); },
+  bossDown: () => { noise(1.4, 0.4, 500); tone(60, 0.9, 'sine', 0.2, 28); [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.22, 'square', 0.035, null, 0.25 + i * 0.07)); },
+  overdrive: () => { [196, 247, 294, 392, 494, 587, 784].forEach((f, i) => tone(f, 0.3, 'sawtooth', 0.03, f * 1.02, i * 0.045)); tone(55, 0.8, 'sine', 0.18, 110); },
+  shock: () => { tone(120, 0.5, 'sine', 0.2, 30); noise(0.5, 0.28, 450); },
 };
 const vibrate = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) { /* not supported */ } };
 
@@ -2162,6 +2269,7 @@ window.addEventListener('keydown', e => {
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space'].includes(e.code) && state === 'play') e.preventDefault();
   if (e.repeat) return;
   audio();
+  if (e.code === 'KeyF' && fsOK) toggleFullscreen();
   if (state === 'play') {
     if (e.code === 'Space' || e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyW' || e.code === 'ArrowUp') tryRoll();
     if (e.code === 'Escape' || e.code === 'KeyP') pauseGame();
@@ -2438,6 +2546,7 @@ function hurtPlayer(n = 1) {
   const p = player, bar = p.maxHp > 5;
   p.hp = Math.max(0, p.hp - n); p.inv = bar ? HULL.inv : 1.7;
   run.waveHits++; run.chain = 0; run.chainT = 0; run.mult = 1;
+  if (run.mode === 'coop' && Coop.on) { if (Coop.isHost) delete Coop.h.chains[Net.you]; else Net.send({ t: 'hurt' }); }
   shake = Math.max(shake, bar ? 8 + n * 4 : 18); freezeT = bar ? 0.04 : 0.07;
   sfx.hurt(); vibrate(90);
   for (let i = 0; i < 12; i++) puff(p.x, p.y, rand(-170, 170), rand(-170, 170), rand(3, 6), 6, 0.35, theme.fx[1], 'fire');
@@ -2518,7 +2627,7 @@ function updateEnemies(dt) {
   const fm = (world.mod.fire || 1) * (tileWorld ? 0.7 : 1) * (Coop.on ? COOP_DIFF[Coop.settings.difficulty].fire : 1);
   for (const e of enemies) {
     const s = e.spec;
-    const p = Coop.on ? Coop.targetFor(e) : player;
+    const p = Coop.on ? Coop.targetFor(e, dt) : player;
     e.t += dt; e.flash = Math.max(0, e.flash - dt); if (e.ramT > 0) e.ramT -= dt;
     const dx = p.x - e.x, dy = p.y - e.y, d = Math.hypot(dx, dy);
     const toP = Math.atan2(dy, dx);
@@ -3114,7 +3223,7 @@ function draw() {
   for (const e of enemies) {
     if (!inView(e.x, e.y, 90)) continue;
     ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(e.a);
-    drawCraft(ctx, craftFor(th, e.type), colorsFor(th, e.type), TYPE_SCALE[e.type], { roll: Math.sin(e.t * 2 + e.phase) * 0.25, spin: time * 45 + e.phase, t: time + e.phase, flash: e.flash > 0 });
+    drawCraft(ctx, craftFor(th, e.type), e.type === 'ace' ? aceColors(th, world.aceKey != null ? world.aceKey : world.ace) : colorsFor(th, e.type), TYPE_SCALE[e.type], { roll: Math.sin(e.t * 2 + e.phase) * 0.25, spin: time * 45 + e.phase, t: time + e.phase, flash: e.flash > 0 });
     ctx.restore();
     if ((e.type === 'bomber' || e.type === 'interceptor' || e.type === 'fighter') && e.hp < e.maxHp) {
       const w = e.type === 'bomber' ? 60 : 34, y = e.y - e.spec.r - 16;
@@ -3230,7 +3339,10 @@ function avatarHTML(planeId, liv, size) {
   const id = PLANE_INDEX[planeId] ? planeId : 'hellcat';
   return `<canvas class="av ${size || ''}" width="${px}" height="${px}" data-plane="${id}" data-liv="${Math.max(0, Math.min(4, Number(liv) || 0))}" aria-hidden="true"></canvas>`;
 }
-function paintAvatars(root) { root.querySelectorAll('canvas[data-plane]').forEach(cv => drawAvatar(cv, cv.dataset.plane, Number(cv.dataset.liv))); }
+function paintAvatars(root) {
+  root.querySelectorAll('canvas[data-plane]').forEach(cv => drawAvatar(cv, cv.dataset.plane, Number(cv.dataset.liv)));
+  root.querySelectorAll('canvas[data-ace]').forEach(cv => drawAceBadge(cv, Number(cv.dataset.ace)));
+}
 const statBar = (label, m) => `<span class="bar"><em>${label}</em><i style="--w:${clamp(60 + (m - 1) * 250, 15, 100)}%"></i></span>`;
 
 function drawPreview(cv, th, liv) {
@@ -3636,8 +3748,9 @@ function renderRecord() {
   const aces = Object.entries(store.aces || {}).map(([d, n]) => [Number(d), n]).sort((x, y) => y[0] - x[0]);
   $('aceCount').textContent = `${aces.length} downed`;
   $('aceLog').innerHTML = aces.length
-    ? aces.slice(0, 12).map(([d, n]) => `<span class="ace-tag chamfer"><b>${esc(n)}</b><small>#${d}</small></span>`).join('') + (aces.length > 12 ? `<span class="ace-more">+${aces.length - 12} more</span>` : '')
+    ? aces.slice(0, 12).map(([d, n]) => aceTagHTML(d, n)).join('') + (aces.length > 12 ? `<span class="ace-more">+${aces.length - 12} more</span>` : '')
     : `<div class="notice chamfer">Every daily has a named enemy ace in wave 5. Shoot one down to start your logbook. Today's is ${esc((state === 'menu' ? world : buildWorld(dailySeed())).ace)}.</div>`;
+  paintAvatars($('aceLog'));
   const got = MEDALS.filter(m => store.medals[m.id]).length;
   $('medalCount').textContent = `${got}/${MEDALS.length}`;
   $('medalList').innerHTML = MEDALS.map(m => `<div class="medal chamfer ${store.medals[m.id] ? '' : 'locked'}">${MEDAL_SVG}<b>${esc(m.name)}</b><small>${esc(m.desc)}</small></div>`).join('');
@@ -3652,12 +3765,12 @@ function boardRowHTML(e) {
   const fav = PLANE_INDEX[e.fav] && e.fav !== pid ? ` · fav ${planeName(e.fav)}` : '';
   return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : ''}<small>${esc(planeName(pid) + fav)}</small></span>${miniTiles(e.grades)}<span class="sc">${fmtNum(e.score)}</span></li>`;
 }
-let boardMode = 'daily';
+let boardMode = 'daily', arenaSort = 'kills';
 async function loadArenaBoard() {
   const el = $('boardBody');
   if (!CONFIG.apiBase) { el.innerHTML = '<div class="notice chamfer">The arena leaderboard needs the online server. Play at supersortie.io.</div>'; return; }
   try {
-    const r = await fetch(CONFIG.apiBase.replace(/\/$/, '') + `/api/v1/arena/leaderboard?deviceId=${encodeURIComponent(deviceId())}`);
+    const r = await fetch(CONFIG.apiBase.replace(/\/$/, '') + `/api/v1/arena/leaderboard?deviceId=${encodeURIComponent(deviceId())}${arenaSort === 'round' ? '&sort=round' : ''}`);
     if (!r.ok) throw new Error('arena board ' + r.status);
     renderArenaBoard(await r.json());
   } catch (e) {
@@ -3666,15 +3779,17 @@ async function loadArenaBoard() {
 }
 function arenaRowHTML(e) {
   const pid = PLANE_INDEX[e.plane] ? e.plane : 'hellcat';
-  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : ''}<small>${e.rounds} round${e.rounds === 1 ? '' : 's'} · ${e.wins} win${e.wins === 1 ? '' : 's'} · best streak ${e.streak}</small></span><span class="coop-k">${e.deaths} deaths</span><span class="sc">${fmtNum(e.kills)}</span></li>`;
+  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : ''}<small>${e.rounds} round${e.rounds === 1 ? '' : 's'} · ${e.wins} win${e.wins === 1 ? '' : 's'} · best streak ${e.streak}</small></span><span class="coop-k">${arenaSort === 'round' ? `${fmtNum(e.kills)} kills` : `${e.deaths} deaths`}</span><span class="sc">${fmtNum(arenaSort === 'round' ? e.best : e.kills)}</span></li>`;
 }
 function renderArenaBoard(b) {
   const el = $('boardBody');
   if (boardMode !== 'arena') return;
-  if (!b || !b.total) { el.innerHTML = '<div class="notice chamfer"><b>No arena rounds finished yet today.</b> Jump in and take the top spot.</div>'; return; }
+  if (!b || !b.total) { el.innerHTML = '<div class="notice chamfer"><b>No arena rounds yet today.</b> Jump in and take the top spot.</div>'; return; }
   let rows = b.entries.map(arenaRowHTML).join('');
   if (b.me) rows += `<li class="gap">···</li>` + arenaRowHTML(b.me);
-  el.innerHTML = `<div class="board-sum"><b>${fmtNum(b.total)} arena pilot${b.total === 1 ? '' : 's'} today</b><span>Ranked by kills · resets at midnight UTC</span></div><ol class="board">${rows}</ol>`;
+  const sortSeg = `<div class="seg seg-sm" role="tablist" aria-label="Arena ranking"><button data-asort="kills" aria-selected="${arenaSort === 'kills'}">Most kills</button><button data-asort="round" aria-selected="${arenaSort === 'round'}">Best round</button></div>`;
+  el.innerHTML = sortSeg + `<div class="board-sum"><b>${fmtNum(b.total)} arena pilot${b.total === 1 ? '' : 's'} today</b><span>${arenaSort === 'round' ? 'Highest score in a single round' : 'Total kills'} · resets at midnight UTC</span></div><ol class="board">${rows}</ol>`;
+  el.querySelectorAll('[data-asort]').forEach(bt => bt.addEventListener('click', () => { arenaSort = bt.dataset.asort; loadArenaBoard(); }));
   paintAvatars(el);
 }
 async function loadBoard() {
@@ -3862,7 +3977,7 @@ const Social = {
       ${chips([[streak, 'Streak'], [p.maxStreak || 0, 'Best streak'], [p.played || 0, 'Played'], [(p.best || 0) >= 1000 ? ((p.best / 1000).toFixed(1) + 'k') : (p.best || 0), 'Best']])}
       ${a.rounds ? `<div class="section-label"><span>Arena career</span><span>K/D ${(a.kills / Math.max(1, a.deaths)).toFixed(2)}</span></div>${chips([[fmtNum(a.kills || 0), 'Kills'], [a.wins || 0, 'Round wins'], [a.best || 0, 'Best streak'], [a.rounds, 'Rounds']])}` : ''}
       <div class="section-label"><span>Ace logbook</span><span>${aces.length} downed</span></div>
-      <div class="ace-log">${aces.length ? aces.slice(0, 18).map(([k, n]) => `<span class="ace-tag chamfer"><b>${esc(n)}</b><small>#${k}</small></span>`).join('') + (aces.length > 18 ? `<span class="ace-more">+${aces.length - 18} more</span>` : '') : '<div class="notice chamfer">No aces downed yet.</div>'}</div>
+      <div class="ace-log">${aces.length ? aces.slice(0, 18).map(([k, n]) => aceTagHTML(k, n)).join('') + (aces.length > 18 ? `<span class="ace-more">+${aces.length - 18} more</span>` : '') : '<div class="notice chamfer">No aces downed yet.</div>'}</div>
       <div class="section-label"><span>Medals</span><span>${medals.length}/${MEDALS.length}</span></div>
       ${medals.length ? `<div class="medal-list">${medals.map(m => `<div class="medal chamfer">${MEDAL_SVG}<b>${esc(m.name)}</b><small>${esc(m.desc)}</small></div>`).join('')}</div>` : '<div class="notice chamfer">No medals yet.</div>'}
       <div id="ppErr" class="acct-err" role="status"></div>
@@ -3955,7 +4070,7 @@ async function postPending() {
 
 function countUp(target) {
   const t0 = performance.now(), el = $('resScore');
-  const tick = now => { const k = Math.min(1, (now - t0) / 1100); el.textContent = fmtNum(target * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); };
+  const tick = now => { const k = clamp((now - t0) / 1100, 0, 1); el.textContent = fmtNum(target * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); };
   requestAnimationFrame(tick);
 }
 function showResults(earned) {
@@ -4026,7 +4141,7 @@ function showResults(earned) {
 
   show('results');
   const target = r.score, t0 = performance.now(), el = $('resScore');
-  const tick = now => { const k = Math.min(1, (now - t0) / 1100); el.textContent = fmtNum(target * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); };
+  const tick = now => { const k = clamp((now - t0) / 1100, 0, 1); el.textContent = fmtNum(target * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); };
   requestAnimationFrame(tick);
 }
 
@@ -4034,6 +4149,7 @@ function pauseGame(auto) {
   if (state !== 'play') return;
   if (run.mode === 'coop' || run.mode === 'arena') {
     if (auto === true) return;
+    if (!$('pause').classList.contains('hidden')) { resumeGame(); return; }
     $('quitBtn').textContent = run.mode === 'arena' ? 'Leave arena' : 'Leave mission';
     $('arenaInvite').classList.toggle('hidden', !(run.mode === 'arena' && Arena.info && Arena.info.code));
     show('pause');
@@ -4078,6 +4194,21 @@ $('practiceBtn').addEventListener('click', () => { audio(); startRun('practice')
 $('howBtn').addEventListener('click', () => openHelp(null, false));
 $('boardNav').addEventListener('click', () => { selectTab('board'); document.querySelector('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 $('soundBtn').addEventListener('click', toggleSound);
+// Fullscreen, where the browser allows it (iPhones don't for web pages).
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+const fsOK = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+function toggleFullscreen() {
+  try {
+    if (fsEl()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else { const el = document.documentElement; const p = (el.requestFullscreen || el.webkitRequestFullscreen).call(el); if (p && p.catch) p.catch(() => {}); }
+  } catch (e) { /* not allowed here */ }
+}
+function setFsLabels() { const t = fsEl() ? 'Exit fullscreen' : 'Fullscreen'; $('fsBtn').textContent = t; $('pauseFs').textContent = t; }
+if (fsOK) { $('fsBtn').classList.remove('hidden'); $('pauseFs').classList.remove('hidden'); }
+$('fsBtn').addEventListener('click', toggleFullscreen);
+$('pauseFs').addEventListener('click', toggleFullscreen);
+document.addEventListener('fullscreenchange', setFsLabels);
+document.addEventListener('webkitfullscreenchange', setFsLabels);
 $('pauseSound').addEventListener('click', toggleSound);
 $('helpGo').addEventListener('click', () => { if (!$('helpCallsign').classList.contains('hidden')) saveCallsign($('callsign2').value); hide('help'); const f = helpThen; helpThen = null; if (f) f(); });
 $('pauseBtn').addEventListener('click', pauseGame);
@@ -4189,7 +4320,7 @@ const Net = {
       ws.onmessage = ev => {
         let m;
         try { m = JSON.parse(ev.data); } catch (e) { return; }
-        if (m.t === 'error') { if (!settled) { settled = true; reject(m.code); } return; }
+        if (m.t === 'error') { if (!settled) { settled = true; this.quitting = true; if (this.ws === ws) this.ws = null; reject(m.code); } return; }
         if (m.t === 'welcome') {
           this.you = m.you;
           this.send({ t: 'hello', name: store.callsign, plane: 0, livery: 0, trail: store.trail || 0 });
@@ -4248,6 +4379,7 @@ const Coop = {
     showCoopEntry('Lost the connection to the room.');
   },
   onGame(from, msg) {
+    if (state === 'over' && msg.t !== 'p') return;
     switch (msg.t) {
       case 'p': this.peerState(from, msg); break;
       case 's': if (!this.isHost) this.applySnap(msg); break;
@@ -4261,6 +4393,7 @@ const Coop = {
       case 'mh': if (this.isHost) { const mm = missiles.find(x => x.id === msg.id); if (mm && !mm.dead) { mm.dead = true; explode(mm.x, mm.y, 0.7); } } break;
       case 'unlock': if (this.isHost) { const pr = this.peers[from]; if (pr) for (const mm of missiles) if (mm.lock && mm.target === from && Math.hypot(mm.x - pr.x, mm.y - pr.y) < 520) mm.lock = false; } break;
       case 'pick': if (this.isHost) this.resolvePick(msg.id, from); break;
+      case 'hurt': if (this.isHost) delete this.h.chains[from]; break;
       default: break;
     }
   },
@@ -4280,18 +4413,18 @@ const Coop = {
   },
   peerList() { return Object.values(this.peers); },
   centroid() {
-    const pts = [player, ...this.peerList().filter(p => p.seen)].filter(p => !p.dead);
+    const pts = [player, ...this.peerList().filter(p => p.seen && !p.quiet)].filter(p => !p.dead);
     if (!pts.length) return player;
     return { x: pts.reduce((a, p) => a + p.x, 0) / pts.length, y: pts.reduce((a, p) => a + p.y, 0) / pts.length };
   },
   posOf(id) { if (id === Net.you || !this.peers[id]) return player; return this.peers[id]; },
   // Each enemy chases the nearest pilot still flying, sticking with a choice for two seconds.
-  targetFor(e) {
-    e.tT = (e.tT || 0) - 1 / 60;
+  targetFor(e, dt) {
+    e.tT = (e.tT || 0) - dt;
     const cur = e.tid && this.posOf(e.tid);
-    if (cur && !cur.dead && e.tT > 0) { if (cur !== player) cur.speed = SPEED; return cur; }
+    if (cur && !cur.dead && !cur.quiet && e.tT > 0) { if (cur !== player) cur.speed = SPEED; return cur; }
     let best = null, bd = Infinity;
-    const cands = [{ id: Net.you, o: player }, ...this.peerList().filter(p => p.seen).map(p => ({ id: p.id, o: p }))];
+    const cands = [{ id: Net.you, o: player }, ...this.peerList().filter(p => p.seen && !p.quiet).map(p => ({ id: p.id, o: p }))];
     for (const c of cands) {
       if (c.o.dead) continue;
       const d = Math.hypot(c.o.x - e.x, c.o.y - e.y);
@@ -4302,12 +4435,13 @@ const Coop = {
     if (best.o !== player) best.o.speed = SPEED;
     return best.o;
   },
-  allDown() { return player.dead && this.peerList().every(p => !p.seen || p.dead); },
+  allDown() { return player.dead && this.peerList().every(p => !p.seen || p.dead || p.quiet); },
 
   // ---------- peers ----------
   peerState(id, s) {
     const pr = this.peers[id];
     if (!pr) return;
+    pr.lastT = performance.now(); pr.quiet = false;
     pr.tx = s.x; pr.ty = s.y; pr.ta = (s.a || 0) / 100; pr.roll = (s.r || 0) / 100;
     pr.hp = s.hp; pr.mh = s.mh;
     if (!pr.seen) { pr.x = s.x; pr.y = s.y; pr.a = pr.ta; pr.seen = true; }
@@ -4322,8 +4456,12 @@ const Coop = {
   },
   tickPeers(dt) {
     const k = Math.min(1, dt * 10);
+    const now = performance.now();
     for (const pr of this.peerList()) {
       if (!pr.seen) continue;
+      // A peer whose tab went to the background stops sending: freeze them and leave them out.
+      pr.quiet = now - (pr.lastT || now) > 2500;
+      if (pr.quiet) continue;
       const pl = theme.planes[pr.plane] || theme.planes[0], h = ARCH[pl.arch];
       const vx = Math.cos(pr.ta) * SPEED * h.speed * dt, vy = Math.sin(pr.ta) * SPEED * h.speed * dt;
       pr.tx += vx; pr.ty += vy; pr.x += vx; pr.y += vy;
@@ -4346,7 +4484,7 @@ const Coop = {
 
   // ---------- host ----------
   hostStartWave(i) {
-    const w = coopWave(i, this.settings, this.roster.length, this.seed);
+    const w = coopWave(i, this.settings, 1 + this.peerList().length, this.seed);
     run.queue = w.list; run.waveT = 0; run.phaseT = i === 0 ? 3 : 2.2;
     this.h.waveCrash = false; this.h.downT = 0;
     const ev = { t: 'wave', i, ph: 'intro', name: w.name };
@@ -4426,7 +4564,7 @@ const Coop = {
     return {
       t: 's', sc: run.score, w: run.waveIdx, ph: run.phase, left: run.queue.length + enemies.length,
       e: enemies.filter(e => !e.dead).map(e => [e.id, COOP_TYPES.indexOf(e.type), Math.round(e.x), Math.round(e.y), Math.round(e.a * 100), Math.max(0, Math.round(e.hp)), e.maxHp, e.flash > 0 ? 1 : 0]),
-      m: missiles.filter(m => !m.dead).map(m => [m.id, Math.round(m.x), Math.round(m.y), Math.round(m.a * 100), m.lock ? 1 : 0]),
+      m: missiles.filter(m => !m.dead).map(m => [m.id, Math.round(m.x), Math.round(m.y), Math.round(m.a * 100), m.lock ? 1 : 0, m.target || 0]),
     };
   },
 
@@ -4512,12 +4650,12 @@ const Coop = {
     enemies = enemies.filter(e => seen.has(e.id));
     const ms = new Set();
     for (const r of s.m || []) {
-      const [id, x, y, a, lock] = r;
+      const [id, x, y, a, lock, target] = r;
       if (this.consumed.has(id)) continue;
       ms.add(id);
       let m = missiles.find(q => q.id === id);
       if (!m) { m = { id, x, y, a: a / 100, speed: 380, lock: !!lock, life: 99, t: 0 }; missiles.push(m); }
-      m.tx = x; m.ty = y; m.ta = a / 100; m.lock = !!lock;
+      m.tx = x; m.ty = y; m.ta = a / 100; m.lock = !!lock; m.target = target || null;
     }
     missiles = missiles.filter(m => ms.has(m.id) && !m.dead);
     run.score = s.sc; this.left = s.left;
@@ -4828,7 +4966,32 @@ const ARENA_ERRORS = {
   taken: 'That code is already in use. Try again.',
   closed: "Couldn't reach the arena server. Check your connection and try again.",
 };
-const STREAK_NAMES = { 2: 'Double kill', 3: 'Triple kill', 5: 'Rampage', 7: 'Unstoppable', 10: 'Legendary' };
+const STREAK_NAMES = { 2: 'Double kill', 3: 'Triple kill', 5: 'Rampage', 7: 'Unstoppable', 10: 'Legendary', 15: 'Godlike', 20: 'Ace of aces' };
+const STREAK_TIERS = [[2, 'Double kill', '#7cf2ff'], [3, 'Triple kill', '#4dd27a'], [5, 'Rampage', '#ffb02e'], [7, 'Unstoppable', '#ff5e3a'], [10, 'Legendary', '#c77dff'], [15, 'Godlike', '#ffd700'], [20, 'Ace of aces', '#ffffff']];
+const tierAt = st => { let t = null; for (const x of STREAK_TIERS) if (st >= x[0]) t = x; return t; };
+const nextTier = st => STREAK_TIERS.find(x => x[0] > st) || null;
+// Shown the moment a streak reaches a new tier: big, quick, then gone.
+function streakCallout(st) {
+  const t = STREAK_TIERS.find(x => x[0] === st) || (st > 20 && st % 5 === 0 ? [st, `Ace of aces ×${st / 5 - 3}`, '#ffffff'] : null);
+  if (!t) return;
+  const box = $('streakBox'), el = $('streakTier');
+  const best = store.arena && st > (store.arena.best || 0) && st >= 3;
+  box.style.setProperty('--tc', t[2]);
+  el.innerHTML = `${esc(t[1])}<small>${best ? 'New best streak' : `${st} in a row`}</small>`;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  sfx.streak(STREAK_TIERS.indexOf(t) >= 0 ? STREAK_TIERS.indexOf(t) : 6);
+}
+function renderStreakMeter(st, dead) {
+  const el = $('streakMeter');
+  if (!st || dead) { if (el.innerHTML) el.innerHTML = ''; return; }
+  const cur = tierAt(st), nx = nextTier(st), lo = cur ? cur[0] : 0;
+  const key = `${st}`;
+  if (el.dataset.k === key) return;
+  el.dataset.k = key;
+  $('streakBox').style.setProperty('--tc', (cur || STREAK_TIERS[0])[2]);
+  const pips = nx ? Array.from({ length: nx[0] - lo }, (_, i) => `<i class="${lo + i < st ? 'on' : ''}"></i>`).join('') : '';
+  el.innerHTML = `<b>${st}</b>${pips}<span>${nx ? `&nbsp;${esc(nx[1])}` : '&nbsp;max tier'}</span>`;
+}
 const WEAPON_TAGS = { g: 'GUNS', r: 'RAIL', m: 'MISSILE', n: 'MINE', z: 'SHOCK', b: 'BOSS' };
 const BOSS_DIMS = { ww1: [64, 26], ww2: [74, 18], modern: [50, 58], space: [80, 30], neon: [44, 44] };
 
@@ -4845,14 +5008,15 @@ const ANet = {
       ws.onmessage = ev => {
         let m;
         try { m = JSON.parse(ev.data); } catch (e) { return; }
-        if (m.t === 'error') { if (!settled) { settled = true; reject(m.code); } return; }
+        if (m.t === 'error') { if (!settled) { settled = true; this.quitting = true; if (this.ws === ws) this.ws = null; reject(m.code); } return; }
         if (m.t === 'welcome' && !settled) { settled = true; resolve(m); }
         Arena.onMessage(m);
       };
-      ws.onclose = () => {
+      ws.onclose = ev => {
         if (this.ws !== ws) return;
         this.ws = null;
         if (!settled) { settled = true; reject('closed'); return; }
+        if (ev && ev.code === 4002) { Arena.onReplaced(); return; }
         if (!this.quitting) Arena.onDisconnect();
       };
     });
@@ -4897,7 +5061,7 @@ const Arena = {
       case 'ul': for (const ms of this.missiles) if (m.m.includes(ms.ref)) ms.lock = false; break;
       case 's': this.onScores(m.b); break;
       case 'round': this.onRound(m); break;
-      case 'bl': showHint(`${m.name} inbound! It shoots back. Bring it down for Overdrive.`, 4600); this.bossName = m.name; sfx.wave(); break;
+      case 'bl': showHint(`${m.name} inbound! It shoots back. Bring it down for Overdrive.`, 4600); this.bossName = m.name; sfx.bossHorn(); break;
       case 'bf': this.tracers.push({ x: m.x, y: m.y, tx: m.tx, ty: m.ty, life: 0.14 }); if (Math.hypot(m.x - player.x, m.y - player.y) < 700) tone(140 + Math.random() * 40, 0.05, 'square', 0.015); break;
       case 'sw': this.onShock(m); break;
       case 'bx': this.onBlimpDown(m); break;
@@ -4928,6 +5092,12 @@ const Arena = {
     openMenu();
     openArena('Lost the connection to the arena. Check your connection and jump back in.');
   },
+  onReplaced() {
+    if (!this.on) return;
+    this.on = false; R = BASE_R;
+    openMenu();
+    openArena('You joined this arena somewhere else, so this window left it.');
+  },
   // After a reconnect the arena sends a fresh welcome; keep the flight going instead of restarting it.
   resync(m) {
     this.info = Object.assign({}, this.info, m);
@@ -4937,7 +5107,7 @@ const Arena = {
     this.missiles = []; this.hits = {}; this.hv = [];
     if (m.round.n !== this.round.n) this.onRound({ ...m.round });
     this.round = m.round; this.phase = m.round.phase; this.roundEnds = performance.now() + m.round.left;
-    player.dead = true;
+    if (!m.keep) player.dead = true;
   },
   setRoster(r) {
     const ids = new Set();
@@ -4998,6 +5168,7 @@ const Arena = {
   onKill(m) {
     const killer = m.by ? this.nameOf(m.by) : '', victim = this.nameOf(m.v);
     this.feed.unshift({ k: killer, v: victim, w: m.w, st: m.st, vs: m.vs, rv: m.rv, me: m.v === this.you || m.by === this.you, t: performance.now() });
+    if (m.by && m.by !== this.you && m.st >= 5 && STREAK_NAMES[m.st]) this.feed.unshift({ k: killer, tag: STREAK_NAMES[m.st], t: performance.now() + 0.01 });
     this.feed = this.feed.slice(0, 5);
     const vp = this.posOf(m.v);
     if (m.v === this.you) {
@@ -5022,9 +5193,10 @@ const Arena = {
       progress('kills', 1); progress('arenaKills', 1); progress('streak', m.st, true);
       if (m.st >= 5) earnMedal('rampage');
       if (vp) { floater(vp.x, vp.y - 24, `+${fmtNum(m.pts)}`, theme.accent, 1); marks.push({ x: vp.x, y: vp.y, t: 0, kill: true }); }
-      const tag = m.vs >= 3 ? 'SHUT DOWN' : m.rv ? 'REVENGE' : STREAK_NAMES[m.st] ? STREAK_NAMES[m.st].toUpperCase() : '';
-      killPop(victim, m.st, tag, m.pts);
+      const tag = m.vs >= 3 ? 'SHUT DOWN' : m.rv ? 'REVENGE' : '';
+      killPop(victim, 0, tag, m.pts);
       sfx.kill(m.st);
+      streakCallout(m.st);
       const sp = $('scorePanel'); sp.classList.remove('bump'); void sp.offsetWidth; sp.classList.add('bump');
       vibrate(30);
     }
@@ -5035,7 +5207,7 @@ const Arena = {
     if (m.by !== this.you) { if (k) for (let i = 0; i < 6; i++) puff(k.x, k.y, rand(-90, 90), rand(-90, 90), rand(3, 5), 6, 0.3, ARENA_PICKUPS[m.k].color, 'fire'); return; }
     const def = ARENA_PICKUPS[m.k];
     sfx.pickup();
-    if (m.k === 'o') { showBanner('Boss drop', 'Overdrive', '15 seconds. Make them count.'); sfx.medal(); shake = Math.max(shake, 10); }
+    if (m.k === 'o') { showBanner('Boss drop', 'Overdrive', '15 seconds. Make them count.'); sfx.overdrive(); shake = Math.max(shake, 10); }
     progress('pickups', 1);
     floater(player.x, player.y - 34, def.name.toUpperCase(), def.color, 1.1);
     showHint(def.hint, 2600);
@@ -5057,14 +5229,14 @@ const Arena = {
   onShock(m) {
     parts.push({ x: m.x, y: m.y, vx: 0, vy: 0, r: 20, grow: 900, life: 0.38, max: 0.38, color: '#7cf2ff', kind: 'ring', rot: 0, vr: 0 });
     parts.push({ x: m.x, y: m.y, vx: 0, vy: 0, r: 10, grow: 600, life: 0.3, max: 0.3, color: '#ffffff', kind: 'ring', rot: 0, vr: 0 });
-    if (Math.hypot(m.x - player.x, m.y - player.y) < 900) { noise(0.5, 0.3, 500); shake = Math.max(shake, 16); }
+    if (Math.hypot(m.x - player.x, m.y - player.y) < 900) { sfx.shock(); shake = Math.max(shake, 16); }
     if (m.by === this.you) floater(player.x, player.y - 40, 'SHOCKWAVE', '#7cf2ff', 1.3);
   },
   onBlimpDown(m) {
     this.blimp = null;
     explode(m.x, m.y, 2.4);
     for (let i = 0; i < 20; i++) puff(m.x + rand(-50, 50), m.y + rand(-20, 20), rand(-160, 160), rand(-160, 160), rand(3, 6), 0, rand(0.5, 0.9), theme.neon ? theme.accent : '#e8dcc0', 'debris');
-    if (Math.hypot(m.x - player.x, m.y - player.y) < 1100) { sfx.boom(true); shake = Math.max(shake, 14); }
+    if (Math.hypot(m.x - player.x, m.y - player.y) < 1100 || m.by === this.you) { sfx.bossDown(); shake = Math.max(shake, 14); }
     this.feed.unshift({ k: m.by ? this.nameOf(m.by) : '', v: this.bossName || 'Boss', w: 'g', me: m.by === this.you, t: performance.now() });
     explode(m.x + 30, m.y - 10, 1.8); explode(m.x - 30, m.y + 10, 1.8);
     this.feed = this.feed.slice(0, 5);
@@ -5155,6 +5327,8 @@ const Arena = {
       const b = pBullets[i];
       if (this.phase === 'play' && this.inBlimp(b.x, b.y)) {
         this.hits[-1] = (this.hits[-1] || 0) + 1; this.blimp.flash = 0.06;
+        sfx.bossHit();
+        if (marks.length < 30) marks.push({ x: b.x, y: b.y, t: 0 });
         puff(b.x, b.y, rand(-60, 60), rand(-60, 60), rand(2, 3), 4, 0.2, '#ffffff', 'fire');
         pBullets.splice(i, 1);
         continue;
@@ -5270,7 +5444,7 @@ const Arena = {
     if (this.sendT > 0) return;
     this.sendT = player.dead ? 0.5 : 1 / 12;
     const roll = (player.rollT > 0 ? (1 - player.rollT / ROLL_T) * TAU : 0) + player.bank;
-    ANet.send({ t: 'p', x: Math.round(player.x), y: Math.round(player.y), a: Math.round(player.a * 100), r: Math.round(roll * 100), rl: player.rollT > 0 ? 1 : 0 });
+    ANet.send({ t: 'p', x: Math.round(player.x), y: Math.round(player.y), a: Math.round(player.a * 100), r: Math.round(roll * 100), rl: player.rollT > 0 ? 1 : 0, d: player.dead ? 1 : 0 });
     const h = Object.entries(this.hits).map(([id, n]) => [Number(id), n, 'g']);
     if (h.length) { ANet.send({ t: 'hit', h }); this.hits = {}; }
     if (this.hv.length) { ANet.send({ t: 'hv', h: this.hv }); this.hv = []; }
@@ -5481,7 +5655,9 @@ const Arena = {
         return `<div class="${r[0] === this.you ? 'me' : ''}"><span>${i + 1}</span><span class="nm">${esc(p.name)}${p.bot ? '<em>AI</em>' : ''}</span><b>${r[1]}</b></div>`;
       }).join('');
       const fresh = this.feed.filter(f => now - f.t < 6000);
-      $('killfeed').innerHTML = fresh.slice(0, W <= 600 ? 3 : 5).map(f => `<div class="${f.me ? 'me' : ''}">${f.k ? `<span>${esc(f.k)}</span>` : ''}<i>${WEAPON_TAGS[f.w] || ''}</i><span>${esc(f.v)}</span>${f.rv ? '<em>REVENGE</em>' : f.st >= 3 ? `<em>${f.st}×</em>` : ''}</div>`).join('');
+      renderStreakMeter(this.streak, player.dead || this.phase !== 'play');
+      const feedKey = fresh.slice(0, W <= 600 ? 3 : 5).map(f => f.t).join(',');
+      if (feedKey !== this.feedKey) this.feedKey = feedKey, $('killfeed').innerHTML = fresh.slice(0, W <= 600 ? 3 : 5).map(f => f.tag ? `<div class="tier"><span>${esc(f.k)}</span><em>${esc(f.tag)}</em></div>` : `<div class="${f.me ? 'me' : ''}">${f.k ? `<span>${esc(f.k)}</span>` : ''}<i>${WEAPON_TAGS[f.w] || ''}</i><span>${esc(f.v)}</span>${f.rv ? '<em>REVENGE</em>' : f.vs >= 3 ? '<em>SHUT DOWN</em>' : f.st >= 3 ? `<em>${f.st}×</em>` : ''}</div>`).join('');
       const wk = this.weapon[0], wn = parseInt(this.weapon.slice(1), 10) || 0;
       const chips = [];
       if (wk) chips.push(`<span class="wchip" style="--c:${ARENA_PICKUPS[wk].color}"><b>${puSvg(wk)}</b>${ARENA_PICKUPS[wk].name}<i>${'●'.repeat(wn)}</i></span>`);
@@ -5540,7 +5716,7 @@ function arenaUpdate(dt) {
 
 function setArenaHud(on) {
   document.body.classList.toggle('in-arena', on);
-  ['arenaBoard', 'killfeed', 'weaponChip'].forEach(id => $(id).classList.toggle('hidden', !on));
+  ['arenaBoard', 'killfeed', 'weaponChip', 'streakBox'].forEach(id => $(id).classList.toggle('hidden', !on));
   $('arenaLabel').classList.toggle('hidden', !on);
   if (!on) { hide('respawnBox'); hide('arenaEnd'); }
 }
@@ -5622,6 +5798,28 @@ function showArenaEnd(m) {
 }
 
 /* ---------- arena screen ---------- */
+// Server browser: public arenas with people in them, busiest first.
+async function refreshArenaList() {
+  if (!CONFIG.apiBase || $('arena').classList.contains('hidden')) return;
+  try {
+    const r = await fetch(CONFIG.apiBase.replace(/\/$/, '') + '/api/v1/arena/list');
+    if (!r.ok) return;
+    const j = await r.json(), el = $('arenaList');
+    if (!j.arenas.length) {
+      el.innerHTML = '<div class="arena-empty">Nobody is flying right now. Quick play opens a fresh arena with AI pilots, and the next people to press play land in it with you.</div>';
+      $('arenaListNote').textContent = '';
+      return;
+    }
+    $('arenaListNote').textContent = `${j.arenas.length} live`;
+    el.innerHTML = j.arenas.map(a => {
+      const full = a.humans >= j.max, th = THEMES[a.theme];
+      const who = a.names.length ? a.names.join(', ') + (a.humans > a.names.length ? ` +${a.humans - a.names.length}` : '') : '';
+      return `<div class="arena-row"><div><b>Arena ${a.n}<i>${th ? esc(th.name) : ''}</i></b><small><span class="live">●</span> ${a.humans} pilot${a.humans === 1 ? '' : 's'}${a.bots ? ` + ${a.bots} AI` : ''} · ${a.phase === 'end' ? 'between rounds' : `round ${a.round}, ${fmtClock(a.left / 1000)} left`}${who ? ` · ${esc(who)}` : ''}</small></div><button class="btn btn-ghost btn-small" data-arena="${esc(a.name)}" ${full ? 'disabled' : ''}>${full ? 'Full' : 'Join'}</button></div>`;
+    }).join('');
+    el.querySelectorAll('[data-arena]').forEach(bt => bt.addEventListener('click', () => { audio(); arenaConnect(`arena=${bt.dataset.arena}`, `Joining ${bt.closest('.arena-row').querySelector('b').firstChild.textContent}…`); }));
+  } catch (e) { /* offline */ }
+}
+setInterval(refreshArenaList, 5000);
 async function refreshArenaOnline() {
   if (!CONFIG.apiBase) return;
   try {
@@ -5642,11 +5840,13 @@ function openArena(msg, code) {
   if (code) { $('arenaCode').value = code; $('arenaErr').textContent = `You're invited to arena ${code}. Check your callsign, then join.`; $('arenaJoin').textContent = `Join ${code}`; }
   else $('arenaJoin').textContent = 'Join';
   refreshArenaOnline();
+  refreshArenaList();
 }
 async function arenaConnect(q, label, tries = 0) {
   saveCallsign($('arenaName').value);
   $('arenaErr').textContent = label;
   ['arenaQuick', 'arenaCreate', 'arenaJoin'].forEach(id => { $(id).disabled = true; });
+  $('arenaList').querySelectorAll('button').forEach(bt => { bt.disabled = true; });
   try {
     await ANet.connect(`${q}&callsign=${encodeURIComponent(store.callsign)}&device=${encodeURIComponent(deviceId())}${Social.authQ()}`);
   } catch (e) {
@@ -5659,7 +5859,7 @@ async function arenaConnect(q, label, tries = 0) {
 function arenaInvite() { return `${CONFIG.siteUrl || (location.origin + location.pathname)}?arena=${Arena.info && Arena.info.code}`; }
 function initArenaUi() {
   $('arenaTheme').innerHTML = '<option value="">Rotate each round</option>' + THEME_ORDER.map(id => `<option value="${id}">${esc(THEMES[id].name)}</option>`).join('');
-  $('puList').innerHTML = Object.entries(ARENA_PICKUPS).map(([k, d]) => `<div class="pu ${d.boss ? 'boss' : ''}" style="--c:${d.color}"><b>${puSvg(k)}</b><span>${esc(d.name)}${d.boss ? ' <em>boss drop</em>' : ''}</span></div>`).join('');
+  $('puList').innerHTML = Object.entries(ARENA_PICKUPS).map(([k, d]) => `<div class="pu ${d.boss ? 'pu-boss' : ''}" style="--c:${d.color}"><b>${puSvg(k)}</b><span>${esc(d.name)}${d.boss ? ' <em>boss drop</em>' : ''}</span></div>`).join('');
   $('arenaQuick').addEventListener('click', () => { audio(); arenaConnect('quick=1', 'Finding an arena…'); });
   $('arenaCreate').addEventListener('click', () => {
     audio();
@@ -5725,7 +5925,7 @@ openMenu();
 })();
 tickCountdown();
 requestAnimationFrame(frame);
-Board.init().then(() => { if (state === 'menu') openMenu(); });
+Board.init().then(() => { if (state === 'menu' && $('coop').classList.contains('hidden') && $('arena').classList.contains('hidden')) openMenu(); });
 </script>
 </body>
 </html>

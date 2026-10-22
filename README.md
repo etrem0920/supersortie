@@ -104,6 +104,10 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 - A signed-in pilot gets one daily per account, even across devices.
 - The code is in `server/accounts.js`; the tables are in `server/migrations/0003_accounts.sql`.
 
+## Aces
+
+Each day's ace flies its own paint scheme (12 palettes × 6 patterns, chosen from the day), so every ace in the logbook looks different. The logbook shows a small picture of each one.
+
 ## Pilot progression
 
 - Every mode earns XP:
@@ -120,7 +124,7 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 
 ## How the arena works
 
-- **Quick play** drops you into the busiest public arena with a free seat, up to 12 pilots. **Private arenas** use a four-letter code and an invite link (`supersortie.io/?arena=CODE`). The creator picks the theater and whether AI pilots join.
+- **Quick play** drops you into the busiest public arena with a free seat, up to 12 pilots, so you land with whoever is already flying. The **Live arenas** list (the server browser) shows every public arena with people in it, its theater, round clock and top pilots; pick one to join it. **Private arenas** use a four-letter code and an invite link (`supersortie.io/?arena=CODE`). The creator picks the theater and whether AI pilots join.
 - It's a free-for-all with 4-minute rounds. Each round moves to the next theater and ends on a podium, with a 10-second break before the next one.
 - Getting shot down puts you back in the air **2.5 seconds** later, somewhere quiet, with a 2-second spawn shield. A kill is worth 100 points, plus 25 for every kill already in your streak. Ending a streak of 3 or more earns a shutdown bonus, and shooting down whoever last got you earns +75 revenge.
 - **Arena today** in the Leaderboard tab ranks people (not AI pilots) by kills since midnight UTC. Rounds are saved from the arena to the `arena_scores` table.
@@ -129,6 +133,10 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
   - **Boosts:** spread guns, rapid fire, shield, repair, afterburner, cloak (nearly invisible, can't be locked), double damage, vampire (each kill restores 5 hull) and shockwave (an instant blast that hurts every pilot nearby).
   - **Overdrive** comes only from a boss: 15 seconds of rapid fire, spread guns, double damage, a shield and full hull at once.
 - **Rolling** makes you immune to bullets and breaks missile locks.
+- **No clones.** If a connection drops without the arena noticing, the reconnect (same token, or the same device once the old connection has gone quiet) takes over the old seat instead of adding a second copy of the pilot. Pilots who go quiet are removed straight away rather than waiting on a close handshake.
+- **Restarts are seamless.** The arena saves its round in storage and each pilot's score on their connection, so if Cloudflare restarts the object mid-round the round carries on and pilots stay in the air.
+- **Kill streaks** get a callout at each tier (Double kill, Triple kill, Rampage, Unstoppable, Legendary, Godlike, Ace of aces) with its own sound, plus a small meter showing how close the next tier is.
+- **Arena today** can be ranked by total kills or by best single-round score. A pilot's round is saved when the round ends or when they leave mid-round.
 - **Dropped connections reconnect.** If a pilot's connection drops, the arena holds their seat, score and streak for 30 seconds while the game reconnects them. Leaving on purpose frees the seat right away. A hidden tab sends a heartbeat so it isn't dropped as idle; pilots who go quiet for 45 seconds are removed. If the server restarts (every deploy restarts it), players are reconnected to a fresh round.
 - **A boss** enters each round 35 seconds in, then about every 70 seconds. Each theater has its own: a **Zeppelin** (WW1), a **Destroyer** (Pacific), a **Strategic bomber** (Modern), a **Dreadnought** (Space) and a **Sentinel** (Neon). It has 70 to 110 hull and its turrets fire back at the nearest pilot, so it takes several pilots or a long fight. Rolling dodges its fire. The pilot who finishes it gets +300 points and it drops Overdrive, a weapon and a random power-up.
 - **AI pilots** (marked "AI" on the scoreboard) top a public arena up to 8 pilots. They leave as real people arrive.

@@ -8,6 +8,7 @@
 //   GET    /api/v1/arena/ws?quick=1            join the fullest public arena with room (see arena.js)
 //   GET    /api/v1/arena/ws?code=CODE[&create=1&theme=ww2&bots=1]   private arena
 //   GET    /api/v1/arena/online                pilots in public arenas right now
+//   GET    /api/v1/arena/list                  public arenas with people in them (server browser)
 //   GET    /api/v1/arena/leaderboard?deviceId=…   today's top arena pilots by kills
 //   /api/v1/auth/*, /api/v1/me*, /api/v1/pilots/NAME   pilot accounts, friends and profiles (see accounts.js)
 
@@ -209,8 +210,10 @@ async function arenaSocket(req, env, url) {
 async function arenaBoard(url, env, cors) {
   const day = serverDay();
   const deviceId = String(url.searchParams.get('deviceId') || '');
+  const byRound = url.searchParams.get('sort') === 'round';
+  const order = byRound ? 's.best_round DESC, s.kills DESC, s.updated_at ASC' : 's.kills DESC, s.best_round DESC, s.updated_at ASC';
   const rows = (await env.DB.prepare(
-    'SELECT s.device_id, s.name, s.plane, s.livery, s.kills, s.deaths, s.rounds, s.wins, s.best_round, s.best_streak, a.username FROM arena_scores s LEFT JOIN accounts a ON a.id = s.account_id WHERE s.day = ? AND s.hidden = 0 ORDER BY s.kills DESC, s.best_round DESC, s.updated_at ASC LIMIT 50'
+    `SELECT s.device_id, s.name, s.plane, s.livery, s.kills, s.deaths, s.rounds, s.wins, s.best_round, s.best_streak, a.username FROM arena_scores s LEFT JOIN accounts a ON a.id = s.account_id WHERE s.day = ? AND s.hidden = 0 ORDER BY ${order} LIMIT 50`
   ).bind(day).all()).results || [];
   const total = await env.DB.prepare('SELECT COUNT(*) AS n FROM arena_scores WHERE day = ? AND hidden = 0').bind(day).first();
   const row = (r, rank) => ({ rank, name: r.name, plane: r.plane, livery: r.livery, kills: r.kills, deaths: r.deaths, rounds: r.rounds, wins: r.wins, best: r.best_round, streak: r.best_streak, u: r.username || undefined, me: !!deviceId && r.device_id === deviceId });
@@ -219,11 +222,25 @@ async function arenaBoard(url, env, cors) {
   if (/^[A-Za-z0-9-]{8,64}$/.test(deviceId) && !entries.some(e => e.me)) {
     const mine = await env.DB.prepare('SELECT * FROM arena_scores WHERE day = ? AND device_id = ? AND hidden = 0').bind(day, deviceId).first();
     if (mine) {
-      const above = await env.DB.prepare('SELECT COUNT(*) AS n FROM arena_scores WHERE day = ? AND hidden = 0 AND (kills > ? OR (kills = ? AND best_round > ?))').bind(day, mine.kills, mine.kills, mine.best_round).first();
+      const above = byRound
+        ? await env.DB.prepare('SELECT COUNT(*) AS n FROM arena_scores WHERE day = ? AND hidden = 0 AND (best_round > ? OR (best_round = ? AND kills > ?))').bind(day, mine.best_round, mine.best_round, mine.kills).first()
+        : await env.DB.prepare('SELECT COUNT(*) AS n FROM arena_scores WHERE day = ? AND hidden = 0 AND (kills > ? OR (kills = ? AND best_round > ?))').bind(day, mine.kills, mine.kills, mine.best_round).first();
       me = row(mine, above.n + 1);
     }
   }
   return json({ day, total: total.n, entries, me }, 200, cors, { 'cache-control': 'no-store' });
+}
+// Server browser: public arenas with people in them right now, busiest first.
+async function arenaList(env, cors) {
+  const dir = env.ARENA_DIR.get(env.ARENA_DIR.idFromName('global'));
+  const list = await (await dir.fetch('https://dir/list')).json();
+  const now = Date.now();
+  const arenas = Object.entries(list)
+    .filter(([, e]) => now - e.t < 90000 && e.h > 0)
+    .map(([name, e]) => ({ name, n: Number(name.slice(4)), humans: e.h, bots: e.bots || 0, theme: e.theme || null, round: e.round || 1, phase: e.phase || 'play', left: Math.max(0, (e.ends || 0) - now), names: e.names || [] }))
+    .sort((a, b) => b.humans - a.humans || a.n - b.n)
+    .slice(0, 30);
+  return json({ arenas, max: 12 }, 200, cors, { 'cache-control': 'no-store' });
 }
 async function arenaOnline(env, cors) {
   const dir = env.ARENA_DIR.get(env.ARENA_DIR.idFromName('global'));
@@ -247,6 +264,7 @@ export default {
       if (room) return await roomSocket(req, env, room[1]);
       if (url.pathname === '/api/v1/arena/ws') return await arenaSocket(req, env, url);
       if (url.pathname === '/api/v1/arena/online' && req.method === 'GET') return await arenaOnline(env, cors);
+      if (url.pathname === '/api/v1/arena/list' && req.method === 'GET') return await arenaList(env, cors);
       if (url.pathname === '/api/v1/arena/leaderboard' && req.method === 'GET') return await arenaBoard(url, env, cors);
       const acct = await handleAccounts(req, env, url, cors);
       if (acct) return acct;

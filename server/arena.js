@@ -116,19 +116,43 @@ export class ArenaRoom {
     if (!cfg) return null;
     if (!saved) await this.ctx.storage.put('cfg', cfg);
     const themeIdx = cfg.theme ? THEMES.indexOf(cfg.theme) : (hash(cfg.name) + Math.floor(Date.now() / 86400000)) % THEMES.length;
+    const now = Date.now();
+    // If the object restarted mid-round, carry on with the same round instead of starting over.
+    const kept = saved ? await this.ctx.storage.get('round') : null;
+    const round = kept && kept.ends > now - INTERMISSION_MS ? kept
+      : { n: 1, themeIdx: Math.max(0, themeIdx), phase: 'play', ends: now + this.roundMs, started: now, seed: seedFor(cfg.name, 1) };
     this.s = {
       cfg, nextId: 1, pilots: new Map(), pickups: new Map(), mines: new Map(), fired: new Map(), nextPick: 1, nextMine: 1,
-      round: { n: 1, themeIdx: Math.max(0, themeIdx), phase: 'play', ends: Date.now() + this.roundMs, started: Date.now(), seed: seedFor(cfg.name, 1) },
-      tick: 0, lastReport: 0, blimp: null, nextBlimpId: 1, blimpAt: Date.now() + BLIMP_FIRST_MS,
+      round, tick: 0, lastReport: 0, blimp: null, nextBlimpId: 1, blimpAt: now + BLIMP_FIRST_MS,
     };
-    // Pilots still connected after a restart get their place back with fresh stats.
+    if (round !== kept) this.saveRound();
+    // Pilots still connected after a restart keep their seat, score and plane: they stay in the
+    // air where their next position update puts them.
     for (const ws of this.ctx.getWebSockets()) {
       const a = ws.deserializeAttachment();
-      if (a && a.id) { this.s.nextId = Math.max(this.s.nextId, a.id + 1); this.addPilot(a.id, a, ws); }
+      if (!a || !a.id) continue;
+      this.s.nextId = Math.max(this.s.nextId, a.id + 1);
+      const p = this.addPilot(a.id, a, ws);
+      if (Array.isArray(a.st) && a.st[5] === round.n) [p.kills, p.deaths, p.score, p.streak, p.best] = a.st.map(Number);
+      p.restored = true; p.respawnAt = now + 2500;
     }
     return this.s;
   }
   get theme() { return THEMES[this.s.round.themeIdx]; }
+  saveRound() { this.ctx.waitUntil(this.ctx.storage.put('round', this.s.round).catch(() => {})); }
+  // What a pilot's connection remembers, so a restarted arena can put them back as they were.
+  saveSeat(p) {
+    if (!p.ws) return;
+    try { p.ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, trail: p.trail, title: p.title, device: p.device || '', account: p.account, token: p.token, st: [p.kills, p.deaths, p.score, p.streak, p.best, this.s.round.n] }); } catch (e) { /* closing */ }
+  }
+  // Remove a pilot for good. Their round so far still counts on the leaderboard.
+  dropPilot(p, now) {
+    if (!this.s.pilots.has(p.id)) return;
+    if (this.s.round.phase === 'play') this.recordRound(null, now, [p]);
+    this.s.pilots.delete(p.id);
+    if (p.ws) { const ws = p.ws; p.ws = null; try { ws.close(4001, 'idle'); } catch (e) { /* gone */ } }
+    this.balanceBots(); this.sendRoster(); this.report();
+  }
   humans() { return [...this.s.pilots.values()].filter(p => !p.bot); }
   connected() { return this.humans().filter(p => !p.away); }
   addPilot(id, info, ws) {
@@ -178,15 +202,21 @@ export class ArenaRoom {
     } else if (!s) s = await this.load(name, { private: false });
 
     // Reconnecting after a dropped connection: same seat, same score.
-    const resume = url.searchParams.get('resume');
-    const back = resume && [...s.pilots.values()].find(p => p.away && p.token === resume);
+    // A connection can drop without the arena noticing straight away, so the old seat may still
+    // look connected. The same token (or the same device, gone quiet) takes that seat over
+    // instead of adding a second copy of the pilot.
+    const resume = url.searchParams.get('resume'), device = url.searchParams.get('device') || '', now0 = Date.now();
+    const back = [...s.pilots.values()].find(p => !p.bot && ((resume && p.token === resume) || (p.device && p.device === device && (p.away || now0 - p.lastP > 4000))));
     if (back) {
       const pair = new WebSocketPair();
       const [client, server] = Object.values(pair);
       this.ctx.acceptWebSocket(server);
-      server.serializeAttachment({ id: back.id, name: back.name, plane: back.plane, livery: back.livery, trail: back.trail, title: back.title, device: back.device || '', account: back.account, token: back.token });
-      back.ws = server; back.away = false; back.lastP = Date.now(); back.respawnAt = Date.now() + 600;
-      server.send(JSON.stringify({ ...this.welcome(back), resumed: true }));
+      const old = back.ws, keep = !back.away && back.alive;
+      back.ws = server; back.away = false; back.bye = false; back.lastP = now0;
+      if (!keep && !back.alive) back.respawnAt = Math.min(back.respawnAt, now0 + 600);
+      if (old && old !== server) { try { old.close(4002, 'replaced'); } catch (e) { /* gone */ } }
+      this.saveSeat(back);
+      server.send(JSON.stringify({ ...this.welcome(back), resumed: true, keep }));
       this.sendRoster();
       this.startTicking();
       return new Response(null, { status: 101, webSocket: client });
@@ -197,7 +227,7 @@ export class ArenaRoom {
     const [client, server] = Object.values(pair);
     const id = s.nextId++;
     this.ctx.acceptWebSocket(server);
-    const info = { id, name: url.searchParams.get('callsign') || 'Pilot', plane: 0, livery: 0, device: url.searchParams.get('device') || '', account: Number(url.searchParams.get('acct')) || null, token: crypto.randomUUID() };
+    const info = { id, name: url.searchParams.get('callsign') || 'Pilot', plane: 0, livery: 0, device, account: Number(url.searchParams.get('acct')) || null, token: crypto.randomUUID() };
     server.serializeAttachment(info);
     const p = this.addPilot(id, info, server);
     await this.ctx.storage.deleteAlarm();
@@ -257,13 +287,14 @@ export class ArenaRoom {
         if ('livery' in m) p.livery = small(m.livery, LIVERIES - 1);
         if ('trail' in m) p.trail = small(m.trail, TRAILS - 1);
         if ('title' in m) p.title = small(m.title, TITLES - 1);
-        ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, trail: p.trail, title: p.title, device: p.device || '', account: p.account, token: p.token });
+        this.saveSeat(p);
         this.sendRoster();
         break;
       }
       case 'p': {
-        if (!p.alive) { p.lastP = now; return; }
         const x = num(m.x, ARENA_R * 1.6), y = num(m.y, ARENA_R * 1.6);
+        if (!p.alive && p.restored && !m.d && this.s.round.phase === 'play') { p.restored = false; p.alive = true; p.x = x; p.y = y; p.hp = MAX_HP; p.protUntil = now + 1500; p.respawnAt = 0; }
+        if (!p.alive) { p.lastP = now; return; }
         // A pilot can't outrun an afterburning roll; anything faster is ignored.
         const dt = Math.max(0.05, (now - p.lastP) / 1000);
         if (Math.hypot(x - p.x, y - p.y) <= 900 * dt + 80) { p.x = x; p.y = y; }
@@ -285,7 +316,7 @@ export class ArenaRoom {
     if (!this.s) return;
     const p = this.pilotFor(ws);
     if (p && p.ws === ws) {
-      if (p.bye || !p.token) this.s.pilots.delete(p.id);
+      if (p.bye || !p.token) { p.ws = null; this.dropPilot(p, Date.now()); }
       else { p.ws = null; p.away = true; p.awayAt = Date.now(); p.alive = false; p.respawnAt = Infinity; }
     }
     this.balanceBots();
@@ -303,10 +334,11 @@ export class ArenaRoom {
   // ---------- matchmaking ----------
   report() {
     if (!this.s || this.s.cfg.private || !this.env.ARENA_DIR) return;
-    const n = this.humans().length;
-    this.s.lastReport = Date.now();
+    const hs = this.humans(), now = Date.now(), r = this.s.round;
+    this.s.lastReport = now;
     const dir = this.env.ARENA_DIR.get(this.env.ARENA_DIR.idFromName('global'));
-    this.ctx.waitUntil(dir.fetch('https://dir/report', { method: 'POST', body: JSON.stringify({ name: this.s.cfg.name, humans: n }) }).catch(() => {}));
+    const info = { name: this.s.cfg.name, humans: hs.length, bots: this.s.pilots.size - hs.length, theme: this.theme, round: r.n, phase: r.phase, ends: r.ends, names: hs.slice().sort((a, b) => b.score - a.score).slice(0, 4).map(p => p.name) };
+    this.ctx.waitUntil(dir.fetch('https://dir/report', { method: 'POST', body: JSON.stringify(info) }).catch(() => {}));
   }
 
   balanceBots() {
@@ -342,8 +374,8 @@ export class ArenaRoom {
     for (const p of s.pilots.values()) {
       if (!p.alive && now >= p.respawnAt) this.spawn(p, now);
       if (p.shield > 0 && now > p.shieldUntil) p.shield = 0;
-      if (!p.bot && !p.away && now - p.lastP > IDLE_MS && p.ws) { p.bye = true; try { p.ws.close(4001, 'idle'); } catch (e) { /* gone */ } }
-      if (p.away && now - p.awayAt > AWAY_MS) { s.pilots.delete(p.id); this.balanceBots(); this.sendRoster(); this.report(); }
+      if (!p.bot && !p.away && now - p.lastP > IDLE_MS) this.dropPilot(p, now);
+      else if (p.away && now - p.awayAt > AWAY_MS) this.dropPilot(p, now);
     }
     this.botTick(0.1, now);
     this.blimpTick(0.1, now);
@@ -373,6 +405,7 @@ export class ArenaRoom {
   endRound(now) {
     const s = this.s;
     s.round.phase = 'end'; s.round.ends = now + INTERMISSION_MS;
+    this.saveRound();
     const top = this.board();
     const best = {};
     for (const p of s.pilots.values()) best[p.id] = p.best;
@@ -381,15 +414,16 @@ export class ArenaRoom {
   }
   // Add each person's round to today's arena leaderboard. Pilots who were only around for
   // the last few seconds and did nothing aren't counted.
-  recordRound(top, now) {
+  recordRound(top, now, list) {
     if (!this.env.DB) return;
     const day = serverDay(now), theme = this.theme, s = this.s;
     const stmts = [];
-    for (const p of s.pilots.values()) {
-      if (p.bot || !p.device) continue;
+    for (const p of list || s.pilots.values()) {
+      if (p.bot || !p.device || p.recorded === s.round.n) continue;
       const present = now - Math.max(p.joined, s.round.started || 0);
       if (present < 45000 && !p.kills && !p.deaths) continue;
-      const win = top.length > 1 && top[0][0] === p.id && p.score > 0 ? 1 : 0;
+      p.recorded = s.round.n;
+      const win = top && top.length > 1 && top[0][0] === p.id && p.score > 0 ? 1 : 0;
       stmts.push(this.env.DB.prepare(
         `INSERT INTO arena_scores (day, device_id, name, plane, livery, kills, deaths, rounds, wins, best_round, best_streak, updated_at, account_id)
          VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?)
@@ -404,6 +438,7 @@ export class ArenaRoom {
     const s = this.s, r = s.round;
     r.n++; r.themeIdx = s.cfg.theme && s.cfg.private ? r.themeIdx : (r.themeIdx + 1) % THEMES.length;
     r.phase = 'play'; r.ends = now + this.roundMs; r.started = now; r.seed = seedFor(s.cfg.name, r.n);
+    this.saveRound();
     s.pickups.clear(); s.mines.clear(); s.fired.clear();
     s.blimp = null; s.blimpAt = now + BLIMP_FIRST_MS;
     // Announce the round first so clients have the new theater loaded before the respawns land.
@@ -454,6 +489,7 @@ export class ArenaRoom {
       if (now < k.vampUntil) k.hp = Math.min(MAX_HP, k.hp + VAMPIRE_HEAL);
     }
     v.lastKiller = k ? k.id : 0;
+    this.saveSeat(v); if (k) this.saveSeat(k);
     this.broadcast({ t: 'kill', v: v.id, by: k ? k.id : 0, w, st: k ? k.streak : 0, vs: victimStreak, pts, rv, rs: RESPAWN_MS });
   }
 
@@ -709,7 +745,10 @@ export class ArenaDirectory {
     const a = await this.load(), now = Date.now();
     if (url.pathname === '/report') {
       const b = await req.json().catch(() => ({}));
-      if (typeof b.name === 'string' && b.name.startsWith('pub-')) { a[b.name] = { h: Number(b.humans) || 0, t: now, res: 0 }; await this.ctx.storage.put('arenas', a); }
+      if (typeof b.name === 'string' && /^pub-\d{1,3}$/.test(b.name)) {
+        a[b.name] = { h: Number(b.humans) || 0, t: now, res: 0, bots: Number(b.bots) || 0, theme: THEMES.includes(b.theme) ? b.theme : null, round: Number(b.round) || 1, phase: b.phase === 'end' ? 'end' : 'play', ends: Number(b.ends) || 0, names: Array.isArray(b.names) ? b.names.slice(0, 4).map(String) : [] };
+        await this.ctx.storage.put('arenas', a);
+      }
       return Response.json({ ok: true });
     }
     if (url.pathname === '/assign') {

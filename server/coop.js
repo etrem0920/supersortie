@@ -15,8 +15,9 @@ const MODS = ['random', 'standard', 'glass', 'swarm', 'ironace', 'overcast', 'cr
 const WAVES = [3, 5, 8, 12];
 const DIFFICULTIES = ['easy', 'normal', 'hard', 'brutal'];
 const HULLS = [2, 3, 5];
-const HOST_ONLY = new Set(['h', 'mh', 'unlock', 'pick']);
-const RELAY = new Set(['p', 's', 'eb', 'kill', 'pk', 'picked', 'wave', 'end', ...HOST_ONLY]);
+const HOST_ONLY = new Set(['h', 'mh', 'unlock', 'pick', 'hurt']);      // guest -> host
+const FROM_HOST = new Set(['s', 'eb', 'kill', 'pk', 'picked', 'wave', 'end']); // host -> everyone
+const RELAY = new Set(['p', ...FROM_HOST, ...HOST_ONLY]);
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
 const EMPTY_ROOM_TTL_MS = 10 * 60 * 1000;
 
@@ -123,6 +124,7 @@ export class CoopRoom {
 
     if (RELAY.has(msg.t)) {
       if (this.meta.phase !== 'game') return;
+      if (FROM_HOST.has(msg.t) && !isHost) return; // only the host runs the mission
       const out = `{"f":"${me.id}","m":${raw}}`;
       if (HOST_ONLY.has(msg.t)) {
         const host = this.players().find(x => x.p.id === this.meta.host);
@@ -150,6 +152,7 @@ export class CoopRoom {
         break;
       case 'start': {
         if (!isHost) return;
+        if (this.meta.phase === 'lobby' && this.players().some(({ p }) => p.id !== this.meta.host && !p.ready)) return;
         this.meta.phase = 'game';
         this.meta.seed = `COOP-${crypto.randomUUID().slice(0, 8)}`;
         await this.saveMeta();
