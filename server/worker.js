@@ -11,6 +11,8 @@
 //   GET    /api/v1/arena/list                  public arenas with people in them (server browser)
 //   GET    /api/v1/league?deviceId=…           this week's league group (see league.js)
 //   GET    /api/v1/arena/leaderboard?deviceId=…   today's top arena pilots by kills
+//   GET    /api/v1/admin/x                 preview the next X posts and the recent log (Bearer ADMIN_TOKEN)
+//   POST   /api/v1/admin/x                 post the current slot now (Bearer ADMIN_TOKEN)
 //   /api/v1/auth/*, /api/v1/me*, /api/v1/pilots/NAME   pilot accounts, friends and profiles (see accounts.js)
 
 import { CoopRoom, ROOM_ALPHABET } from './coop.js';
@@ -18,6 +20,7 @@ import { ArenaRoom, ArenaDirectory } from './arena.js';
 import { serverDay, clientDay } from './day.js';
 import { handleAccounts, accountFor } from './accounts.js';
 import { joinLeague, leagueView } from './league.js';
+import { composePost, runScheduledPost, slotFor, xReady } from './x.js';
 import { postGhost, listGhosts, getGhost } from './ghosts.js';
 import { postFeedback, listFeedback } from './feedback.js';
 import { isCreator } from './creators.js';
@@ -273,7 +276,19 @@ async function arenaOnline(env, cors) {
   return json({ pilots: live.reduce((n, e) => n + e.h, 0), arenas: live.length }, 200, cors, { 'cache-control': 'max-age=10' });
 }
 
+async function adminX(req, env, cors) {
+  const auth = req.headers.get('authorization') || '';
+  if (!env.ADMIN_TOKEN || auth !== `Bearer ${env.ADMIN_TOKEN}`) return json({ error: 'unauthorized' }, 401, cors);
+  if (req.method === 'POST') return json(await runScheduledPost(env), 200, cors);
+  const next = await Promise.all(['recap', 'live', 'board'].map(s => composePost(env, s)));
+  const log = await env.DB.prepare('SELECT slot_key, status, tweet_id, error, text, created_at FROM x_posts ORDER BY created_at DESC LIMIT 12').all();
+  return json({ ready: xReady(env), slotNow: slotFor(), next, log: log.results || [] }, 200, cors);
+}
+
 export default {
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(runScheduledPost(env, event.scheduledTime || Date.now()).catch(() => {}));
+  },
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
     const cors = corsHeaders(env, req);
@@ -296,6 +311,7 @@ export default {
       if (url.pathname === '/api/v1/arena/leaderboard' && req.method === 'GET') return await arenaBoard(url, env, cors, req);
       if (url.pathname === '/api/v1/names/check' && req.method === 'GET') return json({ taken: await nameTaken(env, String(url.searchParams.get('n') || '').slice(0, 20)) }, 200, cors, { 'cache-control': 'max-age=30' });
       if (url.pathname === '/api/v1/feedback' && req.method === 'POST') { const who = await accountFor(env, req); return await postFeedback(req, env, json, cors, who && who.username); }
+      if (url.pathname === '/api/v1/admin/x') return await adminX(req, env, cors);
       if (url.pathname === '/api/v1/admin/feedback' && req.method === 'GET') return await listFeedback(url, req, env, json, cors);
       if (url.pathname === '/api/v1/ghost' && req.method === 'POST') return await postGhost(req, env, json, cors);
       if (url.pathname === '/api/v1/ghost' && req.method === 'GET') return await getGhost(url, env, json, cors);

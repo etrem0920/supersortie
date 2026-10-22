@@ -8,6 +8,10 @@ binding = "DB"
 database_name = "dailydogfight"
 database_id = "cee8cffa-1ebf-4e97-9662-19f4baf196ad"
 
+# Posts to X three times a day (see x.js). Stays in draft mode until X_POSTING = "on" and the X keys are set.
+[triggers]
+crons = ["7 6 * * *", "7 14 * * *", "7 22 * * *"]
+
 [vars]
 ALLOWED_ORIGIN = "https://supersortie.io,https://www.supersortie.io,https://supersortie.pages.dev"
 
