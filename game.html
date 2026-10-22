@@ -924,6 +924,63 @@
   @media (max-width: 520px) { .loadout { grid-template-columns: minmax(0, 1fr); } }
   /* opening */
   .crate-modal { background: radial-gradient(ellipse at center, rgba(20, 24, 40, .96), rgba(3, 4, 9, .98)); }
+  /* the opening, era by era */
+  .cr-intro { position: relative; width: 240px; height: 210px; display: grid; place-items: center; }
+  .cr-intro svg.big { width: 220px; height: 190px; overflow: visible; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .6)); }
+  .cr-intro .bits { position: absolute; inset: 0; pointer-events: none; }
+  .cr-intro .bits i { position: absolute; left: 50%; top: 45%; width: 8px; height: 3px; background: var(--bc, #c9a46a); opacity: 0; animation: crBit .9s ease-out var(--d, .7s) forwards; }
+  @keyframes crBit { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)); } }
+  .reel-window.wait { opacity: 0; transform: scale(.97); }
+  .reel-window { transition: opacity .3s, transform .3s; }
+  .era-ww1 .cr-intro svg.big { animation: crShake .6s ease-in-out; }
+  .era-ww1 .cr-intro .cr-lid { transform-box: fill-box; transform-origin: 0% 100%; animation: crPry .55s cubic-bezier(.3, 1.6, .5, 1) .62s forwards; }
+  @keyframes crShake { 0%, 100% { transform: none; } 20% { transform: rotate(-3deg); } 40% { transform: rotate(3deg) translateY(-3px); } 60% { transform: rotate(-2deg); } 80% { transform: rotate(2deg); } }
+  @keyframes crPry { to { transform: translate(-6px, -40px) rotate(-38deg); opacity: .0; } }
+  .era-ww2 .cr-intro svg.big { animation: crDrop .8s cubic-bezier(.35, 0, .6, 1) both; }
+  .era-ww2 .cr-intro .chute { position: absolute; left: 50%; top: -96px; width: 150px; margin-left: -75px; animation: crChute .8s cubic-bezier(.35, 0, .6, 1) both, crChuteGo .5s ease-in .9s forwards; }
+  .era-ww2 .cr-intro .cr-lid { transform-box: fill-box; transform-origin: 50% 100%; animation: crPop .4s ease-out 1s forwards; }
+  @keyframes crDrop { 0% { transform: translateY(-260px); } 85% { transform: translateY(6px); } 100% { transform: none; } }
+  @keyframes crChute { 0% { transform: translateY(-260px); } 85% { transform: translateY(6px); } 100% { transform: none; } }
+  @keyframes crChuteGo { to { transform: translate(60px, -40px) rotate(18deg); opacity: 0; } }
+  @keyframes crPop { to { transform: translateY(-30px); opacity: 0; } }
+  .era-modern .cr-intro .cr-latch { transform-box: fill-box; transform-origin: 50% 0%; animation: crLatch .18s ease-in forwards; }
+  .era-modern .cr-intro .cr-latch + .cr-latch { animation-delay: .32s; }
+  .era-modern .cr-intro .cr-latch:first-of-type { animation-delay: .12s; }
+  .era-modern .cr-intro .cr-lid { transform-box: fill-box; transform-origin: 50% 100%; animation: crHinge .45s ease-out .62s forwards; }
+  .era-modern .cr-intro::after { content: ''; position: absolute; left: 0; right: 0; height: 3px; top: 10%; background: #5cf2a0; box-shadow: 0 0 14px #5cf2a0; opacity: 0; animation: crScan .7s ease-in-out .5s forwards; }
+  @keyframes crLatch { to { transform: scaleY(-1) translateY(6px); } }
+  @keyframes crHinge { to { transform: scaleY(-.6) translateY(16px); opacity: .25; } }
+  @keyframes crScan { 0% { opacity: 1; top: 10%; } 100% { opacity: 0; top: 90%; } }
+  .era-space .cr-intro svg.big { animation: crFloat 1.2s ease-in-out; }
+  .era-space .cr-intro .cr-core { animation: crCore .3s ease-in-out 0s 4 alternate; }
+  .era-space .cr-intro .cr-lid { transform-box: fill-box; transform-origin: 50% 50%; animation: crHex .5s ease-out .7s forwards; }
+  .era-space .cr-intro .ring { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; border: 2px solid var(--cc); opacity: 0; animation: crRing .8s ease-out var(--d) forwards; }
+  @keyframes crFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes crCore { to { opacity: .3; } }
+  @keyframes crHex { to { transform: translateY(-34px) scale(1.15) rotate(30deg); opacity: 0; } }
+  @keyframes crRing { 0% { opacity: .9; transform: scale(.5); } 100% { opacity: 0; transform: scale(6); } }
+  .era-neon .cr-intro svg.big { animation: crGlitch .9s steps(9) both; }
+  .era-neon .cr-intro .cr-lid { transform-box: fill-box; animation: crPop .3s steps(3) .9s forwards; }
+  @keyframes crGlitch { 0% { opacity: 0; filter: drop-shadow(-6px 0 #ff4fd8) drop-shadow(6px 0 #3df0ff); transform: skewX(20deg); } 30% { opacity: 1; transform: translateX(8px); } 50% { transform: skewX(-12deg) translateX(-6px); filter: drop-shadow(4px 0 #ff4fd8) drop-shadow(-4px 0 #3df0ff); } 70% { transform: none; } 100% { opacity: 1; filter: drop-shadow(0 0 14px #ff4fd8); transform: none; } }
+  /* the reel, era by era */
+  .era-ww1 { background: radial-gradient(ellipse at center, rgba(60, 44, 26, .96), rgba(14, 9, 4, .98)); }
+  .era-ww1 .reel-window { background: #1c140c; box-shadow: inset 0 0 0 1px #6e4d2a; }
+  .era-ww1 .reel-window::before, .era-ww1 .reel-window::after { content: ''; position: absolute; left: 0; right: 0; height: 10px; z-index: 1; background: repeating-linear-gradient(90deg, transparent 0 10px, rgba(255, 240, 200, .5) 10px 18px); }
+  .era-ww1 .reel-window::before { top: 2px; } .era-ww1 .reel-window::after { bottom: 2px; }
+  .era-ww1 .reel .item canvas { filter: sepia(.45) contrast(1.05); }
+  .era-ww2 { background: radial-gradient(ellipse at center, rgba(40, 46, 26, .96), rgba(8, 10, 5, .98)); }
+  .era-ww2 .reel-window { background: #262c18; box-shadow: inset 0 0 0 2px #5d6b3a, inset 0 0 0 6px #262c18, inset 0 0 0 7px #5d6b3a; }
+  .era-modern { background: radial-gradient(ellipse at center, rgba(14, 20, 18, .97), rgba(2, 4, 3, .98)); }
+  .era-modern .reel-window { background: rgba(0, 10, 6, .6); box-shadow: inset 0 0 0 1px rgba(92, 242, 160, .35); }
+  .era-modern .reel-window::before { content: ''; position: absolute; inset: 6px; z-index: 1; pointer-events: none; background: linear-gradient(#5cf2a0, #5cf2a0) 0 0 / 18px 2px, linear-gradient(#5cf2a0, #5cf2a0) 0 0 / 2px 18px, linear-gradient(#5cf2a0, #5cf2a0) 100% 0 / 18px 2px, linear-gradient(#5cf2a0, #5cf2a0) 100% 0 / 2px 18px, linear-gradient(#5cf2a0, #5cf2a0) 0 100% / 18px 2px, linear-gradient(#5cf2a0, #5cf2a0) 0 100% / 2px 18px, linear-gradient(#5cf2a0, #5cf2a0) 100% 100% / 18px 2px, linear-gradient(#5cf2a0, #5cf2a0) 100% 100% / 2px 18px; background-repeat: no-repeat; }
+  .era-modern .reel-marker { background: #5cf2a0; box-shadow: 0 0 12px #5cf2a0; } .era-modern .reel-marker::before { border-top-color: #5cf2a0; } .era-modern .reel-marker::after { border-bottom-color: #5cf2a0; }
+  .era-space { background: radial-gradient(ellipse at center, rgba(16, 22, 52, .96), rgba(2, 3, 12, .98)); }
+  .era-space .reel-window { background: rgba(10, 20, 50, .5); box-shadow: inset 0 0 0 1px rgba(124, 242, 255, .5), 0 0 30px rgba(61, 240, 255, .15); }
+  .era-space .reel-marker { background: #7cf2ff; box-shadow: 0 0 14px #7cf2ff; } .era-space .reel-marker::before { border-top-color: #7cf2ff; } .era-space .reel-marker::after { border-bottom-color: #7cf2ff; }
+  .era-neon { background: radial-gradient(ellipse at center, rgba(40, 8, 52, .96), rgba(6, 2, 12, .98)); }
+  .era-neon .reel-window { background: rgba(12, 6, 22, .7); box-shadow: 0 0 0 2px #ff4fd8, 0 0 24px rgba(255, 79, 216, .5), inset 0 0 24px rgba(61, 240, 255, .2); }
+  .era-neon .reel-marker { background: #3df0ff; box-shadow: 0 0 14px #3df0ff; } .era-neon .reel-marker::before { border-top-color: #3df0ff; } .era-neon .reel-marker::after { border-bottom-color: #3df0ff; }
+  @media (prefers-reduced-motion: reduce) { .cr-intro, .cr-intro * { animation-duration: .01s !important; animation-delay: 0s !important; } }
   .crate-stage { margin: auto; width: min(980px, calc(100vw - 32px)); flex: none; display: flex; flex-direction: column; align-items: center; gap: 22px; }
   .crate-title { text-align: center; }
   .crate-title small { display: block; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .3em; font-size: 12px; color: var(--muted); }
@@ -1313,6 +1370,7 @@
 <div id="crate" class="modal crate-modal hidden">
   <div class="crate-stage">
     <div class="crate-title"><small id="crKicker"></small><b id="crTitle">Opening…</b></div>
+    <div id="crIntro" class="cr-intro hidden" aria-hidden="true"></div>
     <div id="reelWin" class="reel-window"><div class="reel-marker"></div><div id="reel" class="reel"></div></div>
     <div id="crReveal" class="crate-reveal hidden"></div>
   </div>
@@ -6369,7 +6427,16 @@ const CRATES = [
   { name: 'Premium crate', cost: 600, odds: [0, 43, 33, 16, 7.12, 0.8, 0.08], desc: 'Uncommon or better', color: '#b14bff' },
   { name: 'Ace crate', cost: 1500, odds: [0, 0, 44, 34, 18.1, 3.5, 0.4], desc: 'Rare or better', color: '#ffb02e' },
 ];
-const crateArt = (c, tid) => `<svg viewBox="0 0 74 64"><path d="M6 20h62v38H6z" fill="#2a2f3c"/><path d="M6 20h62v6H6z" fill="${c}"/><path d="M4 12h66v10H4z" fill="#3a4152"/><path d="M4 12h66v3H4z" fill="rgba(255,255,255,.18)"/><path d="M33 12h8v46h-8z" fill="${c}"/><path d="M6 52h62v6H6z" fill="rgba(0,0,0,.3)"/>${[[6, 20], [62, 20], [6, 52], [62, 52]].map(([x, y]) => `<rect x="${x}" y="${y}" width="6" height="6" fill="#8a93a6"/>`).join('')}<circle cx="37" cy="38" r="8" fill="#151924" stroke="${c}" stroke-width="2"/><text x="37" y="42" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="800" font-size="11" fill="${c}">${esc(THEMES[tid].short.slice(0, 3).toUpperCase())}</text></svg>`;
+// Crates look like their era: a WWI wooden ammo crate, a WWII steel supply drop, a modern hard case,
+// a space cargo pod and a neon arcade box. The tier colour shows as the band, stripe or glow.
+const crateArt = (c, tid) => {
+  const lbl = { ww1: 'WWI', ww2: 'WWII', modern: 'MOD', space: 'ORB', neon: 'NEO' }[tid] || 'SKY';
+  if (tid === 'ww1') return `<svg viewBox="0 0 74 64"><g class="cr-lid"><path d="M4 12h66v12H4z" fill="#9a7045"/><path d="M4 12h66v3H4z" fill="rgba(255,240,200,.25)"/><path d="M4 18h66" stroke="#5e4022" stroke-width="1"/></g><path d="M6 24h62v34H6z" fill="#8a6338"/>${[30, 37, 44, 51].map(y => `<path d="M6 ${y}h62" stroke="#5e4022" stroke-width="1"/>`).join('')}<path d="M6 24l62 34M68 24L6 58" stroke="#6e4d2a" stroke-width="3" opacity=".7"/><path d="M6 24h62v34H6z" fill="none" stroke="#4a3018" stroke-width="2"/><rect x="20" y="33" width="34" height="14" fill="#8a6338"/><text x="37" y="44" text-anchor="middle" font-family="Big Shoulders Display, sans-serif" font-weight="900" font-size="11" fill="#2a1a0c" letter-spacing="1">W.D. ${lbl}</text><path d="M6 52h62v4H6z" fill="${c}" opacity=".85"/><path d="M0 34c4-4 4 8 0 4M74 34c-4-4-4 8 0 4" stroke="#c9a46a" stroke-width="2.5" fill="none"/>${[[8, 26], [64, 26], [8, 54], [64, 54]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.6" fill="#2a1a0c"/>`).join('')}</svg>`;
+  if (tid === 'ww2') return `<svg viewBox="0 0 74 64"><g class="cr-lid"><path d="M5 12q0-4 4-4h56q4 0 4 4v10H5z" fill="#5d6b3a"/><path d="M5 12q0-4 4-4h56q4 0 4 4v2H5z" fill="rgba(255,255,255,.15)"/><rect x="31" y="5" width="12" height="5" rx="2" fill="#3e4a26"/></g><path d="M6 22h62v36H6z" fill="#4f5a33"/><path d="M6 22h62v36H6z" fill="none" stroke="#2f3720" stroke-width="2"/><path d="M6 28h62M6 52h62" stroke="#3e4a26" stroke-width="1.5"/><path d="M37 31l2.6 5.4 5.9.7-4.4 4 1.2 5.9-5.3-3-5.3 3 1.2-5.9-4.4-4 5.9-.7z" fill="#e8e1cf"/><text x="37" y="57" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="6" fill="#e8e1cf" letter-spacing="1">U.S. ${lbl} · SUPPLY</text><path d="M6 24h62v3H6z" fill="${c}"/>${[[9, 25], [65, 25], [9, 55], [65, 55]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.4" fill="#a8b08a"/>`).join('')}</svg>`;
+  if (tid === 'modern') return `<svg viewBox="0 0 74 64"><g class="cr-lid"><path d="M4 14q0-4 4-4h58q4 0 4 4v10H4z" fill="#22262d"/><path d="M27 4h20v4a2 2 0 0 1-2 2H29a2 2 0 0 1-2-2z" fill="none" stroke="#3a4049" stroke-width="2.4"/>${[12, 18].map(y => `<path d="M8 ${y}h58" stroke="#30353d" stroke-width="1.4"/>`).join('')}</g><path d="M4 24h66v32q0 4-4 4H8q-4 0-4-4z" fill="#1a1d22"/>${[32, 40, 48].map(y => `<path d="M8 ${y}h58" stroke="#262a31" stroke-width="2"/>`).join('')}<rect class="cr-latch" x="13" y="20" width="9" height="10" rx="1.5" fill="#9aa3ad"/><rect class="cr-latch" x="52" y="20" width="9" height="10" rx="1.5" fill="#9aa3ad"/><rect x="30" y="44" width="14" height="5" rx="1" fill="#0d0f12"/><rect x="31" y="45" width="12" height="3" fill="${c}"/><text x="37" y="40" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="6.5" fill="#6b7480" letter-spacing="1.5">${lbl} · CLASSIFIED</text></svg>`;
+  if (tid === 'space') return `<svg viewBox="0 0 74 64"><path d="M37 2l30 15v30L37 62 7 47V17z" fill="#c9d1de"/><path d="M37 2l30 15L37 32 7 17z" fill="#e8edf5"/><path d="M37 32v30L7 47V17z" fill="#9aa6ba"/><path d="M37 2l30 15v30L37 62 7 47V17z" fill="none" stroke="#5a6680" stroke-width="1.5"/><g class="cr-lid"><path d="M37 8l20 10-20 10-20-10z" fill="#d8dee9" stroke="#8a96aa"/></g><circle cx="37" cy="42" r="8" fill="#141a30"/><circle class="cr-core" cx="37" cy="42" r="5" fill="${c}"/><path d="M11 22l10 5M11 30l10 5M63 22l-10 5M63 30l-10 5" stroke="${c}" stroke-width="1.6" opacity=".8"/><text x="37" y="58" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="5" fill="#3a4660" letter-spacing="1">CARGO ${lbl}</text></svg>`;
+  return `<svg viewBox="0 0 74 64"><defs><linearGradient id="ng${c.slice(1)}" x1="0" x2="1"><stop offset="0" stop-color="#ff4fd8"/><stop offset="1" stop-color="#3df0ff"/></linearGradient></defs><g class="cr-lid"><path d="M6 10h62v12H6z" fill="#12081f" stroke="url(#ng${c.slice(1)})" stroke-width="1.6"/><path d="M14 16h46" stroke="${c}" stroke-width="2" stroke-dasharray="3 3"/></g><path d="M6 22h62v36H6z" fill="#0c0616"/>${[30, 38, 46].map(y => `<path d="M6 ${y}h62" stroke="rgba(255,79,216,.25)"/>`).join('')}${[20, 37, 54].map(x => `<path d="M${x} 22v36" stroke="rgba(61,240,255,.2)"/>`).join('')}<path d="M6 22h62v36H6z" fill="none" stroke="url(#ng${c.slice(1)})" stroke-width="2"/><text x="37" y="45" text-anchor="middle" font-family="Big Shoulders Display, sans-serif" font-weight="900" font-size="12" fill="${c}" letter-spacing="1.5">${lbl}</text><rect x="26" y="50" width="22" height="3" fill="#ffe14f"/></svg>`;
+};
 function crateItems(tid) {
   const th = THEMES[tid], out = [];
   th.liveries.forEach((L, i) => { if (L.crate && !L.apex) out.push({ id: L.crate, kind: 'skin', name: L.name, rarity: L.rarity, tid, plane: L.plane, liv: i, sub: `${planeName(L.plane)} skin` }); });
@@ -6512,10 +6579,13 @@ const Shop = {
     wrap.classList.remove('landed');
     reel.innerHTML = list.map((it, i) => itemCardHTML(it, i === W ? 'w' : '')).join('');
     reel.querySelectorAll('.item').forEach((el, i) => itemPreview(el.querySelector('canvas'), list[i]));
+    $('crate').className = `modal crate-modal era-${tid}`;
     show('crate');
     reel.style.transform = 'translateX(0)';
+    const introMs = this.intro(tier, tid);
+    wrap.classList.add('wait');
     // Measure once the modal has laid out, from the real card positions.
-    requestAnimationFrame(() => {
+    setTimeout(() => { $('crIntro').classList.add('hidden'); wrap.classList.remove('wait'); requestAnimationFrame(() => {
       const winEl = reel.children[W], cw = reel.children[1].offsetLeft - reel.children[0].offsetLeft;
       const centre = () => wrap.clientWidth / 2;
       const jitter = (Math.random() - 0.5) * winEl.offsetWidth * 0.7;
@@ -6535,7 +6605,21 @@ const Shop = {
         setTimeout(() => { reel.style.transition = ''; this.reveal(win, tier); }, 380);
       };
       requestAnimationFrame(step);
-    });
+    }); }, introMs);
+  },
+  // The crate opening for its era, before the reel: returns how long it runs.
+  intro(tier, tid) {
+    const el = $('crIntro'), C = CRATES[tier], art = crateArt(C.color, tid).replace('<svg ', '<svg class="big" ');
+    const bits = n => `<div class="bits">${Array.from({ length: n }, (_, i) => { const a = (i / n) * TAU - Math.PI / 2 + (Math.random() - 0.5) * 0.6, d = 70 + Math.random() * 70; return `<i style="--x:${Math.cos(a) * d}px;--y:${Math.sin(a) * d}px;--r:${(Math.random() - 0.5) * 540}deg"></i>`; }).join('')}</div>`;
+    let extra = '', ms = 1300;
+    if (tid === 'ww1') { extra = bits(14); setTimeout(() => { noise(0.25, 0.25, 900); tone(90, 0.2, 'sine', 0.12, 50); }, 650); [0, 160, 320].forEach(t => setTimeout(() => noise(0.05, 0.12, 2400), t)); }
+    else if (tid === 'ww2') { extra = '<svg class="chute" viewBox="0 0 150 100"><path d="M5 50Q75-20 145 50Q120 40 100 50Q75 38 50 50Q30 40 5 50z" fill="#e8e1cf"/><path d="M5 50L75 100M50 50L75 100M100 50L75 100M145 50L75 100" stroke="#a8a08a" stroke-width="1.2"/></svg>' + bits(10).replace('class="bits"', 'class="bits" style="--bc:#a8b08a"'); setTimeout(() => { tone(70, 0.3, 'sine', 0.2, 40); noise(0.3, 0.2, 700); }, 680); ms = 1450; }
+    else if (tid === 'modern') { [120, 320].forEach(t => setTimeout(() => { tone(2200, 0.03, 'square', 0.04); tone(900, 0.05, 'square', 0.03, null, 0.02); }, t)); setTimeout(() => noise(0.4, 0.08, 4000), 620); setTimeout(() => tone(600, 0.5, 'sine', 0.03, 1600), 500); }
+    else if (tid === 'space') { extra = [0, 0.25, 0.5].map(d => `<span class="ring" style="--d:${0.6 + d}s;--cc:${C.color}"></span>`).join(''); setTimeout(() => { noise(0.8, 0.1, 5000); tone(300, 0.9, 'sine', 0.05, 1200); }, 600); ms = 1450; }
+    else { [0, 120, 240, 360, 480].forEach((t, i) => setTimeout(() => tone(440 * Math.pow(1.25, i), 0.06, 'square', 0.04), t)); extra = bits(18).replace('class="bits"', 'class="bits" style="--bc:#ff4fd8"'); }
+    el.innerHTML = art + extra; el.classList.remove('hidden');
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) ms = 250;
+    return ms;
   },
   reveal(win, tier) {
     const dupe = owned(win.id), R = RARITY[win.rarity], wrap = $('reelWin');

@@ -810,7 +810,15 @@ export class ArenaRoom {
           if (sc < best) { best = sc; tg = o; }
         }
         ai.tg = tg ? tg.id : null; ai.tgT = 2.5 + Math.random() * 2;
+        // Now and then a bot decides to go after the boss for a while instead (never more than two at once).
+        if (s.blimp && now > (ai.bossUntil || 0) && Math.hypot(s.blimp.x - b.x, s.blimp.y - b.y) < 1800 && b.hp > 4) {
+          const onBoss = pilots.filter(o => o.bot && o.ai && now < (o.ai.bossUntil || 0)).length;
+          if (onBoss < 2 && Math.random() < (ai.style === 'opportunist' ? 0.28 : 0.16)) ai.bossUntil = now + 4000 + Math.random() * 4000;
+        }
       }
+      // Committed to the boss: let go if it's gone, someone gets on our tail, or the hull gets low.
+      const bossing = s.blimp && now < (ai.bossUntil || 0);
+      if (bossing && ((threat && td < 260) || b.hp <= 3)) ai.bossUntil = 0;
 
       let want;
       // Anything flown through gets picked up, same as for people.
@@ -818,7 +826,7 @@ export class ArenaRoom {
       // Unarmed: a weapon close by is worth a short detour.
       const arm = !b.weapon ? [...s.pickups.values()].filter(k => PICKUPS[k.k].ammo).map(k => [k, Math.hypot(k.x - b.x, k.y - b.y)]).filter(([, d]) => d < 520).sort((a, c) => a[1] - c[1])[0] : null;
       const heal = b.hp <= 4 ? [...s.pickups.values()].filter(k => k.k === 'w' || k.k === 'h').map(k => [k, Math.hypot(k.x - b.x, k.y - b.y)]).filter(([, d]) => d < 1100).sort((a, c) => a[1] - c[1])[0] : null;
-      const bl = s.blimp && Math.hypot(s.blimp.x - b.x, s.blimp.y - b.y) < 1300 ? s.blimp : null;
+      const bl = s.blimp && (Math.hypot(s.blimp.x - b.x, s.blimp.y - b.y) < 1300 || now < (ai.bossUntil || 0)) ? s.blimp : null;
       if (heal && (!tg || Math.hypot(tg.x - b.x, tg.y - b.y) > 380)) {
         const [k, d] = heal;
         want = Math.atan2(k.y - b.y, k.x - b.x);
@@ -826,10 +834,11 @@ export class ArenaRoom {
         tg = null;
       } else if (arm && (!tg || Math.hypot(tg.x - b.x, tg.y - b.y) > 450)) {
         want = Math.atan2(arm[0].y - b.y, arm[0].x - b.x);
-      } else if (bl && (!tg || Math.hypot(tg.x - b.x, tg.y - b.y) > (ai.style === 'opportunist' ? 1000 : 700))) {
+      } else if (bl && (now < (ai.bossUntil || 0) || !tg || Math.hypot(tg.x - b.x, tg.y - b.y) > (ai.style === 'opportunist' ? 1000 : 700))) {
         const d = Math.hypot(bl.x - b.x, bl.y - b.y);
         want = Math.atan2(bl.y - b.y, bl.x - b.x) + (d < 170 ? 1.2 : 0);
-        if (d < 550 && Math.abs(wrap(Math.atan2(bl.y - b.y, bl.x - b.x) - b.a)) < 0.2 && Math.random() < 0.3 * ai.skill) this.damageBlimp(b, 1, now);
+        // A bit less sure-handed than a person, so people still get their shot at the kill.
+        if (d < 550 && Math.abs(wrap(Math.atan2(bl.y - b.y, bl.x - b.x) - b.a)) < 0.2 && Math.random() < 0.18 * ai.skill) this.damageBlimp(b, 1, now);
         tg = null;
       } else if (tg) {
         // Lead the target by its measured velocity.
