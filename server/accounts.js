@@ -52,7 +52,7 @@ export function cleanProfile(p) {
     played: int(p.played, 1e6), best: int(p.best, 1e6),
     medals: Array.isArray(p.medals) ? p.medals.slice(0, 40).map(m => str(m, 16)).filter(Boolean) : [],
     aces: {}, arena: {}, zenBest: null, planeUse: {}, liveries: {}, planes: {},
-    credits: int(p.credits, 1e9), bullet: int(p.bullet, 20),
+    credits: int(p.credits, 1e9), bullet: int(p.bullet, 20), egg: int(p.egg, 1),
     inv: Array.isArray(p.inv) ? [...new Set(p.inv.slice(0, 600).map(x => String(x)).filter(x => /^[spbt]:[a-z0-9:]{1,24}$/.test(x)))] : [],
   };
   if (p.aces && typeof p.aces === 'object') for (const [d, n] of Object.entries(p.aces).slice(-400)) if (/^\d{1,5}$/.test(d)) out.aces[d] = str(n, 24);

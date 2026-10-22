@@ -74,7 +74,9 @@
   .wrap { max-width: 1240px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
   .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: calc(env(safe-area-inset-top, 0px) + 16px) 8px; }
   .wordmark { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 800; font-size: 22px; letter-spacing: .06em; text-transform: uppercase; }
-  .wordmark svg { width: 30px; height: 30px; color: var(--accent); }
+  .wordmark svg { width: 30px; height: 30px; color: var(--accent); -webkit-tap-highlight-color: transparent; user-select: none; }
+  .wordmark svg.tap { animation: logoTap .25s ease; }
+  @keyframes logoTap { 50% { transform: rotate(-18deg) scale(1.15); } }
   .topnav { display: flex; gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
   .landing { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 470px); gap: 48px; align-items: start; padding-block: 28px 32px; }
   .hero { display: flex; flex-direction: column; gap: 22px; padding-top: 18px; min-width: 0; }
@@ -877,7 +879,7 @@
 <div id="menu" class="screen" data-view="home">
   <header class="wrap topbar">
     <div class="wordmark">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 2l2.4 7.5 0 4.2 11.1 6.3v2.6l-11.1-3.1-.6 6.2 3.7 2.8v2l-5.5-1.5-5.5 1.5v-2l3.7-2.8-.6-6.2-11.1 3.1V20l11.1-6.3V9.5z"/></svg>
+      <svg id="logoPlane" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 2l2.4 7.5 0 4.2 11.1 6.3v2.6l-11.1-3.1-.6 6.2 3.7 2.8v2l-5.5-1.5-5.5 1.5v-2l3.7-2.8-.6-6.2-11.1 3.1V20l11.1-6.3V9.5z"/></svg>
       <span>Super Sortie</span>
     </div>
     <nav class="topnav">
@@ -4767,7 +4769,7 @@ const Social = {
       streak: liveStreak(), maxStreak: store.maxStreak || 0, lastDay: store.lastDay || 0, played: store.played || 0, best: store.best || 0,
       medals: Object.keys(store.medals || {}), aces: store.aces || {}, arena: store.arena || {}, zenBest: store.zenBest || null,
       planeUse: store.planeUse || {}, liveries: store.livery || {}, planes: store.plane || {},
-      credits: store.credits || 0, inv: store.inv || [], bullet: store.bullet || 0,
+      credits: store.credits || 0, inv: store.inv || [], bullet: store.bullet || 0, egg: store.egg ? 1 : 0,
     };
   },
   // Combine an account's saved progress with this device's: keep the best of each.
@@ -4788,6 +4790,7 @@ const Social = {
     if (Array.isArray(p.inv)) { store.inv = store.inv || []; for (const id of p.inv) if (!store.inv.includes(id)) store.inv.push(id); }
     if (p.credits > (store.credits || 0)) store.credits = p.credits;
     if (!store.bullet && p.bullet) store.bullet = p.bullet;
+    if (p.egg) store.egg = 1;
     if (!store.trail && p.trail) store.trail = p.trail;
   },
   dirty() {
@@ -5223,6 +5226,23 @@ const Shop = {
   },
 };
 Shop.init();
+// Easter egg: tap the logo plane 10 times within 10 seconds. Pays out once per pilot.
+{
+  let taps = [];
+  $('logoPlane').addEventListener('click', () => {
+    const now = performance.now(), el = $('logoPlane');
+    taps = taps.filter(t => now - t < 10000); taps.push(now);
+    el.classList.remove('tap'); void el.offsetWidth; el.classList.add('tap');
+    if (taps.length >= 4) tone(400 + taps.length * 80, 0.05, 'square', 0.02);
+    if (taps.length < 10) return;
+    taps = [];
+    if (store.egg) { toast('Nice try, ace', 'That cheat code only works once.'); return; }
+    store.egg = 1;
+    Shop.earn(100000, 'Cheat code');
+    toast('Cheat code unlocked', '+100,000 credits. Spend them wisely.');
+    confetti(120); sfx.medal(); track('easter_egg', {});
+  });
+}
 
 /* ---------- weekly leagues ---------- */
 const LEAGUE_COLORS = ['#cd8a4a', '#c3ccd8', '#ffd34f', '#7cf2ff', '#b98cff', '#ff4d5e'];
