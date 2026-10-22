@@ -58,3 +58,13 @@ test('drafts without keys, posts once per slot with keys, signs with OAuth 1.0a'
   const f = await runScheduledPost(env, at(60, 22), failing);
   assert.equal(f.ok, false); assert.equal((await DB.prepare("SELECT status FROM x_posts WHERE slot_key = '60-board'").first()).status, 'failed');
 });
+
+test('drafts endpoint serves all three posts with the link', async () => {
+  const { default: worker } = await import('../worker.js');
+  const DB = fakeD1();
+  const r = await worker.fetch(new Request('https://x/api/v1/x/drafts'), { DB }, {});
+  const b = await r.json();
+  assert.equal(b.posts.length, 3); for (const p of b.posts) assert.match(p.text, /supersortie\.io/);
+  const t = await (await worker.fetch(new Request('https://x/api/v1/x/drafts?format=text'), { DB }, {})).text();
+  assert.match(t, /----- Midday: today's sortie -----/);
+});
