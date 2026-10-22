@@ -9,10 +9,12 @@
 //   GET    /api/v1/arena/ws?code=CODE[&create=1&theme=ww2&bots=1]   private arena
 //   GET    /api/v1/arena/online                pilots in public arenas right now
 //   GET    /api/v1/arena/leaderboard?deviceId=…   today's top arena pilots by kills
+//   /api/v1/auth/*, /api/v1/me*, /api/v1/pilots/NAME   pilot accounts, friends and profiles (see accounts.js)
 
 import { CoopRoom, ROOM_ALPHABET } from './coop.js';
 import { ArenaRoom, ArenaDirectory } from './arena.js';
 import { serverDay } from './day.js';
+import { handleAccounts, accountFor } from './accounts.js';
 export { CoopRoom, ArenaRoom, ArenaDirectory };
 
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
@@ -73,7 +75,7 @@ function corsHeaders(env, req) {
   return {
     'access-control-allow-origin': allow,
     'vary': 'Origin',
-    'access-control-allow-methods': 'GET, POST, DELETE, OPTIONS',
+    'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'access-control-allow-headers': 'content-type, authorization',
     'access-control-max-age': '86400',
   };
@@ -100,10 +102,13 @@ async function postScore(req, env, cors) {
   const hits = await env.DB.prepare('SELECT n FROM ip_hits WHERE day = ? AND ip_hash = ?').bind(entry.day, ipHash).first();
   if (hits && hits.n > MAX_PER_IP_PER_DAY) return json({ error: 'rate_limited' }, 429, cors);
 
+  // Signed-in pilots get one daily per account too, not just one per device.
+  const acct = await accountFor(env, req);
+  if (acct && await env.DB.prepare('SELECT 1 FROM scores WHERE day = ? AND account_id = ?').bind(entry.day, acct.id).first()) return json({ error: 'already_submitted' }, 409, cors);
   const res = await env.DB.prepare(
-    `INSERT INTO scores (day, device_id, name, score, grades, time_s, theme, hp, kills, mod, wave_times, ip_hash, created_at, plane, livery, fav)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(day, device_id) DO NOTHING`
-  ).bind(entry.day, entry.deviceId, entry.name, entry.score, entry.grades, entry.time, entry.theme, entry.hp, entry.kills, entry.mod, JSON.stringify(entry.waveTimes), ipHash, Date.now(), entry.plane, entry.livery, entry.fav).run();
+    `INSERT INTO scores (day, device_id, name, score, grades, time_s, theme, hp, kills, mod, wave_times, ip_hash, created_at, plane, livery, fav, account_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(day, device_id) DO NOTHING`
+  ).bind(entry.day, entry.deviceId, entry.name, entry.score, entry.grades, entry.time, entry.theme, entry.hp, entry.kills, entry.mod, JSON.stringify(entry.waveTimes), ipHash, Date.now(), entry.plane, entry.livery, entry.fav, acct ? acct.id : null).run();
   if (!res.meta || !res.meta.changes) return json({ error: 'already_submitted' }, 409, cors);
 
   const rank = await env.DB.prepare('SELECT COUNT(*) AS n FROM scores WHERE day = ? AND hidden = 0 AND score > ?').bind(entry.day, entry.score).first();
@@ -114,10 +119,10 @@ async function postScore(req, env, cors) {
 async function topList(env, day, limit) {
   const agg = await env.DB.prepare('SELECT COUNT(*) AS n, AVG(score) AS a FROM scores WHERE day = ? AND hidden = 0').bind(day).first();
   const rows = (await env.DB.prepare(
-    'SELECT device_id, name, score, grades, theme, time_s, plane, livery, fav FROM scores WHERE day = ? AND hidden = 0 ORDER BY score DESC, time_s ASC, created_at ASC LIMIT ?'
+    'SELECT s.device_id, s.name, s.score, s.grades, s.theme, s.time_s, s.plane, s.livery, s.fav, a.username FROM scores s LEFT JOIN accounts a ON a.id = s.account_id WHERE s.day = ? AND s.hidden = 0 ORDER BY s.score DESC, s.time_s ASC, s.created_at ASC LIMIT ?'
   ).bind(day, limit).all()).results || [];
   let prev = null, rank = 0;
-  const entries = rows.map((r, i) => { if (r.score !== prev) { rank = i + 1; prev = r.score; } return { rank, name: r.name, score: r.score, grades: r.grades, theme: r.theme, time: r.time_s, plane: r.plane, livery: r.livery, fav: r.fav, _d: r.device_id }; });
+  const entries = rows.map((r, i) => { if (r.score !== prev) { rank = i + 1; prev = r.score; } return { rank, name: r.name, score: r.score, grades: r.grades, theme: r.theme, time: r.time_s, plane: r.plane, livery: r.livery, fav: r.fav, u: r.username || undefined, _d: r.device_id }; });
   return { day, total: agg.n, avg: Math.round(agg.a || 0), entries };
 }
 
@@ -144,7 +149,7 @@ async function getBoard(url, env, cors, ctx) {
       me = { rank: above.n + 1, score: mine.score, name: mine.name, grades: mine.grades, theme: mine.theme, plane: mine.plane, livery: mine.livery, fav: mine.fav };
     }
   }
-  const entries = top.entries.map(e => ({ rank: e.rank, name: e.name, score: e.score, grades: e.grades, theme: e.theme, time: e.time, plane: e.plane, livery: e.livery, fav: e.fav, me: !!deviceId && e._d === deviceId }));
+  const entries = top.entries.map(e => ({ rank: e.rank, name: e.name, score: e.score, grades: e.grades, theme: e.theme, time: e.time, plane: e.plane, livery: e.livery, fav: e.fav, u: e.u, me: !!deviceId && e._d === deviceId }));
   return json({ day, total: top.total, avg: top.avg, entries, me }, 200, cors, { 'cache-control': 'no-store' });
 }
 
@@ -192,6 +197,12 @@ async function arenaSocket(req, env, url) {
   }
   const fwd = new URL(url);
   fwd.searchParams.set('name', name);
+  // Only the Worker vouches for the account: the client sends its session token, the room gets the id.
+  fwd.searchParams.delete('acct');
+  const auth = url.searchParams.get('auth');
+  fwd.searchParams.delete('auth');
+  const acct = auth ? await accountFor(env, auth) : null;
+  if (acct) fwd.searchParams.set('acct', String(acct.id));
   const stub = env.ARENAS.get(env.ARENAS.idFromName(name));
   return stub.fetch(new Request(fwd, req));
 }
@@ -199,10 +210,10 @@ async function arenaBoard(url, env, cors) {
   const day = serverDay();
   const deviceId = String(url.searchParams.get('deviceId') || '');
   const rows = (await env.DB.prepare(
-    'SELECT device_id, name, plane, livery, kills, deaths, rounds, wins, best_round, best_streak FROM arena_scores WHERE day = ? AND hidden = 0 ORDER BY kills DESC, best_round DESC, updated_at ASC LIMIT 50'
+    'SELECT s.device_id, s.name, s.plane, s.livery, s.kills, s.deaths, s.rounds, s.wins, s.best_round, s.best_streak, a.username FROM arena_scores s LEFT JOIN accounts a ON a.id = s.account_id WHERE s.day = ? AND s.hidden = 0 ORDER BY s.kills DESC, s.best_round DESC, s.updated_at ASC LIMIT 50'
   ).bind(day).all()).results || [];
   const total = await env.DB.prepare('SELECT COUNT(*) AS n FROM arena_scores WHERE day = ? AND hidden = 0').bind(day).first();
-  const row = (r, rank) => ({ rank, name: r.name, plane: r.plane, livery: r.livery, kills: r.kills, deaths: r.deaths, rounds: r.rounds, wins: r.wins, best: r.best_round, streak: r.best_streak, me: !!deviceId && r.device_id === deviceId });
+  const row = (r, rank) => ({ rank, name: r.name, plane: r.plane, livery: r.livery, kills: r.kills, deaths: r.deaths, rounds: r.rounds, wins: r.wins, best: r.best_round, streak: r.best_streak, u: r.username || undefined, me: !!deviceId && r.device_id === deviceId });
   const entries = rows.map((r, i) => row(r, i + 1));
   let me = null;
   if (/^[A-Za-z0-9-]{8,64}$/.test(deviceId) && !entries.some(e => e.me)) {
@@ -237,6 +248,8 @@ export default {
       if (url.pathname === '/api/v1/arena/ws') return await arenaSocket(req, env, url);
       if (url.pathname === '/api/v1/arena/online' && req.method === 'GET') return await arenaOnline(env, cors);
       if (url.pathname === '/api/v1/arena/leaderboard' && req.method === 'GET') return await arenaBoard(url, env, cors);
+      const acct = await handleAccounts(req, env, url, cors);
+      if (acct) return acct;
       return json({ error: 'not_found' }, 404, cors);
     } catch (e) {
       return json({ error: 'server_error' }, 500, cors);

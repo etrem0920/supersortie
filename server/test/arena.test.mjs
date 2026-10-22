@@ -22,12 +22,14 @@ test('kill points reward streaks and shutting down streaks', () => {
   assert.equal(killPoints(1, 5), 350);
 });
 
-test('every power-up can drop', () => {
+test('every power-up can drop, except Overdrive which only bosses drop', () => {
   const total = Object.values(PICKUPS).reduce((s, p) => s + p.weight, 0);
   const seen = new Set();
   let acc = 0;
-  for (const [k, p] of Object.entries(PICKUPS)) { seen.add(pickKind((acc + p.weight / 2) / total)); acc += p.weight; }
-  assert.equal(seen.size, Object.keys(PICKUPS).length);
+  for (const [k, p] of Object.entries(PICKUPS)) { if (p.weight) seen.add(pickKind((acc + p.weight / 2) / total)); acc += p.weight; }
+  assert.equal(seen.size, Object.keys(PICKUPS).length - 1);
+  assert.ok(!seen.has('o'));
+  for (let i = 0; i < 2000; i++) assert.notEqual(pickKind(), 'o');
 });
 
 test('arena callsigns are cleaned', () => {

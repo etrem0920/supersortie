@@ -125,8 +125,32 @@
   .done-score b { font-family: var(--font-display); font-weight: 900; font-size: 56px; line-height: .9; font-variant-numeric: tabular-nums; }
   .done-score span { font-family: var(--font-cond); font-weight: 700; color: var(--accent); letter-spacing: .06em; font-size: 17px; text-transform: uppercase; }
 
+  @media (min-width: 961px) and (min-height: 640px) {
+    #menu { display: flex; flex-direction: column; overflow: hidden; }
+    #menu > header, #menu > main, #menu > footer { width: 100%; }
+    #menu .tab-body > * { flex-shrink: 0; }
+    #menu .hero > * { flex-shrink: 0; }
+    #menu .title { font-size: min(8vw, 13vh); }
+    #menu .landing { flex: 1; min-height: 0; padding-block: 12px 12px; align-items: stretch; }
+    #menu .hero { overflow-y: auto; padding-right: 6px; scrollbar-width: thin; }
+    #menu .panel { min-height: 0; max-height: 100%; }
+    #menu .tab-body { overflow-y: auto; flex: 1; min-height: 0; scrollbar-width: thin; }
+    #menu .foot { padding-block: 0 10px; }
+  }
+  .bottom-nav { display: none; }
+  @media (max-width: 960px) {
+    .bottom-nav { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; background: rgba(9, 12, 20, .97); box-shadow: 0 -1px 0 var(--line-strong); padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .bottom-nav button { background: none; border: 0; color: var(--muted); padding: 8px 2px 7px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: 11px; cursor: pointer; }
+    .bottom-nav svg { width: 22px; height: 22px; }
+    .bottom-nav button[aria-current="true"] { color: var(--accent); }
+    #menu { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+    #menu[data-view="home"] .panel { display: none; }
+    #menu:not([data-view="home"]) .hero, #menu:not([data-view="home"]) .foot { display: none; }
+    #menu:not([data-view="home"]) .panel .tabs { display: none; }
+    #menu:not([data-view="home"]) .landing { padding-top: 0; }
+  }
   .panel { background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); --cut: 18px; display: flex; flex-direction: column; min-width: 0; }
-  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); }
+  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--line); }
   .tab { background: none; border: 0; cursor: pointer; padding: 15px 8px 13px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 15px; color: var(--muted); border-bottom: 2px solid transparent; }
   .tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
   .tab-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
@@ -287,6 +311,23 @@
   .pf-body strong { color: var(--text); font-weight: 700; }
   .coop-entry { display: flex; flex-direction: column; gap: 14px; }
   .coop-entry p { margin: 0; color: var(--muted); line-height: 1.5; }
+  .board li.tap { cursor: pointer; }
+  .board li.tap:hover { background: rgba(255, 255, 255, .04); }
+  .board li .acct { color: var(--accent); font-size: 11px; margin-left: 4px; }
+  .acct-card { display: flex; flex-direction: column; gap: 12px; background: var(--raise); padding: 16px; --cut: 12px; }
+  .acct-card h3 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 24px; text-transform: uppercase; letter-spacing: .02em; }
+  .acct-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .acct-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .acct-row .btn { flex: 1 1 auto; }
+  .acct-err { min-height: 18px; color: var(--bad); font-size: 13px; }
+  .acct-err.ok { color: var(--good); }
+  .acct-who { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .acct-who b { font-family: var(--font-display); font-weight: 800; font-size: 22px; text-transform: uppercase; }
+  .pp-meta { color: var(--muted); font-size: 13px; }
+  .pp-today { background: var(--raise); padding: 10px 12px; font-size: 14px; color: var(--muted); --cut: 8px; }
+  .pp-today b { color: var(--text); }
+  #pilotSheet .medal-list { max-height: 220px; overflow-y: auto; }
+  #pilotSheet { max-height: calc(100vh - 32px); overflow-y: auto; }
   .join-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
   .join-row input {
     background: var(--raise); border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); padding: 12px 14px; min-width: 0;
@@ -408,8 +449,9 @@
   .arena-online { text-align: center; color: var(--good); font-family: var(--font-cond); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 13px; min-height: 18px; }
   .pu-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
   .pu { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); min-width: 0; }
-  .pu b { flex: none; width: 22px; height: 22px; display: grid; place-items: center; background: var(--c); color: #0b0d14; font-family: var(--font-display); font-weight: 900; font-size: 14px; transform: rotate(45deg); }
-  .pu b i { font-style: normal; transform: rotate(-45deg); }
+  .pu b { flex: none; width: 24px; height: 24px; display: grid; place-items: center; background: var(--c); color: #0b0d14; border-radius: 50%; }
+  .pu b svg { width: 15px; height: 15px; }
+  .pu em { font-style: normal; font-size: 11px; color: #ffd700; text-transform: uppercase; letter-spacing: .06em; }
   .pu span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .arena-private { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: center; }
   .arena-private select { min-height: 44px; background: var(--raise); color: var(--text); border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); padding: 0 10px; font: inherit; }
@@ -440,7 +482,8 @@
   @media (max-width: 600px) { .kill-pop { top: calc(env(safe-area-inset-top, 0px) + 118px); } .kill-pop b { font-size: 15px; } }
   .weapon-chip { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(76px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 140px); }
   .wchip { display: flex; align-items: center; gap: 8px; background: rgba(9, 12, 20, .82); box-shadow: inset 0 0 0 1px var(--c); padding: 5px 10px 5px 6px; font-family: var(--font-cond); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
-  .wchip b { width: 20px; height: 20px; display: grid; place-items: center; background: var(--c); color: #0b0d14; font-family: var(--font-display); font-weight: 900; }
+  .wchip b { width: 20px; height: 20px; display: grid; place-items: center; background: var(--c); color: #0b0d14; border-radius: 50%; }
+  .wchip b svg { width: 13px; height: 13px; }
   .wchip i { font-style: normal; color: var(--c); letter-spacing: .1em; }
   .respawn { position: absolute; left: 50%; top: 34%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; width: calc(100% - 32px); text-shadow: 0 2px 12px rgba(0, 0, 0, .8); }
   .respawn b { font-family: var(--font-display); font-weight: 900; font-size: clamp(34px, 7vw, 64px); text-transform: uppercase; line-height: .95; }
@@ -664,7 +707,7 @@
 <div id="toasts" class="toasts" aria-live="polite"></div>
 
 <!-- ================= LANDING ================= -->
-<div id="menu" class="screen">
+<div id="menu" class="screen" data-view="home">
   <header class="wrap topbar">
     <div class="wordmark">
       <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 2l2.4 7.5 0 4.2 11.1 6.3v2.6l-11.1-3.1-.6 6.2 3.7 2.8v2l-5.5-1.5-5.5 1.5v-2l3.7-2.8-.6-6.2-11.1 3.1V20l11.1-6.3V9.5z"/></svg>
@@ -722,6 +765,7 @@
         <button role="tab" class="tab" data-tab="hangar" aria-selected="true">Hangar</button>
         <button role="tab" class="tab" data-tab="board" aria-selected="false">Leaderboard</button>
         <button role="tab" class="tab" data-tab="record" aria-selected="false">Pilot</button>
+        <button role="tab" class="tab" data-tab="friends" aria-selected="false">Friends</button>
       </div>
       <div id="tab-hangar" class="tab-body">
         <div class="field">
@@ -761,8 +805,16 @@
         <div class="section-label"><span>Personal bests</span></div>
         <div id="bestList"></div>
       </div>
+      <div id="tab-friends" class="tab-body hidden"><div id="friendsBody"></div></div>
     </aside>
   </main>
+  <nav id="bottomNav" class="bottom-nav" aria-label="Sections">
+    <button data-view="home" aria-current="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2 6v3l7 4v2l-7-2-.4 4 2.4 2v1.5l-4-1-4 1V21l2.4-2-.4-4-7 2v-2l7-4V8z" fill="currentColor"/></svg><span>Fly</span></button>
+    <button data-view="hangar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V10l9-6 9 6v10h-3v-7H6v7z" fill="currentColor"/></svg><span>Hangar</span></button>
+    <button data-view="board"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10h4v10zm6 0V4h4v16zm6 0v-7h4v7z" fill="currentColor"/></svg><span>Ranks</span></button>
+    <button data-view="record"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z" fill="currentColor"/></svg><span>Pilot</span></button>
+    <button data-view="friends"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3.2" fill="currentColor"/><circle cx="16.5" cy="9" r="3.2" fill="currentColor"/><path d="M1.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6zm11 0c.2-1.7-.3-3.4-1.4-4.7.8-.3 1.9-.5 2.9-.5 3.6 0 6.5 2.1 6.5 5.2z" fill="currentColor"/></svg><span>Friends</span></button>
+  </nav>
 
   <footer class="wrap foot">
     <div id="adMenu" class="ad-slot hidden"></div>
@@ -808,6 +860,11 @@
   </div>
 </div>
 
+<!-- ================= PILOT PROFILE ================= -->
+<div id="pilot" class="modal hidden">
+  <div id="pilotSheet" class="sheet sheet-wide" role="dialog" aria-modal="true" aria-labelledby="ppName"></div>
+</div>
+
 <!-- ================= CO-OP ================= -->
 <div id="coop" class="modal hidden">
   <div class="sheet sheet-wide">
@@ -851,7 +908,7 @@
         <div><b>12</b><small>pilots per arena</small></div>
         <div><b>4:00</b><small>rounds, a new theater each</small></div>
         <div><b>2.5s</b><small>to respawn</small></div>
-        <div><b>10</b><small>power-ups</small></div>
+        <div><b>13</b><small>power-ups</small></div>
       </div>
       <div class="field"><label for="arenaName">Your callsign</label><input id="arenaName" maxlength="16" autocomplete="off" spellcheck="false"></div>
       <button id="arenaQuick" class="btn btn-primary btn-block btn-xl">Quick play</button>
@@ -983,7 +1040,7 @@ function loadStore() {
   } catch (e) { /* storage unavailable */ }
   return defaultStore();
 }
-function saveStore() { try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) { /* storage unavailable */ } }
+function saveStore() { try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) { /* storage unavailable */ } if (window.__dirty) window.__dirty(); }
 let store = loadStore();
 // Pilots who flew before levels existed start with credit for what they've already done.
 if (!store.xpInit) {
@@ -1347,7 +1404,7 @@ const CHALLENGES = [
   { id: 'streak', text: n => `Get a ${n}-kill streak in the arena`, goals: [3, 4, 5], max: true },
   { id: 'locks', text: n => `Break ${n} missile locks with a roll`, goals: [2, 4] },
   { id: 'pickups', text: n => `Collect ${n} arena power-ups`, goals: [5, 8] },
-  { id: 'blimp', text: () => 'Shoot down a supply blimp', goals: [1] },
+  { id: 'blimp', text: () => 'Shoot down an arena boss', goals: [1] },
   { id: 'coopWaves', text: n => `Clear ${n} co-op waves`, goals: [3, 5] },
   { id: 'daily', text: () => "Fly today's sortie", goals: [1] },
   { id: 'zenMin', text: n => `Fly zen mode for ${n} minutes`, goals: [3, 5] },
@@ -1809,7 +1866,19 @@ Object.assign(CRAFT_PLAYER, {
 // Wingtip nav lights for the originals.
 Object.assign(CRAFT_PLAYER.biplane, { tips: CRAFT_PLAYER.biplane.tips || [3, 26] });
 for (const [k, t] of Object.entries({ triplane: [5.5, 23], spad: [2, 28], prop: [-1, 26], corsair: [-1, 26], p38: [1, 29], jet: [-11, 22], hornet: [-8, 21], eagle: [-11, 24], ship: [-6, 23], wraith: [-14, 21], bulwark: [4, 21], fwdswept: [3, 23] })) if (CRAFT_PLAYER[k] && !CRAFT_PLAYER[k].tips) CRAFT_PLAYER[k].tips = t;
-const craftFor = (th, type) => (type === 'player' ? CRAFT_PLAYER[currentPlane(th).shape] : CRAFT[th.shape][type === 'bomber' ? 'heavy' : 'light']);
+// Enemy airframes differ by role in every theater; bombers keep the heavy shape.
+const ENEMY_SHAPES = {
+  ww1: { scout: 'nieuport', fighter: 'albatros', interceptor: 'spad', ace: 'triplane' },
+  ww2: { scout: 'fw190', fighter: 'prop', interceptor: 'mustang', ace: 'corsair' },
+  modern: { scout: 'jet', fighter: 'hornet', interceptor: 'halberd', ace: 'specter' },
+  space: { scout: 'wraith', fighter: 'ship', interceptor: 'striker', ace: 'harbinger' },
+  neon: { scout: 'fwdswept', fighter: 'jet', interceptor: 'glide', ace: 'prism' },
+};
+const craftFor = (th, type) => {
+  if (type === 'player') return CRAFT_PLAYER[currentPlane(th).shape];
+  const sh = ENEMY_SHAPES[th.id] && ENEMY_SHAPES[th.id][type];
+  return sh ? CRAFT_PLAYER[sh] : CRAFT[th.shape][type === 'bomber' ? 'heavy' : 'light'];
+};
 
 const colCache = new Map();
 function colorsFor(th, type, liv) {
@@ -1985,7 +2054,7 @@ const Board = {
   api(path) { return CONFIG.apiBase.replace(/\/$/, '') + path; },
   async submit(entry) {
     if (this.kind === 'api') {
-      const r = await fetch(this.api('/api/v1/scores'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(Object.assign({ deviceId: deviceId() }, entry)) });
+      const r = await fetch(this.api('/api/v1/scores'), { method: 'POST', headers: Object.assign({ 'content-type': 'application/json' }, Social.headers()), body: JSON.stringify(Object.assign({ deviceId: deviceId() }, entry)) });
       if (!r.ok && r.status !== 409) throw new Error('submit ' + r.status);
       return true;
     }
@@ -3581,7 +3650,7 @@ function renderRecord() {
 function boardRowHTML(e) {
   const pid = resolvePlane(e.plane, e.theme);
   const fav = PLANE_INDEX[e.fav] && e.fav !== pid ? ` · fav ${planeName(e.fav)}` : '';
-  return `<li class="${e.me ? 'me' : ''}"><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}<small>${esc(planeName(pid) + fav)}</small></span>${miniTiles(e.grades)}<span class="sc">${fmtNum(e.score)}</span></li>`;
+  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : ''}<small>${esc(planeName(pid) + fav)}</small></span>${miniTiles(e.grades)}<span class="sc">${fmtNum(e.score)}</span></li>`;
 }
 let boardMode = 'daily';
 async function loadArenaBoard() {
@@ -3597,7 +3666,7 @@ async function loadArenaBoard() {
 }
 function arenaRowHTML(e) {
   const pid = PLANE_INDEX[e.plane] ? e.plane : 'hellcat';
-  return `<li class="${e.me ? 'me' : ''}"><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}<small>${e.rounds} round${e.rounds === 1 ? '' : 's'} · ${e.wins} win${e.wins === 1 ? '' : 's'} · best streak ${e.streak}</small></span><span class="coop-k">${e.deaths} deaths</span><span class="sc">${fmtNum(e.kills)}</span></li>`;
+  return `<li class="${e.me ? 'me' : ''}${e.u ? ' tap' : ''}"${e.u ? ` data-u="${esc(e.u)}"` : ''}><span class="rk">${fmtNum(e.rank)}</span>${avatarHTML(pid, e.livery)}<span class="nm">${esc(e.name)}${e.me ? ' (you)' : ''}${e.u ? '<span class="acct">●</span>' : ''}<small>${e.rounds} round${e.rounds === 1 ? '' : 's'} · ${e.wins} win${e.wins === 1 ? '' : 's'} · best streak ${e.streak}</small></span><span class="coop-k">${e.deaths} deaths</span><span class="sc">${fmtNum(e.kills)}</span></li>`;
 }
 function renderArenaBoard(b) {
   const el = $('boardBody');
@@ -3645,6 +3714,183 @@ function updatePilotCount(b) {
   $('leader').textContent = top ? `Leading today: ${top.name} · ${fmtNum(top.score)}` : '';
 }
 
+/* =====================================================================
+   PILOT ACCOUNTS: a username and a password (no email). Keeps progress in
+   sync across devices, gives the pilot a profile others can open from the
+   leaderboards, and holds a friends list.
+   ===================================================================== */
+const Social = {
+  friends: null, syncT: 0, busy: false,
+  get auth() { return store.auth || null; },
+  headers() { return this.auth ? { authorization: 'Bearer ' + this.auth.token } : {}; },
+  authQ() { return this.auth ? '&auth=' + this.auth.token : ''; },
+  async call(path, opts = {}) {
+    const r = await fetch(CONFIG.apiBase.replace(/\/$/, '') + path, Object.assign({}, opts, { headers: Object.assign({ 'content-type': 'application/json' }, this.headers(), opts.headers || {}) }));
+    let body = null; try { body = await r.json(); } catch (e) { /* empty */ }
+    if (r.status === 401 && this.auth && !path.startsWith('/api/v1/auth/')) this.signOut(true);
+    return { ok: r.ok, status: r.status, body: body || {} };
+  },
+  // What other pilots see, and what follows you to another device.
+  profile() {
+    const fav = favoritePlane();
+    return {
+      xp: store.xp || 0, title: store.title || 0, trail: store.trail || 0, fav: fav || '', favLiv: fav ? (store.livery[PLANE_INDEX[fav].theme] || 0) : 0,
+      streak: liveStreak(), maxStreak: store.maxStreak || 0, lastDay: store.lastDay || 0, played: store.played || 0, best: store.best || 0,
+      medals: Object.keys(store.medals || {}), aces: store.aces || {}, arena: store.arena || {}, zenBest: store.zenBest || null,
+      planeUse: store.planeUse || {}, liveries: store.livery || {}, planes: store.plane || {},
+    };
+  },
+  // Combine an account's saved progress with this device's: keep the best of each.
+  merge(p) {
+    if (!p) return;
+    const mx = (a, b) => Math.max(Number(a) || 0, Number(b) || 0);
+    store.xp = mx(store.xp, p.xp); store.played = mx(store.played, p.played); store.best = mx(store.best, p.best); store.maxStreak = mx(store.maxStreak, p.maxStreak);
+    if ((p.lastDay || 0) > (store.lastDay || 0)) { store.lastDay = p.lastDay; store.streak = p.streak || 0; }
+    for (const m of p.medals || []) if (!store.medals[m]) store.medals[m] = todayNum;
+    store.aces = Object.assign({}, p.aces || {}, store.aces || {});
+    if (p.arena && p.arena.rounds) { const a = store.arena || (store.arena = { rounds: 0, wins: 0, kills: 0, deaths: 0, best: 0, top: 0 }); for (const k of ['rounds', 'wins', 'kills', 'deaths', 'best', 'top']) a[k] = mx(a[k], p.arena[k]); }
+    if (p.zenBest && (!store.zenBest || p.zenBest.score > store.zenBest.score)) store.zenBest = p.zenBest;
+    for (const [k, v] of Object.entries(p.planeUse || {})) store.planeUse[k] = mx(store.planeUse[k], v);
+    for (const [k, v] of Object.entries(p.liveries || {})) if (store.livery[k] == null) store.livery[k] = v;
+    for (const [k, v] of Object.entries(p.planes || {})) if (store.plane[k] == null) store.plane[k] = v;
+    if (!store.title && p.title) store.title = p.title;
+    if (!store.trail && p.trail) store.trail = p.trail;
+  },
+  dirty() {
+    if (!this.auth || !CONFIG.apiBase) return;
+    clearTimeout(this.syncT);
+    this.syncT = setTimeout(() => this.call('/api/v1/me/profile', { method: 'PUT', body: JSON.stringify({ profile: this.profile() }) }).catch(() => {}), 4000);
+  },
+  async signIn(mode) {
+    const err = $('acctErr'), u = $('acctUser').value.trim(), pw = $('acctPass').value;
+    err.className = 'acct-err';
+    if (!/^[A-Za-z0-9_]{3,16}$/.test(u)) { err.textContent = 'Usernames are 3 to 16 letters, numbers or underscores.'; return; }
+    if (pw.length < 6) { err.textContent = 'Passwords need at least 6 characters.'; return; }
+    if (this.busy) return;
+    this.busy = true; err.textContent = mode === 'register' ? 'Creating your account…' : 'Logging in…';
+    try {
+      const r = await this.call('/api/v1/auth/' + mode, { method: 'POST', body: JSON.stringify({ username: u, password: pw, profile: this.profile() }) });
+      if (!r.ok) {
+        err.textContent = ({ taken: 'That username is taken. Try another.', bad_login: 'Wrong username or password.', bad_username: 'That username isn\'t allowed. Try another.', rate_limited: 'Too many tries. Wait a while, then try again.' })[r.body.error] || 'Something went wrong. Try again.';
+        return;
+      }
+      store.auth = { token: r.body.token, username: r.body.username };
+      if (r.body.profile) this.merge(r.body.profile);
+      store.callsign = r.body.username;
+      saveStore();
+      $('callsign').value = store.callsign;
+      this.call('/api/v1/me/profile', { method: 'PUT', body: JSON.stringify({ profile: this.profile() }) }).catch(() => {});
+      this.friends = null;
+      this.render();
+    } catch (e) { err.textContent = 'Couldn\'t reach the server. Check your connection.'; }
+    finally { this.busy = false; }
+  },
+  signOut(expired) {
+    if (!expired && this.auth) this.call('/api/v1/auth/logout', { method: 'POST' }).catch(() => {});
+    delete store.auth; this.friends = null; saveStore(); this.render();
+  },
+  async loadFriends() {
+    const r = await this.call('/api/v1/me/friends');
+    this.friends = r.ok ? r.body.friends || [] : [];
+    this.render();
+  },
+  async addFriend() {
+    const el = $('friendName'), msg = $('friendErr'), u = el.value.trim();
+    msg.className = 'acct-err';
+    if (!/^[A-Za-z0-9_]{3,16}$/.test(u)) { msg.textContent = 'Enter their username, exactly as they signed up.'; return; }
+    const r = await this.call('/api/v1/me/friends', { method: 'POST', body: JSON.stringify({ username: u }) }).catch(() => null);
+    if (!r || !r.ok) { msg.textContent = r ? (({ not_found: 'No pilot with that username.', self: 'That\'s you!', too_many: 'Your friends list is full.' })[r.body.error] || 'Couldn\'t add them.') : 'Couldn\'t reach the server.'; return; }
+    el.value = ''; msg.className = 'acct-err ok'; msg.textContent = `${r.body.username} added.`;
+    this.loadFriends();
+  },
+  friendRow(f) {
+    const p = f.profile || {}, fav = PLANE_INDEX[p.fav] ? p.fav : 'hellcat';
+    const t = f.today, at = f.arenaToday;
+    const line = t ? `Today #${fmtNum(t.rank)} · ${fmtNum(t.score)}` : 'Hasn\'t flown today\'s sortie';
+    return `<li class="tap" data-u="${esc(f.username)}"><span class="rk">${levelOf(p.xp || 0)}</span>${avatarHTML(fav, p.favLiv || 0)}<span class="nm">${esc(f.username)}<small>${esc(titleName(p.title))} · ${line}${at ? ` · arena ${at.kills} kills` : ''}</small></span><span class="coop-k">${p.streak ? `${p.streak} day streak` : ''}</span><span class="sc">${t ? fmtNum(t.score) : '—'}</span></li>`;
+  },
+  render() {
+    const el = $('friendsBody');
+    if (!el) return;
+    if (!CONFIG.apiBase) { el.innerHTML = '<div class="notice chamfer">Accounts and friends need the online server. Play at supersortie.io.</div>'; return; }
+    if (!this.auth) {
+      el.innerHTML = `<div class="acct-card chamfer">
+        <h3>Pilot account</h3>
+        <p>Pick a username and a password. Your progress follows you to any device, other pilots can open your profile from the leaderboards, and you can add friends.</p>
+        <p><b>No email needed.</b> That also means we can't reset a lost password, so keep it somewhere safe.</p>
+        <div class="field"><label for="acctUser">Username</label><input id="acctUser" maxlength="16" autocomplete="username" autocapitalize="off" spellcheck="false" value="${esc(/^[A-Za-z0-9_]{3,16}$/.test(store.callsign) ? store.callsign : '')}"></div>
+        <div class="field"><label for="acctPass">Password</label><input id="acctPass" type="password" maxlength="100" autocomplete="current-password"></div>
+        <div id="acctErr" class="acct-err" role="status"></div>
+        <div class="acct-row"><button id="acctReg" class="btn btn-primary">Create account</button><button id="acctLogin" class="btn btn-ghost">Log in</button></div>
+      </div>`;
+      $('acctReg').onclick = () => this.signIn('register');
+      $('acctLogin').onclick = () => this.signIn('login');
+      $('acctPass').onkeydown = e => { if (e.key === 'Enter') this.signIn('login'); };
+      return;
+    }
+    if (this.friends === null) { this.friends = []; this.loadFriends().catch(() => {}); }
+    const list = this.friends.slice().sort((a, b) => ((b.today && b.today.score) || 0) - ((a.today && a.today.score) || 0));
+    el.innerHTML = `<div class="acct-who"><span>Signed in as <b>${esc(this.auth.username)}</b></span><span class="acct-row"><button id="acctMe" class="btn btn-ghost btn-small">My profile</button><button id="acctOut" class="btn btn-ghost btn-small">Log out</button></span></div>
+      <div class="section-label"><span>Add a friend</span></div>
+      <div class="join-row"><input id="friendName" maxlength="16" placeholder="Their username" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Friend's username"><button id="friendAdd" class="btn btn-ghost">Add</button></div>
+      <div id="friendErr" class="acct-err" role="status"></div>
+      <div class="section-label"><span>Friends</span><span>${list.length ? 'Ranked by today\'s sortie' : ''}</span></div>
+      ${list.length ? `<ol class="board">${list.map(f => this.friendRow(f)).join('')}</ol>` : '<div class="notice chamfer">No friends yet. Ask yours for their username, or tap a pilot with a ● on the leaderboard and add them from their profile.</div>'}`;
+    $('acctMe').onclick = () => this.open(this.auth.username);
+    $('acctOut').onclick = () => this.signOut();
+    $('friendAdd').onclick = () => this.addFriend();
+    $('friendName').onkeydown = e => { if (e.key === 'Enter') this.addFriend(); };
+    paintAvatars(el);
+  },
+  async open(username) {
+    const sh = $('pilotSheet');
+    sh.innerHTML = `<div class="sheet-head"><span class="eyebrow-s">Pilot profile</span><h2 id="ppName">${esc(username)}</h2></div><div class="notice chamfer">Loading…</div>`;
+    show('pilot');
+    const r = await this.call('/api/v1/pilots/' + encodeURIComponent(username)).catch(() => null);
+    if (!r || !r.ok) { sh.querySelector('.notice').textContent = r && r.status === 404 ? 'That pilot doesn\'t have a profile.' : 'Couldn\'t load this profile.'; sh.insertAdjacentHTML('beforeend', '<button class="btn btn-ghost btn-block" data-close>Close</button>'); return; }
+    const d = r.body, p = d.profile || {}, mine = this.auth && this.auth.username.toLowerCase() === d.username.toLowerCase();
+    const fav = PLANE_INDEX[p.fav] ? p.fav : 'hellcat', lv = levelOf(p.xp || 0), a = p.arena || {};
+    const aces = Object.entries(p.aces || {}).map(([k, n]) => [Number(k), n]).sort((x, y) => y[0] - x[0]);
+    const medals = MEDALS.filter(m => (p.medals || []).includes(m.id));
+    const chips = (rows) => `<div class="chips">${rows.map(([v, l]) => `<div class="chip"><b>${v}</b><small>${l}</small></div>`).join('')}</div>`;
+    const streak = (p.lastDay === todayNum || p.lastDay === todayNum - 1) ? p.streak || 0 : 0;
+    const since = new Date(d.since || Date.now()).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+    sh.innerHTML = `
+      <div class="profile chamfer">${avatarHTML(fav, p.favLiv || 0, 'xl')}<div class="pf-body"><small>Level ${lv} · ${esc(titleName(p.title))}</small><b id="ppName">${esc(d.username)}</b>
+        <span class="pp-meta">${PLANE_INDEX[p.fav] ? `Flies the <strong>${esc(planeName(fav))}</strong> · ` : ''}Pilot since ${esc(since)}</span></div></div>
+      <div class="pp-today chamfer">${d.today ? `Today's sortie: <b>#${fmtNum(d.today.rank)}</b> with <b>${fmtNum(d.today.score)}</b> ${miniTiles(d.today.grades)}` : 'Hasn\'t flown today\'s sortie yet.'}${d.arenaToday ? ` · Arena today: <b>${d.arenaToday.kills}</b> kills in ${d.arenaToday.rounds} round${d.arenaToday.rounds === 1 ? '' : 's'}` : ''}</div>
+      ${chips([[streak, 'Streak'], [p.maxStreak || 0, 'Best streak'], [p.played || 0, 'Played'], [(p.best || 0) >= 1000 ? ((p.best / 1000).toFixed(1) + 'k') : (p.best || 0), 'Best']])}
+      ${a.rounds ? `<div class="section-label"><span>Arena career</span><span>K/D ${(a.kills / Math.max(1, a.deaths)).toFixed(2)}</span></div>${chips([[fmtNum(a.kills || 0), 'Kills'], [a.wins || 0, 'Round wins'], [a.best || 0, 'Best streak'], [a.rounds, 'Rounds']])}` : ''}
+      <div class="section-label"><span>Ace logbook</span><span>${aces.length} downed</span></div>
+      <div class="ace-log">${aces.length ? aces.slice(0, 18).map(([k, n]) => `<span class="ace-tag chamfer"><b>${esc(n)}</b><small>#${k}</small></span>`).join('') + (aces.length > 18 ? `<span class="ace-more">+${aces.length - 18} more</span>` : '') : '<div class="notice chamfer">No aces downed yet.</div>'}</div>
+      <div class="section-label"><span>Medals</span><span>${medals.length}/${MEDALS.length}</span></div>
+      ${medals.length ? `<div class="medal-list">${medals.map(m => `<div class="medal chamfer">${MEDAL_SVG}<b>${esc(m.name)}</b><small>${esc(m.desc)}</small></div>`).join('')}</div>` : '<div class="notice chamfer">No medals yet.</div>'}
+      <div id="ppErr" class="acct-err" role="status"></div>
+      <div class="acct-row">${mine ? '' : this.auth ? (d.friend ? '<button id="ppFriend" class="btn btn-ghost" data-on="1">Remove friend</button>' : '<button id="ppFriend" class="btn btn-primary">Add friend</button>') : '<button id="ppJoin" class="btn btn-primary">Sign up to add friends</button>'}<button class="btn btn-ghost" data-close>Close</button></div>`;
+    paintAvatars(sh);
+    const fb = $('ppFriend');
+    if (fb) fb.onclick = async () => {
+      const on = fb.dataset.on === '1';
+      const res = on ? await this.call('/api/v1/me/friends/' + encodeURIComponent(d.username), { method: 'DELETE' }).catch(() => null)
+        : await this.call('/api/v1/me/friends', { method: 'POST', body: JSON.stringify({ username: d.username }) }).catch(() => null);
+      if (!res || !res.ok) { $('ppErr').textContent = 'Couldn\'t update your friends list.'; return; }
+      fb.dataset.on = on ? '' : '1'; fb.textContent = on ? 'Add friend' : 'Remove friend'; fb.className = on ? 'btn btn-primary' : 'btn btn-ghost';
+      this.friends = null; if (!$('tab-friends').classList.contains('hidden')) this.render();
+    };
+    const jb = $('ppJoin');
+    if (jb) jb.onclick = () => { hide('pilot'); selectTab('friends'); };
+  },
+};
+window.__dirty = () => Social.dirty();
+$('pilot').addEventListener('click', e => { if (e.target.id === 'pilot' || e.target.closest('[data-close]')) hide('pilot'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('pilot').classList.contains('hidden')) hide('pilot'); });
+document.addEventListener('click', e => {
+  const li = e.target.closest('#boardBody li[data-u], #friendsBody li[data-u]');
+  if (li && CONFIG.apiBase) Social.open(li.dataset.u);
+});
+// Pick up progress made on another device.
+if (store.auth && CONFIG.apiBase) Social.call('/api/v1/me').then(r => { if (r.ok) { Social.merge(r.body.profile); saveStore(); if (state === 'menu') renderRecord(); } }).catch(() => {});
+
 // Keep an open leaderboard current without a reload or a loading flash.
 setInterval(() => {
   if (state !== 'menu' || document.hidden || !Board.ready || $('tab-board').classList.contains('hidden')) return;
@@ -3653,9 +3899,19 @@ setInterval(() => {
 
 function selectTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
-  ['hangar', 'board', 'record'].forEach(n => $('tab-' + n).classList.toggle('hidden', n !== name));
+  ['hangar', 'board', 'record', 'friends'].forEach(n => $('tab-' + n).classList.toggle('hidden', n !== name));
   if (name === 'board') loadBoard();
   if (name === 'record') renderRecord();
+  if (name === 'friends') renderFriends();
+  setView(name);
+  const body = $('tab-' + name); if (body) body.scrollTop = 0;
+}
+// Phones get a bottom bar: each section is its own screen instead of one long page.
+function renderFriends() { Social.render(); }
+function setView(name) {
+  $('menu').dataset.view = name;
+  document.querySelectorAll('#bottomNav button').forEach(b => b.setAttribute('aria-current', String(b.dataset.view === name)));
+  $('menu').scrollTop = 0;
 }
 
 function openMenu() {
@@ -3841,6 +4097,7 @@ $('menuBtn').addEventListener('click', () => {
 $('callsign').addEventListener('change', e => saveCallsign(e.target.value));
 $('callsign').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => selectTab(t.dataset.tab)));
+document.querySelectorAll('#bottomNav button').forEach(b => b.addEventListener('click', () => { if (b.dataset.view === 'home') setView('home'); else selectTab(b.dataset.view); }));
 $('chMeta').addEventListener('click', () => { selectTab('record'); document.querySelector('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 renderChallengeMeta();
 document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
@@ -4530,17 +4787,39 @@ function initCoopUi() {
    Arena: free-for-all for up to 12 pilots (server: server/arena.js)
    ===================================================================== */
 const BASE_R = 1500;
+// Power-up icons are SVG path data (24×24), used both on the canvas (Path2D) and in the HTML.
+const PU_ICONS = {
+  m: 'M20 4l-7 1.5-6.5 6.5 5.5 5.5L18.5 11zM7.5 12l-3.5 1 1.5 3.5 2.5-1.5zM12 16.5l-1.5 2.5 3.5 1.5 1-3.5zM8.5 14l1.5 1.5-5 5-1.5-1.5z',
+  r: 'M13.5 1.5L4.5 14h6.5l-1.5 8.5 9.5-13h-6.5z',
+  n: 'M12 6.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM11 1h2v4h-2zM11 19h2v4h-2zM1 11h4v2H1zM19 11h4v2h-4zM4.2 5.6l1.4-1.4 2.8 2.8-1.4 1.4zM15.6 17l1.4-1.4 2.8 2.8-1.4 1.4zM4.2 18.4l2.8-2.8 1.4 1.4-2.8 2.8zM15.6 7l2.8-2.8 1.4 1.4-2.8 2.8z',
+  s: 'M10.8 3h2.4v18h-2.4zM3.6 5.4l2.2-1 6.6 15.4-2.2 1zM18.2 4.4l2.2 1-6.6 15.4-2.2-1z',
+  f: 'M3 5l7.5 7L3 19zM12 5l7.5 7L12 19z',
+  h: 'M12 1.5l8.5 3.2v6.3c0 5.2-3.6 9.5-8.5 11.5-4.9-2-8.5-6.3-8.5-11.5V4.7z',
+  w: 'M9 2.5h6v6.5h6.5v6H15v6.5H9V15H2.5V9H9z',
+  b: 'M12.5 1.5c1 4.5 6.5 6.5 6.5 12.5a7 7 0 0 1-14 0c0-3.5 2.2-5.8 3.5-7 .2 2.3 1.2 3.4 2.4 3.6-.3-3.3-.8-6.4 1.6-9.1z',
+  c: 'M12 5.5C6 5.5 1.5 12 1.5 12S6 18.5 12 18.5 22.5 12 22.5 12 18 5.5 12 5.5zm0 3a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zM2.6 4l1.4-1.4L21.4 20l-1.4 1.4z',
+  d: 'M12 1l2.6 6.4L21 5l-3.4 6 5.4 3-6.6.9 1.1 7.1L12 17.4 6.5 22l1.1-7.1L1 14l5.4-3L3 5l6.4 2.4z',
+  z: 'M12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm0-6.5a9.5 9.5 0 1 1 0 19 9.5 9.5 0 0 1 0-19zm0 2.5a7 7 0 1 0 0 14 7 7 0 0 0 0-14z',
+  v: 'M12 21.5l-1.6-1.4C4.8 15.1 1.5 12.1 1.5 8.4 1.5 5.4 3.9 3 6.9 3c1.8 0 3.6.9 4.6 2.2.1.1.4.1.5 0C13 3.9 14.8 3 16.6 3c3 0 5.4 2.4 5.4 5.4 0 3.7-3.3 6.7-8.9 11.7z',
+  o: 'M12 1l3.3 6.8 7.4 1-5.4 5.2 1.3 7.4L12 17.9l-6.6 3.5 1.3-7.4L1.3 8.8l7.4-1z',
+};
+const puSvg = k => `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="${PU_ICONS[k]}"/></svg>`;
+const puPaths = {};
+const puPath = k => puPaths[k] || (puPaths[k] = new Path2D(PU_ICONS[k]));
 const ARENA_PICKUPS = {
-  m: { name: 'Missiles', color: '#ff5d4d', glyph: 'M', hint: 'Missiles lock on to whoever you point at, then fire themselves' },
-  r: { name: 'Rail gun', color: '#6ee8ff', glyph: 'R', hint: 'The rail gun fires the moment a plane lines up in your sights' },
-  n: { name: 'Mines', color: '#ffc53d', glyph: 'N', hint: 'Mines drop behind you whenever someone is on your tail' },
-  s: { name: 'Spread guns', color: '#ff8a3d', glyph: 'S', hint: 'Spread guns: four streams of fire for 12 seconds', ms: 12000 },
-  f: { name: 'Rapid fire', color: '#ff4fd8', glyph: 'F', hint: 'Rapid fire: double fire rate for 10 seconds', ms: 10000 },
-  h: { name: 'Shield', color: '#8fd6ea', glyph: 'H', hint: 'Shield: soaks up the next 6 hits for 15 seconds', ms: 15000 },
-  w: { name: 'Repair', color: '#38d98a', glyph: '+', hint: 'Hull fully repaired' },
-  b: { name: 'Afterburner', color: '#ffd34f', glyph: 'B', hint: 'Afterburner: 45% faster for 6 seconds', ms: 6000 },
-  c: { name: 'Cloak', color: '#c9b8ff', glyph: 'C', hint: 'Cloak: nearly invisible and missiles can’t lock on, for 6 seconds', ms: 6000 },
-  d: { name: 'Double damage', color: '#ff2d55', glyph: '×2', hint: 'Double damage: your guns hit twice as hard for 8 seconds', ms: 8000 },
+  m: { name: 'Missiles', color: '#ff5d4d', hint: 'Missiles lock on to whoever you point at, then fire themselves' },
+  r: { name: 'Rail gun', color: '#6ee8ff', hint: 'The rail gun fires the moment a plane lines up in your sights' },
+  n: { name: 'Mines', color: '#ffc53d', hint: 'Mines drop behind you whenever someone is on your tail' },
+  s: { name: 'Spread guns', color: '#ff8a3d', hint: 'Spread guns: four streams of fire for 12 seconds', ms: 12000 },
+  f: { name: 'Rapid fire', color: '#ff4fd8', hint: 'Rapid fire: double fire rate for 10 seconds', ms: 10000 },
+  h: { name: 'Shield', color: '#8fd6ea', hint: 'Shield: soaks up the next 6 hits for 15 seconds', ms: 15000 },
+  w: { name: 'Repair', color: '#38d98a', hint: 'Hull fully repaired' },
+  b: { name: 'Afterburner', color: '#ffd34f', hint: 'Afterburner: 45% faster for 6 seconds', ms: 6000 },
+  c: { name: 'Cloak', color: '#c9b8ff', hint: 'Cloak: nearly invisible and missiles can’t lock on, for 6 seconds', ms: 6000 },
+  d: { name: 'Double damage', color: '#ff2d55', hint: 'Double damage: your guns hit twice as hard for 8 seconds', ms: 8000 },
+  z: { name: 'Shockwave', color: '#7cf2ff', hint: 'Shockwave! Everyone close to you just took 4 damage' },
+  v: { name: 'Vampire', color: '#c2185b', hint: 'Vampire: every kill restores half your hull for 15 seconds', ms: 15000 },
+  o: { name: 'Overdrive', color: '#ffd700', hint: 'OVERDRIVE: triple guns, double fire rate, double damage and a shield for 15 seconds', ms: 15000, boss: true },
 };
 const ARENA_AMMO = { m: 3, r: 3, n: 4 };
 const ARENA_ERRORS = {
@@ -4550,7 +4829,8 @@ const ARENA_ERRORS = {
   closed: "Couldn't reach the arena server. Check your connection and try again.",
 };
 const STREAK_NAMES = { 2: 'Double kill', 3: 'Triple kill', 5: 'Rampage', 7: 'Unstoppable', 10: 'Legendary' };
-const WEAPON_TAGS = { g: 'GUNS', r: 'RAIL', m: 'MISSILE', n: 'MINE' };
+const WEAPON_TAGS = { g: 'GUNS', r: 'RAIL', m: 'MISSILE', n: 'MINE', z: 'SHOCK', b: 'BOSS' };
+const BOSS_DIMS = { ww1: [64, 26], ww2: [74, 18], modern: [50, 58], space: [80, 30], neon: [44, 44] };
 
 const ANet = {
   ws: null, quitting: false,
@@ -4595,7 +4875,7 @@ const Arena = {
   reset(m) {
     Object.assign(this, {
       on: true, you: m.you, info: m, roster: new Map(), others: new Map(), board: [], pickups: new Map(), missiles: [], mines: new Map(), beams: [], rBullets: [],
-      hits: {}, hv: [], feed: [], weapon: '', wpHold: 0, flags: 0, buffs: {}, killer: 0, respawnAt: 0, round: m.round, blimp: null, roundEnds: performance.now() + m.round.left,
+      hits: {}, hv: [], feed: [], weapon: '', wpHold: 0, flags: 0, buffs: {}, killer: 0, respawnAt: 0, round: m.round, blimp: null, tracers: [], bossName: '', roundEnds: performance.now() + m.round.left,
       phase: m.round.phase, reconnecting: false, lock: null, cd: 0, sendT: 0, beepT: 0, refN: 0, kills: 0, deaths: 0, streak: 0, best: 0, score: 0, boardT: 0, lastEnd: null,
     });
   },
@@ -4617,7 +4897,9 @@ const Arena = {
       case 'ul': for (const ms of this.missiles) if (m.m.includes(ms.ref)) ms.lock = false; break;
       case 's': this.onScores(m.b); break;
       case 'round': this.onRound(m); break;
-      case 'bl': showHint('A supply blimp is crossing the arena. Shoot it down for power-ups.', 4200); break;
+      case 'bl': showHint(`${m.name} inbound! It shoots back. Bring it down for Overdrive.`, 4600); this.bossName = m.name; sfx.wave(); break;
+      case 'bf': this.tracers.push({ x: m.x, y: m.y, tx: m.tx, ty: m.ty, life: 0.14 }); if (Math.hypot(m.x - player.x, m.y - player.y) < 700) tone(140 + Math.random() * 40, 0.05, 'square', 0.015); break;
+      case 'sw': this.onShock(m); break;
       case 'bx': this.onBlimpDown(m); break;
       default: break;
     }
@@ -4632,7 +4914,7 @@ const Arena = {
       await new Promise(r => setTimeout(r, 400 + i * 900));
       if (!this.on) break;
       try {
-        await ANet.connect(`${q}&resume=${encodeURIComponent(this.info.token || '')}&callsign=${encodeURIComponent(store.callsign)}&device=${encodeURIComponent(deviceId())}`);
+        await ANet.connect(`${q}&resume=${encodeURIComponent(this.info.token || '')}&callsign=${encodeURIComponent(store.callsign)}&device=${encodeURIComponent(deviceId())}${Social.authQ()}`);
         this.reconnecting = false;
         showHint('Reconnected', 1500);
         track('arena_reconnect', { tries: i + 1 });
@@ -4673,9 +4955,9 @@ const Arena = {
   onWorld(m) {
     this.roundEnds = performance.now() + m.left;
     if (m.bl) {
-      const [id, x, y, a, hp] = m.bl;
+      const [id, x, y, a, hp, max, kind] = m.bl;
       const b = this.blimp;
-      if (!b || b.id !== id) this.blimp = { id, x, y, tx: x, ty: y, a: a / 100, hp, flash: 0 };
+      if (!b || b.id !== id) this.blimp = { id, x, y, tx: x, ty: y, a: a / 100, hp, max: max || 70, kind: kind || theme.id, flash: 0 };
       else { if (hp < b.hp) b.flash = 0.08; b.tx = x; b.ty = y; b.a = a / 100; b.hp = hp; }
     } else this.blimp = null;
     for (const [id, x, y, a, r, hp, fl, wp] of m.p) {
@@ -4753,6 +5035,7 @@ const Arena = {
     if (m.by !== this.you) { if (k) for (let i = 0; i < 6; i++) puff(k.x, k.y, rand(-90, 90), rand(-90, 90), rand(3, 5), 6, 0.3, ARENA_PICKUPS[m.k].color, 'fire'); return; }
     const def = ARENA_PICKUPS[m.k];
     sfx.pickup();
+    if (m.k === 'o') { showBanner('Boss drop', 'Overdrive', '15 seconds. Make them count.'); sfx.medal(); shake = Math.max(shake, 10); }
     progress('pickups', 1);
     floater(player.x, player.y - 34, def.name.toUpperCase(), def.color, 1.1);
     showHint(def.hint, 2600);
@@ -4771,14 +5054,21 @@ const Arena = {
       this.mines.set(m.id, { id: m.id, o: m.o, x: m.x, y: m.y, t: 0 });
     }
   },
+  onShock(m) {
+    parts.push({ x: m.x, y: m.y, vx: 0, vy: 0, r: 20, grow: 900, life: 0.38, max: 0.38, color: '#7cf2ff', kind: 'ring', rot: 0, vr: 0 });
+    parts.push({ x: m.x, y: m.y, vx: 0, vy: 0, r: 10, grow: 600, life: 0.3, max: 0.3, color: '#ffffff', kind: 'ring', rot: 0, vr: 0 });
+    if (Math.hypot(m.x - player.x, m.y - player.y) < 900) { noise(0.5, 0.3, 500); shake = Math.max(shake, 16); }
+    if (m.by === this.you) floater(player.x, player.y - 40, 'SHOCKWAVE', '#7cf2ff', 1.3);
+  },
   onBlimpDown(m) {
     this.blimp = null;
     explode(m.x, m.y, 2.4);
     for (let i = 0; i < 20; i++) puff(m.x + rand(-50, 50), m.y + rand(-20, 20), rand(-160, 160), rand(-160, 160), rand(3, 6), 0, rand(0.5, 0.9), theme.neon ? theme.accent : '#e8dcc0', 'debris');
     if (Math.hypot(m.x - player.x, m.y - player.y) < 1100) { sfx.boom(true); shake = Math.max(shake, 14); }
-    this.feed.unshift({ k: m.by ? this.nameOf(m.by) : '', v: 'Supply blimp', w: 'g', me: m.by === this.you, t: performance.now() });
+    this.feed.unshift({ k: m.by ? this.nameOf(m.by) : '', v: this.bossName || 'Boss', w: 'g', me: m.by === this.you, t: performance.now() });
+    explode(m.x + 30, m.y - 10, 1.8); explode(m.x - 30, m.y + 10, 1.8);
     this.feed = this.feed.slice(0, 5);
-    if (m.by === this.you) { floater(m.x, m.y - 40, `+${m.pts} SUPPLY DROP`, '#8fd6ea', 1.4); progress('blimp', 1); earnMedal('blimp'); }
+    if (m.by === this.you) { floater(m.x, m.y - 40, `+${m.pts} BOSS DOWN`, '#ffd700', 1.5); killPop(this.bossName || 'Boss', 0, 'BOSS', m.pts); progress('blimp', 1); earnMedal('blimp'); }
   },
   onScores(b) {
     this.board = b;
@@ -4842,7 +5132,9 @@ const Arena = {
     }
     const bl = this.blimp;
     if (bl) {
-      const vx = Math.cos(bl.a) * 70 * dt, vy = Math.sin(bl.a) * 70 * dt;
+      const sp = { ww1: 60, ww2: 45, modern: 95, space: 40, neon: 55 }[bl.kind] || 60;
+      const vx = Math.cos(bl.a) * sp * dt, vy = Math.sin(bl.a) * sp * dt;
+      if (bl.kind === 'ww2' && Math.random() < 0.6) puff(bl.x - Math.cos(bl.a) * 70, bl.y - Math.sin(bl.a) * 70, rand(-20, 20), rand(-20, 20), rand(5, 10), 18, 1.4, 'rgba(255,255,255,.8)', 'smoke');
       bl.tx += vx; bl.ty += vy; bl.x = lerp(bl.x + vx, bl.tx, k); bl.y = lerp(bl.y + vy, bl.ty, k);
       bl.flash = Math.max(0, bl.flash - dt);
     }
@@ -4852,7 +5144,8 @@ const Arena = {
     const b = this.blimp;
     if (!b) return false;
     const dx = x - b.x, dy = y - b.y, c = Math.cos(b.a), s2 = Math.sin(b.a);
-    const u = (dx * c + dy * s2) / (60 + pad), v = (-dx * s2 + dy * c) / (25 + pad);
+    const [rx, ry] = BOSS_DIMS[b.kind] || [60, 25];
+    const u = (dx * c + dy * s2) / (rx + pad), v = (-dx * s2 + dy * c) / (ry + pad);
     return u * u + v * v < 1;
   },
   hittable(o) { return o && o.alive && o.seen && !(o.fl & 32) && this.phase === 'play'; },
@@ -4998,12 +5291,11 @@ const Arena = {
       c.save(); c.translate(k.x, k.y + bob);
       c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(5, 16, 13, 5, 0, 0, TAU); c.fill();
       c.strokeStyle = rgba(def.color, 0.5); c.lineWidth = 2; c.beginPath(); c.arc(0, 0, 22 * pulse, 0, TAU); c.stroke();
-      c.rotate(Math.PI / 4 + Math.sin(time * 2 + k.id) * 0.15);
-      c.fillStyle = def.color; c.strokeStyle = '#0b0d14'; c.lineWidth = 2.5; c.lineJoin = 'round';
-      c.beginPath(); c.rect(-11, -11, 22, 22); c.fill(); c.stroke();
-      c.rotate(-Math.PI / 4 - Math.sin(time * 2 + k.id) * 0.15);
-      c.fillStyle = '#0b0d14'; c.font = `900 ${def.glyph.length > 1 ? 12 : 15}px "Big Shoulders Display", "Arial Narrow", sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText(def.glyph, 0, 1);
+      if (def.boss) { c.save(); c.rotate(time * 1.5); c.fillStyle = 'rgba(255,215,0,.22)'; for (let q = 0; q < 8; q++) { c.rotate(TAU / 8); c.beginPath(); c.moveTo(0, 0); c.lineTo(34, -5); c.lineTo(34, 5); c.closePath(); c.fill(); } c.restore(); }
+      const rr = def.boss ? 17 : 14;
+      c.fillStyle = def.color; c.strokeStyle = '#0b0d14'; c.lineWidth = 2.5;
+      c.beginPath(); c.arc(0, 0, rr, 0, TAU); c.fill(); c.stroke();
+      c.save(); c.scale(rr / 15, rr / 15); c.translate(-12, -12); c.fillStyle = '#0b0d14'; c.fill(puPath(k.k), 'evenodd'); c.restore();
       c.restore();
     }
     // mines
@@ -5037,7 +5329,8 @@ const Arena = {
       c.restore();
       if (m.lock && m.tg === this.you) { c.strokeStyle = 'rgba(255,77,94,.7)'; c.lineWidth = 1.5; c.beginPath(); c.arc(m.x, m.y, 15 + Math.sin(time * 18) * 2, 0, TAU); c.stroke(); }
     }
-    if (this.blimp && inView(this.blimp.x, this.blimp.y, 140)) this.drawBlimp(c, th, this.blimp);
+    if (this.blimp && inView(this.blimp.x, this.blimp.y, 200)) this.drawBlimp(c, th, this.blimp);
+    this.drawTracers(c, th);
     // other pilots
     const leader = this.board.length && this.board[0][3] > 0 ? this.board[0][0] : 0;
     for (const o of this.others.values()) {
@@ -5052,7 +5345,8 @@ const Arena = {
       drawCraft(c, craft, col, 1, { roll: o.roll, spin: time * 45, t: time, flash: o.flash > 0 });
       c.restore();
       if (ghost) { c.globalAlpha = 1; continue; }
-      if (o.fl & 256) { c.strokeStyle = 'rgba(255,45,85,.7)'; c.lineWidth = 2; c.beginPath(); c.arc(o.x, o.y, 26 + Math.sin(time * 14) * 2, 0, TAU); c.stroke(); }
+      this.aura(c, o.x, o.y, o.fl);
+      if (o.fl & 256 && !(o.fl & 512)) { c.strokeStyle = 'rgba(255,45,85,.7)'; c.lineWidth = 2; c.beginPath(); c.arc(o.x, o.y, 26 + Math.sin(time * 14) * 2, 0, TAU); c.stroke(); }
       if (o.fl & 2) { c.strokeStyle = 'rgba(143,214,234,.75)'; c.lineWidth = 2.5; c.beginPath(); c.arc(o.x, o.y, 30 + Math.sin(time * 8) * 1.5, 0, TAU); c.stroke(); c.fillStyle = 'rgba(143,214,234,.12)'; c.fill(); }
       if (this.lock && this.lock.id === o.id) {
         const k = Math.min(1, this.lock.t / 0.55), r0 = 46 - 18 * k;
@@ -5071,43 +5365,96 @@ const Arena = {
     }
     // my shield and afterburner
     if (!player.dead) {
+      this.aura(c, player.x, player.y, this.flags);
       if (this.flags & 2) { c.strokeStyle = 'rgba(143,214,234,.8)'; c.lineWidth = 2.5; c.beginPath(); c.arc(player.x, player.y, 30 + Math.sin(time * 8) * 1.5, 0, TAU); c.stroke(); c.fillStyle = 'rgba(143,214,234,.12)'; c.fill(); }
       if (this.flags & 4 && Math.random() < 0.8) puff(player.x - Math.cos(player.a) * 18, player.y - Math.sin(player.a) * 18, rand(-20, 20), rand(-20, 20), rand(3, 6), 8, 0.3, theme.fx[0], 'fire');
     }
     void now;
   },
+  // One boss per theater. All share the hit ellipse in BOSS_DIMS; the art differs.
   drawBlimp(c, th, b) {
-    const env = th.neon ? '#1b1030' : th.ground === 'space' ? '#c9d1de' : '#e3dccb';
-    const trim = th.neon ? th.accent : th.ground === 'space' ? '#3a8dff' : '#b8322a';
-    if (th.shadows) { c.save(); c.translate(b.x + 34, b.y + 54); c.rotate(b.a); c.fillStyle = th.pal.shadow; c.beginPath(); c.ellipse(0, 0, 62, 26, 0, 0, TAU); c.fill(); c.restore(); }
+    const k = b.kind, [rx, ry] = BOSS_DIMS[k] || [60, 25], ink = '#0b0d14';
+    const shadow = th.shadows && k !== 'ww2';
     c.save(); c.translate(b.x, b.y); c.rotate(b.a);
-    c.lineJoin = 'round'; c.strokeStyle = '#0b0d14'; c.lineWidth = 2.5;
-    // tail fins
-    c.fillStyle = trim;
-    for (const sd of [-1, 1]) { c.beginPath(); c.moveTo(-40, sd * 8); c.lineTo(-66, sd * 26); c.lineTo(-58, sd * 4); c.closePath(); c.fill(); c.stroke(); }
-    // envelope
-    const g = c.createLinearGradient(0, -25, 0, 25);
-    g.addColorStop(0, env); g.addColorStop(1, th.neon ? '#0d0718' : 'rgba(0,0,0,.18)');
-    c.fillStyle = env; c.beginPath(); c.ellipse(0, 0, 60, 25, 0, 0, TAU); c.fill();
-    c.fillStyle = g; c.fill(); c.stroke();
-    c.strokeStyle = th.neon ? th.accent : trim; c.lineWidth = 4;
-    for (const x of [-22, 22]) { c.beginPath(); c.ellipse(x, 0, 4, 23, 0, 0, TAU); c.stroke(); }
-    // supply crate gondola and props
-    c.fillStyle = '#8a6a3a'; c.strokeStyle = '#0b0d14'; c.lineWidth = 2; c.fillRect(-10, -7, 20, 14); c.strokeRect(-10, -7, 20, 14);
-    c.fillStyle = '#ffd34f'; c.fillRect(-2, -7, 4, 14);
-    c.strokeStyle = 'rgba(20,20,28,.7)'; c.lineWidth = 2;
-    for (const sd of [-1, 1]) { const a = time * 22 * sd; c.beginPath(); c.moveTo(-14 + Math.cos(a) * 7, sd * 30 + Math.sin(a) * 7); c.lineTo(-14 - Math.cos(a) * 7, sd * 30 - Math.sin(a) * 7); c.stroke(); }
-    if (b.flash > 0) { c.globalAlpha = 0.5; c.fillStyle = '#ffffff'; c.beginPath(); c.ellipse(0, 0, 60, 25, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
+    c.lineJoin = 'round'; c.strokeStyle = ink; c.lineWidth = 2.5;
+    const turret = (x, y, r) => { // a gun turret that tracks the last target
+      c.save(); c.translate(x, y); const t = this.tracers[this.tracers.length - 1]; if (t) c.rotate(Math.atan2(t.ty - b.y, t.tx - b.x) - b.a);
+      c.fillStyle = '#3a3f48'; c.beginPath(); c.arc(0, 0, r, 0, TAU); c.fill(); c.stroke(); c.fillStyle = ink; c.fillRect(0, -1.5, r * 2, 3); c.restore();
+    };
+    if (k === 'ww1') {
+      if (shadow) { c.save(); c.translate(34, 54); c.fillStyle = th.pal.shadow; c.beginPath(); c.ellipse(0, 0, 66, 27, 0, 0, TAU); c.fill(); c.restore(); }
+      c.fillStyle = '#7a1d1d'; for (const sd of [-1, 1]) { c.beginPath(); c.moveTo(-44, sd * 8); c.lineTo(-72, sd * 28); c.lineTo(-62, sd * 4); c.closePath(); c.fill(); c.stroke(); }
+      const g = c.createLinearGradient(0, -26, 0, 26); g.addColorStop(0, '#d9d2bf'); g.addColorStop(1, '#8f8670');
+      c.fillStyle = g; c.beginPath(); c.ellipse(0, 0, 64, 26, 0, 0, TAU); c.fill(); c.stroke();
+      c.strokeStyle = 'rgba(0,0,0,.2)'; c.lineWidth = 1; for (let x = -48; x <= 48; x += 12) { c.beginPath(); c.moveTo(x, -Math.sqrt(1 - (x / 64) ** 2) * 26); c.lineTo(x, Math.sqrt(1 - (x / 64) ** 2) * 26); c.stroke(); }
+      c.strokeStyle = ink; c.lineWidth = 2; c.fillStyle = '#5a4630'; c.fillRect(-14, -6, 28, 12); c.strokeRect(-14, -6, 28, 12);
+      c.fillStyle = '#111'; c.beginPath(); c.arc(0, 0, 9, 0, TAU); c.fill(); c.fillStyle = '#fff'; c.fillRect(-1.5, -7, 3, 14); c.fillRect(-7, -1.5, 14, 3);
+      turret(30, 0, 5); turret(-26, 0, 5);
+    } else if (k === 'ww2') {
+      c.fillStyle = 'rgba(255,255,255,.16)'; c.beginPath(); c.moveTo(-80, -10); c.lineTo(-150, -30); c.lineTo(-150, 30); c.lineTo(-80, 10); c.fill();
+      c.fillStyle = '#6f7b86'; c.beginPath(); c.moveTo(82, 0); c.lineTo(52, -17); c.lineTo(-70, -17); c.lineTo(-78, -10); c.lineTo(-78, 10); c.lineTo(-70, 17); c.lineTo(52, 17); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = '#566069'; c.fillRect(-60, -9, 100, 18);
+      c.fillStyle = '#8b96a1'; c.fillRect(-14, -8, 24, 16); c.strokeRect(-14, -8, 24, 16);
+      c.fillStyle = '#2d3238'; c.fillRect(-26, -5, 8, 10); c.fillRect(14, -4, 6, 8);
+      turret(44, 0, 6); turret(28, 0, 5); turret(-44, 0, 6); turret(-58, 0, 5);
+    } else if (k === 'modern') {
+      if (shadow) { c.save(); c.translate(20, 34); c.fillStyle = th.pal.shadow; c.beginPath(); c.moveTo(54, 0); c.lineTo(16, -6); c.lineTo(-12, -60); c.lineTo(-24, -60); c.lineTo(-14, -6); c.lineTo(-52, 0); c.lineTo(-14, 6); c.lineTo(-24, 60); c.lineTo(-12, 60); c.lineTo(16, 6); c.closePath(); c.fill(); c.restore(); }
+      c.fillStyle = '#6b7380';
+      c.beginPath(); c.moveTo(16, -6); c.lineTo(-12, -60); c.lineTo(-24, -60); c.lineTo(-14, -6); c.lineTo(-14, 6); c.lineTo(-24, 60); c.lineTo(-12, 60); c.lineTo(16, 6); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = '#4c535e'; for (const sd of [-1, 1]) for (const d of [20, 36]) { c.beginPath(); c.ellipse(-2 - d * 0.5, sd * d, 9, 3, 0, 0, TAU); c.fill(); c.stroke(); }
+      c.fillStyle = '#7d8693'; c.beginPath(); c.moveTo(54, 0); c.lineTo(40, -7); c.lineTo(-48, -6); c.lineTo(-52, 0); c.lineTo(-48, 6); c.lineTo(40, 7); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = '#6b7380'; c.beginPath(); c.moveTo(-36, 0); c.lineTo(-50, -18); c.lineTo(-56, -18); c.lineTo(-50, 0); c.lineTo(-56, 18); c.lineTo(-50, 18); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = th.glass; c.beginPath(); c.ellipse(44, 0, 6, 3, 0, 0, TAU); c.fill();
+      turret(-50, 0, 4.5);
+    } else if (k === 'space') {
+      c.fillStyle = 'rgba(110,180,255,.5)'; for (const sd of [-12, 0, 12]) { c.beginPath(); c.ellipse(-84 - Math.random() * 6, sd, 10, 4, 0, 0, TAU); c.fill(); }
+      c.fillStyle = '#9aa3b5'; c.beginPath(); c.moveTo(86, 0); c.lineTo(56, -22); c.lineTo(-40, -30); c.lineTo(-78, -20); c.lineTo(-78, 20); c.lineTo(-40, 30); c.lineTo(56, 22); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = '#6c7487'; c.fillRect(-60, -12, 110, 24); c.strokeRect(-60, -12, 110, 24);
+      c.fillStyle = '#3a8dff'; for (let x = -50; x < 50; x += 14) c.fillRect(x, -15, 6, 2);
+      c.fillStyle = '#c9d1de'; c.fillRect(-10, -8, 26, 16); c.strokeRect(-10, -8, 26, 16);
+      turret(40, -16, 5); turret(40, 16, 5); turret(-30, -20, 5); turret(-30, 20, 5);
+    } else {
+      const sp = time * 1.2;
+      c.save(); c.rotate(sp - b.a);
+      c.strokeStyle = th.accent; c.lineWidth = 3; c.shadowColor = th.accent; c.shadowBlur = 12;
+      c.beginPath(); for (let q = 0; q < 4; q++) { const a = q / 4 * TAU; c.lineTo(Math.cos(a) * 44, Math.sin(a) * 44); } c.closePath(); c.fillStyle = '#12081f'; c.fill(); c.stroke();
+      c.rotate(-sp * 2); c.beginPath(); for (let q = 0; q < 3; q++) { const a = q / 3 * TAU; c.lineTo(Math.cos(a) * 26, Math.sin(a) * 26); } c.closePath(); c.stroke();
+      c.shadowBlur = 0; c.restore();
+      c.fillStyle = '#ff4fd8'; c.beginPath(); c.arc(0, 0, 8 + Math.sin(time * 8) * 2, 0, TAU); c.fill();
+    }
+    if (b.flash > 0) { c.globalAlpha = 0.45; c.fillStyle = '#ffffff'; c.beginPath(); c.ellipse(0, 0, rx, ry, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
     c.restore();
-    c.save(); c.translate(b.x, b.y - 46); c.scale(1 / zoom, 1 / zoom);
-    c.font = '700 13px "Barlow Condensed", "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
-    c.lineWidth = 4; c.strokeStyle = 'rgba(5,6,12,.85)'; c.strokeText('SUPPLY BLIMP', 0, 0); c.fillStyle = '#8fd6ea'; c.fillText('SUPPLY BLIMP', 0, 0);
-    const f = clamp(b.hp / 30, 0, 1);
-    c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(-31, 9, 62, 6); c.fillStyle = '#8fd6ea'; c.fillRect(-30, 10, 60 * f, 4);
+    c.save(); c.translate(b.x, b.y - Math.max(rx, ry) - 18); c.scale(1 / zoom, 1 / zoom);
+    const name = (this.bossName || 'Boss').toUpperCase();
+    c.font = '700 14px "Barlow Condensed", "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+    c.lineWidth = 4; c.strokeStyle = 'rgba(5,6,12,.85)'; c.strokeText(name, 0, 0); c.fillStyle = '#ffd700'; c.fillText(name, 0, 0);
+    const f = clamp(b.hp / (b.max || 70), 0, 1);
+    c.fillStyle = 'rgba(0,0,0,.65)'; c.fillRect(-46, 9, 92, 7); c.fillStyle = f > 0.5 ? '#ffd700' : f > 0.25 ? '#ff8a3d' : '#ff4d5e'; c.fillRect(-45, 10, 90 * f, 5);
     c.restore();
   },
+  drawTracers(c, th) {
+    c.lineCap = 'round';
+    for (let i = this.tracers.length - 1; i >= 0; i--) {
+      const t = this.tracers[i];
+      t.life -= 1 / 60;
+      if (t.life <= 0) { this.tracers.splice(i, 1); continue; }
+      const f = t.life / 0.14, dx = t.tx - t.x, dy = t.ty - t.y;
+      c.strokeStyle = rgba(th.ebullet, 0.9 * f); c.lineWidth = 3;
+      c.beginPath(); c.moveTo(t.x + dx * (1 - f) * 0.7, t.y + dy * (1 - f) * 0.7); c.lineTo(t.x + dx * (1 - f * 0.5), t.y + dy * (1 - f * 0.5)); c.stroke();
+    }
+  },
+  aura(c, x, y, fl) {
+    if (fl & 512) {
+      c.save(); c.translate(x, y); c.rotate(time * 3);
+      c.strokeStyle = 'rgba(255,215,0,.9)'; c.lineWidth = 3;
+      for (let q = 0; q < 3; q++) { c.beginPath(); c.arc(0, 0, 34, q * TAU / 3, q * TAU / 3 + 1.2); c.stroke(); }
+      c.restore();
+      if (Math.random() < 0.5) puff(x + rand(-20, 20), y + rand(-20, 20), rand(-30, 30), rand(-30, 30), rand(1.5, 3), 0, 0.4, '#ffd700', 'fire');
+    }
+    if (fl & 1024) { c.strokeStyle = `rgba(194,24,91,${0.5 + Math.sin(time * 6) * 0.25})`; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 28, 0, TAU); c.stroke(); }
+  },
   edgeArrows(edgeArrow) {
-    if (this.blimp) edgeArrow(this.blimp.x, this.blimp.y, '#8fd6ea', 1.4);
+    if (this.blimp) edgeArrow(this.blimp.x, this.blimp.y, '#ffd700', 1.6);
     const leader = this.board.length && this.board[0][3] > 0 ? this.board[0][0] : 0;
     for (const o of this.others.values()) if (o.alive && o.seen && !(o.fl & 128)) edgeArrow(o.x, o.y, o.id === leader ? '#ffd34f' : '#ff4d5e', o.id === leader ? 1.2 : 0.85);
     for (const m of this.missiles) if (m.lock && m.tg === this.you) edgeArrow(m.x, m.y, '#ffffff', 0.8);
@@ -5137,11 +5484,11 @@ const Arena = {
       $('killfeed').innerHTML = fresh.slice(0, W <= 600 ? 3 : 5).map(f => `<div class="${f.me ? 'me' : ''}">${f.k ? `<span>${esc(f.k)}</span>` : ''}<i>${WEAPON_TAGS[f.w] || ''}</i><span>${esc(f.v)}</span>${f.rv ? '<em>REVENGE</em>' : f.st >= 3 ? `<em>${f.st}×</em>` : ''}</div>`).join('');
       const wk = this.weapon[0], wn = parseInt(this.weapon.slice(1), 10) || 0;
       const chips = [];
-      if (wk) chips.push(`<span class="wchip" style="--c:${ARENA_PICKUPS[wk].color}"><b>${ARENA_PICKUPS[wk].glyph}</b>${ARENA_PICKUPS[wk].name}<i>${'●'.repeat(wn)}</i></span>`);
+      if (wk) chips.push(`<span class="wchip" style="--c:${ARENA_PICKUPS[wk].color}"><b>${puSvg(wk)}</b>${ARENA_PICKUPS[wk].name}<i>${'●'.repeat(wn)}</i></span>`);
       for (const [k, until] of Object.entries(this.buffs)) {
         const s = Math.ceil((until - now) / 1000);
         if (s <= 0 || (k === 'h' && !(this.flags & 2)) || (k === 'c' && !(this.flags & 128) && s < 5)) { delete this.buffs[k]; continue; }
-        chips.push(`<span class="wchip" style="--c:${ARENA_PICKUPS[k].color}"><b>${ARENA_PICKUPS[k].glyph}</b>${ARENA_PICKUPS[k].name}<i>${s}s</i></span>`);
+        chips.push(`<span class="wchip" style="--c:${ARENA_PICKUPS[k].color}"><b>${puSvg(k)}</b>${ARENA_PICKUPS[k].name}<i>${s}s</i></span>`);
       }
       $('weaponChip').innerHTML = chips.join('');
       if (player.dead && this.respawnAt) setText('rbTime', this.phase === 'end' ? 'Round over' : `Back in the air in ${Math.max(0, (this.respawnAt - now) / 1000).toFixed(1)}s`);
@@ -5301,7 +5648,7 @@ async function arenaConnect(q, label, tries = 0) {
   $('arenaErr').textContent = label;
   ['arenaQuick', 'arenaCreate', 'arenaJoin'].forEach(id => { $(id).disabled = true; });
   try {
-    await ANet.connect(`${q}&callsign=${encodeURIComponent(store.callsign)}&device=${encodeURIComponent(deviceId())}`);
+    await ANet.connect(`${q}&callsign=${encodeURIComponent(store.callsign)}&device=${encodeURIComponent(deviceId())}${Social.authQ()}`);
   } catch (e) {
     if (e === 'full' && q === 'quick=1' && tries < 3) return arenaConnect(q, label, tries + 1);
     if (e === 'taken' && /create=1/.test(q) && tries < 4) return arenaConnect(q.replace(/code=[A-Z0-9]{4}/, `code=${randomRoomCode()}`), label, tries + 1);
@@ -5312,7 +5659,7 @@ async function arenaConnect(q, label, tries = 0) {
 function arenaInvite() { return `${CONFIG.siteUrl || (location.origin + location.pathname)}?arena=${Arena.info && Arena.info.code}`; }
 function initArenaUi() {
   $('arenaTheme').innerHTML = '<option value="">Rotate each round</option>' + THEME_ORDER.map(id => `<option value="${id}">${esc(THEMES[id].name)}</option>`).join('');
-  $('puList').innerHTML = Object.entries(ARENA_PICKUPS).map(([k, d]) => `<div class="pu" style="--c:${d.color}"><b><i>${d.glyph}</i></b><span>${esc(d.name)}</span></div>`).join('');
+  $('puList').innerHTML = Object.entries(ARENA_PICKUPS).map(([k, d]) => `<div class="pu ${d.boss ? 'boss' : ''}" style="--c:${d.color}"><b>${puSvg(k)}</b><span>${esc(d.name)}${d.boss ? ' <em>boss drop</em>' : ''}</span></div>`).join('');
   $('arenaQuick').addEventListener('click', () => { audio(); arenaConnect('quick=1', 'Finding an arena…'); });
   $('arenaCreate').addEventListener('click', () => {
     audio();

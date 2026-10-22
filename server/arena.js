@@ -41,9 +41,17 @@ export const PLANES_PER_THEATER = 6;
 const REVENGE_BONUS = 75;
 // Cosmetic choices the game offers (liveries per theater, contrails, titles); see game.html.
 export const LIVERIES = 5, TRAILS = 9, TITLES = 12;
-// The supply blimp drifts across the arena; shooting it down drops a cluster of power-ups.
-export const BLIMP_HP = 30;
-const BLIMP_SPEED = 70, BLIMP_FIRST_MS = 25000, BLIMP_EVERY_MS = 55000, BLIMP_POINTS = 50;
+// Each theater has its own boss event: it crosses the arena, shoots back, takes a lot of
+// punishment, and drops Overdrive (the strongest power-up, never found anywhere else).
+export const BOSSES = {
+  ww1: { name: 'Zeppelin', hp: 70, speed: 60, rx: 64, ry: 26, range: 460, every: 0.45, dmg: 1 },
+  ww2: { name: 'Destroyer', hp: 90, speed: 45, rx: 74, ry: 18, range: 540, every: 0.35, dmg: 1 },
+  modern: { name: 'Strategic bomber', hp: 75, speed: 95, rx: 50, ry: 58, range: 500, every: 0.4, dmg: 1 },
+  space: { name: 'Dreadnought', hp: 110, speed: 40, rx: 80, ry: 30, range: 540, every: 0.5, dmg: 2 },
+  neon: { name: 'Sentinel', hp: 80, speed: 55, rx: 44, ry: 44, range: 500, every: 0.3, dmg: 1 },
+};
+export const BLIMP_HP = 70; // kept for the tests; the real number comes from BOSSES
+const BLIMP_FIRST_MS = 35000, BLIMP_EVERY_MS = 70000, BLIMP_POINTS = 300;
 const BOT_NAMES = ['Viper', 'Ghost', 'Maverick', 'Kestrel', 'Nova', 'Raptor', 'Falcon', 'Talon', 'Havoc', 'Comet', 'Banshee', 'Jester', 'Rook', 'Wolfhound', 'Sabre', 'Hornet'];
 
 // Power-ups. Weapons replace each other; the rest stack with whatever you carry.
@@ -58,7 +66,11 @@ export const PICKUPS = {
   b: { name: 'Afterburner', ms: 6000, weight: 11 },
   c: { name: 'Cloak', ms: 6000, weight: 8 },
   d: { name: 'Double damage', ms: 8000, weight: 9 },
+  z: { name: 'Shockwave', weight: 7 },
+  v: { name: 'Vampire', ms: 15000, weight: 8 },
+  o: { name: 'Overdrive', ms: 15000, weight: 0 }, // boss drop only
 };
+const SHOCK_RANGE = 330, SHOCK_DMG = 4, VAMPIRE_HEAL = 5;
 export const DAMAGE = { g: 1, r: 7, m: 5, n: 6 };
 const GUN_RANGE = 820;          // bullets travel ~620; the rest is latency slack
 const GUN_RATE = 21;            // bullets per second for a standard plane, both guns
@@ -122,11 +134,11 @@ export class ArenaRoom {
   addPilot(id, info, ws) {
     const p = {
       id, name: cleanName(info.name), plane: small(info.plane, PLANES_PER_THEATER - 1), livery: small(info.livery, LIVERIES - 1), trail: small(info.trail, TRAILS - 1), title: small(info.title, TITLES - 1), bot: !!info.bot, ws: ws || null,
-      device: /^[A-Za-z0-9-]{8,64}$/.test(info.device || '') ? info.device : null, lastKiller: 0,
+      device: /^[A-Za-z0-9-]{8,64}$/.test(info.device || '') ? info.device : null, account: Number(info.account) || null, lastKiller: 0,
       token: info.token || null, away: false, awayAt: 0, bye: false,
       x: 0, y: 0, a: 0, r: 0, rl: false, hp: MAX_HP, alive: false, respawnAt: Date.now() + 300, protUntil: 0,
       kills: 0, deaths: 0, score: 0, streak: 0, best: 0,
-      weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, shieldUntil: 0, cloakUntil: 0, ddUntil: 0,
+      weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, shieldUntil: 0, cloakUntil: 0, ddUntil: 0, vampUntil: 0, odUntil: 0,
       budget: 8, budgetT: Date.now(), lastP: Date.now(), joined: Date.now(),
       ai: info.bot ? { tg: null, tgT: 0, wander: Math.random() * Math.PI * 2, skill: 0.75 + Math.random() * 0.35, gunT: 0 } : null,
     };
@@ -172,7 +184,7 @@ export class ArenaRoom {
       const pair = new WebSocketPair();
       const [client, server] = Object.values(pair);
       this.ctx.acceptWebSocket(server);
-      server.serializeAttachment({ id: back.id, name: back.name, plane: back.plane, livery: back.livery, trail: back.trail, title: back.title, device: back.device || '', token: back.token });
+      server.serializeAttachment({ id: back.id, name: back.name, plane: back.plane, livery: back.livery, trail: back.trail, title: back.title, device: back.device || '', account: back.account, token: back.token });
       back.ws = server; back.away = false; back.lastP = Date.now(); back.respawnAt = Date.now() + 600;
       server.send(JSON.stringify({ ...this.welcome(back), resumed: true }));
       this.sendRoster();
@@ -185,7 +197,7 @@ export class ArenaRoom {
     const [client, server] = Object.values(pair);
     const id = s.nextId++;
     this.ctx.acceptWebSocket(server);
-    const info = { id, name: url.searchParams.get('callsign') || 'Pilot', plane: 0, livery: 0, device: url.searchParams.get('device') || '', token: crypto.randomUUID() };
+    const info = { id, name: url.searchParams.get('callsign') || 'Pilot', plane: 0, livery: 0, device: url.searchParams.get('device') || '', account: Number(url.searchParams.get('acct')) || null, token: crypto.randomUUID() };
     server.serializeAttachment(info);
     const p = this.addPilot(id, info, server);
     await this.ctx.storage.deleteAlarm();
@@ -245,7 +257,7 @@ export class ArenaRoom {
         if ('livery' in m) p.livery = small(m.livery, LIVERIES - 1);
         if ('trail' in m) p.trail = small(m.trail, TRAILS - 1);
         if ('title' in m) p.title = small(m.title, TITLES - 1);
-        ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, trail: p.trail, title: p.title, device: p.device || '', token: p.token });
+        ws.serializeAttachment({ id: p.id, name: p.name, plane: p.plane, livery: p.livery, trail: p.trail, title: p.title, device: p.device || '', account: p.account, token: p.token });
         this.sendRoster();
         break;
       }
@@ -347,11 +359,11 @@ export class ArenaRoom {
   world(now) {
     const out = [];
     for (const p of this.s.pilots.values()) {
-      const fl = (p.alive ? 1 : 0) | (p.shield > 0 ? 2 : 0) | (now < p.boostUntil ? 4 : 0) | (now < p.rapidUntil ? 8 : 0) | (now < p.spreadUntil ? 16 : 0) | (now < p.protUntil ? 32 : 0) | (p.rl ? 64 : 0) | (now < p.cloakUntil ? 128 : 0) | (now < p.ddUntil ? 256 : 0);
+      const fl = (p.alive ? 1 : 0) | (p.shield > 0 ? 2 : 0) | (now < p.boostUntil ? 4 : 0) | (now < p.rapidUntil ? 8 : 0) | (now < p.spreadUntil ? 16 : 0) | (now < p.protUntil ? 32 : 0) | (p.rl ? 64 : 0) | (now < p.cloakUntil ? 128 : 0) | (now < p.ddUntil ? 256 : 0) | (now < p.odUntil ? 512 : 0) | (now < p.vampUntil ? 1024 : 0);
       out.push([p.id, Math.round(p.x), Math.round(p.y), Math.round(p.a * 100), Math.round(p.r * 100), p.hp, fl, p.weapon ? p.weapon + p.ammo : '']);
     }
     const b = this.s.blimp;
-    return { t: 'w', p: out, left: Math.max(0, this.s.round.ends - now), bl: b ? [b.id, Math.round(b.x), Math.round(b.y), Math.round(b.a * 100), Math.max(0, Math.round(b.hp))] : 0 };
+    return { t: 'w', p: out, left: Math.max(0, this.s.round.ends - now), bl: b ? [b.id, Math.round(b.x), Math.round(b.y), Math.round(b.a * 100), Math.max(0, Math.round(b.hp)), b.max, b.kind] : 0 };
   }
   board() {
     return [...this.s.pilots.values()].sort((a, b) => b.score - a.score || b.kills - a.kills || a.deaths - b.deaths).map(p => [p.id, p.kills, p.deaths, p.score, p.streak]);
@@ -379,12 +391,12 @@ export class ArenaRoom {
       if (present < 45000 && !p.kills && !p.deaths) continue;
       const win = top.length > 1 && top[0][0] === p.id && p.score > 0 ? 1 : 0;
       stmts.push(this.env.DB.prepare(
-        `INSERT INTO arena_scores (day, device_id, name, plane, livery, kills, deaths, rounds, wins, best_round, best_streak, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)
+        `INSERT INTO arena_scores (day, device_id, name, plane, livery, kills, deaths, rounds, wins, best_round, best_streak, updated_at, account_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?)
          ON CONFLICT(day, device_id) DO UPDATE SET name = excluded.name, plane = excluded.plane, livery = excluded.livery,
            kills = kills + excluded.kills, deaths = deaths + excluded.deaths, rounds = rounds + 1, wins = wins + excluded.wins,
-           best_round = MAX(best_round, excluded.best_round), best_streak = MAX(best_streak, excluded.best_streak), updated_at = excluded.updated_at`
-      ).bind(day, p.device, p.name, (PLANE_IDS[theme] || [])[p.plane] || null, p.livery, p.kills, p.deaths, win, p.score, p.best, now));
+           best_round = MAX(best_round, excluded.best_round), best_streak = MAX(best_streak, excluded.best_streak), updated_at = excluded.updated_at, account_id = COALESCE(excluded.account_id, account_id)`
+      ).bind(day, p.device, p.name, (PLANE_IDS[theme] || [])[p.plane] || null, p.livery, p.kills, p.deaths, win, p.score, p.best, now, p.account));
     }
     if (stmts.length) this.ctx.waitUntil(this.env.DB.batch(stmts).catch(() => {}));
   }
@@ -397,7 +409,7 @@ export class ArenaRoom {
     // Announce the round first so clients have the new theater loaded before the respawns land.
     this.broadcast({ t: 'round', ...this.roundInfo(now) });
     for (const p of s.pilots.values()) {
-      Object.assign(p, { kills: 0, deaths: 0, score: 0, streak: 0, best: 0, lastKiller: 0, weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, cloakUntil: 0, ddUntil: 0 });
+      Object.assign(p, { kills: 0, deaths: 0, score: 0, streak: 0, best: 0, lastKiller: 0, weapon: null, ammo: 0, spreadUntil: 0, rapidUntil: 0, boostUntil: 0, shield: 0, cloakUntil: 0, ddUntil: 0, vampUntil: 0, odUntil: 0 });
       this.spawn(p, now);
     }
     this.broadcast({ t: 's', b: this.board() });
@@ -430,7 +442,7 @@ export class ArenaRoom {
     v.hp -= dmg;
     if (v.hp > 0) return;
     v.hp = 0; v.alive = false; v.deaths++; v.respawnAt = now + RESPAWN_MS;
-    v.spreadUntil = 0; v.rapidUntil = 0; v.boostUntil = 0; v.shield = 0; v.cloakUntil = 0; v.ddUntil = 0;
+    v.spreadUntil = 0; v.rapidUntil = 0; v.boostUntil = 0; v.shield = 0; v.cloakUntil = 0; v.ddUntil = 0; v.vampUntil = 0; v.odUntil = 0;
     const victimStreak = v.streak; v.streak = 0;
     const k = by && by !== v ? by : null;
     let pts = 0, rv = 0;
@@ -439,6 +451,7 @@ export class ArenaRoom {
       // Revenge: shooting down whoever shot you down last.
       if (k.lastKiller === v.id) { rv = 1; pts += REVENGE_BONUS; k.lastKiller = 0; }
       k.score += pts;
+      if (now < k.vampUntil) k.hp = Math.min(MAX_HP, k.hp + VAMPIRE_HEAL);
     }
     v.lastKiller = k ? k.id : 0;
     this.broadcast({ t: 'kill', v: v.id, by: k ? k.id : 0, w, st: k ? k.streak : 0, vs: victimStreak, pts, rv, rs: RESPAWN_MS });
@@ -524,17 +537,32 @@ export class ArenaRoom {
       // Enter at the edge and cross near the middle, so every pilot gets a shot at it.
       const ang = Math.random() * Math.PI * 2, x = Math.cos(ang) * ARENA_R * 0.95, y = Math.sin(ang) * ARENA_R * 0.95;
       const a = Math.atan2(-y, -x) + (Math.random() - 0.5) * 0.6;
-      s.blimp = { id: s.nextBlimpId++, x, y, a, hp: BLIMP_HP };
-      this.broadcast({ t: 'bl', id: s.blimp.id });
+      const cfg = BOSSES[this.theme] || BOSSES.ww1;
+      s.blimp = { id: s.nextBlimpId++, x, y, a, hp: cfg.hp, max: cfg.hp, kind: this.theme, cfg, gunT: 2 };
+      this.broadcast({ t: 'bl', id: s.blimp.id, kind: this.theme, name: cfg.name });
       return;
     }
-    const b = s.blimp;
-    b.x += Math.cos(b.a) * BLIMP_SPEED * dt; b.y += Math.sin(b.a) * BLIMP_SPEED * dt;
-    if (Math.hypot(b.x, b.y) > ARENA_R + 250) { s.blimp = null; s.blimpAt = now + BLIMP_EVERY_MS / 2; }
+    const b = s.blimp, cfg = b.cfg;
+    b.x += Math.cos(b.a) * cfg.speed * dt; b.y += Math.sin(b.a) * cfg.speed * dt;
+    if (Math.hypot(b.x, b.y) > ARENA_R + 250) { s.blimp = null; s.blimpAt = now + BLIMP_EVERY_MS / 2; return; }
+    // It shoots back: the turret picks the nearest pilot in range; closer pilots get hit more.
+    b.gunT -= dt;
+    if (b.gunT > 0) return;
+    b.gunT = cfg.every * (0.8 + Math.random() * 0.4);
+    let tg = null, td = cfg.range;
+    for (const o of s.pilots.values()) {
+      if (!o.alive || now < o.protUntil || (now < o.cloakUntil)) continue;
+      const d = Math.hypot(o.x - b.x, o.y - b.y);
+      if (d < td) { td = d; tg = o; }
+    }
+    if (!tg) return;
+    const hit = !tg.rl && Math.random() < 0.15 + 0.45 * (1 - td / cfg.range);
+    this.broadcast({ t: 'bf', x: Math.round(b.x), y: Math.round(b.y), tx: Math.round(tg.x + (hit ? 0 : (Math.random() - 0.5) * 120)), ty: Math.round(tg.y + (hit ? 0 : (Math.random() - 0.5) * 120)), h: hit ? 1 : 0 });
+    if (hit) this.damage(tg, null, 'b', cfg.dmg, now);
   }
   hitBlimp(p, h, now) {
     const b = this.s.blimp, w = h[2] === 'r' ? 'r' : 'g';
-    if (!b || this.s.round.phase !== 'play' || Math.hypot(b.x - p.x, b.y - p.y) > (w === 'r' ? 1250 : GUN_RANGE)) return;
+    if (!b || this.s.round.phase !== 'play' || Math.hypot(b.x - p.x, b.y - p.y) - Math.max(b.cfg.rx, b.cfg.ry) > (w === 'r' ? 1250 : GUN_RANGE)) return;
     let n;
     if (w === 'r') {
       const f = this.s.fired.get(Number(h[3]));
@@ -555,9 +583,9 @@ export class ArenaRoom {
     if (b.hp > 0) return;
     s.blimp = null; s.blimpAt = now + BLIMP_EVERY_MS;
     if (by) by.score += BLIMP_POINTS;
-    this.broadcast({ t: 'bx', id: b.id, x: Math.round(b.x), y: Math.round(b.y), by: by ? by.id : 0, pts: BLIMP_POINTS });
-    // The drop: one weapon, one boost and one random power-up.
-    const kinds = [['m', 'r', 'n'][Math.floor(Math.random() * 3)], ['s', 'f', 'h', 'b'][Math.floor(Math.random() * 4)], pickKind()];
+    this.broadcast({ t: 'bx', id: b.id, x: Math.round(b.x), y: Math.round(b.y), by: by ? by.id : 0, pts: BLIMP_POINTS, kind: b.kind });
+    // The drop: Overdrive, plus a weapon and a random power-up for whoever's close behind.
+    const kinds = ['o', ['m', 'r', 'n'][Math.floor(Math.random() * 3)], pickKind()];
     kinds.forEach((kind, i) => {
       const a = i / 3 * Math.PI * 2 + Math.random(), d = 50 + Math.random() * 40;
       const k = { id: s.nextPick++, x: b.x + Math.cos(a) * d, y: b.y + Math.sin(a) * d, k: kind };
@@ -591,6 +619,15 @@ export class ArenaRoom {
     else if (k.k === 'w') p.hp = MAX_HP;
     else if (k.k === 'c') p.cloakUntil = now + def.ms;
     else if (k.k === 'd') p.ddUntil = now + def.ms;
+    else if (k.k === 'v') p.vampUntil = now + def.ms;
+    else if (k.k === 'o') {
+      const until = now + def.ms;
+      Object.assign(p, { odUntil: until, rapidUntil: Math.max(p.rapidUntil, until), spreadUntil: Math.max(p.spreadUntil, until), ddUntil: Math.max(p.ddUntil, until), shield: 8, shieldUntil: until, hp: MAX_HP });
+    } else if (k.k === 'z') {
+      this.broadcast({ t: 'sw', x: Math.round(p.x), y: Math.round(p.y), by: p.id });
+      for (const o of this.s.pilots.values()) if (o !== p && Math.hypot(o.x - p.x, o.y - p.y) < SHOCK_RANGE) this.damage(o, p, 'z', SHOCK_DMG, now);
+      if (this.s.blimp && Math.hypot(this.s.blimp.x - p.x, this.s.blimp.y - p.y) < SHOCK_RANGE + 60) this.damageBlimp(p, SHOCK_DMG * 2, now);
+    }
     this.broadcast({ t: 'pg', id: k.id, by: p.id, k: k.k });
   }
 

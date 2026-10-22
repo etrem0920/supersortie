@@ -95,6 +95,15 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 - Empty rooms delete themselves after 10 minutes. Co-op scores are not posted to the daily leaderboard.
 - **Cost:** a 10-minute, four-pilot mission uses about 2,000 Durable Object requests. The free plan allows 100,000 a day (about 50 missions). Workers Paid ($5/month) covers millions.
 
+## Pilot accounts and friends
+
+- **Username and password only**, no email. Sign up or log in from the **Friends** tab. Passwords are hashed with PBKDF2 (10,000 rounds, kept low to fit the free Workers plan's CPU limit; raise `PBKDF2_ITERATIONS` in `server/accounts.js` on Workers Paid). With no email there is **no password reset**.
+- An account keeps progress in sync across devices: XP, medals, the ace logbook, streaks, arena career and more. Logging in on a new device keeps the best of both.
+- Leaderboard rows from signed-in pilots show a **●** and open their **profile**: level, title, favorite plane, today's sortie, streaks, arena career, ace logbook and medals.
+- **Friends**: add someone by username or from their profile. The Friends tab ranks them by today's sortie.
+- A signed-in pilot gets one daily per account, even across devices.
+- The code is in `server/accounts.js`; the tables are in `server/migrations/0003_accounts.sql`.
+
 ## Pilot progression
 
 - Every mode earns XP:
@@ -106,7 +115,7 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 - Levels go up to 50. They unlock nine contrails, two extra liveries per theater (at levels 8 and 16) and titles. A few titles come from medals and arena wins instead of levels.
 - Contrails are drawn from the plane's recent path, so other pilots see yours in co-op and the arena with no extra network traffic. The arena shows your title on the round podium.
 - Players who started before levels existed got starting XP for the dailies they had flown and the medals they had earned.
-- **Daily challenges:** three a day, the same for everyone and chosen from the date. They span every mode, for example 40 kills, a supply blimp or a 4-kill arena streak. Each is worth 250 XP, plus 300 for finishing all three. They live on the Pilot tab, with one line on the home screen.
+- **Daily challenges:** three a day, the same for everyone and chosen from the date. They span every mode, for example 40 kills, an arena boss or a 4-kill arena streak. Each is worth 250 XP, plus 300 for finishing all three. They live on the Pilot tab, with one line on the home screen.
 - Everything is stored on the device, like medals.
 
 ## How the arena works
@@ -117,10 +126,11 @@ You can use `deviceId=` in place of `name=`. Hidden scores drop off the board im
 - **Arena today** in the Leaderboard tab ranks people (not AI pilots) by kills since midnight UTC. Rounds are saved from the arena to the `arena_scores` table.
 - **Power-ups** appear around the map:
   - **Weapons:** missiles, rail gun and mines. Each one fires by itself, so they work the same on phones.
-  - **Boosts:** spread guns, rapid fire, shield, repair, afterburner, cloak (nearly invisible, can't be locked) and double damage.
+  - **Boosts:** spread guns, rapid fire, shield, repair, afterburner, cloak (nearly invisible, can't be locked), double damage, vampire (each kill restores 5 hull) and shockwave (an instant blast that hurts every pilot nearby).
+  - **Overdrive** comes only from a boss: 15 seconds of rapid fire, spread guns, double damage, a shield and full hull at once.
 - **Rolling** makes you immune to bullets and breaks missile locks.
 - **Dropped connections reconnect.** If a pilot's connection drops, the arena holds their seat, score and streak for 30 seconds while the game reconnects them. Leaving on purpose frees the seat right away. A hidden tab sends a heartbeat so it isn't dropped as idle; pilots who go quiet for 45 seconds are removed. If the server restarts (every deploy restarts it), players are reconnected to a fresh round.
-- A **supply blimp** crosses the arena about once a minute. Whoever shoots it down gets +50 points, and it drops three power-ups: one weapon, one boost and one random. That pulls everyone into the same fight.
+- **A boss** enters each round 35 seconds in, then about every 70 seconds. Each theater has its own: a **Zeppelin** (WW1), a **Destroyer** (Pacific), a **Strategic bomber** (Modern), a **Dreadnought** (Space) and a **Sentinel** (Neon). It has 70 to 110 hull and its turrets fire back at the nearest pilot, so it takes several pilots or a long fight. Rolling dodges its fire. The pilot who finishes it gets +300 points and it drops Overdrive, a weapon and a random power-up.
 - **AI pilots** (marked "AI" on the scoreboard) top a public arena up to 8 pilots. They leave as real people arrive.
 - **What the arena decides:** each arena is a Cloudflare Durable Object. It runs hull, kills, respawns, power-ups, rounds and the AI pilots, and sends a world update 10 times a second.
 - **Who decides a hit:** guns and the rail gun are judged by the shooter. They are capped by a damage budget that matches the real fire rate, plus a range check. Missiles and mines are judged by the target, so a roll really does dodge them.
