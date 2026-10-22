@@ -16,6 +16,7 @@ const WAVES = [3, 5, 8, 12];
 const DIFFICULTIES = ['easy', 'normal', 'hard', 'brutal'];
 const HULLS = [2, 3, 5];
 import { eliteOk, ELITE_LIVERY } from './elite.js';
+import { nameTaken } from './names.js';
 
 const HOST_ONLY = new Set(['h', 'mh', 'unlock', 'pick', 'hurt']);      // guest -> host
 const FROM_HOST = new Set(['s', 'eb', 'kill', 'pk', 'picked', 'wave', 'end']); // host -> everyone
@@ -106,7 +107,8 @@ export class CoopRoom {
     const id = crypto.randomUUID().replace(/-/g, '').slice(0, 8);
     this.ctx.acceptWebSocket(server);
     const device = /^[A-Za-z0-9-]{8,64}$/.test(url.searchParams.get('device') || '') ? url.searchParams.get('device') : '';
-    server.serializeAttachment({ id, name: 'Pilot', plane: 0, livery: 0, ready: false, joined: Date.now(), device });
+    const uname = /^[A-Za-z0-9_]{3,16}$/.test(url.searchParams.get('uname') || '') ? url.searchParams.get('uname') : '';
+    server.serializeAttachment({ id, name: uname || 'Pilot', plane: 0, livery: 0, ready: false, joined: Date.now(), device, uname });
     if (!this.meta.host) { this.meta.host = id; await this.saveMeta(); }
     await this.ctx.storage.deleteAlarm();
     server.send(JSON.stringify({ t: 'welcome', you: id }));
@@ -139,7 +141,9 @@ export class CoopRoom {
     switch (msg.t) {
       case 'hello':
       case 'me':
-        if ('name' in msg) me.name = cleanName(msg.name);
+        // Accounts fly as their username (set by the Worker); guests can't take a registered pilot's name.
+        if (me.uname) me.name = me.uname;
+        else if ('name' in msg) { me.name = cleanName(msg.name); if (this.env.DB && await nameTaken(this.env, me.name).catch(() => false)) me.name = `${me.name.slice(0, 10)} guest`; }
         if ('plane' in msg) me.plane = small(msg.plane, 12);
         if ('livery' in msg) me.livery = small(msg.livery, 145);
         if (me.livery === ELITE_LIVERY && !me.eliteOk) {

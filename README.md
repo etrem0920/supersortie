@@ -148,6 +148,15 @@ The "Military mode" toggle in the header (and the pause menu) swaps in real mili
 
 Each save to `PUT /api/v1/me/profile` carries the revision the device last saw. If another device saved since, the server answers 409 with its copy, and the client merges three ways against what it last synced: credits, crate tokens and the inventory replay this device's changes on top of the account, so credits never duplicate and sold items stay sold. Loadout picks that changed here win; the rest follow the account. Tabs pick up changes when you come back to them, and each plane remembers its own skin (`store.planeLiv`).
 
+## Names and account safety
+
+- **Registered names are protected.** A guest can't post a daily score, join the arena or a co-op room under a registered pilot's name. Names are compared by a lookalike key (`server/names.js`: case, `_` and 0/1/3/4/5/7/8/9 folded to letters), so `Trem_D0g` counts as `tremdog`. A guest who tries gets a fresh callsign (daily) or a "guest" suffix (arena and co-op), and the hangar warns as soon as they type the name (`GET /api/v1/names/check`). Signed-in pilots always appear under their username; the Worker sets it, the client can't.
+- **No lookalike or reserved sign-ups:** a new username can't fold to the same key as an existing one, and names like admin, moderator, support or supersortie are reserved.
+- **Recovery codes:** with no email, sign-up hands out a one-time recovery code (only a hash is stored, migration `0007_account_safety.sql`). "Forgot your password?" on the login form uses it to set a new password, which signs out every device and issues a new code. Accounts without one are nudged to make one in Settings.
+- **Sign-out clears the device:** your progress is saved to the account, then the device goes back to a fresh guest, so the next person to sign in on it doesn't inherit your credits or items. Today's sortie and one-time rewards stay, so signing out can't be used to fly the daily twice.
+- **Logins:** besides the per-IP limit, a username locks for an hour after 40 wrong passwords from anywhere. Sessions last 180 days.
+- Two guests can share a callsign; the arena board keeps them as separate lines (accounts are merged across devices).
+
 ## Creator badge
 
 The account in `CREATORS` (`server/creators.js`, mirrored in `game.html`) gets a "◆ Creator" badge and a highlighted row on the daily, arena and league boards, the friends list, pilot profiles and the ghost picker, plus a colour-cycling "◆ NAME · CREATOR" tag above their plane in the arena. It goes by account username, which is unique, so a guest using the same callsign doesn't get it; the arena flag is set by the Worker from the signed-in account.

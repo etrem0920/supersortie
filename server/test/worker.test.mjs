@@ -85,7 +85,7 @@ test('allows each listed site and no others', async () => {
 test('stores and returns each pilot\'s plane, livery and favorite', async () => {
   const e = env();
   await post(e, good({ deviceId: 'device-plane-0001', name: 'Ace', plane: 'dr1', livery: 1, fav: 'camel' }));
-  await post(e, good({ deviceId: 'device-plane-0002', name: 'Rook', plane: 'not-a-plane', livery: 9, fav: 'nope', score: 9000 }));
+  await post(e, good({ deviceId: 'device-plane-0002', name: 'Rook', plane: 'not-a-plane', livery: 999, fav: 'nope', score: 9000 }));
   const b = await (await board(e, `day=${day}&deviceId=device-plane-0001`)).json();
   assert.deepEqual([b.entries[0].plane, b.entries[0].livery, b.entries[0].fav], ['dr1', 1, 'camel']);
   assert.deepEqual([b.entries[1].plane, b.entries[1].livery, b.entries[1].fav], [null, 0, null]);

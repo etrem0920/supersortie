@@ -13,14 +13,19 @@
 //   POST   /api/v1/me/password    (Bearer) {old, password}   change password (ends other sessions)
 //   POST   /api/v1/me/logout-all  (Bearer)                   sign out on every device
 //   DELETE /api/v1/me             (Bearer) {password}        delete the account for good
+//   POST   /api/v1/auth/recover    {username, code, password} reset a forgotten password with the recovery code
+//   POST   /api/v1/me/recovery     (Bearer) {password}        get a new recovery code
 //   GET    /api/v1/pilots/NAME                                -> public profile
 
 import { serverDay } from './day.js';
+import { nameKey, KEY_SQL, reservedName } from './names.js';
 
 const PBKDF2_ITERATIONS = 10000; // kept modest for the Workers free plan's CPU limit
 const AUTH_PER_HOUR = 30;        // sign-up and log-in attempts per IP per hour
 const MAX_PROFILE = 24000;       // bytes
 const MAX_FRIENDS = 100;
+const SESSION_DAYS = 180;        // a session lasts this long, then the device has to log in again
+const FAILS_PER_NAME = 40;       // wrong passwords for one username per hour, from anywhere
 const BLOCKED = /(fuck|shit|cunt|nigg|fag|bitch|rape|nazi|hitler|kike|retard|whore|slut)/i;
 
 export const validUsername = u => typeof u === 'string' && /^[A-Za-z0-9_]{3,16}$/.test(u) && !BLOCKED.test(u.replace(/[^a-z]/gi, ''));
@@ -41,6 +46,19 @@ function sameString(a, b) { // constant-time compare
   return r === 0;
 }
 
+// Recovery codes: 16 letters and digits in four groups, shown once. Only a hash is kept.
+const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function newRecoveryCode() { const b = crypto.getRandomValues(new Uint8Array(16)); return [...b].map(v => CODE_ALPHABET[v % CODE_ALPHABET.length]).join('').match(/.{4}/g).join('-'); }
+const codeHash = code => sha256('rc|' + String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, ''));
+// Wrong passwords per username per hour, whichever IP they come from (stops slow, spread-out guessing).
+async function nameLocked(env, username) {
+  const hour = Math.floor(Date.now() / 3600000), r = await env.DB.prepare('SELECT n FROM auth_hits WHERE hour = ? AND ip_hash = ?').bind(hour, 'u:' + nameKey(username)).first();
+  return !!(r && r.n >= FAILS_PER_NAME);
+}
+async function nameFailed(env, username) {
+  const hour = Math.floor(Date.now() / 3600000);
+  await env.DB.prepare('INSERT INTO auth_hits (hour, ip_hash, n) VALUES (?, ?, 1) ON CONFLICT(hour, ip_hash) DO UPDATE SET n = n + 1').bind(hour, 'u:' + nameKey(username)).run();
+}
 // Only the fields the game shows or syncs, each with a sane type and size.
 export function cleanProfile(p) {
   p = p && typeof p === 'object' ? p : {};
@@ -88,7 +106,7 @@ async function newSession(env, accountId) {
 export async function accountFor(env, reqOrToken) {
   const token = typeof reqOrToken === 'string' ? reqOrToken : ((reqOrToken.headers.get('authorization') || '').match(/^Bearer ([a-f0-9]{64})$/) || [])[1];
   if (!token || !/^[a-f0-9]{64}$/.test(token)) return null;
-  return await env.DB.prepare('SELECT a.id AS id, a.username AS username FROM sessions s JOIN accounts a ON a.id = s.account_id WHERE s.token_hash = ?').bind(await sha256(token)).first();
+  return await env.DB.prepare('SELECT a.id AS id, a.username AS username FROM sessions s JOIN accounts a ON a.id = s.account_id WHERE s.token_hash = ? AND s.created_at > ?').bind(await sha256(token), Date.now() - SESSION_DAYS * 86400000).first();
 }
 
 async function register(req, env, cors) {
@@ -96,25 +114,49 @@ async function register(req, env, cors) {
   const b = await readBody(req);
   if (!b || !validUsername(b.username)) return json({ error: 'bad_username' }, 422, cors);
   if (!validPassword(b.password)) return json({ error: 'bad_password' }, 422, cors);
+  if (reservedName(b.username)) return json({ error: 'reserved' }, 409, cors);
   const taken = await env.DB.prepare('SELECT 1 FROM accounts WHERE username = ? COLLATE NOCASE').bind(b.username).first();
   if (taken) return json({ error: 'taken' }, 409, cors);
-  const salt = randomHex(16), now = Date.now();
+  // No lookalikes of an existing name (TremDog vs Trem_D0g).
+  const similar = await env.DB.prepare(`SELECT 1 FROM accounts WHERE ${KEY_SQL} = ? LIMIT 1`).bind(nameKey(b.username)).first();
+  if (similar) return json({ error: 'too_similar' }, 409, cors);
+  const salt = randomHex(16), now = Date.now(), code = newRecoveryCode();
   const profile = JSON.stringify(cleanProfile(b.profile));
-  const res = await env.DB.prepare('INSERT INTO accounts (username, pass_hash, salt, created_at, updated_at, profile) VALUES (?, ?, ?, ?, ?, ?)')
-    .bind(b.username, await hashPassword(b.password, salt), salt, now, now, profile).run();
+  let res;
+  try {
+    res = await env.DB.prepare('INSERT INTO accounts (username, pass_hash, salt, created_at, updated_at, profile, recovery_hash) VALUES (?, ?, ?, ?, ?, ?, ?)')
+      .bind(b.username, await hashPassword(b.password, salt), salt, now, now, profile, await codeHash(code)).run();
+  } catch (e) { return json({ error: 'taken' }, 409, cors); } // someone took it a moment ago
   const id = res.meta.last_row_id;
-  return json({ token: await newSession(env, id), username: b.username, rev: now }, 201, cors);
+  return json({ token: await newSession(env, id), username: b.username, rev: now, recovery: code }, 201, cors);
 }
 
 async function login(req, env, cors) {
   if (await rateLimited(req, env)) return json({ error: 'rate_limited' }, 429, cors);
   const b = await readBody(req);
   if (!b || typeof b.username !== 'string' || typeof b.password !== 'string') return json({ error: 'bad_login' }, 401, cors);
+  if (await nameLocked(env, b.username)) return json({ error: 'locked' }, 429, cors);
   const a = await env.DB.prepare('SELECT id, username, pass_hash, salt, profile, updated_at FROM accounts WHERE username = ? COLLATE NOCASE').bind(b.username).first();
-  if (!a || !sameString(await hashPassword(b.password, a.salt), a.pass_hash)) return json({ error: 'bad_login' }, 401, cors);
+  if (!a || !sameString(await hashPassword(b.password, a.salt), a.pass_hash)) { await nameFailed(env, b.username); return json({ error: 'bad_login' }, 401, cors); }
   return json({ token: await newSession(env, a.id), username: a.username, profile: JSON.parse(a.profile || '{}'), rev: a.updated_at }, 200, cors);
 }
 
+// Forgot your password: the recovery code sets a new one, signs out every device and hands back a fresh code.
+async function recover(req, env, cors) {
+  if (await rateLimited(req, env)) return json({ error: 'rate_limited' }, 429, cors);
+  const b = await readBody(req);
+  if (!b || typeof b.username !== 'string' || typeof b.code !== 'string') return json({ error: 'bad_code' }, 401, cors);
+  if (!validPassword(b.password)) return json({ error: 'bad_password' }, 422, cors);
+  if (await nameLocked(env, b.username)) return json({ error: 'locked' }, 429, cors);
+  const a = await env.DB.prepare('SELECT id, username, recovery_hash, profile, updated_at FROM accounts WHERE username = ? COLLATE NOCASE').bind(b.username).first();
+  if (!a || !a.recovery_hash || !sameString(await codeHash(b.code), a.recovery_hash)) { await nameFailed(env, b.username); return json({ error: 'bad_code' }, 401, cors); }
+  const salt = randomHex(16), code = newRecoveryCode();
+  await env.DB.batch([
+    env.DB.prepare('UPDATE accounts SET pass_hash = ?, salt = ?, recovery_hash = ? WHERE id = ?').bind(await hashPassword(b.password, salt), salt, await codeHash(code), a.id),
+    env.DB.prepare('DELETE FROM sessions WHERE account_id = ?').bind(a.id),
+  ]);
+  return json({ token: await newSession(env, a.id), username: a.username, profile: JSON.parse(a.profile || '{}'), rev: a.updated_at, recovery: code }, 200, cors);
+}
 async function publicProfile(env, row, viewer) {
   const day = serverDay();
   const today = await env.DB.prepare('SELECT score, grades, theme, plane FROM scores WHERE day = ? AND account_id = ? AND hidden = 0 ORDER BY score DESC LIMIT 1').bind(day, row.id).first();
@@ -130,6 +172,7 @@ export async function handleAccounts(req, env, url, cors) {
   const path = url.pathname, method = req.method;
   if (path === '/api/v1/auth/register' && method === 'POST') return register(req, env, cors);
   if (path === '/api/v1/auth/login' && method === 'POST') return login(req, env, cors);
+  if (path === '/api/v1/auth/recover' && method === 'POST') return recover(req, env, cors);
   const pilot = path.match(/^\/api\/v1\/pilots\/([A-Za-z0-9_]{3,16})$/);
   if (pilot && method === 'GET') {
     const row = await env.DB.prepare('SELECT id, username, profile, created_at FROM accounts WHERE username = ? COLLATE NOCASE').bind(pilot[1]).first();
@@ -145,8 +188,8 @@ export async function handleAccounts(req, env, url, cors) {
     return json({ ok: true }, 200, cors);
   }
   if (path === '/api/v1/me' && method === 'GET') {
-    const row = await env.DB.prepare('SELECT username, profile, updated_at FROM accounts WHERE id = ?').bind(me.id).first();
-    return json({ username: row.username, profile: JSON.parse(row.profile || '{}'), rev: row.updated_at }, 200, cors);
+    const row = await env.DB.prepare('SELECT username, profile, updated_at, recovery_hash FROM accounts WHERE id = ?').bind(me.id).first();
+    return json({ username: row.username, profile: JSON.parse(row.profile || '{}'), rev: row.updated_at, hasRecovery: !!row.recovery_hash }, 200, cors);
   }
   if (path === '/api/v1/me/profile' && method === 'PUT') {
     const b = await readBody(req);
@@ -186,10 +229,19 @@ export async function handleAccounts(req, env, url, cors) {
     const a = await env.DB.prepare('SELECT pass_hash, salt FROM accounts WHERE id = ?').bind(me.id).first();
     if (!a || typeof b.old !== 'string' || !sameString(await hashPassword(b.old, a.salt), a.pass_hash)) return json({ error: 'bad_login' }, 401, cors);
     const salt = randomHex(16);
-    await env.DB.prepare('UPDATE accounts SET pass_hash = ?, salt = ?, updated_at = ? WHERE id = ?').bind(await hashPassword(b.password, salt), salt, Date.now(), me.id).run();
+    await env.DB.prepare('UPDATE accounts SET pass_hash = ?, salt = ? WHERE id = ?').bind(await hashPassword(b.password, salt), salt, me.id).run();
     const token = (req.headers.get('authorization') || '').slice(7);
     await env.DB.prepare('DELETE FROM sessions WHERE account_id = ? AND token_hash != ?').bind(me.id, await sha256(token)).run();
     return json({ ok: true }, 200, cors);
+  }
+  if (path === '/api/v1/me/recovery' && method === 'POST') {
+    if (await rateLimited(req, env)) return json({ error: 'rate_limited' }, 429, cors);
+    const b = await readBody(req);
+    const a = await env.DB.prepare('SELECT pass_hash, salt FROM accounts WHERE id = ?').bind(me.id).first();
+    if (!a || !b || typeof b.password !== 'string' || !sameString(await hashPassword(b.password, a.salt), a.pass_hash)) return json({ error: 'bad_login' }, 401, cors);
+    const code = newRecoveryCode();
+    await env.DB.prepare('UPDATE accounts SET recovery_hash = ? WHERE id = ?').bind(await codeHash(code), me.id).run();
+    return json({ recovery: code }, 200, cors);
   }
   if (path === '/api/v1/me/logout-all' && method === 'POST') {
     await env.DB.prepare('DELETE FROM sessions WHERE account_id = ?').bind(me.id).run();
@@ -205,6 +257,7 @@ export async function handleAccounts(req, env, url, cors) {
       env.DB.prepare('DELETE FROM friends WHERE account_id = ? OR friend_id = ?').bind(me.id, me.id),
       env.DB.prepare('UPDATE scores SET account_id = NULL WHERE account_id = ?').bind(me.id),
       env.DB.prepare('UPDATE arena_scores SET account_id = NULL WHERE account_id = ?').bind(me.id),
+      env.DB.prepare('UPDATE league_members SET account_id = NULL WHERE account_id = ?').bind(me.id),
       env.DB.prepare('DELETE FROM accounts WHERE id = ?').bind(me.id),
     ]);
     return json({ ok: true }, 200, cors);

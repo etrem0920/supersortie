@@ -222,6 +222,11 @@
   .pl-row b { font-family: var(--font-display); font-weight: 900; font-size: 24px; text-transform: uppercase; color: var(--accent); }
   .pl-row span { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
   .pl-next { font-size: 13px; color: var(--text); }
+  #callsignHint.bad { color: #ff7a7a; }
+  .rc-box { display: grid; gap: 10px; }
+  .rc-code { font: 800 22px/1.2 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .12em; text-align: center; padding: 14px; background: var(--raise); box-shadow: inset 0 0 0 1px var(--accent); user-select: all; -webkit-user-select: all; }
+  .acct-link { background: none; border: 0; color: var(--accent); font: inherit; font-size: 13px; cursor: pointer; padding: 0; text-decoration: underline; justify-self: start; }
+  .rc-nudge { background: rgba(255, 140, 60, .1); box-shadow: inset 0 0 0 1px rgba(255, 140, 60, .4); padding: 10px 12px; font-size: 13px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
   .showcase { position: relative; cursor: pointer; }
   .sc-load { position: absolute; left: 12px; bottom: 10px; right: 120px; display: flex; flex-wrap: wrap; gap: 4px 10px; font-family: var(--font-cond); font-weight: 700; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255, 255, 255, .8); text-shadow: 0 1px 3px rgba(0, 0, 0, .8); pointer-events: none; }
   .sc-load b { color: #fff; font-weight: 800; }
@@ -1295,6 +1300,15 @@
   </div>
 </div>
 
+<div id="rcModal" class="modal hidden">
+  <div class="sheet rc-box" role="dialog" aria-modal="true" aria-labelledby="rcTitle">
+    <div class="sheet-head"><span class="eyebrow-s">Keep this safe</span><h2 id="rcTitle">Your recovery code</h2></div>
+    <p class="pp-meta">There's no email on your account, so this code is the only way back in if you forget your password. Write it down or screenshot it. It's shown once; you can make a new one in account settings.</p>
+    <div id="rcCode" class="rc-code"></div>
+    <div class="acct-row"><button id="rcCopy" class="btn btn-ghost">Copy</button><button id="rcOk" class="btn btn-primary">I saved it</button></div>
+  </div>
+</div>
+
 <!-- ================= CRATE OPENING ================= -->
 <div id="crate" class="modal crate-modal hidden">
   <div class="crate-stage">
@@ -1519,7 +1533,8 @@ function cleanCallsign(s) {
   if (!s || BLOCKED.test(s.replace(/[^a-z]/gi, ''))) return '';
   return s;
 }
-if (!store.callsign) { store.callsign = `${CALL_WORDS[Math.random() * CALL_WORDS.length | 0]} ${10 + (Math.random() * 90 | 0)}`; saveStore(); }
+const randomCallsign = () => `${CALL_WORDS[Math.random() * CALL_WORDS.length | 0]} ${10 + (Math.random() * 90 | 0)}`;
+if (!store.callsign) { store.callsign = randomCallsign(); saveStore(); }
 
 /* =====================================================================
    Rules of the day (seeded — identical for every pilot and theater)
@@ -3738,6 +3753,7 @@ const Board = {
   async submit(entry) {
     if (this.kind === 'api') {
       const r = await fetch(this.api('/api/v1/scores'), { method: 'POST', headers: Object.assign({ 'content-type': 'application/json' }, Social.headers()), body: JSON.stringify(Object.assign({ deviceId: deviceId() }, entry)) });
+      if (r.status === 409) { const body = await r.json().catch(() => ({})); if (body.error === 'name_taken') throw new Error('name_taken'); }
       if (!r.ok && r.status !== 409) throw new Error('submit ' + r.status);
       return true;
     }
@@ -5945,7 +5961,7 @@ const Social = {
   async call(path, opts = {}) {
     const r = await fetch(CONFIG.apiBase.replace(/\/$/, '') + path, Object.assign({}, opts, { headers: Object.assign({ 'content-type': 'application/json' }, this.headers(), opts.headers || {}) }));
     let body = null; try { body = await r.json(); } catch (e) { /* empty */ }
-    if (r.status === 401 && this.auth && !path.startsWith('/api/v1/auth/')) this.signOut(true);
+    if (r.status === 401 && this.auth && !path.startsWith('/api/v1/auth/')) this.signOut('expired');
     return { ok: r.ok, status: r.status, body: body || {} };
   },
   // What other pilots see, and what follows you to another device.
@@ -6037,6 +6053,8 @@ const Social = {
     if (!this.auth || !CONFIG.apiBase || this.pushing) return;
     const r = await this.call('/api/v1/me').catch(() => null);
     if (!r || !r.ok) return;
+    if (r.body.hasRecovery != null) this.hasRecovery = r.body.hasRecovery;
+    if (!store.owner && this.auth) { store.owner = this.auth.username.toLowerCase(); }
     if (store.sync && r.body.rev === store.sync.rev) { if (this.pending) this.push(); return; }
     const local = this.pending || !store.sync || JSON.stringify(this.snap()) !== JSON.stringify(store.sync.base);
     this.merge(r.body.profile, r.body.rev);
@@ -6054,10 +6072,13 @@ const Social = {
     try {
       const r = await this.call('/api/v1/auth/' + mode, { method: 'POST', body: JSON.stringify({ username: u, password: pw, profile: this.profile() }) });
       if (!r.ok) {
-        err.textContent = ({ taken: 'That username is taken. Try another.', bad_login: 'Wrong username or password.', bad_username: 'That username isn\'t allowed. Try another.', rate_limited: 'Too many tries. Wait a while, then try again.' })[r.body.error] || 'Something went wrong. Try again.';
+        err.textContent = ({ taken: 'That username is taken. Try another.', too_similar: 'That\'s too close to an existing pilot\'s name. Try something more different.', reserved: 'That name is reserved. Try another.', bad_login: 'Wrong username or password.', locked: 'Too many wrong passwords for that pilot. Try again in an hour, or use your recovery code.', bad_username: 'That username isn\'t allowed. Try another.', rate_limited: 'Too many tries. Wait a while, then try again.' })[r.body.error] || 'Something went wrong. Try again.';
         return;
       }
+      // Someone else's progress on this device never leaks into this account.
+      if (store.owner && store.owner !== r.body.username.toLowerCase()) this.resetLocal();
       store.auth = { token: r.body.token, username: r.body.username };
+      store.owner = r.body.username.toLowerCase();
       store.sync = null;
       if (r.body.profile) this.merge(r.body.profile, r.body.rev);
       else store.sync = { rev: r.body.rev, base: this.snap() };
@@ -6066,14 +6087,49 @@ const Social = {
       applyAuthCallsign();
       this.push();
       refreshMenuBits();
+      if (r.body.recovery) this.showCode(r.body.recovery);
       this.friends = null;
       this.render();
     } catch (e) { err.textContent = 'Couldn\'t reach the server. Check your connection.'; }
     finally { this.busy = false; }
   },
-  signOut(expired) {
-    if (!expired && this.auth) this.call('/api/v1/auth/logout', { method: 'POST' }).catch(() => {});
-    delete store.auth; store.sync = null; this.friends = null; saveStore(); this.render(); applyAuthCallsign();
+  // 'expired' and 'keep' leave this device's progress alone; a normal sign-out saves it to the account and
+  // clears the device back to a fresh guest, so the next person to sign in here doesn't inherit it.
+  async signOut(mode) {
+    if (mode !== 'expired' && mode !== 'keep' && this.auth) {
+      clearTimeout(this.syncT); await this.push().catch(() => {});
+      this.call('/api/v1/auth/logout', { method: 'POST' }).catch(() => {});
+    }
+    const wipe = mode !== 'expired' && mode !== 'keep';
+    delete store.auth; store.sync = null; this.friends = null; this.view = '';
+    if (wipe) this.resetLocal(); else if (mode === 'keep') delete store.owner;
+    saveStore(); this.render(); applyAuthCallsign();
+    if (wipe && state === 'menu') openMenu();
+  },
+  // Back to a fresh guest. Device settings stay, and so do today's sortie and one-time rewards, so signing
+  // out can't be used to fly the daily twice or claim things again.
+  resetLocal() {
+    const keepKeys = ['device', 'muted', 'music', 'mil', 'theme', 'seenHelp', 'zenCfg', 'history', 'egg', 'creditsInit', 'xpInit', 'login', 'shopSeen', 'leagueSeen', 'elite', 'ghostWin'];
+    const keep = {}; for (const k of keepKeys) if (store[k] !== undefined) keep[k] = store[k];
+    store = Object.assign(defaultStore(), keep, { callsign: randomCallsign(), credits: 0, inv: [], tokens: [0, 0, 0], planeLiv: {} });
+    for (const k of Object.keys(hudCache || {})) delete hudCache[k];
+  },
+  showCode(code) {
+    $('rcCode').textContent = code; show('rcModal');
+    $('rcCopy').onclick = () => { try { navigator.clipboard.writeText(code); $('rcCopy').textContent = 'Copied'; } catch (e) { /* select it by hand */ } };
+    $('rcOk').onclick = () => { hide('rcModal'); $('rcCopy').textContent = 'Copy'; };
+  },
+  async recover() {
+    const err = $('acctErr'), u = $('acctUser').value.trim(), code = $('rcIn').value.trim(), pw = $('acctPass').value;
+    err.className = 'acct-err';
+    if (!u || !code) { err.textContent = 'Enter your username and recovery code.'; return; }
+    if (pw.length < 6) { err.textContent = 'Pick a new password of at least 6 characters.'; return; }
+    const r = await this.call('/api/v1/auth/recover', { method: 'POST', body: JSON.stringify({ username: u, code, password: pw }) }).catch(() => null);
+    if (!r || !r.ok) { err.textContent = r && r.status === 401 ? 'That code doesn\'t match. Check it and try again.' : r && r.status === 429 ? 'Too many tries. Wait a while.' : 'Couldn\'t reset it. Try again.'; return; }
+    if (store.owner && store.owner !== r.body.username.toLowerCase()) this.resetLocal();
+    store.auth = { token: r.body.token, username: r.body.username }; store.owner = r.body.username.toLowerCase(); store.sync = null;
+    this.merge(r.body.profile, r.body.rev); store.callsign = r.body.username; saveStore(); applyAuthCallsign(); this.push(); this.render(); refreshMenuBits();
+    toast('Password reset', 'You\'re signed in. Here\'s a fresh recovery code.'); this.showCode(r.body.recovery);
   },
   // Account settings: picture, password, sessions, deleting the account.
   settingsHTML() {
@@ -6099,6 +6155,12 @@ const Social = {
         <div class="field"><label for="pwNew">New password</label><input id="pwNew" type="password" autocomplete="new-password" maxlength="100"></div>
         <div id="pwErr" class="acct-err" role="status"></div>
         <button id="pwGo" class="btn btn-ghost btn-small">Change password</button>
+      </details>
+      <details ${this.hasRecovery === false ? 'open' : ''}><summary>Recovery code</summary>
+        <p class="pp-meta">${this.hasRecovery === false ? '<b>Your account has no recovery code yet.</b> Without one, a forgotten password means a lost account. ' : ''}A recovery code lets you set a new password if you forget yours. Making a new one replaces the old one.</p>
+        <div class="field"><label for="rcPw">Password</label><input id="rcPw" type="password" autocomplete="current-password" maxlength="100"></div>
+        <div id="rcErr" class="acct-err" role="status"></div>
+        <button id="rcNew" class="btn btn-ghost btn-small">Make a new recovery code</button>
       </details>
       <details><summary>Sessions</summary>
         <p class="pp-meta">Signed in on a shared computer? Sign out everywhere, including here.</p>
@@ -6129,14 +6191,20 @@ const Social = {
       if (!r || !r.ok) { e.textContent = r && r.status === 401 ? 'Your current password is wrong.' : r && r.status === 429 ? 'Too many tries. Wait a while.' : 'Couldn\'t change it. Try again.'; return; }
       e.className = 'acct-err ok'; e.textContent = 'Password changed. Other devices were signed out.'; $('pwOld').value = $('pwNew').value = '';
     };
+    $('rcNew').onclick = async () => {
+      const e = $('rcErr'); e.className = 'acct-err';
+      const r = await this.call('/api/v1/me/recovery', { method: 'POST', body: JSON.stringify({ password: $('rcPw').value }) }).catch(() => null);
+      if (!r || !r.ok) { e.textContent = r && r.status === 401 ? 'Wrong password.' : r && r.status === 429 ? 'Too many tries. Wait a while.' : 'Couldn\'t make one. Try again.'; return; }
+      $('rcPw').value = ''; this.hasRecovery = true; this.showCode(r.body.recovery);
+    };
     $('acctOut2').onclick = () => this.signOut();
-    $('acctOutAll').onclick = async () => { await this.call('/api/v1/me/logout-all', { method: 'POST' }).catch(() => {}); this.signOut(true); };
+    $('acctOutAll').onclick = async () => { clearTimeout(this.syncT); await this.push().catch(() => {}); await this.call('/api/v1/me/logout-all', { method: 'POST' }).catch(() => {}); this.signOut('expired'); this.resetLocal(); saveStore(); this.render(); applyAuthCallsign(); if (state === 'menu') openMenu(); };
     $('delGo').onclick = async () => {
       const e = $('delErr'); e.className = 'acct-err';
       if (!confirm(`Delete the account ${this.auth.username} for good?`)) return;
       const r = await this.call('/api/v1/me', { method: 'DELETE', body: JSON.stringify({ password: $('delPw').value }) }).catch(() => null);
       if (!r || !r.ok) { e.textContent = r && r.status === 401 ? 'Wrong password.' : 'Couldn\'t delete it. Try again.'; return; }
-      delete store.pic; this.signOut(true); toast('Account deleted', 'Your progress on this device is still here.');
+      delete store.pic; this.signOut('keep'); toast('Account deleted', 'Your progress on this device is still here.');
     };
   },
   async loadFriends() {
@@ -6167,12 +6235,17 @@ const Social = {
       el.innerHTML = `<div class="acct-card chamfer">
         <h3>Pilot account</h3>
         <p>Pick a username and a password. Your progress follows you to any device, other pilots can open your profile from the leaderboards, and you can add friends.</p>
-        <p><b>No email needed.</b> That also means we can't reset a lost password, so keep it somewhere safe.</p>
+        <p><b>No email needed.</b> When you sign up you get a recovery code: it's the only way back in if you forget your password, so keep it somewhere safe.</p>
         <div class="field"><label for="acctUser">Username</label><input id="acctUser" maxlength="16" autocomplete="username" autocapitalize="off" spellcheck="false" value="${esc(/^[A-Za-z0-9_]{3,16}$/.test(store.callsign) ? store.callsign : '')}"></div>
         <div class="field"><label for="acctPass">Password</label><input id="acctPass" type="password" maxlength="100" autocomplete="current-password"></div>
         <div id="acctErr" class="acct-err" role="status"></div>
-        <div class="acct-row"><button id="acctReg" class="btn btn-primary">Create account</button><button id="acctLogin" class="btn btn-ghost">Log in</button></div>
+        <div id="rcRow" class="field hidden"><label for="rcIn">Recovery code</label><input id="rcIn" maxlength="24" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX"></div>
+        <div class="acct-row" id="acctBtns"><button id="acctReg" class="btn btn-primary">Create account</button><button id="acctLogin" class="btn btn-ghost">Log in</button></div>
+        <div class="acct-row hidden" id="rcBtns"><button id="rcGo" class="btn btn-primary">Reset password</button><button id="rcBack" class="btn btn-ghost">Back</button></div>
+        <button id="acctForgot" class="acct-link" type="button">Forgot your password?</button>
       </div>`;
+      const forgot = on => { $('rcRow').classList.toggle('hidden', !on); $('acctBtns').classList.toggle('hidden', on); $('rcBtns').classList.toggle('hidden', !on); $('acctForgot').classList.toggle('hidden', on); document.querySelector('label[for="acctPass"]').textContent = on ? 'New password' : 'Password'; $('acctErr').textContent = on ? 'Enter your username, the recovery code you saved when you signed up, and a new password.' : ''; };
+      $('acctForgot').onclick = () => forgot(true); $('rcBack').onclick = () => forgot(false); $('rcGo').onclick = () => this.recover();
       $('acctReg').onclick = () => this.signIn('register');
       $('acctLogin').onclick = () => this.signIn('login');
       $('acctPass').onkeydown = e => { if (e.key === 'Enter') this.signIn('login'); };
@@ -6186,7 +6259,7 @@ const Social = {
       this.bindSettings(el); paintAvatars(el);
       return;
     }
-    el.innerHTML = `<div class="acct-who"><span class="acct-me">${picHTML(store.pic, favoritePlane() || currentPlane(theme).id, myLivery(theme.id))}<span>Signed in as <b>${esc(this.auth.username)}</b></span></span><span class="acct-row"><button id="acctMe" class="btn btn-ghost btn-small">My profile</button><button id="acctOut" class="btn btn-ghost btn-small">Settings</button></span></div>
+    el.innerHTML = `<div class="acct-who"><span class="acct-me">${picHTML(store.pic, favoritePlane() || currentPlane(theme).id, myLivery(theme.id))}<span>Signed in as <b>${esc(this.auth.username)}</b></span></span><span class="acct-row"><button id="acctMe" class="btn btn-ghost btn-small">My profile</button><button id="acctOut" class="btn btn-ghost btn-small">Settings</button></span></div>${this.hasRecovery === false ? '<div class="rc-nudge"><span><b>No recovery code yet.</b> If you forget your password, it\'s the only way back in.</span><button id="rcNudge" class="btn btn-ghost btn-small">Set one up</button></div>' : ''}
       <div class="section-label"><span>Add a friend</span></div>
       <div class="join-row"><input id="friendName" maxlength="16" placeholder="Their username" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Friend's username"><button id="friendAdd" class="btn btn-ghost">Add</button></div>
       <div id="friendErr" class="acct-err" role="status"></div>
@@ -6194,6 +6267,7 @@ const Social = {
       ${list.length ? `<ol class="board">${list.map(f => this.friendRow(f)).join('')}</ol>` : '<div class="notice chamfer">No friends yet. Ask yours for their username, or tap a pilot with a ● on the leaderboard and add them from their profile.</div>'}`;
     $('acctMe').onclick = () => this.open(this.auth.username);
     $('acctOut').onclick = () => { this.view = 'settings'; this.render(); };
+    if ($('rcNudge')) $('rcNudge').onclick = () => { this.view = 'settings'; this.render(); };
     $('friendAdd').onclick = () => this.addFriend();
     $('friendName').onkeydown = e => { if (e.key === 'Enter') this.addFriend(); };
     paintAvatars(el);
@@ -6242,6 +6316,7 @@ $('pilot').addEventListener('click', e => { if (e.target.closest('[data-close]')
 // Every menu closes on a click outside it, or with Esc, the same way its own close button would.
 const DISMISS = [
   ['reward', () => Daily.claim()],
+  ['rcModal', () => hide('rcModal')],
   ['zenSet', () => hide('zenSet')],
   ['ghosts', () => hide('ghosts')],
   ['crate', () => Shop.close()],
@@ -6994,7 +7069,15 @@ async function postPending() {
   const h = store.history[todayNum];
   if (!Board.ready || !h || h.posted) return null;
   try { await Board.submit(entryFor(h)); h.posted = true; saveStore(); track('score_posted', { score: h.score }); Ghost.upload(); return true; }
-  catch (e) { return false; }
+  catch (e) {
+    // A guest flying under a registered pilot's name: pick a fresh callsign and post again.
+    if (e.message === 'name_taken' && !store.auth) {
+      const was = store.callsign; store.callsign = randomCallsign(); saveStore(); applyAuthCallsign();
+      toast('Callsign taken', `${was} belongs to a registered pilot, so you're flying as ${store.callsign}. Change it in the hangar.`);
+      try { await Board.submit(entryFor(h)); h.posted = true; saveStore(); Ghost.upload(); return true; } catch (e2) { return false; }
+    }
+    return false;
+  }
 }
 
 function countUp(target) {
@@ -7112,9 +7195,17 @@ function applyAuthCallsign() {
 }
 function saveCallsign(v) {
   if (store.auth) { applyAuthCallsign(); return; }
-  const c = cleanCallsign(v);
+  const c = cleanCallsign(v), prev = store.callsign;
   if (c) { store.callsign = c; saveStore(); }
   $('callsign').value = store.callsign; $('callsign2').value = store.callsign;
+  // Registered pilots own their names; guests get told straight away instead of after a sortie.
+  if (c && c !== prev && CONFIG.apiBase) fetch(CONFIG.apiBase.replace(/\/$/, '') + `/api/v1/names/check?n=${encodeURIComponent(c)}`).then(r => r.json()).then(d => {
+    if (!d.taken || store.auth || store.callsign !== c) return;
+    store.callsign = prev && prev !== c ? prev : randomCallsign(); saveStore();
+    $('callsign').value = store.callsign; $('callsign2').value = store.callsign;
+    $('callsignHint').textContent = `${c} belongs to a registered pilot. Pick another, or log in if it's yours.`; $('callsignHint').classList.add('bad');
+    setTimeout(() => { $('callsignHint').classList.remove('bad'); applyAuthCallsign(); }, 6000);
+  }).catch(() => {});
 }
 
 let helpThen = null;
@@ -7258,7 +7349,7 @@ function coopWave(i, s, n, seed) {
 
 const Net = {
   ws: null, you: null, room: null, code: null, quitting: false,
-  url(code, create) { return CONFIG.apiBase.replace(/\/$/, '').replace(/^http/, 'ws') + `/api/v1/rooms/${code}/ws?device=${encodeURIComponent(deviceId())}` + (create ? '&create=1' : ''); },
+  url(code, create) { return CONFIG.apiBase.replace(/\/$/, '').replace(/^http/, 'ws') + `/api/v1/rooms/${code}/ws?device=${encodeURIComponent(deviceId())}` + (create ? '&create=1' : '') + Social.authQ(); },
   connect(code, create) {
     return new Promise((resolve, reject) => {
       this.close();

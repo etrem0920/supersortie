@@ -19,6 +19,7 @@
 
 import { serverDay, localDay } from './day.js';
 import { eliteOk, ELITE_LIVERY } from './elite.js';
+import { nameTaken } from './names.js';
 
 export const ARENA_MAX = 12;
 export const ARENA_R = 2200;
@@ -314,7 +315,11 @@ export class ArenaRoom {
       case 'bye': p.bye = true; break;
       case 'hello':
       case 'me': {
-        if ('name' in m) p.name = cleanName(m.name);
+        // Accounts keep their username; a guest can't rename into a registered pilot's name.
+        if ('name' in m && !p.account) {
+          const n = cleanName(m.name);
+          if (n !== p.name) { p.name = n; nameTaken(this.env, n).then(t => { if (t && p.name === n) { p.name = `${n.slice(0, 10)} guest`; this.saveSeat(p); this.sendRoster(); } }).catch(() => {}); }
+        }
         if ('plane' in m) p.plane = small(m.plane, PLANES_PER_THEATER - 1);
         if ('livery' in m) p.livery = small(m.livery, LIVERIES - 1);
         if ('trail' in m) p.trail = small(m.trail, TRAILS - 1);

@@ -21,6 +21,7 @@ import { joinLeague, leagueView } from './league.js';
 import { postGhost, listGhosts, getGhost } from './ghosts.js';
 import { postFeedback, listFeedback } from './feedback.js';
 import { isCreator } from './creators.js';
+import { nameTaken } from './names.js';
 export { CoopRoom, ArenaRoom, ArenaDirectory };
 
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
@@ -67,7 +68,7 @@ export function validate(b, now = Date.now()) {
   if (won && score < hp * (hp > 3 ? 300 : 1000)) return { error: 'implausible' };
   const plane = PLANES.has(b.plane) ? b.plane : null;
   const liv = Number(b.livery);
-  const livery = Number.isInteger(liv) && liv >= 0 && liv <= 4 ? liv : 0;
+  const livery = Number.isInteger(liv) && liv >= 0 && liv <= 160 ? liv : 0;
   const fav = PLANES.has(b.fav) ? b.fav : plane;
   return { entry: { day, deviceId, name: cleanName(b.name), score, grades, time, theme, hp, kills, mod, waveTimes, plane, livery, fav } };
 }
@@ -111,6 +112,9 @@ async function postScore(req, env, cors) {
   // Signed-in pilots get one daily per account too, not just one per device.
   const acct = await accountFor(env, req);
   if (acct && await env.DB.prepare('SELECT 1 FROM scores WHERE day = ? AND account_id = ?').bind(entry.day, acct.id).first()) return json({ error: 'already_submitted' }, 409, cors);
+  // Signed-in pilots always appear under their username; guests can't borrow a registered pilot's name.
+  if (acct) entry.name = acct.username;
+  else if (await nameTaken(env, entry.name)) return json({ error: 'name_taken' }, 409, cors);
   const res = await env.DB.prepare(
     `INSERT INTO scores (day, device_id, name, score, grades, time_s, theme, hp, kills, mod, wave_times, ip_hash, created_at, plane, livery, fav, account_id)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(day, device_id) DO NOTHING`
@@ -183,8 +187,13 @@ async function roomSocket(req, env, code) {
   if (req.headers.get('Upgrade') !== 'websocket') return new Response('Expected a WebSocket', { status: 426 });
   if (!originAllowed(req, env)) return new Response('Forbidden', { status: 403 });
   if (![...code].every(ch => ROOM_ALPHABET.includes(ch))) return new Response('Bad room code', { status: 400 });
+  // The room learns the account's username from us, never from the client.
+  const url = new URL(req.url), auth = url.searchParams.get('auth');
+  url.searchParams.delete('auth'); url.searchParams.delete('uname');
+  const acct = auth ? await accountFor(env, auth).catch(() => null) : null;
+  if (acct) url.searchParams.set('uname', acct.username);
   const stub = env.ROOMS.get(env.ROOMS.idFromName(code));
-  return stub.fetch(req);
+  return stub.fetch(new Request(url, req));
 }
 
 async function arenaSocket(req, env, url) {
@@ -211,6 +220,8 @@ async function arenaSocket(req, env, url) {
   const acct = auth ? await accountFor(env, auth) : null;
   if (acct) fwd.searchParams.set('acct', String(acct.id));
   if (acct && isCreator(acct.username)) fwd.searchParams.set('cr', '1');
+  if (acct) fwd.searchParams.set('callsign', acct.username);
+  else if (await nameTaken(env, fwd.searchParams.get('callsign') || '')) fwd.searchParams.set('callsign', `${String(fwd.searchParams.get('callsign')).slice(0, 10)} guest`);
   const stub = env.ARENAS.get(env.ARENAS.idFromName(name));
   return stub.fetch(new Request(fwd, req));
 }
@@ -223,13 +234,14 @@ async function arenaBoard(url, env, cors, req) {
   const rows = (await env.DB.prepare(
     'SELECT s.device_id, s.name, s.plane, s.livery, s.kills, s.deaths, s.rounds, s.wins, s.best_round, s.best_streak, s.updated_at, s.account_id, a.username FROM arena_scores s LEFT JOIN accounts a ON a.id = s.account_id WHERE s.day = ? AND s.hidden = 0 ORDER BY s.updated_at DESC LIMIT 5000'
   ).bind(day).all()).results || [];
-  // A device that signed in today belongs to that account all day; other guests are grouped by callsign.
+  // One line per pilot: a device that signed in today belongs to that account all day. Guests are kept per
+  // device, since two different people can share a callsign.
   const deviceAcct = new Map();
   for (const r of rows) if (r.account_id) deviceAcct.set(r.device_id, r.account_id);
   const byWho = new Map();
   for (const r of rows) {
     const acct = r.account_id || deviceAcct.get(r.device_id);
-    const who = acct ? 'a' + acct : 'n' + String(r.name || '').trim().toLowerCase();
+    const who = acct ? 'a' + acct : 'd' + r.device_id;
     let e = byWho.get(who);
     if (!e) { e = { name: r.username || r.name, plane: r.plane, livery: r.livery, kills: 0, deaths: 0, rounds: 0, wins: 0, best: 0, streak: 0, first: r.updated_at, u: r.username || undefined, me: false }; byWho.set(who, e); }
     e.kills += r.kills; e.deaths += r.deaths; e.rounds += r.rounds; e.wins += r.wins;
@@ -282,6 +294,7 @@ export default {
         return json(await leagueView(env, deviceId), 200, cors, { 'cache-control': 'no-store' });
       }
       if (url.pathname === '/api/v1/arena/leaderboard' && req.method === 'GET') return await arenaBoard(url, env, cors, req);
+      if (url.pathname === '/api/v1/names/check' && req.method === 'GET') return json({ taken: await nameTaken(env, String(url.searchParams.get('n') || '').slice(0, 20)) }, 200, cors, { 'cache-control': 'max-age=30' });
       if (url.pathname === '/api/v1/feedback' && req.method === 'POST') { const who = await accountFor(env, req); return await postFeedback(req, env, json, cors, who && who.username); }
       if (url.pathname === '/api/v1/admin/feedback' && req.method === 'GET') return await listFeedback(url, req, env, json, cors);
       if (url.pathname === '/api/v1/ghost' && req.method === 'POST') return await postGhost(req, env, json, cors);
