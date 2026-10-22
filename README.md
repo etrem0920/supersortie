@@ -118,7 +118,7 @@ Each day's ace flies its own paint scheme (12 palettes × 6 patterns, chosen fro
 
 ## Daily rewards and the season pass
 
-- **Daily reward:** the first visit each day pops up a 7-day reward track: 100, 150, 200 plus a free Standard crate, 250, 300, 400, then 500 plus a free Premium crate on day 7. Missing a day starts it again at day 1. Free crates are kept as tokens (`store.tokens`), and opening a crate uses a token before it spends credits. The Shop tab gets a red dot when a token is waiting or you can afford a crate you haven't looked at today.
+- **Daily reward:** after you fly the daily and return to the hangar, a 7-day reward track pops up: 100, 150, 200 plus a free Standard crate, 250, 300, 400, then 500 plus a free Premium crate on day 7. Missing a day starts it again at day 1. Free crates are kept as tokens (`store.tokens`), and opening a crate uses a token before it spends credits. The Shop tab gets a red dot when a token is waiting or you can afford a crate you haven't looked at today.
 - **Season pass:** free, 30 tiers, resets on the 1st of every month. All XP from every mode also fills it, at 500 XP per tier. Tiers pay credits, with free crates at 5, 10, 15 and 25. Tier 20 gives the Season Ace title and tier 30 the Victory Ribbon contrail plus an Ace crate. Both are exclusive and stay with you; in later seasons those tiers pay 1,000 extra credits instead. Progress is shown under Pilot and on the home strip.
 
 ## Ghost race

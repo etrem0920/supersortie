@@ -5970,7 +5970,9 @@ function renderShopDot() {
     else if (d) d.remove();
   });
 }
-setTimeout(() => { renderShopDot(); if (state === 'menu' && [...document.querySelectorAll('.modal')].every(m => m.classList.contains('hidden'))) Daily.show(); }, 1200);
+// The reward waits until today's daily is flown: it pops up back in the hangar, never on first load.
+Daily.maybe = function () { if (state === 'menu' && store.history[todayNum] && this.due() && [...document.querySelectorAll('.modal')].every(m => m.classList.contains('hidden'))) this.show(); };
+setTimeout(() => { renderShopDot(); Daily.maybe(); }, 1200);
 // Easter egg: tap the logo plane 10 times within 10 seconds. Pays out once per pilot.
 {
   let taps = [];
@@ -6072,6 +6074,7 @@ function setView(name) {
 
 function openMenu() {
   state = 'menu';
+  setTimeout(() => Daily.maybe(), 700);
   applyAuthCallsign();
   tileWorld = false;
   Coop.on = false;
