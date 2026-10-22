@@ -193,6 +193,11 @@
   .chip { background: var(--raise); padding: 10px 8px; text-align: center; min-width: 0; }
   .chip b { display: block; font-family: var(--font-display); font-weight: 800; font-size: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
   .chip small { display: block; margin-top: 4px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; font-size: 11px; color: var(--muted); }
+  .ace-log { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ace-tag { display: inline-flex; align-items: baseline; gap: 6px; background: var(--raise); padding: 6px 10px; --cut: 6px; }
+  .ace-tag b { font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: 14px; color: #ffd34f; }
+  .ace-tag small { color: var(--dim); font-size: 12px; }
+  .ace-more { color: var(--muted); font-size: 13px; align-self: center; }
   .medal-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .medal { background: var(--raise); padding: 10px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; --cut: 8px; min-width: 0; }
   .medal .m-ico { width: 26px; height: 26px; }
@@ -439,6 +444,9 @@
   .score-panel { font-family: var(--font-display); font-weight: 900; font-size: 30px; padding: 2px 14px; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
   .combo { font-family: var(--font-display); font-weight: 900; font-size: 20px; padding: 2px 12px 5px; color: var(--accent-ink); background: var(--accent); position: relative; overflow: hidden; transform: scale(0); transform-origin: right center; transition: transform .18s cubic-bezier(.2, 1.6, .4, 1); --cut: 6px; text-transform: uppercase; }
   .combo.on { transform: scale(1); }
+  .target-chip { font-family: var(--font-cond); font-weight: 700; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; padding: 4px 10px; background: rgba(9, 12, 20, .72); color: var(--muted); --cut: 6px; white-space: nowrap; max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
+  .target-chip.pass { animation: tpass .6s ease; }
+  @keyframes tpass { 0% { background: #ffd34f; color: #0b0d14; transform: scale(1.12); } 100% { background: rgba(9, 12, 20, .72); transform: none; } }
   .combo i { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: rgba(0, 0, 0, .55); transform-origin: left; }
   .warn {
     position: absolute; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 72px);
@@ -541,6 +549,7 @@
     </div>
     <div class="hud-right">
       <div id="scorePanel" class="hpanel chamfer score-panel">0</div>
+      <div id="target" class="target-chip chamfer hidden"></div>
       <div id="combo" class="combo chamfer"><span id="comboText">×2</span><i id="comboBar"></i></div>
       <div id="arenaBoard" class="aboard hidden"></div>
       <div id="killfeed" class="killfeed hidden"></div>
@@ -662,6 +671,8 @@
         <div id="chList" class="ch-list"></div>
         <div id="statChips" class="chips"></div>
         <div id="arenaStats" class="hidden"><div class="section-label"><span>Arena career</span><span id="arenaKd"></span></div><div id="arenaChips" class="chips"></div></div>
+        <div class="section-label"><span>Ace logbook</span><span id="aceCount"></span></div>
+        <div id="aceLog" class="ace-log"></div>
         <div class="section-label"><span>Medals</span><span id="medalCount"></span></div>
         <div id="medalList" class="medal-list"></div>
         <div class="section-label"><span>Personal bests</span></div>
@@ -1163,6 +1174,10 @@ const MEDALS = [
   { id: 'streak3', name: 'Regular', desc: 'Fly 3 dailies in a row' },
   { id: 'streak7', name: 'Squadron veteran', desc: 'Fly 7 dailies in a row' },
   { id: 'allthemes', name: 'Time traveler', desc: 'Finish a run in all 5 theaters' },
+  { id: 'arenawin', name: 'Top gun', desc: 'Win an arena round' },
+  { id: 'rampage', name: 'Rampage', desc: 'Get a 5-kill streak in the arena' },
+  { id: 'blimp', name: 'Blimp buster', desc: 'Shoot down a supply blimp' },
+  { id: 'squad', name: 'Band of brothers', desc: 'Win a co-op mission on Hard or Brutal' },
 ];
 const medalName = id => (MEDALS.find(m => m.id === id) || {}).name || id;
 
@@ -1807,6 +1822,7 @@ function startRun(mode) {
   };
   hideAllOverlays(); show('hud');
   renderHull();
+  setupTargets(mode);
   $('waveLabel').classList.toggle('hidden', tileWorld);
   $('pips').classList.toggle('hidden', tileWorld);
   $('zenLabel').classList.toggle('hidden', !tileWorld);
@@ -1928,7 +1944,9 @@ function recordBest() {
   store.bests = store.bests.slice(0, 5);
   saveStore();
 }
-function grantMedal(id, list) { if (!store.medals[id]) { store.medals[id] = todayNum; if (list) list.push(id); } }
+function grantMedal(id, list) { if (!store.medals[id]) { store.medals[id] = todayNum; if (list) list.push(id); gainXp(200); } }
+// Medals earned outside the solo results screen get a toast instead.
+function earnMedal(id) { if (store.medals[id]) return; grantMedal(id); saveStore(); toast('Medal earned', `${medalName(id)} · +200 XP`); sfx.medal(); }
 function awardMedals() {
   const earned = []; run._earned = earned;
   const codes = gradeCodes(run.results);
@@ -2081,7 +2099,10 @@ function killEnemy(e, by) {
   sfx.boom(big);
   shake = Math.max(shake, e.type === 'ace' ? 28 : big ? 14 : 6);
   vibrate(big ? 50 : 15);
-  if (e.type === 'ace') { run.aceKilled = true; slowT = 1.1; }
+  if (e.type === 'ace') {
+    run.aceKilled = true; slowT = 1.1;
+    if (run.mode === 'daily') { store.aces = store.aces || {}; if (!store.aces[todayNum]) { store.aces[todayNum] = world.ace; saveStore(); floater(e.x, e.y - 50, `${world.ace.toUpperCase()} ADDED TO YOUR LOGBOOK`, '#ffd34f', 1); } }
+  }
 }
 
 function shootE(x, y, a, spd) {
@@ -2834,6 +2855,35 @@ function renderPips() {
   }).join('');
   $('waveNum').textContent = run.waveIdx + 1;
 }
+// The daily's rank chase: the next score above yours on today's board (or your best).
+let targets = [], targetT = 0;
+function setupTargets(mode) {
+  targets = [];
+  const b = Board.last;
+  if (mode === 'daily' && b && b.entries && b.entries.length) targets = b.entries.filter(e => !e.me).map(e => ({ score: e.score, label: `#${e.rank} ${e.name}`, rank: e.rank }));
+  else if ((mode === 'daily' || mode === 'practice') && store.best > 0) targets = [{ score: store.best, label: 'Your best' }];
+  targets.sort((a, b2) => a.score - b2.score);
+  $('target').classList.toggle('hidden', !targets.length);
+  $('target').dataset.top = '';
+  targetT = 0;
+}
+function updateTarget(dt) {
+  if (!targets.length) return;
+  let passed = null;
+  while (targets.length && run.score > targets[0].score) passed = targets.shift();
+  const el = $('target');
+  if (passed) {
+    el.classList.remove('pass'); void el.offsetWidth; el.classList.add('pass');
+    floater(player.x, player.y - 46, passed.rank ? `PASSED ${passed.label.toUpperCase()}` : 'NEW BEST PACE', '#ffd34f', 1.1);
+    if (passed.rank === 1) showBanner("Today's leaderboard", 'On pace for #1', 'Finish the sortie to claim it');
+  }
+  targetT -= dt;
+  if (targetT > 0 && !passed) return;
+  targetT = 0.2;
+  const t = targets[0];
+  setText('target', t ? `Next: ${t.label} · ${fmtNum(t.score)}` : (passed && passed.rank || el.dataset.top) ? 'On pace for #1' : 'Best pace ever');
+  if (!t) el.dataset.top = passed && passed.rank ? '1' : el.dataset.top || '';
+}
 const hudCache = {};
 function setText(id, txt) { if (hudCache[id] !== txt) { hudCache[id] = txt; $(id).textContent = txt; } }
 function updateHUD(dt) {
@@ -2841,6 +2891,7 @@ function updateHUD(dt) {
   run.shownScore = lerp(run.shownScore, run.score, Math.min(1, dt * 10));
   if (Math.abs(run.score - run.shownScore) < 1) run.shownScore = run.score;
   setText('scorePanel', fmtNum(run.shownScore));
+  if (run.mode === 'daily' || run.mode === 'practice') updateTarget(dt);
   if (run.mode === 'arena') {
     Arena.hud(dt);
     const acd = player.rollCd > 0 ? 1 - player.rollCd / ROLL_CD : 1, arb = $('rollBtn');
@@ -3142,6 +3193,11 @@ function renderRecord() {
     $('arenaKd').textContent = `K/D ${(a.kills / Math.max(1, a.deaths)).toFixed(2)}`;
     $('arenaChips').innerHTML = [[a.kills, 'Kills'], [a.wins, 'Round wins'], [a.best, 'Best streak'], [a.rounds, 'Rounds']].map(([v, l]) => `<div class="chip"><b>${fmtNum(v)}</b><small>${l}</small></div>`).join('');
   }
+  const aces = Object.entries(store.aces || {}).map(([d, n]) => [Number(d), n]).sort((x, y) => y[0] - x[0]);
+  $('aceCount').textContent = `${aces.length} downed`;
+  $('aceLog').innerHTML = aces.length
+    ? aces.slice(0, 12).map(([d, n]) => `<span class="ace-tag chamfer"><b>${esc(n)}</b><small>#${d}</small></span>`).join('') + (aces.length > 12 ? `<span class="ace-more">+${aces.length - 12} more</span>` : '')
+    : `<div class="notice chamfer">Every daily has a named enemy ace in wave 5. Shoot one down to start your logbook. Today's is ${esc((state === 'menu' ? world : buildWorld(dailySeed())).ace)}.</div>`;
   const got = MEDALS.filter(m => store.medals[m.id]).length;
   $('medalCount').textContent = `${got}/${MEDALS.length}`;
   $('medalList').innerHTML = MEDALS.map(m => `<div class="medal chamfer ${store.medals[m.id] ? '' : 'locked'}">${MEDAL_SVG}<b>${esc(m.name)}</b><small>${esc(m.desc)}</small></div>`).join('');
@@ -3245,6 +3301,7 @@ function openMenu() {
   resetEntities();
   player = makePlayer();
   hideAllOverlays(); hide('hud');
+  $('banner').classList.remove('show'); $('hint').classList.remove('show');
   applyTheme(store.theme);
   renderMenu();
   show('menu');
@@ -3802,6 +3859,7 @@ const Coop = {
     countPlaneUse();
     this.lastEnd = ev;
     track('coop_end', { win: ev.win, waves: ev.total, difficulty: this.settings.difficulty, pilots: this.roster.length });
+    if (ev.win && ['hard', 'brutal'].includes(this.settings.difficulty)) earnMedal('squad');
     const xp = gainXp(30 * (ev.win ? ev.total : ev.wave) + 15 * run.kills + (ev.win ? 100 : 0));
     showCoopResults(ev);
     showXp('resXp', xp);
@@ -3918,7 +3976,7 @@ function useTheme(id) {
 function startCoop(m) {
   const s = m.settings;
   useTheme(s.theme);
-  R = BASE_R; setArenaHud(false);
+  R = BASE_R; setArenaHud(false); hide('target');
   world = buildWorld(m.seed);
   if (s.mod !== 'random') {
     world.mod = MODS.find(x => x.id === s.mod) || MODS[0];
@@ -4278,6 +4336,7 @@ const Arena = {
     if (m.by === this.you) {
       this.kills++; this.streak = m.st; this.best = Math.max(this.best, m.st); this.score += m.pts;
       progress('kills', 1); progress('arenaKills', 1); progress('streak', m.st, true);
+      if (m.st >= 5) earnMedal('rampage');
       if (vp) floater(vp.x, vp.y - 24, `+${fmtNum(m.pts)}`, theme.accent, 1.4);
       if (m.vs >= 3 && vp) floater(vp.x, vp.y - 54, 'SHUT DOWN', '#ffd34f', 1.2);
       else if (m.rv && vp) floater(vp.x, vp.y - 54, 'REVENGE', '#ff4d5e', 1.2);
@@ -4317,7 +4376,7 @@ const Arena = {
     if (Math.hypot(m.x - player.x, m.y - player.y) < 1100) { sfx.boom(true); shake = Math.max(shake, 14); }
     this.feed.unshift({ k: m.by ? this.nameOf(m.by) : '', v: 'Supply blimp', w: 'g', me: m.by === this.you, t: performance.now() });
     this.feed = this.feed.slice(0, 5);
-    if (m.by === this.you) { floater(m.x, m.y - 40, `+${m.pts} SUPPLY DROP`, '#8fd6ea', 1.4); progress('blimp', 1); }
+    if (m.by === this.you) { floater(m.x, m.y - 40, `+${m.pts} SUPPLY DROP`, '#8fd6ea', 1.4); progress('blimp', 1); earnMedal('blimp'); }
   },
   onScores(b) {
     this.board = b;
@@ -4733,7 +4792,7 @@ function startArena(m) {
   R = m.R;
   useTheme(m.round.theme);
   world = buildWorld(m.round.seed); world.mod = MODS[0]; world.wind = { x: 0, y: 0 };
-  tileWorld = false; Coop.on = false; hide('squad');
+  tileWorld = false; Coop.on = false; hide('squad'); hide('target');
   resetEntities();
   player = makePlayer(m.hp); player.baseSp = player.sp; player.baseFi = player.fi; player.dead = true;
   cam.x = 0; cam.y = 0; slowT = 0; freezeT = 0;
@@ -4798,7 +4857,7 @@ function showArenaEnd(m) {
   countPlaneUse();
   const a = store.arena || (store.arena = { rounds: 0, wins: 0, kills: 0, deaths: 0, best: 0, top: 0 });
   a.rounds++; a.kills += mine[1]; a.deaths += mine[2]; a.best = Math.max(a.best, best); a.top = Math.max(a.top, mine[3]);
-  if (me === 0 && board.length > 1 && mine[3] > 0) a.wins++;
+  if (me === 0 && board.length > 1 && mine[3] > 0) { a.wins++; earnMedal('arenawin'); }
   if (me >= 0 && me < 3 && board.length > 3) progress('arenaTop3', 1);
   saveStore();
   showXp('aeXp', gainXp(40 + 25 * mine[1] + (me === 0 && mine[3] > 0 ? 150 : 0) + Math.max(0, 5 - me) * 15));
