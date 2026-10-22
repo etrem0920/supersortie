@@ -43,7 +43,7 @@ const PLANE_IDS = {
 export const PLANES_PER_THEATER = 9;
 const REVENGE_BONUS = 75;
 // Cosmetic choices the game offers (liveries per theater, contrails, titles); see game.html.
-export const LIVERIES = 13, TRAILS = 12, TITLES = 20;
+export const LIVERIES = 13, TRAILS = 12, TITLES = 21;
 // Each theater has its own boss event: it crosses the arena, shoots back, takes a lot of
 // punishment, and drops Overdrive (the strongest power-up, never found anywhere else).
 export const BOSSES = {

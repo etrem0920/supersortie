@@ -548,6 +548,7 @@
     background: linear-gradient(100deg, var(--tc) 0%, var(--tc) 40%, #fff 50%, var(--tc) 60%, var(--tc) 100%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
     filter: drop-shadow(0 0 10px color-mix(in srgb, var(--tc) 60%, transparent)) drop-shadow(0 2px 0 rgba(0, 0, 0, .5)); }
   .streak-tier small { display: block; text-align: center; font-family: var(--font-cond); font-size: 11px; letter-spacing: .2em; margin-top: 2px; }
+  .streak-tier.max { background-image: linear-gradient(100deg, #ff4fd8, #ffd34f, #5cf2a0, #6be4ff, #b98cff, #ff4fd8); }
   .streak-tier.show { animation: tierIn 2s cubic-bezier(.2, 1.4, .4, 1) both, tierShine 1.1s .15s ease-out both; }
   @keyframes tierIn { 0% { opacity: 0; transform: scale(1.9) skewX(-10deg); } 12% { opacity: 1; transform: scale(1) skewX(-10deg); } 82% { opacity: 1; transform: skewX(-10deg); } 100% { opacity: 0; transform: translateY(-8px) skewX(-10deg); } }
   @keyframes tierShine { from { background-position: 100% 0; } to { background-position: 0 0; } }
@@ -1405,7 +1406,7 @@ THEMES.modern.planes = [
   { id: 'f15', name: 'F-15', arch: 'fast', shape: 'eagle', note: 'Twin engines built for raw speed.' },
   { id: 'halberd', name: 'Eurofighter Typhoon', arch: 'agile', shape: 'halberd', note: 'Canard delta. Snaps into turns.' },
   { id: 'specter', name: 'F-35 Lightning II', arch: 'fast', shape: 'specter', note: 'Stealthy, sensor-packed and quick.' },
-  { id: 'nightjar', name: 'F-47 (NGAD)', arch: 'gunner', shape: 'nightjar', note: 'Next-generation tailless air-dominance fighter.' },
+  { id: 'nightjar', name: 'F-47 (NGAD)', arch: 'gunner', shape: 'nightjar', note: 'Next-generation air dominance: canards, no tails, long reach.' },
   { id: 'raptor', name: 'F-22 Raptor', arch: 'balanced', shape: 'raptor', note: 'Diamond wings, thrust vectoring, no weak spots.' },
   { id: 'yf23', name: 'YF-23 Black Widow II', arch: 'fast', shape: 'yf23', note: 'The prototype that lost to the Raptor. Faster, sleeker, rarer.' },
   { id: 'su57', name: 'Su-57', arch: 'gunner', shape: 'su57', note: 'Wide-set engines and a heavy 30 mm cannon.' },
@@ -1469,6 +1470,7 @@ const MEDALS = [
   { id: 'elite', name: 'Top 10%', desc: 'Finish in the top 10% of a daily' },
   { id: 'godlike', name: 'Godlike', desc: 'Get a 15-kill streak in the arena' },
   { id: 'hangar', name: 'Hangar rat', desc: 'Fly 9 different planes' },
+  { id: 'legend50', name: 'Absolute legend', desc: 'Get a 50-kill streak in the arena' },
   { id: 'squad', name: 'Band of brothers', desc: 'Win a co-op mission on Hard or Brutal' },
 ];
 const medalName = id => (MEDALS.find(m => m.id === id) || {}).name || id;
@@ -1497,7 +1499,7 @@ const TITLES = [
   { name: 'Double Ace', lvl: 15 }, { name: 'Squadron Leader', lvl: 20 }, { name: 'Wing Commander', lvl: 30 }, { name: 'Legend', lvl: 40 },
   { name: 'Ace Hunter', medal: 'acekill' }, { name: 'Untouchable', medal: 'untouched' }, { name: 'Time Traveler', medal: 'allthemes' }, { name: 'Arena Champion', arena: true },
   { name: 'Top Gun', lvl: 25 }, { name: 'Sky Marshal', lvl: 35 }, { name: 'Living Legend', lvl: 45 }, { name: 'Ace of Aces', lvl: 50 },
-  { name: 'Boss Slayer', medal: 'blimp' }, { name: 'Rampager', medal: 'rampage' }, { name: 'Elite', medal: 'elite' }, { name: 'Godlike', medal: 'godlike' },
+  { name: 'Boss Slayer', medal: 'blimp' }, { name: 'Rampager', medal: 'rampage' }, { name: 'Elite', medal: 'elite' }, { name: 'Godlike', medal: 'godlike' }, { name: 'Absolute Legend', medal: 'legend50' },
 ];
 const pilotLevel = () => levelOf(store.xp || 0);
 const titleOpen = t => (t.lvl ? pilotLevel() >= t.lvl : t.medal ? !!store.medals[t.medal] : !!(store.arena && store.arena.wins));
@@ -1926,22 +1928,28 @@ Object.assign(CRAFT_PLAYER, {
     props: [], flames: [{ x: -21, y: 0, w: 3, len: 13 }], tips: [-17, 20],
   },
   specter: {
+    // F-35: trapezoid wing, chined nose, side intakes, twin canted tails, single engine
     parts: [
-      part(poly(mirror([[26, 0], [10, -5], [-6, -22], [-13, -21], [-15, -9], [-20, -6], [-19, 0]])), 'body'),
-      ...pair([[-10, -6], [-18, -11], [-20, -9], [-14, -5]], 'wing'),
-      ...pair([[8, -5], [2, -7], [1, -5.5], [7, -4]], 'accent'),
-      part(ell(12, 0, 4.6, 2), 'glass'),
+      ...pair([[-15, -5], [-22, -12], [-27, -12], [-26, -5]], 'wing'),
+      part(poly(mirror([[8, -5], [-6, -20], [-10.5, -20.5], [-13, -6]])), 'wing'),
+      part(poly(mirror([[28, 0], [22, -2.2], [14, -4.2], [2, -6.2], [-14, -5.8], [-20, -3], [-21.5, 0]])), 'body'),
+      ...pair([[10, -4.4], [5, -6.4], [3.6, -6], [7.5, -4]], 'accent'),
+      ...pair([[-8, -5.4], [-15, -8.4], [-18, -8.4], [-13.5, -5]], 'wingDk'),
+      part(ell(14, 0, 5.6, 2.1), 'glass'),
     ],
-    props: [], flames: [{ x: -19, y: 2.5, w: 1.8, len: 9 }, { x: -19, y: -2.5, w: 1.8, len: 9 }], tips: [-10, 21],
+    props: [], flames: [{ x: -21.5, y: 0, w: 2.8, len: 13 }], tips: [-8, 20.5],
   },
   nightjar: {
+    // F-47 (NGAD): long chined nose, canards, cranked tailless wing, twin flat exhausts
     parts: [
-      part(poly(mirror([[17, 0], [-2, -29], [-8, -29], [-6, -21], [-12, -15], [-8, -9], [-12, -3.5], [-10, 0]])), 'wing'),
-      part(ell(3, 0, 10, 4.2), 'body'),
-      ...pair([[-2, -26], [-7, -26], [-7.4, -24], [-3, -24]], 'accent'),
-      part(ell(7, 0, 3.4, 1.8), 'glass'),
+      part(poly(mirror([[6, -5], [-10, -24], [-15, -24], [-12, -16], [-18, -10], [-16, -5]])), 'wing'),
+      ...pair([[-10, -24], [-15, -24], [-14.4, -22.2], [-10.6, -22.2]], 'accent'),
+      part(poly(mirror([[30, 0], [20, -2.6], [8, -5], [-12, -5.4], [-17, -3.5], [-20, -2.2], [-19, 0]])), 'body'),
+      ...pair([[14, -4], [6, -11], [3, -11], [6, -4]], 'wing'),
+      ...pair([[4, -5.2], [-3, -5.4], [-3, -4], [4, -4]], 'wingDk'),
+      part(ell(17, 0, 4.8, 1.9), 'glass'),
     ],
-    props: [], flames: [{ x: -11, y: 3, w: 1.4, len: 6 }, { x: -11, y: -3, w: 1.4, len: 6 }], tips: [-5, 28],
+    props: [], flames: [{ x: -19.5, y: 1.8, w: 1.6, len: 9 }, { x: -19.5, y: -1.8, w: 1.6, len: 9 }], tips: [-12, 24],
   },
   striker: {
     parts: [
@@ -2428,7 +2436,7 @@ const sfx = {
   // Streak tiers climb: each tier adds a note and a brighter top.
   streak: tier => {
     tone(70, 0.35, 'sine', 0.16, 40); noise(0.18, 0.08, 5000);
-    const base = 392 * Math.pow(2, Math.min(tier, 6) / 12);
+    const base = 392 * Math.pow(2, Math.min(tier, 12) / 12);
     const notes = [1, 1.25, 1.5, 2, 2.5, 3].slice(0, 3 + Math.min(3, tier));
     notes.forEach((m, i) => tone(base * m, 0.18, i % 2 ? 'square' : 'sawtooth', 0.03, null, 0.05 + i * 0.055));
     if (tier >= 3) tone(base * 4, 0.5, 'triangle', 0.025, base * 4.5, 0.05 + notes.length * 0.055);
@@ -4493,8 +4501,26 @@ const Social = {
   },
 };
 window.__dirty = () => Social.dirty();
-$('pilot').addEventListener('click', e => { if (e.target.id === 'pilot' || e.target.closest('[data-close]')) hide('pilot'); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('pilot').classList.contains('hidden')) hide('pilot'); });
+$('pilot').addEventListener('click', e => { if (e.target.closest('[data-close]')) hide('pilot'); });
+// Every menu closes on a click outside it, or with Esc, the same way its own close button would.
+const DISMISS = [
+  ['pilot', () => hide('pilot')],
+  ['help', () => { helpThen = null; hide('help'); }],
+  ['arena', () => $('arenaClose').click()],
+  ['coop', () => $('coopLeave').click()],
+  ['results', () => $('menuBtn').click()],
+  ['pause', () => resumeGame()],
+];
+for (const [id, close] of DISMISS) {
+  const el = $(id); let downOnBackdrop = false;
+  el.addEventListener('pointerdown', e => { downOnBackdrop = e.target === el; });
+  el.addEventListener('click', e => { if (e.target === el && downOnBackdrop) close(); downOnBackdrop = false; });
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || state === 'play' || state === 'pause') return;
+  const top = DISMISS.find(([id]) => !$(id).classList.contains('hidden'));
+  if (top) { e.preventDefault(); top[1](); }
+});
 document.addEventListener('click', e => {
   const li = e.target.closest('#boardBody li[data-u], #friendsBody li[data-u]');
   if (li && CONFIG.apiBase) Social.open(li.dataset.u);
@@ -5478,20 +5504,23 @@ const ARENA_ERRORS = {
   taken: 'That code is already in use. Try again.',
   closed: "Couldn't reach the arena server. Check your connection and try again.",
 };
-const STREAK_NAMES = { 2: 'Double kill', 3: 'Triple kill', 5: 'Rampage', 7: 'Unstoppable', 10: 'Legendary', 15: 'Godlike', 20: 'Ace of aces' };
-const STREAK_TIERS = [[2, 'Double kill', '#7cf2ff'], [3, 'Triple kill', '#4dd27a'], [5, 'Rampage', '#ffb02e'], [7, 'Unstoppable', '#ff5e3a'], [10, 'Legendary', '#c77dff'], [15, 'Godlike', '#ffd700'], [20, 'Ace of aces', '#ffffff']];
+const STREAK_TIERS = [[2, 'Double kill', '#7cf2ff'], [3, 'Triple kill', '#4dd27a'], [5, 'Rampage', '#ffb02e'], [7, 'Unstoppable', '#ff5e3a'], [10, 'Legendary', '#c77dff'], [15, 'Godlike', '#ffd700'], [20, 'Ace of aces', '#ffffff'],
+  [25, 'Warlord', '#ff3df0'], [30, 'Apex predator', '#ff2d55'], [35, 'Immortal', '#3df0ff'], [40, 'Mythic', '#b6ff4f'], [45, 'Sky god', '#ffe14f'], [50, 'Absolute legend', '#ffffff']];
+const STREAK_NAMES = Object.fromEntries(STREAK_TIERS.map(([n, name]) => [n, name]));
 const tierAt = st => { let t = null; for (const x of STREAK_TIERS) if (st >= x[0]) t = x; return t; };
 const nextTier = st => STREAK_TIERS.find(x => x[0] > st) || null;
 // Shown the moment a streak reaches a new tier: big, quick, then gone.
 function streakCallout(st) {
-  const t = STREAK_TIERS.find(x => x[0] === st) || (st > 20 && st % 5 === 0 ? [st, `Ace of aces ×${st / 5 - 3}`, '#ffffff'] : null);
+  const t = STREAK_TIERS.find(x => x[0] === st);
   if (!t) return;
   const box = $('streakBox'), el = $('streakTier');
+  el.classList.toggle('max', st >= 50);
+  if (st >= 50) { confetti(70); earnMedal('legend50'); }
   const best = store.arena && st > (store.arena.best || 0) && st >= 3;
   box.style.setProperty('--tc', t[2]);
   el.innerHTML = `${esc(t[1])}<small>${best ? 'New best streak' : `${st} in a row`}</small>`;
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
-  sfx.streak(STREAK_TIERS.indexOf(t) >= 0 ? STREAK_TIERS.indexOf(t) : 6);
+  sfx.streak(STREAK_TIERS.indexOf(t));
 }
 function renderStreakMeter(st, dead) {
   const el = $('streakMeter');
