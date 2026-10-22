@@ -48,18 +48,20 @@ export function cleanProfile(p) {
   const str = (v, max) => String(v == null ? '' : v).replace(/[^\w .\-'·]/g, '').slice(0, max);
   const out = {
     xp: int(p.xp, 1e9), title: int(p.title, 50), trail: int(p.trail, 50),
-    fav: str(p.fav, 16), favLiv: int(p.favLiv, 138), pic: String(p.pic || '').replace(/[^a-z0-9:#]/gi, '').slice(0, 24), streak: int(p.streak, 1e5), maxStreak: int(p.maxStreak, 1e5), lastDay: int(p.lastDay, 1e6),
+    fav: str(p.fav, 16), favLiv: int(p.favLiv, 160), pic: String(p.pic || '').replace(/[^a-z0-9:#]/gi, '').slice(0, 24), streak: int(p.streak, 1e5), maxStreak: int(p.maxStreak, 1e5), lastDay: int(p.lastDay, 1e6),
     played: int(p.played, 1e6), best: int(p.best, 1e6),
     medals: Array.isArray(p.medals) ? p.medals.slice(0, 40).map(m => str(m, 16)).filter(Boolean) : [],
-    aces: {}, arena: {}, zenBest: null, planeUse: {}, liveries: {}, planes: {},
+    aces: {}, arena: {}, zenBest: null, planeUse: {}, liveries: {}, planes: {}, planeLiv: {},
     credits: int(p.credits, 1e9), bullet: int(p.bullet, 20), killfx: int(p.killfx, 20), egg: int(p.egg, 1), tokens: Array.isArray(p.tokens) ? p.tokens.slice(0, 3).map(n => int(n, 99)) : [0, 0, 0],
+    login: p.login && typeof p.login === 'object' ? { day: int(p.login.day, 1e6), n: int(p.login.n, 1e5) } : null,
+    ghostWin: int(p.ghostWin, 1e6),
     season: p.season && typeof p.season === 'object' ? { id: int(p.season.id, 1e6), xp: int(p.season.xp, 15000) } : null,
     inv: Array.isArray(p.inv) ? [...new Set(p.inv.slice(0, 600).map(x => String(x)).filter(x => /^[spbtkx]:[a-z0-9:]{1,24}$/.test(x)))] : [],
   };
   if (p.aces && typeof p.aces === 'object') for (const [d, n] of Object.entries(p.aces).slice(-400)) if (/^\d{1,5}$/.test(d)) out.aces[d] = str(n, 24);
   if (p.arena && typeof p.arena === 'object') for (const k of ['rounds', 'wins', 'kills', 'deaths', 'best', 'top']) out.arena[k] = int(p.arena[k], 1e7);
   if (p.zenBest && typeof p.zenBest === 'object') out.zenBest = { score: int(p.zenBest.score, 1e8), kills: int(p.zenBest.kills, 1e6), time: int(p.zenBest.time, 1e7) };
-  for (const key of ['planeUse', 'liveries', 'planes']) if (p[key] && typeof p[key] === 'object') for (const [k, v] of Object.entries(p[key]).slice(0, 60)) out[key][str(k, 16)] = int(v, 1e6);
+  for (const key of ['planeUse', 'liveries', 'planes', 'planeLiv']) if (p[key] && typeof p[key] === 'object') for (const [k, v] of Object.entries(p[key]).slice(0, 80)) out[key][str(k, 16)] = int(v, 1e6);
   return out;
 }
 
@@ -101,16 +103,16 @@ async function register(req, env, cors) {
   const res = await env.DB.prepare('INSERT INTO accounts (username, pass_hash, salt, created_at, updated_at, profile) VALUES (?, ?, ?, ?, ?, ?)')
     .bind(b.username, await hashPassword(b.password, salt), salt, now, now, profile).run();
   const id = res.meta.last_row_id;
-  return json({ token: await newSession(env, id), username: b.username }, 201, cors);
+  return json({ token: await newSession(env, id), username: b.username, rev: now }, 201, cors);
 }
 
 async function login(req, env, cors) {
   if (await rateLimited(req, env)) return json({ error: 'rate_limited' }, 429, cors);
   const b = await readBody(req);
   if (!b || typeof b.username !== 'string' || typeof b.password !== 'string') return json({ error: 'bad_login' }, 401, cors);
-  const a = await env.DB.prepare('SELECT id, username, pass_hash, salt, profile FROM accounts WHERE username = ? COLLATE NOCASE').bind(b.username).first();
+  const a = await env.DB.prepare('SELECT id, username, pass_hash, salt, profile, updated_at FROM accounts WHERE username = ? COLLATE NOCASE').bind(b.username).first();
   if (!a || !sameString(await hashPassword(b.password, a.salt), a.pass_hash)) return json({ error: 'bad_login' }, 401, cors);
-  return json({ token: await newSession(env, a.id), username: a.username, profile: JSON.parse(a.profile || '{}') }, 200, cors);
+  return json({ token: await newSession(env, a.id), username: a.username, profile: JSON.parse(a.profile || '{}'), rev: a.updated_at }, 200, cors);
 }
 
 async function publicProfile(env, row, viewer) {
@@ -143,16 +145,22 @@ export async function handleAccounts(req, env, url, cors) {
     return json({ ok: true }, 200, cors);
   }
   if (path === '/api/v1/me' && method === 'GET') {
-    const row = await env.DB.prepare('SELECT username, profile FROM accounts WHERE id = ?').bind(me.id).first();
-    return json({ username: row.username, profile: JSON.parse(row.profile || '{}') }, 200, cors);
+    const row = await env.DB.prepare('SELECT username, profile, updated_at FROM accounts WHERE id = ?').bind(me.id).first();
+    return json({ username: row.username, profile: JSON.parse(row.profile || '{}'), rev: row.updated_at }, 200, cors);
   }
   if (path === '/api/v1/me/profile' && method === 'PUT') {
     const b = await readBody(req);
     if (!b) return json({ error: 'bad_body' }, 400, cors);
     const profile = JSON.stringify(cleanProfile(b.profile));
     if (profile.length > MAX_PROFILE) return json({ error: 'too_large' }, 413, cors);
-    await env.DB.prepare('UPDATE accounts SET profile = ?, updated_at = ? WHERE id = ?').bind(profile, Date.now(), me.id).run();
-    return json({ ok: true }, 200, cors);
+    // With a rev, the save only lands on top of the version the device last saw. Otherwise the device gets the
+    // newer copy back (409) and merges its own changes into it, so two devices can't overwrite each other's credits.
+    const cur = await env.DB.prepare('SELECT profile, updated_at FROM accounts WHERE id = ?').bind(me.id).first();
+    if (b.rev != null && Number(b.rev) !== cur.updated_at) return json({ error: 'stale', profile: JSON.parse(cur.profile || '{}'), rev: cur.updated_at }, 409, cors);
+    const rev = Math.max(Date.now(), cur.updated_at + 1);
+    const res = await env.DB.prepare('UPDATE accounts SET profile = ?, updated_at = ? WHERE id = ? AND updated_at = ?').bind(profile, rev, me.id, cur.updated_at).run();
+    if (!res.meta || !res.meta.changes) return json({ error: 'stale', profile: JSON.parse(cur.profile || '{}'), rev: cur.updated_at }, 409, cors);
+    return json({ ok: true, rev }, 200, cors);
   }
   if (path === '/api/v1/me/friends' && method === 'GET') {
     const rows = (await env.DB.prepare('SELECT a.id, a.username, a.profile, a.created_at FROM friends f JOIN accounts a ON a.id = f.friend_id WHERE f.account_id = ? ORDER BY f.created_at DESC').bind(me.id).all()).results || [];

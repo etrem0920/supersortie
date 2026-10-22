@@ -19,6 +19,7 @@ import { serverDay } from './day.js';
 import { handleAccounts, accountFor } from './accounts.js';
 import { joinLeague, leagueView } from './league.js';
 import { postGhost, listGhosts, getGhost } from './ghosts.js';
+import { postFeedback, listFeedback } from './feedback.js';
 export { CoopRoom, ArenaRoom, ArenaDirectory };
 
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
@@ -275,6 +276,8 @@ export default {
         return json(await leagueView(env, deviceId), 200, cors, { 'cache-control': 'no-store' });
       }
       if (url.pathname === '/api/v1/arena/leaderboard' && req.method === 'GET') return await arenaBoard(url, env, cors);
+      if (url.pathname === '/api/v1/feedback' && req.method === 'POST') { const who = await accountFor(env, req); return await postFeedback(req, env, json, cors, who && who.username); }
+      if (url.pathname === '/api/v1/admin/feedback' && req.method === 'GET') return await listFeedback(url, req, env, json, cors);
       if (url.pathname === '/api/v1/ghost' && req.method === 'POST') return await postGhost(req, env, json, cors);
       if (url.pathname === '/api/v1/ghost' && req.method === 'GET') return await getGhost(url, env, json, cors);
       if (url.pathname === '/api/v1/ghosts' && req.method === 'GET') return await listGhosts(url, env, json, cors);

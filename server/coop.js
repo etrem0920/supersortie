@@ -141,14 +141,14 @@ export class CoopRoom {
       case 'me':
         if ('name' in msg) me.name = cleanName(msg.name);
         if ('plane' in msg) me.plane = small(msg.plane, 11);
-        if ('livery' in msg) me.livery = small(msg.livery, 138);
+        if ('livery' in msg) me.livery = small(msg.livery, 144);
         if (me.livery === ELITE_LIVERY && !me.eliteOk) {
           me.livery = 0;
           const okd = await eliteOk(this.env, me.device, null).catch(() => false);
           if (okd) { me.eliteOk = true; me.livery = ELITE_LIVERY; }
         }
-        if ('trail' in msg) me.trail = small(msg.trail, 20);
-        if ('bullet' in msg) me.bullet = small(msg.bullet, 14);
+        if ('trail' in msg) me.trail = small(msg.trail, 24);
+        if ('bullet' in msg) me.bullet = small(msg.bullet, 19);
         if ('kfx' in msg) me.kfx = small(msg.kfx, 9);
         if ('ready' in msg) me.ready = !!msg.ready;
         ws.serializeAttachment(me);
