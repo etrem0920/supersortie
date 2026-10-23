@@ -611,17 +611,6 @@
   .step h3 { margin: 0 0 3px; font-family: var(--font-display); font-weight: 800; font-size: 21px; text-transform: uppercase; letter-spacing: .02em; }
   .step p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
   kbd { font-family: var(--font-cond); font-weight: 700; font-size: 13px; color: var(--text); background: var(--raise-2); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .5), inset 0 0 0 1px var(--line-strong); padding: 1px 6px; }
-  .sky-opt { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; margin: 14px 0 4px; padding: 12px 14px; background: rgba(127, 227, 255, .06); box-shadow: inset 0 0 0 1px rgba(127, 227, 255, .25); cursor: pointer; --cut: 8px; }
-  .sky-opt input { position: absolute; opacity: 0; pointer-events: none; }
-  .sky-opt .sw { width: 40px; height: 22px; border-radius: 11px; background: rgba(255, 255, 255, .14); position: relative; transition: background .2s; }
-  .sky-opt .sw::after { content: ''; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .2s; }
-  .sky-opt input:checked + .sw { background: #33b8e0; }
-  .sky-opt input:checked + .sw::after { transform: translateX(18px); }
-  .sky-opt input:focus-visible + .sw { outline: 2px solid #7fe3ff; outline-offset: 2px; }
-  .sky-opt b { display: block; font-family: var(--font-cond); text-transform: uppercase; letter-spacing: .08em; font-size: 15px; color: #7fe3ff; }
-  .sky-opt small { display: block; color: var(--muted); font-size: 13px; line-height: 1.35; margin-top: 2px; }
-  .sky-chip { position: absolute; left: 50%; top: calc(112px + env(safe-area-inset-top, 0px)); transform: translate(-50%, -6px); padding: 6px 14px; background: rgba(9, 12, 20, .72); box-shadow: inset 0 0 0 1px rgba(127, 227, 255, .35); color: #cfeeff; font-family: var(--font-cond); font-weight: 700; letter-spacing: .06em; font-size: 14px; text-transform: uppercase; white-space: nowrap; opacity: 0; transition: opacity .4s, transform .4s; pointer-events: none; z-index: 5; }
-  .sky-chip.show { opacity: 1; transform: translate(-50%, 0); }
   .legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; font-size: 13px; color: var(--muted); }
   .legend span { display: flex; align-items: center; gap: 8px; }
   .legend i { width: 14px; height: 14px; flex: none; }
@@ -1103,7 +1092,6 @@
     <div class="bar"><i id="bossFill"></i></div>
   </div>
   <div id="hint" class="hint chamfer"></div>
-  <div id="skyChip" class="sky-chip"></div>
   <div id="weaponChip" class="weapon-chip hidden"></div>
   <div id="killPop" class="kill-pop" aria-live="polite"></div>
   <div id="streakBox" class="streak-box hidden"><div id="streakTier" class="streak-tier"></div><div id="streakMeter" class="streak-meter"></div></div>
@@ -1175,8 +1163,7 @@
           <div id="doneStats" class="done-stats"></div>
           <p id="doneVs" class="today-desc"></p>
           <div class="done-acts"><button id="doneShare" class="btn btn-primary btn-block">Share result</button>
-          <button id="ghostBtn" class="btn btn-ghost btn-block ghost-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a8 8 0 0 0-8 8v12l3-2 2.5 2 2.5-2 2.5 2 2.5-2 3 2V10a8 8 0 0 0-8-8zm-3 7.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="currentColor"/></svg>Race today's ghosts</button>
-          <button id="skyBtn" class="btn btn-ghost btn-block ghost-btn hidden"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 9l1 3v1.5l4 2.3v1l-4-1-.3 2.3 1.4 1v.9l-2.1-.6-2.1.6v-.9l1.4-1-.3-2.3-4 1v-1l4-2.3V12zM17 3l1.2 3.5v2l4.8 2.7v1.3l-4.8-1.3-.3 2.8 1.7 1.3v1l-2.6-.7-2.6.7v-1l1.7-1.3-.3-2.8-4.8 1.3v-1.3l4.8-2.7v-2z" opacity=".9"/></svg>Watch today's top 25</button></div>
+          <button id="ghostBtn" class="btn btn-ghost btn-block ghost-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a8 8 0 0 0-8 8v12l3-2 2.5 2 2.5-2 2.5 2 2.5-2 3 2V10a8 8 0 0 0-8-8zm-3 7.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="currentColor"/></svg>Race today's ghosts</button></div>
         </div>
         <div class="today-foot"><span id="pilotCount"></span><span id="leader"></span></div>
       </div>
@@ -1198,12 +1185,11 @@
         <div class="news-grid">
           <article class="news-card now chamfer">
             <small class="nk">Out now · Oct 23</small>
-            <b>Top 25 ghosts, hold fire &amp; era crates</b>
+            <b>One sortie a day, on every device</b>
             <ul>
-              <li><strong>Top 25 ghosts:</strong> today's best runs fly the sortie right alongside you. After you fly, watch all 25 at once. You can switch it off in How to play.</li>
-              <li><strong>Hold fire:</strong> in the arena, press H (Y on a controller, or tap the gun button) to stop shooting. Other pilots can see you're holding fire.</li>
+              <li>Sign in and today's sortie follows you. Fly it on your phone and your laptop already knows how you did.</li>
               <li><strong>Era crates:</strong> each theater's crates look like they belong there now, and each one has its own opening.</li>
-              <li>Your account remembers today's sortie on every device, and new accounts get a recovery code in case you forget your password.</li>
+              <li><strong>Arena:</strong> press H to hold fire when you'd rather fly with your friends than shoot them.</li>
               <li>Last week: Apex planes, Zen settings, Military mode, gold names for the daily top 10%, ghost races, a free season pass and weekly leagues.</li>
             </ul>
           </article>
@@ -1342,7 +1328,6 @@
       <span><i style="background:var(--hot)"></i>Wave cleared</span>
       <span><i style="background:var(--bad)"></i>Shot down</span>
     </div>
-    <label class="sky-opt chamfer"><input id="skyToggle" type="checkbox" checked><span class="sw" aria-hidden="true"></span><span><b>Top 25 ghosts</b><small>Fly alongside ghosts of today's top 25 pilots. They can't shoot you or touch your score.</small></span></label>
     <div id="helpCallsign" class="field hidden">
       <label for="callsign2">Your callsign</label>
       <input id="callsign2" maxlength="16" autocomplete="off" spellcheck="false">
@@ -3917,7 +3902,6 @@ const input = { mode: 'mouse', hasMouse: false, mx: 0, my: 0, touchId: null, tou
 const keys = {};
 canvas.addEventListener('pointerdown', e => {
   audio();
-  if (state === 'play' && run && run.mode === 'sky') { Sky.next(); return; }
   if (e.pointerType === 'mouse') {
     input.mode = 'mouse'; input.hasMouse = true; input.mx = e.clientX; input.my = e.clientY;
     if (state === 'play') tryRoll();
@@ -3997,7 +3981,7 @@ const toScreen = (x, y) => ({ x: W / 2 + (x - cam.x) * zoom, y: H / 2 + (y - cam
    Run flow
    ===================================================================== */
 function startRun(mode) {
-  const seed = mode === 'daily' || mode === 'ghost' || mode === 'sky' ? dailySeed() : `${mode === 'zen' ? 'ZEN' : 'PRACTICE'}-${Math.random().toString(36).slice(2, 8)}`;
+  const seed = mode === 'daily' || mode === 'ghost' ? dailySeed() : `${mode === 'zen' ? 'ZEN' : 'PRACTICE'}-${Math.random().toString(36).slice(2, 8)}`;
   R = BASE_R;
   if (Arena.on || ANet.ws) { Arena.on = false; ANet.close(); }
   setArenaHud(false);
@@ -4036,9 +4020,7 @@ function startRun(mode) {
     run.phase = 'zen';
     showBanner('Zen mode', run.zenCfg.enemies === 'off' ? 'Just you and the sky' : 'Endless skies', 'No edges. Fly as long as you like. Pause any time to end the flight.');
     sfx.wave();
-  } else if (mode === 'sky') { run.phase = 'sky'; player.dead = true; $('waveLabel').classList.add('hidden'); $('pips').classList.add('hidden'); return; }
-  else startWave(0);
-  if (mode === 'daily') Sky.started();
+  } else startWave(0);
   showHint(isTouch ? 'Drag anywhere to steer · tap ROLL to dodge' : 'Mouse to steer · click or Space to roll', 5500);
   track('run_start', { mode, theme: theme.id, mod: world.mod.id });
 }
@@ -4688,8 +4670,6 @@ function update(dt) {
     } else if (run.phase === 'dead') {
       run.phaseT -= dt;
       if (run.phaseT <= 0) { finish(false); return; }
-    } else if (run.phase === 'sky') {
-      if (run.totalT > Sky.dur + 1.5) { openMenu(); return; }
     }
     if (!tileWorld && !player.dead && Math.hypot(player.x, player.y) > R - 120) showHint('Leaving the combat zone, turning back', 1200);
   } else attractPlayer(dt);
@@ -4703,7 +4683,7 @@ function updateCamera(dt) {
   const look = Math.min(W, H) * 0.13 / zoom;
   const killer = Arena.on && player.dead && Arena.killer ? Arena.others.get(Arena.killer) : null;
   const mate = Coop.on && player.dead ? Coop.peerList().find(p => p.seen && !p.dead) : killer && killer.alive ? killer : null;
-  const f = run && run.mode === 'sky' && state === 'play' ? Sky.focus() : mate || player;
+  const f = mate || player;
   const tx = f.x + Math.cos(f.a) * look, ty = f.y + Math.sin(f.a) * look;
   const k = Math.min(1, dt * 4);
   cam.x = lerp(cam.x, tx, k); cam.y = lerp(cam.y, ty, k);
@@ -5112,8 +5092,6 @@ function draw() {
     }
     ctx.restore();
   }
-
-  if (run && (run.mode === 'daily' || run.mode === 'sky') && (state === 'play' || state === 'pause')) Sky.draw(ctx, th, inView);
 
   const pRoll = player.rollT > 0 ? (1 - player.rollT / ROLL_T) * TAU : 0;
   const pCraft = craftFor(th, 'player'), pCol = colorsFor(th, 'player', myLivery(th.id));
@@ -5682,7 +5660,6 @@ function renderMenu() {
     $('doneScore').textContent = fmtNum(today.score);
     $('doneTiles').innerHTML = tilesHTML(today.grades, null, false);
     $('ghostBtn').classList.toggle('hidden', !(Ghost && Ghost.can()));
-    $('skyBtn').classList.toggle('hidden', !(Ghost && Ghost.can() && Board.kind === 'api'));
     $('doneRank').textContent = today.rank ? `Rank #${fmtNum(today.rank)} of ${fmtNum(today.total)}` : rankFor(today.score);
     renderDoneExtras(today);
     const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
@@ -6994,147 +6971,7 @@ var Ghost = {
     return `Ghost race · ${A.won ? 'beat' : 'lost to'} ${A.meta.me ? 'your ghost' : A.meta.name} (${fmtNum(A.final)})`;
   },
 };
-// The Whole Sky: faint ghosts of today's top 25 runs, flying the sortie alongside you.
-// Look only: ghosts never touch the fight, the enemies or the score. Friends glow, today's best run is gold.
-var Sky = {
-  day: 0, list: [], total: 0, dt: 0.4, dur: 0, at: 0, loading: null, sprites: new Map(), focusI: 0,
-  on() { return store.sky !== false; },
-  ready() { return this.day === todayNum && this.list.length > 0; },
-  async load(force) {
-    if (Board.kind !== 'api') return;
-    if (!force && this.day === todayNum && Date.now() - this.at < 120000) return;
-    if (this.loading) return this.loading;
-    const url = Board.api(`/api/v1/sky?day=${todayNum}&d=${encodeURIComponent(deviceId())}`);
-    this.loading = (async () => {
-      try {
-        const buf = new Uint8Array(await (await fetch(url)).arrayBuffer()), dv = new DataView(buf.buffer);
-        const n = dv.getUint32(0, true), meta = JSON.parse(new TextDecoder().decode(buf.subarray(4, 4 + n)));
-        let o = 4 + n, dur = 0;
-        this.list = meta.ghosts.map(g => {
-          const len = g.n, x = new Int16Array(len), y = new Int16Array(len), a = new Float32Array(len), fl = new Uint8Array(len);
-          for (let i = 0; i < len; i++, o += 6) { x[i] = dv.getInt16(o, true); y[i] = dv.getInt16(o + 2, true); a[i] = dv.getInt8(o + 4) / 127 * Math.PI; fl[i] = dv.getUint8(o + 5); }
-          dur = Math.max(dur, len * meta.dt);
-          const id = PLANE_INDEX[g.p] ? g.p : resolvePlane(g.p, g.t || 'ww2');
-          return { id, liv: g.l || 0, u: g.u, rank: g.r, top: g.r === 1, me: !!g.me, f: false, x, y, a, fl, len, gone: false };
-        });
-        // Your own run, from this device, for the replay (if it didn't make the top 25 it still flies with them)
-        const mine = Ghost.mine();
-        if (mine && !this.list.some(g => g.me)) {
-          const F = Ghost.decode(mine.data).filter((_, i) => i % 2 === 0), len = F.length;
-          const g = { id: PLANE_INDEX[mine.plane] ? mine.plane : 'hellcat', liv: mine.livery || 0, me: true, top: false, f: false, len, gone: false, x: new Int16Array(len), y: new Int16Array(len), a: new Float32Array(len), fl: new Uint8Array(len) };
-          F.forEach((q, i) => { g.x[i] = q.x; g.y[i] = q.y; g.a[i] = q.a; g.fl[i] = (q.roll ? 1 : 0) | (q.dead ? 2 : 0); });
-          this.list.push(g); dur = Math.max(dur, len * meta.dt);
-        }
-        const fr = new Set((Social.friends || []).map(f => String(f.username || f.u || '').toLowerCase()));
-        this.list.forEach(g => { g.f = !!g.u && fr.has(g.u.toLowerCase()); });
-        this.total = this.list.filter(g => !g.me).length; this.dt = meta.dt || 0.4; this.dur = dur; this.day = todayNum; this.at = Date.now();
-      } catch (e) { /* no sky today: fly alone */ }
-      this.loading = null;
-    })();
-    return this.loading;
-  },
-  // Pilots who flew before you (your own run only shows in the replay).
-  count() { return this.list.filter(g => !g.me).length; },
-  sprite(g) {
-    const key = g.id + '|' + g.liv;
-    let s = this.sprites.get(key);
-    if (!s) {
-      const info = PLANE_INDEX[g.id] || PLANE_INDEX.hellcat, th = THEMES[info.theme];
-      s = craftSprite(CRAFT_PLAYER[info.plane.shape], colorsFor(th, 'player', g.liv), { spin: 0.4, t: 1 }, 1);
-      this.sprites.set(key, s);
-    }
-    return s;
-  },
-  pos(g, t) {
-    const f = t / this.dt, i = Math.floor(f);
-    if (i < 0 || i >= g.len - 1) return null;
-    if (g.fl[i] & 2) return { dead: true, x: g.x[i], y: g.y[i] };
-    const k = f - i; let da = g.a[i + 1] - g.a[i]; if (da > Math.PI) da -= TAU; if (da < -Math.PI) da += TAU;
-    return { x: g.x[i] + (g.x[i + 1] - g.x[i]) * k, y: g.y[i] + (g.y[i + 1] - g.y[i]) * k, a: g.a[i] + da * k, roll: g.fl[i] & 1 };
-  },
-  draw(c, th, inView) {
-    if (!run || !this.ready() || (run.mode === 'daily' && !this.on())) return;
-    const t = run.totalT, replay = run.mode === 'sky', m = c.getTransform(), full = isTouch ? 60 : 140;
-    const labels = [], crowd = [], cells = new Map(), cs = 20 / zoom;
-    let drawn = 0;
-    c.globalAlpha = replay ? 0.55 : 0.32;
-    for (const g of this.list) {
-      if (g.me && !replay) continue;
-      const p = this.pos(g, t);
-      if (!p) continue;
-      if (p.dead) { if (!g.gone) { g.gone = true; if (inView(p.x, p.y, 60)) puff(p.x, p.y, 0, 0, rand(6, 10), 10, 0.5, '#dce9ff', 'smoke'); } continue; }
-      g.gone = false;
-      if (!inView(p.x, p.y, 60)) continue;
-      if (g.top || g.f || g.me) { labels.push([g, p]); continue; }
-      // Stacked ghosts add nothing you can see, so each patch of screen draws two at most.
-      const ck = Math.floor(p.x / cs) * 100003 + Math.floor(p.y / cs), cn = cells.get(ck) || 0;
-      if (cn >= 2) continue;
-      cells.set(ck, cn + 1);
-      // The nearest few in their real plane and skin; the rest of the crowd as quick silhouettes.
-      if (drawn >= full) { crowd.push(p); continue; }
-      drawn++;
-      const co = Math.cos(p.a), si = Math.sin(p.a), sy = p.roll ? Math.cos(time * 18) : 1;
-      c.setTransform((m.a * co + m.c * si), (m.b * co + m.d * si), (-m.a * si + m.c * co) * sy, (-m.b * si + m.d * co) * sy, m.a * p.x + m.c * p.y + m.e, m.b * p.x + m.d * p.y + m.f);
-      c.drawImage(this.sprite(g), -SPR, -SPR, SPR * 2, SPR * 2);
-    }
-    c.setTransform(m);
-    if (crowd.length) {
-      // one path for the whole crowd: nose, wingtips, tail
-      c.beginPath();
-      for (const p of crowd) {
-        const co = Math.cos(p.a), si = Math.sin(p.a), P = (fx, fy) => [p.x + fx * co - fy * si, p.y + fx * si + fy * co];
-        const pts = [P(16, 0), P(-2, 15), P(-6, 15), P(-4, 3), P(-14, 7), P(-14, -7), P(-4, -3), P(-6, -15), P(-2, -15)];
-        c.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]); c.closePath();
-      }
-      c.globalAlpha = replay ? 0.5 : 0.26; c.fillStyle = th.id === 'neon' ? '#ff9bf0' : th.id === 'space' ? '#bfe3ff' : '#eef3fa'; c.fill();
-    }
-    c.globalAlpha = 1;
-    // Friends, today's best and (in the replay) you: brighter, with a short trail and a name.
-    for (const [g, p] of labels) {
-      const pts = []; for (let s = 1.2; s > 0; s -= 0.2) { const q = this.pos(g, t - s); if (q && !q.dead) pts.push({ x: q.x, y: q.y, a: q.a, roll: false }); }
-      pts.push({ x: p.x, y: p.y, a: p.a, roll: false });
-      c.save(); c.globalAlpha = 0.55; drawContrail(c, pts, g.top ? 7 : 0, 20, 0.7); c.restore();
-      c.save(); c.translate(p.x, p.y); c.rotate(p.a); c.globalAlpha = 0.7; c.drawImage(this.sprite(g), -SPR, -SPR, SPR * 2, SPR * 2); c.restore();
-      const name = g.me ? 'YOU' : (g.top ? '#1 ' : '') + (g.u || (g.top ? 'TODAY\'S BEST' : 'PILOT')).toUpperCase();
-      c.save(); c.translate(p.x, p.y - 36); c.scale(1 / zoom, 1 / zoom);
-      c.font = '700 12px "Barlow Condensed", "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
-      c.lineWidth = 4; c.strokeStyle = 'rgba(5,6,12,.75)'; c.strokeText(name, 0, 0);
-      c.fillStyle = g.top ? '#ffd34f' : g.me ? '#ffffff' : '#7fe3ff'; c.fillText(name, 0, 0);
-      c.restore();
-    }
-  },
-  // Who the replay camera follows: you, then today's best, then whoever is still flying.
-  focus() {
-    const t = run.totalT, pick = this.list[this.focusI % Math.max(1, this.list.length)];
-    const p = pick && this.pos(pick, t);
-    if (p && !p.dead) return p;
-    const order = this.list.map((g, i) => i).sort((a, b) => (this.list[b].me - this.list[a].me) || (this.list[b].top - this.list[a].top));
-    for (const i of order) { const q = this.pos(this.list[i], t); if (q && !q.dead) { this.focusI = i; return q; } }
-    return { x: cam.x, y: cam.y, a: 0 };
-  },
-  next() { if (this.list.length) this.focusI = (this.focusI + 1 + Math.floor(Math.random() * this.list.length)) % this.list.length; },
-  chip(text) { const el = $('skyChip'); el.textContent = text; el.classList.add('show'); clearTimeout(this.chipT); this.chipT = setTimeout(() => el.classList.remove('show'), 6000); },
-  // Daily start: tell them who's up there with them.
-  started() {
-    this.list.forEach(g => { g.gone = false; });
-    if (!this.on() || Board.kind !== 'api') return;
-    const say = () => { const n = this.count(); this.chip(n > 1 ? `✦ Today's top ${n} pilots are flying with you` : n ? '✦ Today\'s best pilot is flying with you' : '✦ You\'re one of the first in today\'s sky'); };
-    if (this.ready()) say(); else this.load(true).then(() => { if (run && run.mode === 'daily' && state === 'play') say(); });
-  },
-  async watch() {
-    await this.load(true);
-    if (!this.ready()) { toast('Today\'s top 25', 'No one has flown today\'s sortie yet. Check back later.'); return; }
-    this.focusI = Math.max(0, this.list.findIndex(g => g.me));
-    audio(); startRun('sky');
-    zoom = clamp(Math.min(W, H) / 760, 0.6, 1.05) * 0.8;
-    showBanner(`Sortie #${todayNum}`, this.total > 1 ? `Today's top ${this.total}` : 'Today\'s best', 'All at once. Tap to follow someone else.');
-  },
-};
-$('skyToggle').addEventListener('change', e => { store.sky = e.target.checked; saveStore(); if (store.sky) Sky.load(); track('sky_toggle', { on: store.sky ? 1 : 0 }); });
-// Fetch today's sky in the background so it's there when the sortie starts.
-setTimeout(() => { if (Sky.on() && !store.history[todayNum]) Sky.load(); }, 2500);
 $('ghostBtn').addEventListener('click', () => Ghost.pick());
-$('skyBtn').addEventListener('click', () => Sky.watch());
 $('bjReg').addEventListener('click', () => Social.signIn('register', ['bjUser', 'bjPass', 'bjErr']).then(() => { renderBoardJoin(); if (store.auth) loadBoard(); }));
 $('bjLogin').addEventListener('click', () => Social.signIn('login', ['bjUser', 'bjPass', 'bjErr']).then(() => { renderBoardJoin(); if (store.auth) loadBoard(); }));
 // Feedback form: posts to the API (stored, and emailed to the team when email is set up).
@@ -7292,7 +7129,6 @@ function setView(name) {
 
 function openMenu() {
   state = 'menu';
-  zoom = clamp(Math.min(W, H) / 760, 0.6, 1.05);
   $('hud').classList.remove('zen-min');
   setTimeout(() => Daily.maybe(), 700);
   applyAuthCallsign();
@@ -7442,7 +7278,7 @@ function pauseGame(auto) {
     return;
   }
   state = 'pause'; setSoundLabels();
-  $('quitBtn').textContent = run.mode === 'zen' ? 'End flight' : run.mode === 'sky' ? 'Stop watching' : 'Abandon sortie';
+  $('quitBtn').textContent = run.mode === 'zen' ? 'End flight' : 'Abandon sortie';
   show('pause');
 }
 function resumeGame() { if ((Coop.on || Arena.on) && state === 'play') { hide('pause'); hide('help'); return; } if (state !== 'pause') return; hide('pause'); hide('help'); state = 'play'; last = 0; }
@@ -7481,7 +7317,6 @@ function saveCallsign(v) {
 let helpThen = null;
 function openHelp(then, askName) {
   helpThen = then;
-  $('skyToggle').checked = Sky.on();
   $('helpGo').textContent = then ? "Let's fly" : 'Got it';
   $('helpCallsign').classList.toggle('hidden', !askName);
   $('callsign2').value = store.callsign;
