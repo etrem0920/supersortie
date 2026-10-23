@@ -11,6 +11,7 @@
 //   GET    /api/v1/arena/list                  public arenas with people in them (server browser)
 //   GET    /api/v1/league?deviceId=…           this week's league group (see league.js)
 //   GET    /api/v1/arena/leaderboard?deviceId=…   today's top arena pilots by kills
+//   GET    /api/v1/sky?day=N                 the day's top 25 runs as one binary bundle (see sky.js)
 //   GET    /api/v1/x/drafts                today's three X posts, built from live data, to copy and post by hand
 //   GET    /api/v1/admin/x                 preview the next X posts and the recent log (Bearer ADMIN_TOKEN)
 //   POST   /api/v1/admin/x                 post the current slot now (Bearer ADMIN_TOKEN)
@@ -22,6 +23,7 @@ import { serverDay, clientDay } from './day.js';
 import { handleAccounts, accountFor } from './accounts.js';
 import { joinLeague, leagueView } from './league.js';
 import { composePost, runScheduledPost, slotFor, xReady } from './x.js';
+import { getSky } from './sky.js';
 import { postGhost, listGhosts, getGhost } from './ghosts.js';
 import { postFeedback, listFeedback } from './feedback.js';
 import { isCreator } from './creators.js';
@@ -323,6 +325,7 @@ export default {
       if (url.pathname === '/api/v1/admin/feedback' && req.method === 'GET') return await listFeedback(url, req, env, json, cors);
       if (url.pathname === '/api/v1/ghost' && req.method === 'POST') return await postGhost(req, env, json, cors);
       if (url.pathname === '/api/v1/ghost' && req.method === 'GET') return await getGhost(url, env, json, cors);
+      if (url.pathname === '/api/v1/sky' && req.method === 'GET') return await getSky(url, env, cors);
       if (url.pathname === '/api/v1/ghosts' && req.method === 'GET') return await listGhosts(url, env, json, cors);
       const acct = await handleAccounts(req, env, url, cors);
       if (acct) return acct;

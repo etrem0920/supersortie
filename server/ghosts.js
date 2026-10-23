@@ -1,6 +1,6 @@
 // Ghost replays: a daily run's flight path, sampled every 200 ms.
 // Only the day's top GHOSTS_PER_DAY runs are kept, and the score always comes from the scores table.
-export const GHOSTS_PER_DAY = 20, SAMPLE_S = 0.2, MAX_SAMPLES = 3000, BYTES_PER_SAMPLE = 8;
+export const GHOSTS_PER_DAY = 25, SAMPLE_S = 0.2, MAX_SAMPLES = 3000, BYTES_PER_SAMPLE = 8;
 const MAX_B64 = Math.ceil(MAX_SAMPLES * BYTES_PER_SAMPLE / 3) * 4;
 
 // Returns the sample count, or 0 if the payload is malformed or doesn't match the scored run.
