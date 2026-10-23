@@ -22,13 +22,13 @@ function mulberry32(a) {
   return () => { let t = (a += 0x6D2B79F5); t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 }
 const MODS = [
-  ['standard', 'Standard rules', 'No surprises. Just you and them.'],
+  ['standard', 'Standard rules', 'Normal rules. Nothing special today.'],
   ['glass', 'Glass cannon', 'Six hull instead of ten, but your guns hit twice as hard.'],
   ['swarm', 'Swarm', 'Every wave brings two extra scouts.'],
   ['ironace', 'Iron ace', 'The ace has 50% more armor and an extra wingman.'],
   ['overcast', 'Overcast', 'Low cloud. Enemies can hide above the deck.'],
   ['crosswind', 'Crosswind', 'A strong wind pushes everything sideways.'],
-  ['hotguns', 'Hot guns', 'Everyone fires 30% faster. Including them.'],
+  ['hotguns', 'Hot guns', 'Everyone fires 30% faster, enemies too.'],
 ];
 const ACE_NAMES = ['Red Kestrel', 'Black Viper', 'Iron Heron', 'Crimson Lynx', 'Silver Wolf', 'Storm Petrel', 'Night Hawk', 'Scarlet Fox', 'Baron Grey', 'Golden Shrike', 'The Widow', 'Cold Harbor'];
 export function dailyInfo(day) {

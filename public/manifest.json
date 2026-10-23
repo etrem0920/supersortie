@@ -1,7 +1,7 @@
 {
   "name": "Super Sortie: The Daily Dogfight",
   "short_name": "Super Sortie",
-  "description": "A new five-wave dogfight every day. Same sky for every pilot on Earth.",
+  "description": "A new five-wave dogfight every day, and everyone flies the same one.",
   "start_url": "/?source=app",
   "scope": "/",
   "display": "standalone",
