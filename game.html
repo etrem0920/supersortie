@@ -1187,6 +1187,7 @@
             <small class="nk">Out now · Oct 23</small>
             <b>One sortie a day, on every device</b>
             <ul>
+              <li><strong>Skins:</strong> no more lookalikes. Over 300 crate skins got a fresh look, so every skin on a plane stands apart. You keep everything you own.</li>
               <li>Sign in and today's sortie follows you. Fly it on your phone and your laptop already knows how you did.</li>
               <li><strong>Era crates:</strong> each theater's crates look like they belong there now, and each one has its own opening.</li>
               <li><strong>Arena:</strong> press H to hold fire when you'd rather fly with your friends than shoot them.</li>
@@ -2074,13 +2075,17 @@ const owned = id => !!(store.inv && (store.inv.includes(id) || (APEX_GRANT[id] &
     galaxy: { body: '#141030', wing: '#0f0b24', accent: '#7cf2ff', pat: 'galaxy', pat2: '#b98cff', pat3: '#ff4fd8', sparkle: '#b98cff' },
     ngold: { body: '#ffd34f', wing: '#ffd34f', accent: '#ffffff', grad: ['#fff3c4', '#ffd34f', '#ff9b2a'], sparkle: '#ffd34f' },
     nprism: { body: '#ffffff', wing: '#ffffff', accent: '#ffffff', grad: ['#ff3b5c', '#ffe14f', '#4fffb0', '#3df0ff', '#7c50ff', '#ff4fd8'], sparkle: '#ffffff' },
+    nrose: { body: '#ffb3a0', wing: '#ffb3a0', accent: '#ffffff', grad: ['#ffe0d0', '#ff9b8a', '#ff4f8a'], sparkle: '#ffd0c0' },
+    namber: { body: '#ff9b2a', wing: '#ff9b2a', accent: '#ffffff', grad: ['#ffd34f', '#ff9b2a', '#ff3b2a'], sparkle: '#ffb347' },
+    nglitch: { body: '#3df0ff', wing: '#3df0ff', accent: '#ffffff', grad: ['#3df0ff', '#ff3df0', '#f0ff3d', '#3df0ff'], sparkle: '#ffffff' },
+    nscore: { body: '#7c50ff', wing: '#7c50ff', accent: '#ffffff', grad: ['#7c50ff', '#3df0ff', '#4fffb0', '#ffe14f', '#ff3b5c'], sparkle: '#ffffff' },
   };
   const THIRD = {
     ww1: [['Iron Cross Gold', 'gold', 'Blue Max Holo', 'holo'], ['Brass Dolphin', 'chrome', 'Abyssal Dolphin', 'galaxy'], ['Kaiser Chrome', 'chrome', 'Somme Spectre', 'holo']],
     ww2: [['Schwalbe Gold', 'gold', 'Jet Age Holo', 'holo'], ['Flying Wing Chrome', 'chrome', 'Night Wing', 'galaxy'], ['Twin Gold', 'gold', 'Double Rainbow', 'holo']],
     modern: [['Blackbird Gold', 'gold', 'Mach 3 Holo', 'holo'], ['Berkut Chrome', 'chrome', 'Firebird Nebula', 'galaxy'], ['Nighthawk Gold', 'gold', 'Ghost Protocol', 'galaxy']],
     space: [['Seraph Halo', 'chrome', 'Cosmic Seraph', 'galaxy'], ['Leviathan Gold', 'gold', 'Event Horizon', 'galaxy'], ['Nova Chrome', 'chrome', 'Supernova Holo', 'holo']],
-    neon: [['Synth Gold', 'ngold', 'Synthwave Prism', 'nprism'], ['Glitch Gold', 'ngold', 'Corrupted Prism', 'nprism'], ['Arcade Gold', 'ngold', 'High Score Prism', 'nprism']],
+    neon: [['Synth Gold', 'ngold', 'Synthwave Prism', 'nprism'], ['Glitch Gold', 'nrose', 'Corrupted Prism', 'nglitch'], ['Arcade Gold', 'namber', 'High Score Prism', 'nscore']],
   };
   for (const tid of THEME_ORDER) {
     const th = THEMES[tid];
@@ -2089,6 +2094,77 @@ const owned = id => !!(store.inv && (store.inv.includes(id) || (APEX_GRANT[id] &
       th.liveries.push(Object.assign({ name: n1, rarity: 4, plane: pl.id, crate: `s:${tid}:${126 + i * 2}` }, LOOK[l1]));
       th.liveries.push(Object.assign({ name: n2, rarity: 5, plane: pl.id, crate: `s:${tid}:${127 + i * 2}` }, LOOK[l2]));
     });
+  }  // No two skins in a theater look alike. The earned skins stay as they are; any crate skin that
+  // matches one already in the theater (same pattern, body in the same colour band, similar accent)
+  // gets a fresh look in its theater's style and its rarity's patterns. Names and ids never change.
+  const hsl = (h, sat, l) => { sat /= 100; l /= 100; const f = n => { const k = (n + h / 30) % 12, c = l - sat * Math.min(l, 1 - l) * Math.max(-1, Math.min(k - 3, 9 - k, 1)); return Math.round(255 * c).toString(16).padStart(2, '0'); }; return '#' + f(0) + f(8) + f(4); };
+  const hueOf = h => { const [r, g, b] = hexToRgb(h).map(v => v / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+    if (d < 0.06) return ['g', l]; let hh = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return [Math.round(((hh * 60) + 360) % 360), l]; };
+  const band = h => { const [hu, l] = hueOf(h); return (hu === 'g' ? 'g' : Math.floor(hu / 24)) + ':' + Math.floor(l * 4); };
+  const lookKey = (L, tid) => tid === 'neon' ? 'n|' + band(L.body) + '|' + (L.grad ? L.grad.map(band).join(',') : '') : [L.pat || '', band(L.body), band(L.accent)].join('|');
+  const STYLE = { ww1: [22, 52, 26, 64], ww2: [18, 48, 24, 70], modern: [8, 58, 16, 84], space: [40, 82, 16, 66] };
+  const METAL = ['gild', 'chrome'];
+  const fresh = (tid, L, n) => {
+    const seed = (L.crate ? Number(L.crate.split(':')[2]) : 0) * 7 + n * 13 + tid.length * 31, gold = (seed * 137.508) % 360, r = L.rarity || 0;
+    if (tid === 'neon') {
+      const c = hsl(gold, 72 + (seed % 4) * 9, [46, 58, 68, 78][(seed >> 2) % 4]), c2 = hsl((gold + 70 + (seed % 5) * 30) % 360, 100, 60), c3 = hsl((gold + 180) % 360, 100, 62);
+      const out = { body: c, wing: c, accent: '#ffffff', grad: r >= 2 ? (r >= 3 ? [c, c2, c3] : [c, c2]) : undefined };
+      if (r >= 4) { out.grad = [c, c2, c3, hsl((gold + 250) % 360, 100, 64)]; out.sparkle = '#ffffff'; }
+      return out;
+    }
+    const [s0, s1, l0, l1] = STYLE[tid], sat = s0 + (seed * 7) % (s1 - s0), lig = l0 + (seed * 11) % (l1 - l0);
+    const body = hsl(gold, sat, lig), acc = (seed % 4 === 0) ? (lig > 55 ? '#1d1d1d' : '#f2f2f2') : hsl((gold + 150 + (seed % 3) * 30) % 360, Math.min(95, sat + 35), lig > 55 ? 30 : 68);
+    if (r >= 4) return { body, wing: hx(body, 0.88), accent: acc, pat: METAL[seed % 2], pat2: hsl(gold, 40, 88), sparkle: hsl(gold, 90, 70) };
+    const ps = PATS[Math.min(3, r)];
+    return { body, wing: hx(body, 0.85), accent: acc, pat: ps[(seed + n) % ps.length], pat2: hsl(gold, sat, Math.max(10, lig - 18)), pat3: hsl(gold, sat, Math.min(92, lig + 16)), sparkle: r === 3 ? acc : undefined };
+  };
+  // Hand-designed skins (named for how they look) and the crate planes' metal and galaxy skins keep their colours.
+  const curated = (tid, L, i) => i < BASE_LIVERIES + CRATE_SKINS[tid].length || (L.crate && Number(L.crate.split(':')[2]) >= 126);
+  for (const tid of THEME_ORDER) {
+    const used = new Set();
+    THEMES[tid].liveries.forEach((L, i) => {
+      if (i < BASE_LIVERIES || L.elite || L.apex) { used.add(lookKey(L, tid)); return; }
+      if (curated(tid, L, i)) {
+        // same colours, a different paint pattern from its rarity's set
+        const ps = PATS[Math.min(3, L.rarity || 0)];
+        for (let n = 0; used.has(lookKey(L, tid)) && n < ps.length && tid !== 'neon'; n++) L.pat = ps[(ps.indexOf(L.pat) + 1 + n) % ps.length];
+        if (used.has(lookKey(L, tid)) && L.wing) L.wing = hx(L.body, 0.72);
+        used.add(lookKey(L, tid)); return;
+      }
+      let n = 0;
+      while (used.has(lookKey(L, tid)) && n < 40) { const keep = { name: L.name, rarity: L.rarity, plane: L.plane, crate: L.crate };
+        for (const k of ['body', 'wing', 'accent', 'pat', 'pat2', 'pat3', 'grad', 'sparkle']) delete L[k];
+        Object.assign(L, fresh(tid, L, n++), keep); }
+      used.add(lookKey(L, tid));
+    });
+    // And on each plane, every crate skin's body colour sits well apart from every other skin that plane can wear.
+    const dist = (a, b) => { const x = hexToRgb(a), y = hexToRgb(b); return Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]); };
+    // what you see from across the screen: the body, or a gradient skin's leading colour
+    const tone = L => (L.grad ? L.grad[0] : L.body);
+    const all = THEMES[tid].liveries, sig = L => JSON.stringify([L.body, L.wing, L.accent, L.pat, L.pat2, L.pat3, L.grad]), sigs = new Set(all.map(sig));
+    for (const pl of THEMES[tid].planes) {
+      const seen = all.filter((L, i) => i < BASE_LIVERIES || (L.plane === pl.id && curated(tid, L, i))).map(tone);
+      all.forEach((L, i) => {
+        if (i < BASE_LIVERIES || L.plane !== pl.id || L.apex) return;
+        if (curated(tid, L, i)) {
+          // keep its colours; if it sits right next to another skin, set it apart some other way
+          const near = all.filter((M, j) => M !== L && (j < BASE_LIVERIES || (M.plane === pl.id && j < i)) && dist(tone(M), tone(L)) < 50);
+          if (near.length && tid === 'neon' && (!L.grad || L.grad.length < 3)) { const c = tone(L), [h] = hueOf(c), hh = h === 'g' ? 0 : h; L.grad = [c, hsl((hh + 110 + (i % 6) * 25) % 360, 100, 62), hsl((hh + 200 + (i % 4) * 35) % 360, 100, 66)]; }
+          else if (near.some(M => M.pat === L.pat) && tid !== 'neon') { const ps = PATS[Math.min(3, L.rarity || 0)].filter(q => !near.some(M => M.pat === q)); if (ps.length) L.pat = ps[i % ps.length]; }
+          return;
+        }
+        const gap = () => Math.min(...seen.map(c => dist(c, tone(L))));
+        let n = 40, best = null, bestGap = gap();
+        while (bestGap < 70 && n < 160) {
+          const keep = { name: L.name, rarity: L.rarity, plane: L.plane, crate: L.crate }, look = fresh(tid, L, n++);
+          const g = Math.min(...seen.map(c => dist(c, tone(look))));
+          const trial = Object.assign({}, look, keep);
+          if (g > bestGap && !sigs.has(sig(trial))) { best = trial; bestGap = g; }
+        }
+        if (best) { sigs.delete(sig(L)); for (const k of ['body', 'wing', 'accent', 'pat', 'pat2', 'pat3', 'grad', 'sparkle']) delete L[k]; Object.assign(L, best); sigs.add(sig(L)); }
+        seen.push(tone(L));
+      });
+    }
   }
 }
 // Apex: one plane per theater above Mythic, very rare and the best looking of the lot. It flies like
