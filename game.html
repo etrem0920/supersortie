@@ -5499,7 +5499,7 @@ function updateHUD(dt) {
     if (player.dead) { Coop.downHintT -= dt; if (Coop.downHintT <= 0) { Coop.downHintT = 1; showHint('You are down. You rejoin when your squad clears this wave.', 1400); } }
   }
   if (run.mode === 'zen') { const pu = Object.entries(player.pu || {}).map(([k, t]) => `${ZEN_PU[k][0]} ${Math.ceil(t)}s`).join(' · '); setText('zenInfo', `${fmtClock(run.totalT)} · ${run.kills} down${pu ? ' · ' + pu : ''}`); }
-  else setText('leftCount', run.phase === 'fight' || run.phase === 'intro' ? `${left} left` : 'clear');
+  else setText('leftCount', run.phase === 'fight' || run.phase === 'intro' || run.phase === 'dead' ? `${left} left` : 'clear');
   const combo = $('combo');
   if (run.mult > 1) { combo.classList.add('on'); setText('comboText', `×${run.mult} combo`); $('comboBar').style.transform = `scaleX(${clamp(run.chainT / CHAIN_T, 0, 1)})`; }
   else combo.classList.remove('on');
