@@ -1921,7 +1921,9 @@ const ARCH = {
 // Every aircraft is open to everyone from day one, so nobody's plane gives them a leaderboard
 // edge; the nine are trade-offs across the same four handling types. Levels unlock looks only.
 const PLANE_LEVELS = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-const planeOpen = (i, th) => { const pl = th && th.planes[i]; return pl && pl.crate ? owned('p:' + pl.id) : pilotLevel() >= (PLANE_LEVELS[i] || 0); };
+// The game's creator, signed in, has everything: every plane, skin, contrail, bullet, kill effect, title and badge.
+const creatorMode = () => !!(store.auth && isCreator(store.auth.username));
+const planeOpen = (i, th) => { const pl = th && th.planes[i]; return !!pl && (creatorMode() || (pl.crate ? owned('p:' + pl.id) : pilotLevel() >= (PLANE_LEVELS[i] || 0))); };
 THEMES.ww1.planes = [
   { id: 'camel', name: 'Sopwith Camel', arch: 'balanced', shape: 'biplane', note: 'The great all-rounder of the Western Front.' },
   { id: 'dr1', name: 'Fokker Dr.I', arch: 'agile', shape: 'triplane', note: 'Three wings, razor turns, modest top speed.' },
@@ -2079,7 +2081,7 @@ var APEX_GRANT = {};
 const CREATORS = ['tremdog'];
 const isCreator = u => !!u && CREATORS.includes(String(u).toLowerCase());
 const CREATOR_TAG = '<span class="creator-tag" title="Made Super Sortie">◆ Creator</span>';
-const owned = id => !!(store.inv && (store.inv.includes(id) || (APEX_GRANT[id] && store.inv.includes(APEX_GRANT[id]))));
+const owned = id => creatorMode() || !!(store.inv && (store.inv.includes(id) || (APEX_GRANT[id] && store.inv.includes(APEX_GRANT[id]))));
 // Three more skins for every aircraft, crate planes included. The rarer, the fancier.
 {
   const hx = (h, f) => '#' + hexToRgb(h).map(v => Math.max(0, Math.min(255, Math.round(v * f)))).map(v => v.toString(16).padStart(2, '0')).join('');
@@ -2386,6 +2388,7 @@ const eliteToday = () => store.elite === todayNum;
 function liveryOpen(tid, i) {
   const L = (THEMES[tid] || THEMES.ww2).liveries[i];
   if (!L) return false;
+  if (creatorMode()) return true;
   if (L.elite) return eliteToday();
   if (L.crate) return owned(L.crate);
   return (!L.req || !!store.medals[L.req]) && (!L.lvl || pilotLevel() >= L.lvl);
@@ -2475,7 +2478,7 @@ for (const tid of THEME_ORDER) {
   const B = { name: A.bullet, kind: 'apex', color: c3, halo: c2, color2: c4, rarity: 6, crate: `b:${BULLET_SKINS.length}`, apex: pid }; BULLET_SKINS.push(B); APEX_GRANT[B.crate] = pid;
   const F = { name: A.kfx, rarity: 6, dur: 1.9, crate: `k:${KILL_FX.length}`, apex: pid, cols: A.col, v: A.v, draw: apexBurst }; KILL_FX.push(F); APEX_GRANT[F.crate] = pid;
 }
-const trailOpen = i => { const T = TRAILS[i]; return !!T && (T.crate || T.season ? owned(T.crate || T.season) : pilotLevel() >= T.lvl); };
+const trailOpen = i => { const T = TRAILS[i]; return !!T && (creatorMode() || (T.crate || T.season ? owned(T.crate || T.season) : pilotLevel() >= T.lvl)); };
 const myTrail = () => (trailOpen(store.trail || 0) ? store.trail || 0 : 0);
 const myBullet = () => { const i = store.bullet || 0; return i && BULLET_SKINS[i] && owned(BULLET_SKINS[i].crate) ? i : 0; };
 const TITLES = [
@@ -2487,7 +2490,7 @@ const TITLES = [
   { name: 'Season Ace', item: 'x:21' },
 ];
 const pilotLevel = () => levelOf(store.xp || 0);
-const titleOpen = t => (t.lvl ? pilotLevel() >= t.lvl : t.item ? owned(t.item) : t.medal ? !!store.medals[t.medal] : !!(store.arena && store.arena.wins));
+const titleOpen = t => creatorMode() || (t.lvl ? pilotLevel() >= t.lvl : t.item ? owned(t.item) : t.medal ? !!store.medals[t.medal] : !!(store.arena && store.arena.wins));
 const titleName = i => (TITLES[i] || TITLES[0]).name;
 function unlocksAt(lv) {
   const out = TRAILS.filter(t => !t.crate && !t.season && t.lvl === lv && lv > 1).map(t => `${t.name} contrail`);
@@ -5459,7 +5462,7 @@ const PIC_ICONS = [
   { id: 'eye', lvl: 40, d: 'M12 5C6 5 2 12 2 12s4 7 10 7 10-7 10-7-4-7-10-7zm0 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 2.4a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2z' },
 ];
 const PIC_COLORS = ['#ff8a3d', '#e0b867', '#5cf2a0', '#6be4ff', '#3a8dff', '#b98cff', '#ff4fd8', '#ff4d5e', '#2a2f3a', '#f2f2f2'];
-const picOpen = ic => !ic.lvl || pilotLevel() >= ic.lvl;
+const picOpen = ic => creatorMode() || !ic.lvl || pilotLevel() >= ic.lvl;
 // pic is 'i:<icon>:<colour index>' or 'p:<plane>:<livery>'; anything else falls back to the plane.
 function picHTML(pic, planeId, liv, size) {
   const m = String(pic || '').split(':');
