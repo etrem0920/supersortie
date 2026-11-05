@@ -5762,15 +5762,22 @@ async function doShare(text, btn, card) {
   const label = btn.textContent;
   const done = msg => { btn.textContent = msg; setTimeout(() => { btn.textContent = label; }, 2000); };
   track('share', { card: !!card });
-  if (navigator.share && isTouch) {
-    if (card && navigator.canShare) {
-      try {
-        const blob = await shareCard(card);
-        const file = blob && new File([blob], 'super-sortie.png', { type: 'image/png' });
-        const link = CONFIG.siteUrl || location.origin;
-        if (file && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: link }); return; }
-      } catch (e) { if (e && e.name === 'AbortError') return; }
+  // A sortie result goes out as the image alone: the share sheet on phones, the clipboard (or a download) elsewhere.
+  if (card) {
+    let blob = null;
+    try { blob = await shareCard(card); } catch (e) { blob = null; }
+    if (blob) {
+      const file = new File([blob], 'super-sortie.png', { type: 'image/png' });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file] }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+      }
+      try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); done('Image copied'); return; } catch (e) { /* save it instead */ }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'super-sortie.png';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      done('Image saved'); return;
     }
+  }
+  if (navigator.share && isTouch) {
     try { await navigator.share({ text }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
   }
   try { await navigator.clipboard.writeText(text); done('Copied'); return; } catch (e) { /* fall back below */ }
