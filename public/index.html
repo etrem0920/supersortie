@@ -1061,6 +1061,37 @@
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   }
 
+  /* ---------- hangar chat: a small button in the corner, a drawer when you want it ---------- */
+  .chat-btn { position: fixed; z-index: 24; left: max(18px, env(safe-area-inset-left, 0px)); bottom: max(18px, env(safe-area-inset-bottom, 0px)); display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 0; cursor: pointer; background: rgba(9, 12, 20, .9); color: var(--text); box-shadow: inset 0 0 0 1px var(--line-strong); font-family: var(--font-cond); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; --cut: 8px; }
+  .chat-btn svg { width: 17px; height: 17px; color: var(--accent); }
+  .chat-btn b { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #ff3b5c; color: #fff; font-size: 11px; line-height: 18px; text-align: center; letter-spacing: 0; }
+  .chat-panel { position: fixed; z-index: 26; left: max(18px, env(safe-area-inset-left, 0px)); bottom: calc(max(18px, env(safe-area-inset-bottom, 0px)) + 52px); width: 340px; height: min(520px, 70vh); display: flex; flex-direction: column; background: #0e1320; box-shadow: inset 0 0 0 1px var(--line-strong), 0 18px 50px rgba(0, 0, 0, .5); --cut: 14px; animation: sheetIn .25s cubic-bezier(.2, 1.2, .4, 1) both; }
+  .chat-head { display: flex; align-items: baseline; gap: 10px; padding: 12px 12px 10px 16px; box-shadow: 0 1px 0 var(--line); }
+  .chat-head b { font-family: var(--font-display); font-weight: 800; font-size: 20px; text-transform: uppercase; }
+  .chat-head small { color: var(--muted); font-size: 12px; flex: 1; }
+  .chat-x { background: none; border: 0; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; padding: 0 4px; }
+  .chat-list { list-style: none; margin: 0; padding: 10px 14px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.35; overscroll-behavior: contain; }
+  .chat-list li { word-wrap: break-word; }
+  .chat-list .cn { background: none; border: 0; padding: 0; cursor: pointer; font: 800 14px var(--font-cond); letter-spacing: .04em; text-transform: uppercase; color: #9fd6ff; margin-right: 6px; }
+  .chat-list li.me .cn { color: var(--accent); }
+  .chat-list li.cr .cn { color: #ff7ae6; }
+  .chat-list time { color: var(--muted); font-size: 11px; margin-left: 6px; }
+  .chat-list .mod { background: none; border: 0; color: #ff7a7a; cursor: pointer; font-size: 11px; font-family: var(--font-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: 0 0 0 6px; }
+  .chat-list .sys { color: var(--muted); font-size: 12px; text-align: center; }
+  .chat-form { display: flex; gap: 8px; padding: 10px 12px 6px; }
+  .chat-form input { flex: 1; min-width: 0; background: var(--raise); border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text); padding: 9px 11px; font: 14px var(--font-body, inherit); }
+  .chat-form input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+  .chat-gate { padding: 10px 14px 4px; font-size: 13px; color: var(--muted); }
+  .chat-gate .link-btn { color: var(--accent); font-size: 13px; }
+  .chat-note { padding: 2px 14px 10px; color: var(--muted); font-size: 11px; }
+  .chat-note.warn { color: #ffb36b; }
+  @media (max-width: 960px) {
+    .chat-btn { bottom: calc(env(safe-area-inset-bottom, 0px) + 72px); left: 12px; padding: 0; width: 46px; height: 46px; justify-content: center; border-radius: 50%; --cut: 0px; clip-path: none; }
+    .chat-btn span { display: none; }
+    .chat-btn b { position: absolute; top: -4px; right: -4px; }
+    .chat-panel { left: 0; right: 0; bottom: 0; width: auto; height: min(78vh, 640px); clip-path: none; padding-bottom: env(safe-area-inset-bottom, 0px); z-index: 31; }
+    .chat-form input { font-size: 16px; }
+  }
   /* ---------- phones: more room, bigger targets, nothing on top of anything ---------- */
   @media (max-width: 600px) {
     .wrap { --gut: 14px; }
@@ -1252,9 +1283,10 @@
         <div class="section-label"><span id="newsTitle">News &amp; updates</span><span>From the hangar</span></div>
         <div class="news-grid">
           <article class="news-card now chamfer">
-            <small class="nk">Out now · Nov 4</small>
+            <small class="nk">Out now · Nov 16</small>
             <b>One sortie a day, on every device</b>
             <ul>
+              <li><strong>Hangar chat:</strong> talk with other pilots from the chat button in the corner. Sign in to post. No links, and be kind.</li>
               <li><strong>Phones:</strong> a roomier layout with bigger buttons, full-screen menus, and nothing sitting on top of your stats.</li>
               <li><strong>Skins:</strong> no more lookalikes. Over 300 crate skins got a fresh look, so every skin on a plane stands apart. You keep everything you own.</li>
               <li>Sign in and today's sortie follows you. Fly it on your phone and your laptop already knows how you did.</li>
@@ -1353,6 +1385,14 @@
       <div id="tab-friends" class="tab-body hidden"><div id="friendsBody"></div></div>
     </aside>
   </main>
+  <button id="chatBtn" class="chat-btn hidden" aria-label="Open hangar chat" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="currentColor"/></svg><span>Chat</span><b id="chatUnread" class="hidden"></b></button>
+  <aside id="chatPanel" class="chat-panel hidden" aria-label="Hangar chat">
+    <div class="chat-head"><b>Hangar chat</b><small id="chatOnline"></small><button id="chatClose" class="chat-x" aria-label="Close chat">&times;</button></div>
+    <ol id="chatList" class="chat-list" aria-live="polite"></ol>
+    <form id="chatForm" class="chat-form" autocomplete="off"><input id="chatIn" maxlength="200" placeholder="Say something" aria-label="Message" enterkeyhint="send"><button class="btn btn-primary btn-small" type="submit">Send</button></form>
+    <div id="chatGate" class="chat-gate hidden">Sign in to chat. Anyone can read. <button id="chatSignIn" class="link-btn" type="button">Sign in</button></div>
+    <small id="chatNote" class="chat-note">Be kind. No links. Tap a name to mute someone.</small>
+  </aside>
   <nav id="bottomNav" class="bottom-nav" aria-label="Sections">
     <button data-view="home" aria-current="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2 6v3l7 4v2l-7-2-.4 4 2.4 2v1.5l-4-1-4 1V21l2.4-2-.4-4-7 2v-2l7-4V8z" fill="currentColor"/></svg><span>Fly</span></button>
     <button data-view="hangar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V10l9-6 9 6v10h-3v-7H6v7z" fill="currentColor"/></svg><span>Hangar</span></button>
@@ -7126,6 +7166,80 @@ var Ghost = {
     return `Ghost race · ${A.won ? 'beat' : 'lost to'} ${A.meta.me ? 'your ghost' : A.meta.name} (${fmtNum(A.final)})`;
   },
 };
+// Hangar chat: one live room for every pilot, open on the menus only. Signed-in pilots post;
+// the server enforces the rules (no links, swearing masked, slurs refused, slow mode).
+var Chat = {
+  ws: null, open: false, unread: 0, msgs: [], online: 0, you: null, cr: false, token: null, retry: 0, timer: null,
+  on() { return !!CONFIG.apiBase && state === 'menu'; },
+  url() { return CONFIG.apiBase.replace(/\/$/, '').replace(/^http/, 'ws') + '/api/v1/chat/ws?v=1' + (Social.authQ ? Social.authQ() : ''); },
+  connect() {
+    if (this.ws) return;
+    this.token = store.auth ? store.auth.token : null;
+    let ws; try { ws = new WebSocket(this.url()); } catch (e) { return; }
+    this.ws = ws;
+    ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (er) { return; } this.got(m); };
+    ws.onopen = () => { this.retry = 0; };
+    ws.onclose = () => { if (this.ws === ws) this.ws = null; if (this.on()) { clearTimeout(this.timer); this.timer = setTimeout(() => this.tick(), Math.min(30000, 1500 * 2 ** this.retry++)); } };
+  },
+  close() { if (this.ws) { const ws = this.ws; this.ws = null; try { ws.close(); } catch (e) { /* gone */ } } },
+  got(m) {
+    if (m.t === 'hist') { this.msgs = m.msgs || []; this.online = m.online || 0; this.you = m.you || null; this.cr = !!m.cr; this.render(); }
+    else if (m.t === 'msg') { this.msgs.push(m.msg); if (this.msgs.length > 80) this.msgs.shift(); if (!this.open && m.msg.u !== this.you && !this.muted(m.msg.u)) this.unread++; this.render(); }
+    else if (m.t === 'del') { this.msgs = this.msgs.filter(x => x.id !== m.id); this.render(); }
+    else if (m.t === 'purge') { this.msgs = this.msgs.filter(x => x.u.toLowerCase() !== String(m.u).toLowerCase()); this.render(); }
+    else if (m.t === 'online') { this.online = m.n; this.renderHead(); }
+    else if (m.t === 'no') this.note({ slow: 'Slow down a little.', muted: 'You\'re muted from chat for now.', no_links: 'Links aren\'t allowed in chat.', not_allowed: 'That message isn\'t allowed.', repeat: 'You just said that.', sign_in: 'Sign in to chat.', too_long: 'That\'s a bit long.', empty: '' }[m.why] || 'Couldn\'t send that.', true);
+  },
+  muted(u) { return !!(store.chatMute && store.chatMute[String(u).toLowerCase()]); },
+  note(t, warn) { const el = $('chatNote'); el.textContent = t || 'Be kind. No links. Tap a name to mute someone.'; el.classList.toggle('warn', !!warn); clearTimeout(this.noteT); if (warn) this.noteT = setTimeout(() => this.note(), 4000); },
+  renderHead() { $('chatOnline').textContent = this.online ? `${fmtNum(this.online)} here` : ''; const b = $('chatUnread'); b.textContent = this.unread > 9 ? '9+' : String(this.unread); b.classList.toggle('hidden', !this.unread || this.open); },
+  render() {
+    this.renderHead();
+    const signed = !!store.auth;
+    $('chatForm').classList.toggle('hidden', !signed); $('chatGate').classList.toggle('hidden', signed);
+    if (!this.open) return;
+    const fmtT = t => new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const list = $('chatList'), atBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 40;
+    const shown = this.msgs.filter(m => !this.muted(m.u));
+    list.innerHTML = shown.length ? shown.map(m => `<li class="${m.u === this.you ? 'me' : ''} ${m.cr ? 'cr' : ''}"><button class="cn" data-u="${esc(m.u)}">${esc(m.u)}${m.cr ? ' ◆' : ''}</button>${esc(m.text)}<time>${fmtT(m.at)}</time>${this.cr && m.u !== this.you ? `<button class="mod" data-del="${esc(m.id)}">Delete</button><button class="mod" data-mute="${esc(m.u)}">Mute 24h</button>` : ''}</li>`).join('') : '<li class="sys">No messages yet. Say hi to the hangar.</li>';
+    if (atBottom || this.justOpened) list.scrollTop = list.scrollHeight;
+    this.justOpened = false;
+  },
+  toggle(v) {
+    this.open = v === undefined ? !this.open : v;
+    $('chatPanel').classList.toggle('hidden', !this.open); $('chatBtn').setAttribute('aria-expanded', String(this.open));
+    if (this.open) { this.unread = 0; this.justOpened = true; this.connect(); this.render(); track('chat_open'); }
+    this.renderHead();
+  },
+  send(text) {
+    text = String(text || '').trim();
+    if (!text || !this.ws || this.ws.readyState !== 1) { if (text) this.note('Not connected yet. Try again in a moment.', true); return false; }
+    this.ws.send(JSON.stringify({ t: 'say', text })); return true;
+  },
+  // On the menus only: connect, show the button; anywhere else, step aside.
+  tick() {
+    const on = this.on();
+    $('chatBtn').classList.toggle('hidden', !on || this.open);
+    if (!on) { if (this.open) this.toggle(false); if (this.ws && !document.hidden) this.close(); return; }
+    if ((store.auth ? store.auth.token : null) !== this.token && this.ws) this.close();
+    if (!this.ws && !document.hidden) this.connect();
+  },
+};
+$('chatBtn').addEventListener('click', () => Chat.toggle(true));
+$('chatClose').addEventListener('click', () => Chat.toggle(false));
+$('chatSignIn').addEventListener('click', () => { Chat.toggle(false); selectTab('friends'); });
+$('chatForm').addEventListener('submit', e => { e.preventDefault(); if (Chat.send($('chatIn').value)) $('chatIn').value = ''; });
+$('chatList').addEventListener('click', e => {
+  const del = e.target.closest('[data-del]'), mute = e.target.closest('[data-mute]'), who = e.target.closest('.cn');
+  if (del && Chat.ws) { Chat.ws.send(JSON.stringify({ t: 'del', id: del.dataset.del })); return; }
+  if (mute && Chat.ws) { if (confirm(`Mute ${mute.dataset.mute} from chat for 24 hours and remove their messages?`)) Chat.ws.send(JSON.stringify({ t: 'mute', u: mute.dataset.mute, mins: 1440 })); return; }
+  if (who && who.dataset.u !== Chat.you) {
+    const u = who.dataset.u, k = u.toLowerCase(); store.chatMute = store.chatMute || {};
+    if (confirm(`Hide messages from ${u}? You can't undo this from chat.`)) { store.chatMute[k] = 1; saveStore(); Chat.render(); }
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && Chat.open) Chat.toggle(false); });
+setInterval(() => Chat.tick(), 500);
 $('ghostBtn').addEventListener('click', () => Ghost.pick());
 $('bjReg').addEventListener('click', () => Social.signIn('register', ['bjUser', 'bjPass', 'bjErr']).then(() => { renderBoardJoin(); if (store.auth) loadBoard(); }));
 $('bjLogin').addEventListener('click', () => Social.signIn('login', ['bjUser', 'bjPass', 'bjErr']).then(() => { renderBoardJoin(); if (store.auth) loadBoard(); }));

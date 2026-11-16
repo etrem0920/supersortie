@@ -36,3 +36,12 @@ class_name = "ArenaDirectory"
 [[migrations]]
 tag = "v2"
 new_sqlite_classes = ["ArenaRoom", "ArenaDirectory"]
+
+# Hangar chat: one room for every pilot (see chat.js)
+[[durable_objects.bindings]]
+name = "CHAT"
+class_name = "ChatRoom"
+
+[[migrations]]
+tag = "v3"
+new_sqlite_classes = ["ChatRoom"]

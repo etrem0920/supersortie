@@ -5,6 +5,7 @@
 //   DELETE /api/v1/admin/scores?day=N&deviceId=…   hide a cheated score (Bearer ADMIN_TOKEN)
 //   GET    /api/v1/health
 //   GET    /api/v1/rooms/CODE/ws[?create=1]   co-op room WebSocket (see coop.js)
+//   GET    /api/v1/chat/ws[?auth=token]          hangar chat WebSocket (see chat.js)
 //   GET    /api/v1/arena/ws?quick=1            join the fullest public arena with room (see arena.js)
 //   GET    /api/v1/arena/ws?code=CODE[&create=1&theme=ww2&bots=1]   private arena
 //   GET    /api/v1/arena/online                pilots in public arenas right now
@@ -18,6 +19,7 @@
 
 import { CoopRoom, ROOM_ALPHABET } from './coop.js';
 import { ArenaRoom, ArenaDirectory } from './arena.js';
+import { ChatRoom } from './chat.js';
 import { serverDay, clientDay } from './day.js';
 import { handleAccounts, accountFor } from './accounts.js';
 import { joinLeague, leagueView } from './league.js';
@@ -26,7 +28,7 @@ import { postGhost, listGhosts, getGhost } from './ghosts.js';
 import { postFeedback, listFeedback } from './feedback.js';
 import { isCreator } from './creators.js';
 import { nameTaken } from './names.js';
-export { CoopRoom, ArenaRoom, ArenaDirectory };
+export { CoopRoom, ArenaRoom, ArenaDirectory, ChatRoom };
 
 const THEMES = new Set(['ww1', 'ww2', 'modern', 'space', 'neon']);
 const MODS = new Set(['standard', 'glass', 'swarm', 'ironace', 'overcast', 'crosswind', 'hotguns']);
@@ -229,6 +231,18 @@ async function arenaSocket(req, env, url) {
   const stub = env.ARENAS.get(env.ARENAS.idFromName(name));
   return stub.fetch(new Request(fwd, req));
 }
+// Hangar chat: one room for everyone. The Worker looks up who is signed in and tells the room;
+// a client can't claim a name or creator rights by itself.
+async function chatSocket(req, env, url) {
+  if (req.headers.get('Upgrade') !== 'websocket') return new Response('Expected a WebSocket', { status: 426 });
+  if (!originAllowed(req, env)) return new Response('Forbidden', { status: 403 });
+  const fwd = new URL(url);
+  for (const k of ['u', 'cr', 'auth']) fwd.searchParams.delete(k);
+  const auth = url.searchParams.get('auth');
+  const acct = auth ? await accountFor(env, auth).catch(() => null) : null;
+  if (acct) { fwd.searchParams.set('u', acct.username); if (isCreator(acct.username)) fwd.searchParams.set('cr', '1'); }
+  return env.CHAT.get(env.CHAT.idFromName('hangar')).fetch(new Request(fwd, req));
+}
 async function arenaBoard(url, env, cors, req) {
   const day = clientDay(url.searchParams.get('day'));
   const deviceId = String(url.searchParams.get('deviceId') || '');
@@ -302,6 +316,7 @@ export default {
       const room = url.pathname.match(/^\/api\/v1\/rooms\/([A-Z0-9]{4})\/ws$/);
       if (room) return await roomSocket(req, env, room[1]);
       if (url.pathname === '/api/v1/arena/ws') return await arenaSocket(req, env, url);
+      if (url.pathname === '/api/v1/chat/ws') return await chatSocket(req, env, url);
       if (url.pathname === '/api/v1/arena/online' && req.method === 'GET') return await arenaOnline(env, cors);
       if (url.pathname === '/api/v1/arena/list' && req.method === 'GET') return await arenaList(env, cors);
       if (url.pathname === '/api/v1/league' && req.method === 'GET') {
