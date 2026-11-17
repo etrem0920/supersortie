@@ -300,10 +300,10 @@
   .news-card p { margin: 0; font-size: 13px; color: var(--text); }
   .news-card li::marker { color: var(--accent); }
   .news-card.now { box-shadow: inset 0 0 0 1px var(--line), inset 3px 0 0 var(--accent); }
-  .news-card.spooky { background: radial-gradient(120% 90% at 100% 100%, rgba(255, 122, 26, .22), transparent 60%), linear-gradient(160deg, #1d1230, #120d1c); box-shadow: inset 0 0 0 1px rgba(255, 138, 31, .35); }
-  .news-card.spooky .nk { color: #ffb15c; }
-  .news-card.spooky p { padding-right: 52px; }
-  .hw-art { position: absolute; right: 10px; bottom: 10px; width: 54px; height: 54px; animation: hwBob 3.2s ease-in-out infinite; filter: drop-shadow(0 0 10px rgba(255, 138, 31, .5)); }
+  .news-card.feast { background: radial-gradient(120% 90% at 100% 100%, rgba(230, 120, 40, .24), transparent 60%), linear-gradient(160deg, #2a1a10, #170f0a); box-shadow: inset 0 0 0 1px rgba(214, 128, 52, .38); }
+  .news-card.feast .nk { color: #f0a45c; }
+  .news-card.feast p { padding-right: 52px; }
+  .tg-art { position: absolute; right: 8px; bottom: 8px; width: 58px; height: 58px; animation: hwBob 3.2s ease-in-out infinite; filter: drop-shadow(0 0 10px rgba(230, 120, 40, .45)); }
   @keyframes hwBob { 50% { transform: translateY(-4px) rotate(-4deg); } }
   .news-card.radar .nk { color: #6be4ff; }
   .news-card.radar li::marker { color: #6be4ff; }
@@ -1263,11 +1263,11 @@
               <li>Last week: Apex planes, Zen settings, Military mode, gold names for the daily top 10%, ghost races, a free season pass and weekly leagues.</li>
             </ul>
           </article>
-          <article class="news-card spooky chamfer">
-            <small class="nk">Coming soon · <span id="hwCount">Oct 31</span></small>
-            <b>Halloween: Night of the Phantoms</b>
-            <p>Full-moon night skies, a pumpkin bomber boss, ghost plane skins and a Haunted crate that won't be around for long.</p>
-            <svg class="hw-art" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 14c-3 0-5 1-6 3-9 0-16 7-16 18s9 17 22 17 22-6 22-17-7-18-16-18c-1-2-3-3-6-3z" fill="#ff8a1f"/><path d="M30 8c2 0 3 3 3 6h-3z" fill="#4a7a2a"/><path d="M20 30l6 4-6 2zM44 30l-6 4 6 2zM22 42c4 4 16 4 20 0l-3 4-3-2-3 3-3-3-3 2z" fill="#2a1208"/></svg>
+          <article class="news-card feast chamfer">
+            <small class="nk">Coming soon · <span id="tgCount">Nov 26</span></small>
+            <b>The Turkey Update</b>
+            <p>A Thanksgiving week special: autumn skies, a turkey bomber boss to chase down, harvest-colored skins and a Feast crate that's only around for the holiday.</p>
+            <svg class="tg-art" viewBox="0 0 64 64" aria-hidden="true"><g transform="translate(32 34)"><path d="M0 0L-22-14A26 26 0 0 1-12-24z" fill="#c4521f"/><path d="M0 0L-12-24A26 26 0 0 1 0-27z" fill="#e8a33a"/><path d="M0 0L0-27A26 26 0 0 1 12-24z" fill="#c4521f"/><path d="M0 0L12-24A26 26 0 0 1 22-14z" fill="#e8a33a"/><path d="M0 0L22-14A26 26 0 0 1 26-2z" fill="#8a3a1a"/><path d="M0 0L-26-2A26 26 0 0 1-22-14z" fill="#8a3a1a"/><ellipse cx="0" cy="6" rx="13" ry="14" fill="#7a4524"/><circle cx="0" cy="-9" r="7" fill="#8a5530"/><circle cx="2" cy="-11" r="1.6" fill="#fff"/><circle cx="2.4" cy="-11" r=".8" fill="#111"/><path d="M5-9l5 1.5-5 1.5z" fill="#f0b23a"/><path d="M3-5c2 2 2 6-1 7" stroke="#d9302a" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M-5 19l-2 6M5 19l2 6" stroke="#f0b23a" stroke-width="2" stroke-linecap="round"/></g></svg>
           </article>
           <article class="news-card radar chamfer">
             <small class="nk">On the radar</small>
@@ -7229,8 +7229,10 @@ $('bjLogin').addEventListener('click', () => Social.signIn('login', ['bjUser', '
     } catch (err) { st.textContent = 'Couldn\'t reach the server. Email hello@supersortie.io instead.'; st.classList.add('bad'); }
     finally { $('fbSend').disabled = false; }
   });
-  const hw = new Date(new Date().getFullYear(), 9, 31), days = Math.ceil((hw - new Date()) / 864e5);
-  $('hwCount').textContent = days > 1 ? `in ${days} days` : days === 1 ? 'tomorrow' : days === 0 ? 'tonight' : 'soon';
+  // Thanksgiving: the fourth Thursday of November
+  const y = new Date().getFullYear(), nov1 = new Date(y, 10, 1), tg = new Date(y, 10, 1 + ((4 - nov1.getDay() + 7) % 7) + 21);
+  const days = Math.ceil((tg - new Date()) / 864e5);
+  $('tgCount').textContent = days > 1 ? `in ${days} days` : days === 1 ? 'tomorrow' : days === 0 ? 'today' : 'this week';
 }
 $('resGhost').addEventListener('click', () => Ghost.pick());
 $('ghosts').addEventListener('click', e => { if (e.target.closest('[data-close]')) hide('ghosts'); });
