@@ -1349,7 +1349,7 @@
             <b>One sortie a day, on every device</b>
             <ul>
               <li><strong>Hangar chat:</strong> talk with other pilots from the chat button in the corner. Sign in to post. No links, and be kind.</li>
-              <li><strong>Phones:</strong> a proper mobile layout. Hangar lists fold away, the share button stays in reach after a run, the shop filters swipe, and pop-ups no longer spill over the menu bar.</li>
+              <li><strong>Phones:</strong> a proper mobile layout. Hangar lists fold away, the share button stays in reach after a run, the shop filters swipe, and pop-ups no longer spill over the menu bar. The game itself stays sharp on phones now instead of going blurry mid-flight.</li>
               <li><strong>Skins:</strong> no more lookalikes. Over 300 crate skins got a fresh look, so every skin on a plane stands apart. You keep everything you own.</li>
               <li>Sign in and today's sortie follows you. Fly it on your phone and your laptop already knows how you did.</li>
               <li><strong>Era crates:</strong> each theater's crates look like they belong there now, and each one has its own opening.</li>
@@ -4115,6 +4115,7 @@ function resize() {
   DPR = Math.max(1, Math.min(3, window.devicePixelRatio || 1, Math.sqrt(3.4e6 / Math.max(1, W * H))) * dprScale);
   canvas.width = Math.floor(W * DPR); canvas.height = Math.floor(H * DPR);
   if ('fontKerning' in ctx) ctx.fontKerning = 'none'; // resizing resets the context, so set it here
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; // sprites scale down cleanly
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   zoom = clamp(Math.min(W, H) / 760, 0.6, 1.05);
 }
@@ -9514,15 +9515,20 @@ function initArenaUi() {
    Main loop
    ===================================================================== */
 let last = 0;
-// Quality governor: if frames run long for a few seconds of play, render fewer pixels.
-const perf = { n: 0, sum: 0 };
+// Quality governor: if play is genuinely slow for several seconds, render a few fewer pixels.
+// Uses the median frame (one-off spikes from sprite building don't count), skips the first seconds
+// of a run, never goes below 2x on a high-density screen, and climbs back when frames are fast again.
+const perf = { t: [], skip: 0 };
 function governQuality(raw) {
-  if (state !== 'play' || document.hidden || raw > 0.25) { perf.n = 0; perf.sum = 0; return; }
-  perf.n++; perf.sum += raw;
-  if (perf.n < 180) return;
-  const avg = perf.sum / perf.n;
-  perf.n = 0; perf.sum = 0;
-  if (avg > 1 / 45 && dprScale > 0.6 && DPR > 1.2) { dprScale = Math.max(0.6, dprScale - 0.15); resize(); }
+  if (state !== 'play' || document.hidden || raw > 0.25) { perf.t.length = 0; perf.skip = 120; return; }
+  if (perf.skip > 0) { perf.skip--; return; }
+  perf.t.push(raw);
+  if (perf.t.length < 240) return;
+  const med = perf.t.sort((a, b) => a - b)[perf.t.length >> 1];
+  perf.t.length = 0;
+  const native = Math.min(3, window.devicePixelRatio || 1), floor = Math.min(1, 2 / native);
+  if (med > 1 / 42 && dprScale > floor + 0.01) { dprScale = Math.max(floor, dprScale - 0.12); resize(); }
+  else if (med < 1 / 57 && dprScale < 1) { dprScale = Math.min(1, dprScale + 0.12); resize(); }
 }
 function frame(ts) {
   const raw = last ? (ts - last) / 1000 : 0;
