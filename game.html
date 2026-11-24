@@ -1087,6 +1087,7 @@
     .chat-panel { left: 0; right: 0; bottom: 0; width: auto; height: min(78vh, 640px); clip-path: none; padding-bottom: env(safe-area-inset-bottom, 0px); z-index: 31; }
     .chat-form input { font-size: 16px; }
   }
+  .news-more { display: none; }
   /* ---------- phones: more room, bigger targets, nothing on top of anything ---------- */
   @media (max-width: 600px) {
     .wrap { --gut: 14px; }
@@ -1117,6 +1118,67 @@
     .bj-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .bj-acts .btn, .acct-row .btn { white-space: nowrap; padding-inline: 10px; }
     .board-join input, .feedback input, .feedback textarea { font-size: 16px; }
+
+    /* long pop-ups: the sheet grows with its content instead of spilling over the nav */
+    .modal { display: block; }
+    .sheet { min-height: 100%; height: auto; }
+    /* results: the buttons you want stay in reach at the bottom */
+    #results .cta { position: sticky; bottom: 0; z-index: 2; margin: 0 -18px; padding: 12px 18px calc(env(safe-area-inset-bottom, 0px) + 12px); background: linear-gradient(transparent, #0e1320 22%); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    #results .cta #shareBtn { grid-column: 1 / -1; min-height: 54px; font-size: 17px; }
+    #results .cta .hidden { display: none; }
+    /* toasts: small, up top, never on top of a button */
+    .toasts { top: calc(env(safe-area-inset-top, 0px) + 8px); bottom: auto; left: 50%; right: auto; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 24px); align-items: center; gap: 6px; }
+    .toast { padding: 7px 12px; gap: 9px; max-width: 100%; }
+
+    /* home: today's card reads as a list, nothing wraps */
+    .today-intel { grid-template-columns: 1fr; gap: 0; }
+    .today-intel > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+    .today-intel > div:last-child { border-bottom: 0; }
+    .today-intel small { margin: 0; }
+    .today-intel b { font-size: 19px; text-align: right; overflow-wrap: normal; }
+    .done-acts { grid-template-columns: 1fr; }
+    .done-acts .btn { min-height: 50px; }
+    /* streak, level and challenges as three tidy tap targets */
+    .you-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
+    .you-strip > * { display: block; text-align: center; min-height: 44px; padding: 13px 8px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); line-height: 1.2; }
+    .you-strip > span:first-child { grid-column: 1 / -1; }
+    .you-strip > :empty, .you-strip > .hidden { display: none; }
+    /* news: the latest few lines, the rest one tap away */
+    .news-card.now:not(.open) li:nth-child(n+4) { display: none; }
+    .news-more { display: inline-block; align-self: flex-start; border: 0; background: none; padding: 6px 0 0; color: var(--accent); font-family: var(--font-cond); font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+    .news-card ul { font-size: 14px; gap: 6px; }
+    .news-card p { font-size: 14px; }
+    /* feedback: email on its own line, a full-width send button */
+    .fb-row { grid-template-columns: 1fr; }
+    .fb-row .btn { min-height: 48px; }
+    .fb-kinds button { min-height: 36px; padding-inline: 16px; }
+
+    /* hangar: two-line plane names, and the cosmetics fold away */
+    .pcard { padding: 8px 6px; min-height: 58px; }
+    .pcard b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .section-label.fold { cursor: pointer; min-height: 46px; padding: 0 12px; align-items: center; border-bottom: 0; margin-top: 2px; background: var(--raise); box-shadow: inset 0 0 0 1px var(--line); flex-wrap: nowrap; -webkit-tap-highlight-color: transparent; }
+    .section-label.fold > span:first-child { white-space: normal; flex-shrink: 1; min-width: 0; }
+    .section-label.fold::after { content: ''; flex: none; width: 8px; height: 8px; margin-left: 12px; border: solid var(--muted); border-width: 0 2px 2px 0; transform: translateY(-2px) rotate(45deg); transition: transform .2s; }
+    .section-label.fold.open { background: var(--raise-2); }
+    .section-label.fold.open::after { transform: translateY(2px) rotate(-135deg); border-color: var(--accent); }
+    .section-label.fold:not(.open) + * { display: none !important; }
+    .section-label.fold + * { padding-bottom: 6px; }
+    .tchip small { font-size: 10px; }
+    .tchip { padding: 5px 4px; }
+    /* season track: shows that it scrolls */
+    .ss-track { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+
+    /* shop: filters in one swipeable row, names get two lines */
+    .coll-filter { flex-wrap: nowrap; overflow-x: auto; margin: 0 -12px 10px; padding: 0 12px 2px; scrollbar-width: none; }
+    .coll-filter::-webkit-scrollbar { display: none; }
+    .coll-filter button { flex: none; padding: 9px 14px; font-size: 13px; }
+    .coll-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+    .item span { white-space: normal; padding: 5px 6px 7px; font-size: 11px; }
+    .item span small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 9px; }
+
+    /* arena: the power-up guide sits tidy, notes stack under their heading */
+    .modal .section-label > span:last-child:not(:first-child) { flex-basis: 100%; margin-left: 0; text-align: left; letter-spacing: .08em; }
+    .join-row input { min-width: 0; }
   }
   @media (max-width: 380px) {
     .topnav .link-btn { padding: 0 8px; font-size: 11px; }
@@ -1255,7 +1317,7 @@
             <b>One sortie a day, on every device</b>
             <ul>
               <li><strong>Hangar chat:</strong> talk with other pilots from the chat button in the corner. Sign in to post. No links, and be kind.</li>
-              <li><strong>Phones:</strong> a roomier layout with bigger buttons, full-screen menus, and nothing sitting on top of your stats.</li>
+              <li><strong>Phones:</strong> a proper mobile layout. Hangar lists fold away, the share button stays in reach after a run, the shop filters swipe, and pop-ups no longer spill over the menu bar.</li>
               <li><strong>Skins:</strong> no more lookalikes. Over 300 crate skins got a fresh look, so every skin on a plane stands apart. You keep everything you own.</li>
               <li>Sign in and today's sortie follows you. Fly it on your phone and your laptop already knows how you did.</li>
               <li><strong>Era crates:</strong> each theater's crates look like they belong there now, and each one has its own opening.</li>
@@ -9471,4 +9533,26 @@ openMenu();
 tickCountdown();
 requestAnimationFrame(frame);
 Board.init().then(() => { if (state === 'menu' && $('coop').classList.contains('hidden') && $('arena').classList.contains('hidden')) openMenu(); });
+
+/* Phones: the long cosmetics and medal lists fold behind their headings, and the news card shows its first few lines. */
+(function phoneTidy() {
+  const folds = [['liveryList', true], ['trailList'], ['bulletList'], ['kfxList'], ['aceLog'], ['medalList']];
+  for (const [id, open] of folds) {
+    const list = document.getElementById(id), lab = list && list.previousElementSibling;
+    if (!lab || !lab.classList.contains('section-label')) continue;
+    lab.classList.add('fold'); lab.classList.toggle('open', !!open);
+    lab.setAttribute('role', 'button'); lab.tabIndex = 0; lab.setAttribute('aria-expanded', String(!!open));
+    const flip = () => { const o = lab.classList.toggle('open'); lab.setAttribute('aria-expanded', String(o)); };
+    lab.addEventListener('click', e => { if (!e.target.closest('a, input, select, button')) flip(); });
+    lab.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+  }
+  const card = document.querySelector('.news-card.now'), items = card && card.querySelectorAll('li');
+  if (items && items.length > 3) {
+    const more = document.createElement('button');
+    more.type = 'button'; more.className = 'news-more';
+    const label = () => { more.textContent = card.classList.contains('open') ? 'Show less' : `Show all ${items.length}`; };
+    more.onclick = () => { card.classList.toggle('open'); label(); };
+    label(); card.appendChild(more);
+  }
+})();
 </script>
