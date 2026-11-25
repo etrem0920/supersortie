@@ -2590,9 +2590,8 @@ for (const tid of THEME_ORDER) {
   const F = { name: A.kfx, rarity: 6, dur: 1.9, crate: `k:${KILL_FX.length}`, apex: pid, cols: A.col, v: A.v, draw: apexBurst }; KILL_FX.push(F); APEX_GRANT[F.crate] = pid;
 }
 // ---------- The Turkey Update (Thanksgiving week) ----------
-// Everything here ships ahead of time and switches on at each pilot's local midnight on Nov 26,
-// the same moment their daily resets, and runs through Sunday Nov 30. Items you get keep forever.
-const FEAST_FROM = new Date(2026, 10, 26).getTime(), FEAST_TO = new Date(2026, 11, 1).getTime();
+// On now through Sunday Nov 30 (ends at each pilot's local midnight). Items you get keep forever.
+const FEAST_FROM = Date.UTC(2026, 10, 24), FEAST_TO = new Date(2026, 11, 1).getTime(); // released early, on Nov 25
 const feastPreview = /[?&]feast=1(&|$)/.test(location.search);
 function feastOn() { const n = Date.now(); return (n >= FEAST_FROM && n < FEAST_TO) || (feastPreview && (creatorMode() || /^(localhost|127\.0\.0\.1)$/.test(location.hostname))); }
 // Harvest skins: six per theater, one each for the first six standard planes.
