@@ -303,6 +303,14 @@
   .news-card.feast { background: radial-gradient(120% 90% at 100% 100%, rgba(230, 120, 40, .24), transparent 60%), linear-gradient(160deg, #2a1a10, #170f0a); box-shadow: inset 0 0 0 1px rgba(214, 128, 52, .38); }
   .news-card.feast .nk { color: #f0a45c; }
   .news-card.feast p { padding-right: 52px; }
+  .news-card.feast.live { box-shadow: inset 0 0 0 1px rgba(214, 128, 52, .5), inset 3px 0 0 #f0a45c; }
+  .feast-shop { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 14px; align-items: center; padding: 12px; margin-bottom: 12px; --cut: 12px; background: radial-gradient(120% 90% at 100% 100%, rgba(230, 120, 40, .22), transparent 60%), linear-gradient(160deg, #2a1a10, #170f0a); box-shadow: inset 0 0 0 1px rgba(214, 128, 52, .45); }
+  .feast-info { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text); min-width: 0; }
+  .feast-info .nk { font-family: var(--font-cond); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: 11px; color: #f0a45c; }
+  .feast-info b { font-family: var(--font-display); font-weight: 800; font-size: 20px; text-transform: uppercase; line-height: 1.05; }
+  .feast-info .link-btn { align-self: flex-start; color: #f0a45c; margin-top: 4px; }
+  .feast-grid { margin-bottom: 14px; }
+  @media (max-width: 600px) { .feast-shop { grid-template-columns: 118px minmax(0, 1fr); gap: 10px; padding: 10px; } .feast-info b { font-size: 17px; } }
   .tg-art { position: absolute; right: 8px; bottom: 8px; width: 58px; height: 58px; animation: hwBob 3.2s ease-in-out infinite; filter: drop-shadow(0 0 10px rgba(230, 120, 40, .45)); }
   @keyframes hwBob { 50% { transform: translateY(-4px) rotate(-4deg); } }
   .news-card.radar .nk { color: #6be4ff; }
@@ -2491,6 +2499,7 @@ const MEDALS = [
   { id: 'arenawin', name: 'Top gun', desc: 'Win an arena round' },
   { id: 'rampage', name: 'Rampage', desc: 'Get a 5-kill streak in the arena' },
   { id: 'blimp', name: 'Boss slayer', desc: 'Finish off an arena boss' },
+  { id: 'turkey', name: 'Carved', desc: 'Shoot down the Turkey Bomber (Thanksgiving week)' },
   { id: 'elite', name: 'Top 10%', desc: 'Finish in the top 10% of a daily' },
   { id: 'godlike', name: 'Godlike', desc: 'Get a 15-kill streak in the arena' },
   { id: 'hangar', name: 'Hangar rat', desc: 'Fly 9 different planes' },
@@ -2547,6 +2556,62 @@ for (const tid of THEME_ORDER) {
   const T = { name: A.trail, crate: `t:${TRAILS.length}`, rarity: 6, kind: 'apex', color: c2, color2: c3, color3: c4, apex: pid }; TRAILS.push(T); APEX_GRANT[T.crate] = pid;
   const B = { name: A.bullet, kind: 'apex', color: c3, halo: c2, color2: c4, rarity: 6, crate: `b:${BULLET_SKINS.length}`, apex: pid }; BULLET_SKINS.push(B); APEX_GRANT[B.crate] = pid;
   const F = { name: A.kfx, rarity: 6, dur: 1.9, crate: `k:${KILL_FX.length}`, apex: pid, cols: A.col, v: A.v, draw: apexBurst }; KILL_FX.push(F); APEX_GRANT[F.crate] = pid;
+}
+// ---------- The Turkey Update (Thanksgiving week) ----------
+// Everything here ships ahead of time and switches on at each pilot's local midnight on Nov 26,
+// the same moment their daily resets, and runs through Sunday Nov 30. Items you get keep forever.
+const FEAST_FROM = new Date(2026, 10, 26).getTime(), FEAST_TO = new Date(2026, 11, 1).getTime();
+const feastPreview = /[?&]feast=1(&|$)/.test(location.search);
+function feastOn() { const n = Date.now(); return (n >= FEAST_FROM && n < FEAST_TO) || (feastPreview && (creatorMode() || /^(localhost|127\.0\.0\.1)$/.test(location.hostname))); }
+// Harvest skins: six per theater, one each for the first six standard planes.
+const FEAST_SKINS = [
+  ['Pumpkin Patch', '#d9681f', '#b85617', '#3d5a2a', 'stripes', '#a3480f', null, 1],
+  ['Cranberry', '#8e1b2e', '#741526', '#efe3c4', 'tips', '#efe3c4', null, 1],
+  ['Harvest Moon', '#e0b04a', '#c99a36', '#6b4226', 'band', '#6b4226', null, 2],
+  ['Maple', '#b5381c', '#932c15', '#f2c14e', 'blotch', '#7a2410', '#d9682a', 2],
+  ['Gobbler', '#6b4226', '#55341e', '#d9302a', 'tiger', '#c4521f', null, 3, '#e8a33a'],
+  ['Golden Feast', '#c98a1e', '#a8721a', '#fff3c4', 'gild', '#fff3c4', null, 4, '#ffb347'],
+];
+const FEAST_NEON = [
+  ['Pumpkin Glow', '#ff7a1a', ['#ffb347', '#ff5a1a'], 1], ['Cranberry', '#ff2a55', null, 1],
+  ['Harvest Moon', '#ffd34f', ['#ffe9a0', '#ff9b2a'], 2], ['Maple', '#ff4a2a', ['#ff4a2a', '#ffb347'], 2],
+  ['Gobbler', '#ff7a3d', ['#c4521f', '#e8a33a', '#ff3b3b'], 3, '#ff7a3d'], ['Golden Feast', '#ffcf3a', ['#fff3c4', '#ffb347', '#ff7a1a'], 4, '#ffd34f'],
+];
+for (const tid of THEME_ORDER) {
+  const th = THEMES[tid];
+  (tid === 'neon' ? FEAST_NEON : FEAST_SKINS).forEach((d, k) => {
+    const plane = th.planes[k].id, crate = `s:${tid}:f${k + 1}`;
+    th.liveries.push(tid === 'neon'
+      ? { name: d[0], body: d[1], wing: d[1], accent: '#ffffff', grad: d[2] || undefined, rarity: d[3], sparkle: d[4], plane, crate, feast: true }
+      : { name: d[0], body: d[1], wing: d[2], accent: d[3], pat: d[4], pat2: d[5], pat3: d[6] || undefined, rarity: d[7], sparkle: d[8], plane, crate, feast: true });
+  });
+}
+TRAILS.push({ name: 'Falling Leaves', crate: 't:f1', feast: true, rarity: 2, kind: 'leaves', color: '#d9681f', color2: '#e8a33a' });
+BULLET_SKINS.push({ name: 'Cranberry Sauce', color: '#d42a48', halo: '#ff9a6b', glow: true, wide: true, rarity: 2, crate: 'b:f1', feast: true });
+KILL_FX.push({ name: 'Feather Burst', rarity: 3, dur: 1.7, crate: 'k:f1', feast: true, draw(c, x, y, t, sd) {
+  const cols = ['#c4521f', '#e8a33a', '#8a3a1a', '#f2d39a', '#6b4226'];
+  const k = t / this.dur;
+  if (t < 0.25) { c.fillStyle = `rgba(255,214,150,${0.8 * (1 - t / 0.25)})`; c.beginPath(); c.arc(x, y, 10 + 60 * t, 0, TAU); c.fill(); }
+  for (let i = 0; i < 26; i++) {
+    const a = fxR(sd, i) * TAU, sp = 70 + fxR(sd, i + 40) * 150, f = 1 - Math.pow(1 - Math.min(1, t / 0.55), 2);
+    const px = x + Math.cos(a) * sp * f + Math.sin(t * 5 + i) * 10 * t, py = y + Math.sin(a) * sp * f + 40 * t * t;
+    c.save(); c.translate(px, py); c.rotate(a + Math.sin(t * 6 + i) * 0.8);
+    c.globalAlpha = Math.max(0, 1 - k * k);
+    const L = 9 + fxR(sd, i + 80) * 7;
+    c.fillStyle = cols[i % cols.length]; c.beginPath(); c.ellipse(0, 0, L, L * 0.32, 0, 0, TAU); c.fill();
+    c.strokeStyle = 'rgba(255,240,215,.8)'; c.lineWidth = 0.9; c.beginPath(); c.moveTo(-L * 1.15, 0); c.lineTo(L * 0.9, 0); c.stroke();
+    c.restore();
+  }
+  c.globalAlpha = 1;
+} });
+const isFeastItem = it => !!it.feast;
+function feastItems() {
+  const out = [];
+  for (const tid of THEME_ORDER) THEMES[tid].liveries.forEach((L, i) => { if (L.feast) out.push({ id: L.crate, kind: 'skin', name: L.name, rarity: L.rarity, tid, plane: L.plane, liv: i, sub: `${planeName(L.plane)} skin`, feast: true }); });
+  TRAILS.forEach((T, i) => { if (T.feast) out.push({ id: T.crate, kind: 'trail', name: T.name, rarity: T.rarity, idx: i, sub: 'Contrail', feast: true }); });
+  BULLET_SKINS.forEach((B, i) => { if (B.feast) out.push({ id: B.crate, kind: 'bullet', name: B.name, rarity: B.rarity, idx: i, sub: 'Bullet skin', feast: true }); });
+  KILL_FX.forEach((F, i) => { if (F.feast) out.push({ id: F.crate, kind: 'kfx', name: F.name, rarity: F.rarity, idx: i, sub: 'Kill effect', feast: true }); });
+  return out;
 }
 const trailOpen = i => { const T = TRAILS[i]; return !!T && (creatorMode() || (T.crate || T.season ? owned(T.crate || T.season) : pilotLevel() >= T.lvl)); };
 const myTrail = () => (trailOpen(store.trail || 0) ? store.trail || 0 : 0);
@@ -2667,7 +2732,7 @@ function drawContrail(c, pts, ti, span, k) {
     }
     return;
   }
-  if (['helix', 'pixel', 'galaxy', 'fire', 'zap', 'ribbon', 'bubbles', 'hearts', 'aurora', 'void', 'apex'].includes(T.kind)) { drawFancyTrail(c, pts, T, span, k, side); return; }
+  if (['helix', 'pixel', 'galaxy', 'fire', 'zap', 'ribbon', 'bubbles', 'hearts', 'aurora', 'void', 'apex', 'leaves'].includes(T.kind)) { drawFancyTrail(c, pts, T, span, k, side); return; }
   const passes = T.glow ? [[7, 0.22], [2, 1]] : [[2, 1]];
   if (T.kind === 'dash') c.setLineDash([5, 9]);
   for (const [lw, al] of passes) for (const sd of [-1, 1]) for (let i = 1; i < n; i++) {
@@ -2716,6 +2781,11 @@ function drawFancyTrail(c, pts, T, span, k, side) {
     for (let i = 0; i < n; i += 2) { const p = pts[i], f = i / n; for (const sd of [-1, 1]) { const [x, y] = side(p, sd); const r = (1.5 + (1 - f) * 4) * (0.7 + 0.3 * Math.sin(i * 1.7 + sd)); const wob = Math.sin(time * 6 + i) * (1 - f) * 3; c.strokeStyle = `rgba(${rgb},${0.75 * f * k})`; c.lineWidth = 1.2; c.beginPath(); c.arc(x + wob, y - wob, r, 0, TAU); c.stroke(); c.fillStyle = `rgba(255,255,255,${0.6 * f * k})`; c.fillRect(x + wob - r * 0.4, y - wob - r * 0.5, 1.2, 1.2); } }
   } else if (T.kind === 'hearts') {
     for (let i = 0; i < n; i += 3) { const p = pts[i], f = i / n; for (const sd of [-1, 1]) { const [x, y] = side(p, sd); const r = 1.6 + f * 2.6; c.fillStyle = `rgba(${(i / 3) % 2 ? rgb2 : rgb},${0.85 * f * k})`; c.beginPath(); c.moveTo(x, y + r * 0.9); c.bezierCurveTo(x - r * 1.6, y - r * 0.2, x - r * 0.6, y - r * 1.4, x, y - r * 0.5); c.bezierCurveTo(x + r * 0.6, y - r * 1.4, x + r * 1.6, y - r * 0.2, x, y + r * 0.9); c.fill(); } }
+  } else if (T.kind === 'leaves') {
+    // maple leaves tumbling off the wingtips, harvest colours
+    for (let i = 0; i < n; i += 3) { const p = pts[i], f = i / n; for (const sd of [-1, 1]) { const [x, y] = side(p, sd); const r = 1.4 + f * 2.8, rot = i * 0.9 + sd + time * 2;
+      c.save(); c.translate(x + Math.sin(time * 3 + i) * (1 - f) * 3, y); c.rotate(rot); c.fillStyle = `rgba(${(i / 3 + (sd > 0 ? 1 : 0)) % 2 ? rgb2 : rgb},${0.9 * f * k})`;
+      c.beginPath(); for (let q = 0; q < 5; q++) { const a = q / 5 * TAU - Math.PI / 2, a2 = a + TAU / 10; c.lineTo(Math.cos(a) * r * 1.3, Math.sin(a) * r * 1.3); c.lineTo(Math.cos(a2) * r * 0.5, Math.sin(a2) * r * 0.5); } c.closePath(); c.fill(); c.restore(); } }
   } else if (T.kind === 'aurora') {
     for (const [ph, col, lw] of [[0, rgb, 7], [2.1, rgb2, 5], [4.2, '255,255,255', 1.5]]) {
       c.lineWidth = lw; c.beginPath();
@@ -4112,7 +4182,7 @@ function makePlayer(hp = 3) {
   return { x: 0, y: 0, a: -Math.PI / 2, prevA: -Math.PI / 2, speed: SPEED * h.speed, hp, maxHp: hp, inv: 0, rollT: 0, rollCd: 0, fireT: 0, bank: 0, spin: 0, dead: false, sp: h.speed, tu: h.turn, fi: h.fire };
 }
 player = makePlayer();
-function resetEntities() { marks = []; enemies = []; pBullets = []; eBullets = []; missiles = []; parts = []; wrecks = []; decals = []; pickups = []; floaters = []; trail = []; }
+function resetEntities() { if (typeof Turkey !== 'undefined') Turkey.reset(); marks = []; enemies = []; pBullets = []; eBullets = []; missiles = []; parts = []; wrecks = []; decals = []; pickups = []; floaters = []; trail = []; }
 
 /* =====================================================================
    Input: mouse, touch (floating stick), keyboard, gamepad
@@ -4618,6 +4688,7 @@ function updateBullets(dt) {
         break;
       }
     }
+    if (!hit && Turkey.t && Turkey.hit(b.x, b.y, world.mod.dmg || 1)) hit = true;
     if (!hit) {
       for (const m of missiles) {
         if (m.dead) continue;
@@ -4865,6 +4936,157 @@ function zenTick(dt) {
 // Planes left far behind are retired; fresh ones arrive from the edge of the screen instead.
 function zenRetire() { for (const e of enemies) if (Math.hypot(e.x - player.x, e.y - player.y) > 2300) e.dead = true; }
 
+
+/* ---------- The Turkey Update: the Turkey Bomber and autumn skies ---------- */
+// Top-down turkey bomber, facing +x. s scales the whole bird. Used in Practice, Zen and as the arena boss.
+function drawTurkeyBomber(c, t, s, flash) {
+  c.save(); c.scale(s, s);
+  const ink = '#2a1608'; c.lineJoin = 'round'; c.strokeStyle = ink; c.lineWidth = 2.2;
+  // tail fan
+  const fan = ['#8a3a1a', '#c4521f', '#e8a33a', '#c4521f', '#8a3a1a', '#c4521f', '#e8a33a', '#c4521f', '#8a3a1a'];
+  const spread = 1.9 + Math.sin(t * 3) * 0.08;
+  fan.forEach((col, i) => {
+    const a = Math.PI - spread / 2 + (i / (fan.length - 1)) * spread;
+    c.save(); c.translate(-22, 0); c.rotate(a);
+    c.fillStyle = col; c.beginPath(); c.ellipse(26, 0, 26, 7.5, 0, 0, TAU); c.fill(); c.stroke();
+    c.fillStyle = 'rgba(255,240,200,.55)'; c.beginPath(); c.ellipse(44, 0, 6, 4, 0, 0, TAU); c.fill();
+    c.restore();
+  });
+  // wings, bomber style, feather-tipped
+  for (const sd of [-1, 1]) {
+    c.fillStyle = '#6b3a1c'; c.beginPath(); c.moveTo(12, sd * 10); c.lineTo(-2, sd * 74); c.lineTo(-16, sd * 72); c.lineTo(-12, sd * 10); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle = '#e8a33a'; for (let q = 0; q < 4; q++) { const y = sd * (40 + q * 9); c.beginPath(); c.ellipse(-12 + q * 0.6, y, 6, 3.2, 0, 0, TAU); c.fill(); }
+    // engine and prop
+    c.fillStyle = '#3a2a1c'; c.beginPath(); c.ellipse(8, sd * 34, 12, 6, 0, 0, TAU); c.fill(); c.stroke();
+    c.save(); c.translate(21, sd * 34); c.rotate(t * 40); c.fillStyle = 'rgba(30,20,10,.55)'; c.beginPath(); c.ellipse(0, 0, 2, 13, 0, 0, TAU); c.fill(); c.restore();
+  }
+  // body
+  const g = c.createLinearGradient(0, -18, 0, 18); g.addColorStop(0, '#9a5a2e'); g.addColorStop(1, '#5e3418');
+  c.fillStyle = g; c.beginPath(); c.ellipse(2, 0, 34, 18, 0, 0, TAU); c.fill(); c.stroke();
+  c.strokeStyle = 'rgba(40,20,8,.45)'; c.lineWidth = 1.2; for (let x = -20; x <= 18; x += 8) { c.beginPath(); c.arc(x, 0, 9, -1.1, 1.1); c.stroke(); }
+  c.strokeStyle = ink; c.lineWidth = 2.2;
+  // neck and head with a flying cap
+  c.fillStyle = '#8a5530'; c.beginPath(); c.ellipse(36, 0, 10, 8, 0, 0, TAU); c.fill(); c.stroke();
+  c.fillStyle = '#4a3a2a'; c.beginPath(); c.arc(40, 0, 7, Math.PI * 0.55, Math.PI * 1.45); c.fill();
+  c.fillStyle = '#9fd3ff'; for (const sd of [-1, 1]) { c.beginPath(); c.arc(42, sd * 4, 2.6, 0, TAU); c.fill(); c.stroke(); }
+  c.fillStyle = '#f0b23a'; c.beginPath(); c.moveTo(45, -3.5); c.lineTo(55, 0); c.lineTo(45, 3.5); c.closePath(); c.fill(); c.stroke();
+  c.strokeStyle = '#d9302a'; c.lineWidth = 3.2; c.lineCap = 'round'; c.beginPath(); c.moveTo(47, 2); c.quadraticCurveTo(50, 8 + Math.sin(t * 6) * 1.5, 45, 11); c.stroke(); c.lineCap = 'butt';
+  if (flash) { c.globalAlpha = 0.5; c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, 0, 50, 40, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
+  c.restore();
+}
+
+// Practice and Zen: now and then the Turkey Bomber crosses the sky. It runs, it shoots cranberries
+// over its shoulder, and it gets away if you don't catch it. Never in the daily, so the board stays fair.
+var Turkey = {
+  t: null, nextAt: 14, caught: 0,
+  reset() { this.t = null; this.nextAt = 14 + Math.random() * 8; },
+  live() { return feastOn() && state === 'play' && run && (run.mode === 'practice' || run.mode === 'zen') && !Coop.on && !Arena.on; },
+  spawn() {
+    const ang = Math.random() * TAU, dist = Math.max(W, H) / zoom * 0.5 + 160;
+    let x = player.x + Math.cos(ang) * dist, y = player.y + Math.sin(ang) * dist;
+    if (!tileWorld && Math.hypot(x, y) > R - 200) { x = player.x - Math.cos(ang) * dist; y = player.y - Math.sin(ang) * dist; }
+    const a = Math.atan2(player.y - y, player.x - x) + rand(-0.9, 0.9);
+    this.t = { x, y, a, hp: 34, max: 34, t: 0, life: 32, gunT: 2.5, flash: 0, r: 46 };
+    showHint('The Turkey Bomber is overhead! Chase it down before it gets away.', 3800);
+    sfx.bossHorn(); this.gobble();
+  },
+  gobble() { [0, 90, 170, 240].forEach((d, i) => setTimeout(() => tone(520 - i * 60 + Math.random() * 40, 0.07, 'square', 0.035, 300), d)); },
+  tick(dt) {
+    if (!this.live()) { if (this.t && (!run || state !== 'play')) this.t = null; return; }
+    if (!this.t) {
+      if (run.phase !== 'fight' && run.phase !== 'zen') return;
+      this.nextAt -= dt;
+      if (this.nextAt <= 0 && !player.dead) this.spawn();
+      return;
+    }
+    const b = this.t; b.t += dt; b.flash = Math.max(0, b.flash - dt);
+    const dx = b.x - player.x, dy = b.y - player.y, d = Math.hypot(dx, dy);
+    const leaving = b.t > b.life;
+    let tgt = d < 520 ? Math.atan2(dy, dx) + Math.sin(b.t * 1.3) * 0.55 : b.a + Math.sin(b.t * 0.7) * 0.4;
+    if (!tileWorld && Math.hypot(b.x, b.y) > R - 160 && !leaving) tgt = Math.atan2(-b.y, -b.x) + 0.5;
+    b.a = wrapAng(b.a + clamp(angDiff(tgt, b.a) * 3, -1.4, 1.4) * dt);
+    const sp = SPEED * (leaving ? 1.25 : d < 520 ? 0.86 : 0.7);
+    b.x += (Math.cos(b.a) * sp + world.wind.x) * dt; b.y += (Math.sin(b.a) * sp + world.wind.y) * dt;
+    b.gunT -= dt;
+    if (b.gunT <= 0 && d < 620 && !player.dead) {
+      const back = Math.atan2(-dy, -dx);
+      for (let k = -2; k <= 2; k++) shootE(b.x, b.y, back + k * 0.16, 330);
+      b.gunT = 2.1; this.gobble();
+    }
+    if (leaving && d > Math.max(W, H) / zoom + 300) {
+      this.t = null; this.nextAt = run.mode === 'zen' ? 75 : 1e9;
+      showHint('The Turkey Bomber got away. It will be back.', 2600);
+    }
+  },
+  // player bullets: returns true if this one hit
+  hit(bx, by, dmg) {
+    const b = this.t; if (!b) return false;
+    const dx = bx - b.x, dy = by - b.y;
+    if (dx * dx + dy * dy > b.r * b.r) return false;
+    b.hp -= dmg; b.flash = 0.07; sfx.bossHit();
+    for (let k = 0; k < 2; k++) puff(bx, by, rand(-80, 80), rand(-80, 80), rand(2, 3.5), 4, 0.25, '#e8a33a', 'fire');
+    if (b.hp <= 0) this.down();
+    return true;
+  },
+  down() {
+    const b = this.t; this.t = null; this.caught++;
+    this.nextAt = run && run.mode === 'zen' ? 90 : 1e9;
+    explode(b.x, b.y, 2); sfx.bossDown(); shake = Math.max(shake, 16); vibrate([60, 40, 120]);
+    const fk = KILL_FX.findIndex(F => F.name === 'Feather Burst'); if (fk > 0) spawnKillFx(fk, b.x, b.y);
+    floater(b.x, b.y - 30, 'TURKEY BOMBER DOWN', '#ffb347', 1.6);
+    floater(b.x, b.y - 58, '+300 CREDITS', '#ffd34f', 1);
+    gainXp(150); Shop.earn(300, 'Turkey Bomber'); earnMedal('turkey'); track('turkey_down', { mode: run && run.mode });
+  },
+  draw(c) {
+    const b = this.t; if (!b) return;
+    c.save(); c.translate(b.x + 26, b.y + 34); c.rotate(b.a); c.globalAlpha = 0.25; c.fillStyle = '#000'; c.beginPath(); c.ellipse(0, 0, 50, 38, 0, 0, TAU); c.fill(); c.restore();
+    c.save(); c.translate(b.x, b.y); c.rotate(b.a); drawTurkeyBomber(c, time, 0.78, b.flash > 0); c.restore();
+    c.save(); c.translate(b.x, b.y - 66); c.scale(1 / zoom, 1 / zoom);
+    c.font = '700 14px "Barlow Condensed", "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+    c.lineWidth = 4; c.strokeStyle = 'rgba(5,6,12,.85)'; c.strokeText('TURKEY BOMBER', 0, 0); c.fillStyle = '#ffb347'; c.fillText('TURKEY BOMBER', 0, 0);
+    const f = clamp(b.hp / b.max, 0, 1);
+    c.fillStyle = 'rgba(0,0,0,.65)'; c.fillRect(-46, 9, 92, 7); c.fillStyle = '#ff8a3d'; c.fillRect(-45, 10, 90 * f, 5);
+    c.restore();
+  },
+};
+
+// Autumn skies: warm light at the edges and leaves drifting across (embers out in space and neon).
+const Autumn = {
+  leaves: [], last: 0, grad: null, gw: 0, gh: 0, cx: 0, cy: 0,
+  draw(c, th) {
+    if (!feastOn()) return;
+    const dt = Math.min(0.05, Math.max(0, time - this.last)); this.last = time;
+    if (!this.grad || this.gw !== W || this.gh !== H) {
+      this.gw = W; this.gh = H;
+      const g = c.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.hypot(W, H) * 0.62);
+      g.addColorStop(0, 'rgba(255,150,60,0)'); g.addColorStop(1, 'rgba(255,128,40,.16)'); this.grad = g;
+    }
+    c.fillStyle = this.grad; c.fillRect(0, 0, W, H);
+    const space = th.ground === 'space' || th.neon, want = Math.round(Math.min(34, (W * H) / 26000));
+    while (this.leaves.length < want) this.leaves.push({ x: Math.random() * W, y: Math.random() * H, s: 0.6 + Math.random() * 0.8, r: Math.random() * TAU, w: Math.random() * TAU, c: Math.floor(Math.random() * 4) });
+    // leaves slide against the camera so they feel like they're in the air, not on the glass
+    const mx = (cam.x - this.cx) * zoom * 0.6, my = (cam.y - this.cy) * zoom * 0.6; this.cx = cam.x; this.cy = cam.y;
+    const jump = Math.abs(mx) > W || Math.abs(my) > H;
+    const cols = space ? ['#ffb347', '#ff7a1a', '#ffd34f', '#ff9a6b'] : ['#c4521f', '#e8a33a', '#b5381c', '#d99a2a'];
+    for (const L of this.leaves) {
+      L.w += dt * 1.6; L.r += dt * (0.8 + L.s);
+      L.x += (Math.sin(L.w) * 26 + 18) * dt * L.s - (jump ? 0 : mx); L.y += (space ? -10 : 34) * dt * L.s - (jump ? 0 : my);
+      if (L.x < -20) L.x += W + 40; else if (L.x > W + 20) L.x -= W + 40;
+      if (L.y < -20) L.y += H + 40; else if (L.y > H + 20) L.y -= H + 40;
+      c.save(); c.translate(L.x, L.y); c.rotate(L.r); c.globalAlpha = space ? 0.7 : 0.85; c.fillStyle = cols[L.c];
+      if (space) { c.beginPath(); c.arc(0, 0, 1.6 * L.s + 0.6, 0, TAU); c.fill(); }
+      else {
+        const r = 6.5 * L.s; c.scale(1, 0.55 + 0.45 * Math.abs(Math.sin(L.w)));
+        c.beginPath(); for (let q = 0; q < 5; q++) { const a = q / 5 * TAU - Math.PI / 2, a2 = a + TAU / 10; c.lineTo(Math.cos(a) * r * 1.3, Math.sin(a) * r * 1.3); c.lineTo(Math.cos(a2) * r * 0.5, Math.sin(a2) * r * 0.5); } c.closePath(); c.fill();
+        c.strokeStyle = 'rgba(60,25,8,.5)'; c.lineWidth = 0.8; c.beginPath(); c.moveTo(0, r * 1.6); c.lineTo(0, -r * 0.4); c.stroke();
+      }
+      c.restore();
+    }
+    c.globalAlpha = 1;
+  },
+};
+const feastCrateArt = (col = '#e07a2a') => `<svg viewBox="0 0 74 64"><g class="cr-lid"><path d="M8 20q29-14 58 0l-3 5H11z" fill="#b5381c"/><path d="M15 17l3-8 6 6M50 15l6-7 3 8" stroke="#3d5a2a" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="37" cy="13" rx="8" ry="6.5" fill="#e07a2a" stroke="#8a3a1a"/><path d="M33 9q4 4 0 8M41 9q-4 4 0 8" stroke="#b85617" fill="none"/><path d="M37 7V3" stroke="#3d5a2a" stroke-width="2.4"/></g><path d="M8 25h58l-6 33H14z" fill="#a8742f"/>${[31, 38, 45, 52].map(y => `<path d="M${(9 + (y - 25) * 0.17).toFixed(1)} ${y}h${(56 - (y - 25) * 0.35).toFixed(1)}" stroke="#7a5220" stroke-width="2"/>`).join('')}${[18, 28, 37, 46, 56].map(x => `<path d="M${x} 25l${((37 - x) * 0.1).toFixed(1)} 33" stroke="#7a5220" stroke-width="1.6"/>`).join('')}<path d="M8 25h58" stroke="#5e3d14" stroke-width="3"/><rect x="25" y="34" width="24" height="13" rx="2" fill="${col}"/><path d="M37 37l1.8 3.6 4 .5-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.5z" fill="#fff3c4"/></svg>`;
+
 function update(dt) {
   if (state === 'play' && run && run.mode === 'coop') { coopUpdate(dt); return; }
   if (state === 'play' && run && run.mode === 'arena') { arenaUpdate(dt); return; }
@@ -4872,6 +5094,7 @@ function update(dt) {
     run.totalT += dt;
     if (!player.dead) { steerPlayer(dt); movePlayer(dt); firePlayer(dt); }
     Ghost.tick();
+    Turkey.tick(dt);
     if (run.chainT > 0) { run.chainT -= dt; if (run.chainT <= 0) { run.chain = 0; run.mult = 1; } }
     if (run.phase === 'intro') {
       run.phaseT -= dt;
@@ -5363,6 +5586,7 @@ function draw() {
     if (m.lock) { ctx.strokeStyle = 'rgba(255,77,94,.65)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(m.x, m.y, 15 + Math.sin(time * 18) * 2, 0, TAU); ctx.stroke(); }
   }
 
+  Turkey.draw(ctx);
   // enemies
   for (const e of enemies) {
     if (!inView(e.x, e.y, 90)) continue;
@@ -5432,6 +5656,7 @@ function draw() {
 
   // ---------- screen space ----------
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  Autumn.draw(ctx, th);
   if (state === 'play') {
     const top = W <= 600 ? 124 : 78, margin = 24, cx = W / 2, cy = H / 2;
     const edgeArrow = (x, y, color, sz) => {
@@ -5447,6 +5672,7 @@ function draw() {
       ctx.restore();
     };
     for (const e of enemies) edgeArrow(e.x, e.y, e.type === 'ace' ? th.accent : '#ff4d5e', e.type === 'ace' ? 1.4 : e.type === 'bomber' ? 1.2 : 1);
+    if (Turkey.t) edgeArrow(Turkey.t.x, Turkey.t.y, '#ffb347', 1.5);
     for (const m of missiles) if (m.lock && (!Coop.on || m.target === Net.you)) edgeArrow(m.x, m.y, '#ffffff', 0.8);
     if (Coop.on) for (const pr of Coop.peerList()) if (pr.seen && !pr.dead) edgeArrow(pr.x, pr.y, '#38d98a', 0.9);
     if (Arena.on) Arena.edgeArrows(edgeArrow);
@@ -5957,10 +6183,11 @@ function renderHangar() {
   let unlocked = 0, shownN = 0;
   $('liveryList').innerHTML = theme.liveries.map((L, i) => {
     if (L.plane && L.plane !== pl.id) return '';
+    if (L.feast && !feastOn() && !liveryOpen(theme.id, i)) return '';
     shownN++;
     const open = liveryOpen(theme.id, i);
     if (open) unlocked++;
-    const why = open ? L.name : `${L.name} · ${L.crate ? `${RARITY[L.rarity].name} skin from ${theme.short} crates in the Shop` : L.elite ? 'finish in the top 10% of today\'s daily (lasts until the next sortie)' : L.lvl ? `reach level ${L.lvl}` : 'earn ' + medalName(L.req)}`;
+    const why = open ? L.name : `${L.name} · ${L.feast ? `${RARITY[L.rarity].name} skin from the Feast crate (Thanksgiving week)` : L.crate ? `${RARITY[L.rarity].name} skin from ${theme.short} crates in the Shop` : L.elite ? 'finish in the top 10% of today\'s daily (lasts until the next sortie)' : L.lvl ? `reach level ${L.lvl}` : 'earn ' + medalName(L.req)}`;
     return `<button class="swatch chamfer ${open ? '' : 'locked'} ${L.elite ? 'elite' : ''} ${L.crate ? 'crate' : ''}" ${L.crate ? `style="--rc:${RARITY[L.rarity].color}"` : ''} role="radio" data-liv="${i}" aria-checked="${i === cur}" title="${esc(why)}" aria-label="${esc(why)}" data-why="${esc(why)}"><canvas data-plane="${pl.id}" data-liv="${i}" width="88" height="88" aria-hidden="true"></canvas>${open ? '' : `<span class="lock">${L.crate ? 'Crate' : L.elite ? '★' : L.lvl ? 'Lv ' + L.lvl : '🔒'}</span>`}</button>`;
   }).join('');
   paintAvatars($('liveryList'));
@@ -5973,7 +6200,8 @@ function renderHangar() {
   // contrails
   const curTrail = myTrail();
   $('trailList').innerHTML = TRAILS.map((T, i) => {
-    const open = trailOpen(i), rare = T.crate || T.season, why = T.apex ? `${T.name} · comes with an Apex plane` : T.season ? `${T.name} · reach tier 30 of the season pass` : T.crate ? `${T.name} · ${RARITY[T.rarity].name} contrail from crates in the Shop` : `${T.name} · reach level ${T.lvl}`;
+    if (T.feast && !feastOn() && !trailOpen(i)) return '';
+    const open = trailOpen(i), rare = T.crate || T.season, why = T.apex ? `${T.name} · comes with an Apex plane` : T.season ? `${T.name} · reach tier 30 of the season pass` : T.feast ? `${T.name} · from the Feast crate (Thanksgiving week)` : T.crate ? `${T.name} · ${RARITY[T.rarity].name} contrail from crates in the Shop` : `${T.name} · reach level ${T.lvl}`;
     return `<button class="tchip chamfer ${open ? '' : 'locked'} ${rare ? 'crate' : ''}" ${rare ? `style="--rc:${RARITY[T.rarity].color}"` : ''} role="radio" data-trail="${i}" aria-checked="${i === curTrail}" title="${esc(open ? T.name : why)}" data-why="${esc(why)}"><canvas width="96" height="30" aria-hidden="true"></canvas><small>${open ? esc(T.name) : T.apex ? 'Apex' : T.season ? 'Season' : T.crate ? 'Crate' : `Lv ${T.lvl}`}</small></button>`;
   }).join('');
   $('trailName').textContent = TRAILS[curTrail].name;
@@ -5989,14 +6217,16 @@ function renderHangar() {
   const curB = myBullet();
   $('bulletList').innerHTML = BULLET_SKINS.map((B, i) => {
     const open = !i || owned(B.crate);
-    return `<button class="tchip chamfer ${open ? '' : 'locked'} ${i ? 'crate' : ''}" ${i ? `style="--rc:${RARITY[B.rarity].color}"` : ''} role="radio" data-bullet="${i}" aria-checked="${i === curB}" data-why="${esc(`${B.name} · ${B.apex ? 'comes with an Apex plane' : i ? RARITY[B.rarity].name + ' bullets from crates in the Shop' : ''}`)}"><canvas width="96" height="30" aria-hidden="true"></canvas><small>${open ? esc(B.name) : B.apex ? 'Apex' : 'Crate'}</small></button>`;
+    if (B.feast && !feastOn() && !open) return '';
+    return `<button class="tchip chamfer ${open ? '' : 'locked'} ${i ? 'crate' : ''}" ${i ? `style="--rc:${RARITY[B.rarity].color}"` : ''} role="radio" data-bullet="${i}" aria-checked="${i === curB}" data-why="${esc(`${B.name} · ${B.apex ? 'comes with an Apex plane' : i ? RARITY[B.rarity].name + (B.feast ? ' bullets from the Feast crate (Thanksgiving week)' : ' bullets from crates in the Shop') : ''}`)}"><canvas width="96" height="30" aria-hidden="true"></canvas><small>${open ? esc(B.name) : B.apex ? 'Apex' : 'Crate'}</small></button>`;
   }).join('');
   $('bulletName').textContent = BULLET_SKINS[curB].name;
   $('bulletCount').textContent = `${BULLET_SKINS.filter((B, i) => !i || owned(B.crate)).length}/${BULLET_SKINS.length}`;
   const curK = myKillFx();
   $('kfxList').innerHTML = KILL_FX.map((F, i) => {
     const open = !i || owned(F.crate);
-    return `<button class="tchip chamfer ${open ? '' : 'locked'} ${i ? 'crate' : ''}" ${i ? `style="--rc:${RARITY[F.rarity].color}"` : ''} role="radio" data-k="${i}" aria-checked="${i === curK}" data-why="${esc(`${F.name}${F.apex ? ' · comes with an Apex plane' : i ? ' · ' + RARITY[F.rarity].name + ' kill effect from crates in the Shop' : ''}`)}"><canvas width="96" height="60" aria-hidden="true"></canvas><small>${open ? esc(F.name) : F.apex ? 'Apex' : 'Crate'}</small></button>`;
+    if (F.feast && !feastOn() && !open) return '';
+    return `<button class="tchip chamfer ${open ? '' : 'locked'} ${i ? 'crate' : ''}" ${i ? `style="--rc:${RARITY[F.rarity].color}"` : ''} role="radio" data-k="${i}" aria-checked="${i === curK}" data-why="${esc(`${F.name}${F.apex ? ' · comes with an Apex plane' : i ? ' · ' + RARITY[F.rarity].name + (F.feast ? ' kill effect from the Feast crate (Thanksgiving week)' : ' kill effect from crates in the Shop') : ''}`)}"><canvas width="96" height="60" aria-hidden="true"></canvas><small>${open ? esc(F.name) : F.apex ? 'Apex' : 'Crate'}</small></button>`;
   }).join('');
   $('kfxName').textContent = KILL_FX[curK].name;
   $('kfxCount').textContent = `${KILL_FX.filter((F, i) => !i || owned(F.crate)).length}/${KILL_FX.length}`;
@@ -6665,6 +6895,7 @@ const CRATES = [
   { name: 'Standard crate', cost: 200, odds: [53, 26, 14, 5.3, 1.53, 0.15, 0.02], desc: 'Anything can drop', color: '#6b8fbf' },
   { name: 'Premium crate', cost: 600, odds: [0, 43, 33, 16, 7.12, 0.8, 0.08], desc: 'Uncommon or better', color: '#b14bff' },
   { name: 'Ace crate', cost: 1500, odds: [0, 0, 44, 34, 18.1, 3.5, 0.4], desc: 'Rare or better', color: '#ffb02e' },
+  { name: 'Feast crate', cost: 400, odds: [0, 46, 32, 16, 6, 0, 0], desc: 'Thanksgiving week only', color: '#e07a2a', feast: true },
 ];
 // Crates look like their era: a WWI wooden ammo crate, a WWII steel supply drop, a modern hard case,
 // a space cargo pod and a neon arcade box. The tier colour shows as the band, stripe or glow.
@@ -6678,11 +6909,11 @@ const crateArt = (c, tid) => {
 };
 function crateItems(tid) {
   const th = THEMES[tid], out = [];
-  th.liveries.forEach((L, i) => { if (L.crate && !L.apex) out.push({ id: L.crate, kind: 'skin', name: L.name, rarity: L.rarity, tid, plane: L.plane, liv: i, sub: `${planeName(L.plane)} skin` }); });
+  th.liveries.forEach((L, i) => { if (L.crate && !L.apex && !L.feast) out.push({ id: L.crate, kind: 'skin', name: L.name, rarity: L.rarity, tid, plane: L.plane, liv: i, sub: `${planeName(L.plane)} skin` }); });
   th.planes.forEach((pl, i) => { if (pl.crate) out.push({ id: 'p:' + pl.id, kind: 'plane', name: pl.name, rarity: pl.rarity || 5, tid, plane: pl.id, pi: i, sub: pl.apex ? `${th.short} Apex aircraft · with its own skin, bullets, contrail and kill effect` : `${th.short} aircraft` }); });
-  TRAILS.forEach((T, i) => { if (T.crate && !T.apex) out.push({ id: T.crate, kind: 'trail', name: T.name, rarity: T.rarity, idx: i, sub: 'Contrail' }); });
-  BULLET_SKINS.forEach((B, i) => { if (B.crate && !B.apex) out.push({ id: B.crate, kind: 'bullet', name: B.name, rarity: B.rarity, idx: i, sub: 'Bullet skin' }); });
-  KILL_FX.forEach((F, i) => { if (F.crate && !F.apex) out.push({ id: F.crate, kind: 'kfx', name: F.name, rarity: F.rarity, idx: i, sub: 'Kill effect' }); });
+  TRAILS.forEach((T, i) => { if (T.crate && !T.apex && !T.feast) out.push({ id: T.crate, kind: 'trail', name: T.name, rarity: T.rarity, idx: i, sub: 'Contrail' }); });
+  BULLET_SKINS.forEach((B, i) => { if (B.crate && !B.apex && !B.feast) out.push({ id: B.crate, kind: 'bullet', name: B.name, rarity: B.rarity, idx: i, sub: 'Bullet skin' }); });
+  KILL_FX.forEach((F, i) => { if (F.crate && !F.apex && !F.feast) out.push({ id: F.crate, kind: 'kfx', name: F.name, rarity: F.rarity, idx: i, sub: 'Kill effect' }); });
   return out;
 }
 function itemPreview(cv, it, t) {
@@ -6769,7 +7000,7 @@ const Shop = {
     let x = Math.random() * total, r = 0;
     for (; r < C.odds.length; r++) { if ((x -= C.odds[r]) <= 0) break; }
     r = Math.min(r, RARITY.length - 1);
-    const pool = crateItems(tid).filter(it => it.rarity === r);
+    const pool = this.pool(tier, tid).filter(it => it.rarity === r);
     // new items are twice as likely as ones you already have
     const w = pool.map(it => (owned(it.id) ? 1 : 2)), tw = w.reduce((a, b) => a + b, 0);
     let y = Math.random() * tw;
@@ -6777,7 +7008,7 @@ const Shop = {
     return pool[pool.length - 1];
   },
   filler(tier, tid) {
-    const C = CRATES[tier], items = crateItems(tid);
+    const C = CRATES[tier], items = this.pool(tier, tid);
     const r = (() => { let x = Math.random() * 100, i = 0; const odds = C.odds.map((o, k) => (k >= 4 ? o * 3 : o)); const t = odds.reduce((a, b) => a + b, 0); x *= t / 100; for (; i < odds.length; i++) if ((x -= odds[i]) <= 0) break; return Math.min(i, 5); })();
     const pool = items.filter(it => it.rarity === r);
     return pool[Math.floor(Math.random() * pool.length)] || items[0];
@@ -6785,6 +7016,7 @@ const Shop = {
   open(tier) {
     if (this.busy) return;
     const C = CRATES[tier], tid = this.tid, tokens = store.tokens || (store.tokens = [0, 0, 0]);
+    if (C.feast && !feastOn()) { this.render(); return; }
     if (tokens[tier] > 0) {
       audio(); tokens[tier]--; saveStore(); renderShopDot();
       const win = this.roll(tier, tid);
@@ -6810,8 +7042,8 @@ const Shop = {
     const N = 58, W = 48;
     const list = Array.from({ length: N }, (_, i) => (i === W ? win : this.filler(tier, tid)));
     // the classic near-miss: something shiny just past the line
-    if (Math.random() < 0.55) { const shiny = crateItems(tid).filter(it => it.rarity >= Math.max(4, win.rarity)); if (shiny.length) list[W + 1] = shiny[Math.floor(Math.random() * shiny.length)]; }
-    $('crKicker').textContent = `${THEMES[tid].name} · ${CRATES[tier].name}`;
+    if (Math.random() < 0.55) { const shiny = this.pool(tier, tid).filter(it => it.rarity >= Math.max(4, win.rarity)); if (shiny.length) list[W + 1] = shiny[Math.floor(Math.random() * shiny.length)]; }
+    $('crKicker').textContent = CRATES[tier].feast ? 'The Turkey Update · Feast crate' : `${THEMES[tid].name} · ${CRATES[tier].name}`;
     $('crTitle').textContent = 'Opening…';
     $('crReveal').classList.add('hidden'); $('crReveal').innerHTML = '';
     const reel = $('reel'), wrap = $('reelWin');
@@ -6848,10 +7080,11 @@ const Shop = {
   },
   // The crate opening for its era, before the reel: returns how long it runs.
   intro(tier, tid) {
-    const el = $('crIntro'), C = CRATES[tier], art = crateArt(C.color, tid).replace('<svg ', '<svg class="big" ');
+    const el = $('crIntro'), C = CRATES[tier], art = (C.feast ? feastCrateArt(C.color) : crateArt(C.color, tid)).replace('<svg ', '<svg class="big" ');
     const bits = n => `<div class="bits">${Array.from({ length: n }, (_, i) => { const a = (i / n) * TAU - Math.PI / 2 + (Math.random() - 0.5) * 0.6, d = 70 + Math.random() * 70; return `<i style="--x:${Math.cos(a) * d}px;--y:${Math.sin(a) * d}px;--r:${(Math.random() - 0.5) * 540}deg"></i>`; }).join('')}</div>`;
     let extra = '', ms = 1300;
-    if (tid === 'ww1') { extra = bits(14); setTimeout(() => { noise(0.25, 0.25, 900); tone(90, 0.2, 'sine', 0.12, 50); }, 650); [0, 160, 320].forEach(t => setTimeout(() => noise(0.05, 0.12, 2400), t)); }
+    if (C.feast) { extra = bits(16).replace('class="bits"', 'class="bits" style="--bc:#e8a33a"'); setTimeout(() => { Turkey.gobble(); noise(0.2, 0.1, 1800); }, 600); }
+    else if (tid === 'ww1') { extra = bits(14); setTimeout(() => { noise(0.25, 0.25, 900); tone(90, 0.2, 'sine', 0.12, 50); }, 650); [0, 160, 320].forEach(t => setTimeout(() => noise(0.05, 0.12, 2400), t)); }
     else if (tid === 'ww2') { extra = '<svg class="chute" viewBox="0 0 150 100"><path d="M5 50Q75-20 145 50Q120 40 100 50Q75 38 50 50Q30 40 5 50z" fill="#e8e1cf"/><path d="M5 50L75 100M50 50L75 100M100 50L75 100M145 50L75 100" stroke="#a8a08a" stroke-width="1.2"/></svg>' + bits(10).replace('class="bits"', 'class="bits" style="--bc:#a8b08a"'); setTimeout(() => { tone(70, 0.3, 'sine', 0.2, 40); noise(0.3, 0.2, 700); }, 680); ms = 1450; }
     else if (tid === 'modern') { [120, 320].forEach(t => setTimeout(() => { tone(2200, 0.03, 'square', 0.04); tone(900, 0.05, 'square', 0.03, null, 0.02); }, t)); setTimeout(() => noise(0.4, 0.08, 4000), 620); setTimeout(() => tone(600, 0.5, 'sine', 0.03, 1600), 500); }
     else if (tid === 'space') { extra = [0, 0.25, 0.5].map(d => `<span class="ring" style="--d:${0.6 + d}s;--cc:${C.color}"></span>`).join(''); setTimeout(() => { noise(0.8, 0.1, 5000); tone(300, 0.9, 'sine', 0.05, 1200); }, 600); ms = 1450; }
@@ -6883,7 +7116,7 @@ const Shop = {
     el.style.setProperty('--rc', R.color);
     el.innerHTML = `${it.rarity >= 3 ? '<div class="rays"></div>' : ''}<canvas width="400" height="400"></canvas><span class="rr">${R.name}</span><h3>${esc(it.name)}</h3><p>${esc(it.sub)}${mode === 'dupe' ? ' · You already own this one' : ''}${it.kind === 'plane' ? ` · flies like the ${esc(ARCH[(THEMES[it.tid].planes[it.pi] || {}).arch || 'balanced'].label.toLowerCase())} class` : ''}</p>
       <div class="acct-row">${mode === 'won' ? `<button class="btn btn-primary" data-act="keep">Add to collection</button><button class="btn btn-ghost" data-act="equip">Add and equip</button>` : mode === 'inspect' && !isEquipped(it) ? '<button class="btn btn-primary" data-act="equip">Equip</button>' : ''}
-      ${mode === 'preview' ? `<span class="pv-note">Not in your collection yet · a ${RARITY[it.rarity].name.toLowerCase()} drop from ${esc(THEMES[this.tid].short)} crates</span>` : `<button class="btn btn-ghost" data-act="sell">Sell for ${COIN_SVG.replace('<svg', '<svg style="width:14px;height:14px;vertical-align:-2px"')} ${fmtNum(value)}</button>`}
+      ${mode === 'preview' ? `<span class="pv-note">Not in your collection yet · a ${RARITY[it.rarity].name.toLowerCase()} drop from ${it.feast ? 'the Feast crate, Thanksgiving week only' : `${esc(THEMES[this.tid].short)} crates`}</span>` : `<button class="btn btn-ghost" data-act="sell">Sell for ${COIN_SVG.replace('<svg', '<svg style="width:14px;height:14px;vertical-align:-2px"')} ${fmtNum(value)}</button>`}
       ${mode !== 'inspect' && tier != null ? `<button class="btn btn-ghost" data-act="again" data-tier="${tier}">Open another · ${fmtNum(CRATES[tier].cost)}</button>` : ''}
       ${mode === 'inspect' || mode === 'preview' ? '<button class="btn btn-ghost" data-act="close">Close</button>' : ''}</div>`;
     el.classList.remove('hidden');
@@ -6957,9 +7190,10 @@ const Shop = {
     const sorted = items.filter(it => this.kind === 'all' || it.kind === this.kind).sort((a, b) => b.rarity - a.rarity || (owned(b.id) ? 1 : 0) - (owned(a.id) ? 1 : 0));
     el.innerHTML = `<div class="shop-head"><div class="credits">${COIN_SVG}<div><b>${fmtNum(cr)}</b><small>credits</small></div></div><span class="shop-note">You earn credits in every mode. Crates are cosmetic only, so nothing in them makes you fly better.</span></div>
       <div class="shop-th" role="radiogroup" aria-label="Crate theater">${THEME_ORDER.map(t => `<button role="radio" data-t="${t}" aria-checked="${t === tid}">${esc(THEMES[t].short)}</button>`).join('')}</div>
-      <div class="crates">${CRATES.map((C, i) => `<button class="crate-card chamfer ${cr < C.cost ? 'poor' : ''}" data-tier="${i}" style="--cc:${C.color}"><div class="crate-art">${crateArt(C.color, tid)}</div><b>${esc(C.name)}</b><small>${esc(C.desc)}</small><span class="price">${COIN_SVG}${fmtNum(C.cost)}</span>${(store.tokens || [])[i] > 0 ? `<span class="free">${store.tokens[i]} free</span>` : ''}</button>`).join('')}</div>
+      ${feastOn() ? this.feastHTML() : ''}
+      <div class="crates">${CRATES.map((C, i) => C.feast ? '' : `<button class="crate-card chamfer ${cr < C.cost ? 'poor' : ''}" data-tier="${i}" style="--cc:${C.color}"><div class="crate-art">${crateArt(C.color, tid)}</div><b>${esc(C.name)}</b><small>${esc(C.desc)}</small><span class="price">${COIN_SVG}${fmtNum(C.cost)}</span>${(store.tokens || [])[i] > 0 ? `<span class="free">${store.tokens[i]} free</span>` : ''}</button>`).join('')}</div>
       <div id="shopMsg" class="acct-err" role="status"></div>
-      <details class="odds"><summary>Drop odds</summary><table><tr><th>Rarity</th>${CRATES.map(C => `<th>${esc(C.name.split(' ')[0])}</th>`).join('')}<th>Sells for</th></tr>${RARITY.map((R, r) => `<tr><td style="color:${R.color}">${R.name}</td>${CRATES.map(C => `<td>${C.odds[r] ? C.odds[r] + '%' : '—'}</td>`).join('')}<td>${fmtNum(R.value)}</td></tr>`).join('')}</table></details>
+      <details class="odds"><summary>Drop odds</summary><table><tr><th>Rarity</th>${CRATES.filter(C => !C.feast).map(C => `<th>${esc(C.name.split(' ')[0])}</th>`).join('')}<th>Sells for</th></tr>${RARITY.map((R, r) => `<tr><td style="color:${R.color}">${R.name}</td>${CRATES.filter(C => !C.feast).map(C => `<td>${C.odds[r] ? C.odds[r] + '%' : '—'}</td>`).join('')}<td>${fmtNum(R.value)}</td></tr>`).join('')}</table></details>
       <div class="section-label"><span>${esc(THEMES[tid].short)} collection</span><span>${have}/${items.length}</span></div>
       <div class="coll-filter">${KINDS.map(([k, l]) => `<button data-kind="${k}" aria-pressed="${this.kind === k}">${l}</button>`).join('')}</div>
       <div class="coll-grid">${sorted.map(it => itemCardHTML(it, `${owned(it.id) ? '' : 'unowned'} ${owned(it.id) && isEquipped(it) ? 'equipped' : ''}`)).join('')}</div>`;
@@ -6972,7 +7206,20 @@ const Shop = {
       if (!it) return;
       this.showItem(it, owned(it.id) ? 'inspect' : 'preview');
     });
+    const fg = el.querySelector('.feast-grid');
+    if (fg) {
+      const fi = feastItems(); paintItems(fg, fi);
+      fg.querySelectorAll('.item').forEach(b => b.onclick = () => { const it = fi.find(x => x.id === b.dataset.id); if (it) this.showItem(it, owned(it.id) ? 'inspect' : 'preview'); });
+    }
+    const fb = el.querySelector('[data-feastcoll]'); if (fb) fb.onclick = () => { this.showFeast = !this.showFeast; this.render(); };
   },
+  feastHTML() {
+    const items = feastItems(), have = items.filter(it => owned(it.id)).length, C = CRATES.find(x => x.feast), tier = CRATES.indexOf(C), cr = store.credits || 0;
+    const grid = this.showFeast ? `<div class="coll-grid feast-grid">${items.sort((a, b) => b.rarity - a.rarity || (owned(b.id) ? 1 : 0) - (owned(a.id) ? 1 : 0)).map(it => itemCardHTML(it, `${owned(it.id) ? '' : 'unowned'} ${owned(it.id) && isEquipped(it) ? 'equipped' : ''}`)).join('')}</div>` : '';
+    return `<div class="feast-shop chamfer"><button class="crate-card feast-card chamfer ${cr < C.cost ? 'poor' : ''}" data-tier="${tier}" style="--cc:${C.color}"><div class="crate-art">${feastCrateArt(C.color)}</div><b>Feast crate</b><small>Ends Sunday night</small><span class="price">${COIN_SVG}${fmtNum(C.cost)}</span></button>
+      <div class="feast-info"><small class="nk">The Turkey Update</small><b>Harvest collection</b><span>${have}/${items.length} collected. Harvest skins for every theater, the Falling Leaves contrail, Cranberry Sauce bullets and the Feather Burst kill effect. Looks only, and they're yours to keep.</span><button class="link-btn" type="button" data-feastcoll>${this.showFeast ? 'Hide' : 'See'} what's inside</button></div></div>${grid}`;
+  },
+  pool(tier, tid) { return CRATES[tier] && CRATES[tier].feast ? feastItems() : crateItems(tid); },
 };
 Shop.init();
 // Daily login rewards: a 7-day streak of credits, with free crates on days 3 and 7.
@@ -7292,10 +7539,18 @@ $('bjLogin').addEventListener('click', () => Social.signIn('login', ['bjUser', '
     } catch (err) { st.textContent = 'Couldn\'t reach the server. Email hello@supersortie.io instead.'; st.classList.add('bad'); }
     finally { $('fbSend').disabled = false; }
   });
-  // Thanksgiving: the fourth Thursday of November
-  const y = new Date().getFullYear(), nov1 = new Date(y, 10, 1), tg = new Date(y, 10, 1 + ((4 - nov1.getDay() + 7) % 7) + 21);
-  const days = Math.ceil((tg - new Date()) / 864e5);
-  $('tgCount').textContent = days > 1 ? `in ${days} days` : days === 1 ? 'tomorrow' : days === 0 ? 'today' : 'this week';
+  // The Turkey Update card: a countdown before it starts, the headline during the week, gone after.
+  const fc = document.querySelector('.news-card.feast');
+  if (fc && feastOn()) {
+    fc.querySelector('.nk').textContent = 'Out now · until Sunday';
+    fc.querySelector('p').textContent = 'Happy Thanksgiving, pilots. Autumn skies all week, and the Turkey Bomber is loose in Practice, Zen and the Arena. Chase it down for 300 credits and the Carved medal. The Feast crate in the Shop has harvest skins for every theater, a Falling Leaves contrail, Cranberry Sauce bullets and the Feather Burst kill effect. Gone after Sunday.';
+    fc.classList.add('live'); fc.parentNode.prepend(fc);
+    if (store.feastSeen !== 2026) { store.feastSeen = 2026; saveStore(); setTimeout(() => toast('The Turkey Update', 'Autumn skies, the Turkey Bomber and the Feast crate'), 1800); }
+  } else if (fc && Date.now() >= FEAST_TO) fc.remove();
+  else if (fc) {
+    const days = Math.ceil((FEAST_FROM - Date.now()) / 864e5);
+    $('tgCount').textContent = days > 1 ? `in ${days} days` : days === 1 ? 'at midnight' : 'today';
+  }
 }
 $('resGhost').addEventListener('click', () => Ghost.pick());
 $('ghosts').addEventListener('click', e => { if (e.target.closest('[data-close]')) hide('ghosts'); });
@@ -8573,7 +8828,7 @@ const Arena = {
       case 'ul': for (const ms of this.missiles) if (m.m.includes(ms.ref)) ms.lock = false; break;
       case 's': this.onScores(m.b); break;
       case 'round': this.onRound(m); break;
-      case 'bl': showHint(`${m.name} incoming! It shoots back. Take it down to get Overdrive.`, 4600); this.bossName = m.name; sfx.bossHorn(); break;
+      case 'bl': this.bossName = feastOn() ? 'Turkey Bomber' : m.name; showHint(`${this.bossName} incoming! It shoots back. Take it down to get Overdrive.`, 4600); sfx.bossHorn(); break;
       case 'bf': this.tracers.push({ x: m.x, y: m.y, tx: m.tx, ty: m.ty, life: 0.14 }); if (Math.hypot(m.x - player.x, m.y - player.y) < 700) tone(140 + Math.random() * 40, 0.05, 'square', 0.015); break;
       case 'sw': this.onShock(m); break;
       case 'emp': this.onEmp(m); break;
@@ -9104,7 +9359,8 @@ const Arena = {
       c.save(); c.translate(x, y); const t = this.tracers[this.tracers.length - 1]; if (t) c.rotate(Math.atan2(t.ty - b.y, t.tx - b.x) - b.a);
       c.fillStyle = '#3a3f48'; c.beginPath(); c.arc(0, 0, r, 0, TAU); c.fill(); c.stroke(); c.fillStyle = ink; c.fillRect(0, -1.5, r * 2, 3); c.restore();
     };
-    if (k === 'ww1') {
+    if (feastOn()) drawTurkeyBomber(c, time, Math.max(rx, ry) / 52, false);
+    else if (k === 'ww1') {
       if (shadow) { c.save(); c.translate(34, 54); c.fillStyle = th.pal.shadow; c.beginPath(); c.ellipse(0, 0, 66, 27, 0, 0, TAU); c.fill(); c.restore(); }
       c.fillStyle = '#7a1d1d'; for (const sd of [-1, 1]) { c.beginPath(); c.moveTo(-44, sd * 8); c.lineTo(-72, sd * 28); c.lineTo(-62, sd * 4); c.closePath(); c.fill(); c.stroke(); }
       const g = c.createLinearGradient(0, -26, 0, 26); g.addColorStop(0, '#d9d2bf'); g.addColorStop(1, '#8f8670');

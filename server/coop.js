@@ -145,7 +145,7 @@ export class CoopRoom {
         if (me.uname) me.name = me.uname;
         else if ('name' in msg) { me.name = cleanName(msg.name); if (this.env.DB && await nameTaken(this.env, me.name).catch(() => false)) me.name = `${me.name.slice(0, 10)} guest`; }
         if ('plane' in msg) me.plane = small(msg.plane, 12);
-        if ('livery' in msg) me.livery = small(msg.livery, 145);
+        if ('livery' in msg) me.livery = small(msg.livery, 151);
         if (me.livery === ELITE_LIVERY && !me.eliteOk) {
           me.livery = 0;
           const okd = await eliteOk(this.env, me.device, null).catch(() => false);

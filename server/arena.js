@@ -44,7 +44,9 @@ const PLANE_IDS = {
 export const PLANES_PER_THEATER = 13; // 9 open to everyone + 3 Mythic + 1 Apex from crates (same handling types)
 const REVENGE_BONUS = 75;
 // Cosmetic choices the game offers (liveries per theater, contrails, titles); see game.html.
-export const LIVERIES = 146, TRAILS = 30, TITLES = 22, BULLETS = 25, EMOTES = 8, KILLFX = 15;
+// Thanksgiving's Feast items come after the Apex ones: six skins per theater, a contrail, bullets and a kill effect.
+export const LIV_BASE = 146, TRAIL_BASE = 30, BULLET_BASE = 25, KILLFX_BASE = 15;
+export const LIVERIES = LIV_BASE + 6, TRAILS = TRAIL_BASE + 1, TITLES = 22, BULLETS = BULLET_BASE + 1, EMOTES = 8, KILLFX = KILLFX_BASE + 1;
 export const WARMUP_MS = 3500; // 3-2-1 at the start of each round: everyone flies, nobody takes damage
 // Each theater has its own boss event: it crosses the arena, shoots back, takes a lot of
 // punishment, and drops Overdrive (the strongest power-up, never found anywhere else).
@@ -93,10 +95,10 @@ const lastFive = n => [n - 5, n - 4, n - 3, n - 2, n - 1]; // the Apex items are
 export function botLook() {
   return {
     plane: pickOut(PLANES_PER_THEATER, [PLANES_PER_THEATER - 1]),
-    livery: pickOut(LIVERIES, [12, LIVERIES - 1]),
-    trail: pickOut(TRAILS, [20, ...lastFive(TRAILS)]),
-    bullet: pickOut(BULLETS, lastFive(BULLETS)),
-    kfx: pickOut(KILLFX, lastFive(KILLFX)),
+    livery: pickOut(LIV_BASE, [12, LIV_BASE - 1]),
+    trail: pickOut(TRAIL_BASE, [20, ...lastFive(TRAIL_BASE)]),
+    bullet: pickOut(BULLET_BASE, lastFive(BULLET_BASE)),
+    kfx: pickOut(KILLFX_BASE, lastFive(KILLFX_BASE)),
   };
 }
 export function cleanName(s) {
